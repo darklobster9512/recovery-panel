@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
+import anosimLogo from "@/assets/anosim-logo.svg";
 
 interface SmsMessage {
   messageSender: string;
@@ -197,8 +198,9 @@ export default function AdminPhoneNumbers() {
     <div className="space-y-6">
       {/* Add phone number */}
       <Card className="border-border shadow-none">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Telefonnummer hinzufügen</CardTitle>
+          <img src={anosimLogo} alt="Anosim" className="h-6 opacity-60" />
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
