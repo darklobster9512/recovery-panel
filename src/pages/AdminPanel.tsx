@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Users, FileText, Settings, LogOut, TrendingUp, AlertTriangle, Activity } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AdminVics from "@/components/AdminVics";
+import AdminVicDetail from "@/components/AdminVicDetail";
 
 export default function AdminPanel() {
   const { user, signOut } = useAuth();
@@ -11,6 +12,7 @@ export default function AdminPanel() {
   const location = useLocation();
 
   const isVics = location.pathname === "/admin/vics";
+  const isVicDetail = location.pathname.startsWith("/admin/vics/");
 
   const handleSignOut = async () => {
     await signOut();
@@ -76,12 +78,14 @@ export default function AdminPanel() {
       <main className="flex-1 p-8">
         <div className="max-w-5xl">
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold">{isVics ? "Vics" : "Admin Dashboard"}</h1>
+            <h1 className="text-2xl font-bold">{isVicDetail ? "Nutzer Details" : isVics ? "Vics" : "Admin Dashboard"}</h1>
             <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">Admin</span>
           </div>
           <p className="text-gray-500 text-sm mb-8">{user?.email}</p>
 
-          {isVics ? (
+          {isVicDetail ? (
+            <AdminVicDetail />
+          ) : isVics ? (
             <AdminVics />
           ) : (
             <>

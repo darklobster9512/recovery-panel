@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, Loader2, Copy } from "lucide-react";
+import { UserPlus, Loader2, Copy, Search } from "lucide-react";
 
 interface VicUser {
   id: string;
@@ -24,8 +25,10 @@ export default function AdminVics() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [search, setSearch] = useState("");
   const [form, setForm] = useState({ first_name: "", last_name: "", email: "", phone: "" });
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -104,6 +107,13 @@ export default function AdminVics() {
     toast({ title: "Kopiert", description: "Passwort in Zwischenablage kopiert." });
   };
 
+  const q = search.toLowerCase();
+  const filtered = users.filter((u) =>
+    [u.first_name, u.last_name, u.email, u.phone]
+      .filter(Boolean)
+      .some((v) => v!.toLowerCase().includes(q))
+  );
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -114,13 +124,23 @@ export default function AdminVics() {
         </Button>
       </div>
 
-      <Card className="border-gray-200 shadow-none bg-white">
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Name, Email oder Telefonnummer suchen…"
+          className="pl-9"
+        />
+      </div>
+
+      <Card className="border-border shadow-none">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
-          ) : users.length === 0 ? (
+          ) : filtered.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground text-sm">
               Keine Nutzer vorhanden.
             </div>
@@ -137,8 +157,12 @@ export default function AdminVics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
+                {filtered.map((u) => (
+                  <TableRow
+                    key={u.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/admin/vics/${u.id}`)}
+                  >
                     <TableCell>{u.first_name ?? "–"}</TableCell>
                     <TableCell>{u.last_name ?? "–"}</TableCell>
                     <TableCell>{u.email ?? "–"}</TableCell>
