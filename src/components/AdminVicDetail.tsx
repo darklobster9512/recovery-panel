@@ -25,6 +25,10 @@ interface UserNote {
   author_id: string;
 }
 
+interface AuthorMap {
+  [key: string]: string;
+}
+
 export default function AdminVicDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();

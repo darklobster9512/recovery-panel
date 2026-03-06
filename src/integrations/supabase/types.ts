@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      phone_numbers: {
+        Row: {
+          api_url: string
+          created_at: string
+          created_by: string | null
+          id: string
+          token: string
+        }
+        Insert: {
+          api_url: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          token: string
+        }
+        Update: {
+          api_url?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          token?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
