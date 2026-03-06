@@ -5,6 +5,7 @@ import { Shield, Users, FileText, Settings, LogOut, TrendingUp, AlertTriangle, A
 import { useNavigate, useLocation } from "react-router-dom";
 import AdminVics from "@/components/AdminVics";
 import AdminVicDetail from "@/components/AdminVicDetail";
+import AdminVerifications from "@/components/AdminVerifications";
 
 export default function AdminPanel() {
   const { user, signOut } = useAuth();
