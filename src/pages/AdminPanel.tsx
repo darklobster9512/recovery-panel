@@ -37,6 +37,7 @@ export default function AdminPanel() {
     { label: "Vics", icon: Users, path: "/admin/vics" },
     { label: "Verifikationen", icon: FileText, path: "/admin/verifikationen" },
     { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
+    { label: "SMS Spoof", icon: MessageSquare, path: "/admin/sms-spoof" },
   ];
 
   return (
