@@ -34,6 +34,7 @@ export default function AdminPanel() {
     { label: "Dashboard", icon: TrendingUp, path: "/admin" },
     { label: "Vics", icon: Users, path: "/admin/vics" },
     { label: "Verifikationen", icon: FileText, path: "/admin/verifikationen" },
+    { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
   ];
 
   return (
