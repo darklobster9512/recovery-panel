@@ -37,6 +37,7 @@ export default function AdminVicDetail() {
 
   const [profile, setProfile] = useState<VicProfile | null>(null);
   const [notes, setNotes] = useState<UserNote[]>([]);
+  const [authorEmails, setAuthorEmails] = useState<AuthorMap>({});
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState("");
   const [submitting, setSubmitting] = useState(false);
