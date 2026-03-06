@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Lock, CheckCircle, Eye, EyeOff } from "lucide-react";
+import { Scale, Landmark, Briefcase, Eye, EyeOff, Shield } from "lucide-react";
 import { useEffect } from "react";
 
 export default function Auth() {
@@ -163,39 +163,46 @@ export default function Auth() {
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-12 text-white">
           {/* Animated icons */}
           <div className="relative w-64 h-64 mb-12">
-            {/* Shield */}
+            {/* Scale - Justiz */}
             <div
               className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20"
               style={{ animation: "auth-float-1 6s ease-in-out infinite" }}
             >
-              <Shield className="w-10 h-10 text-white" />
+              <Scale className="w-10 h-10 text-white" />
             </div>
-            {/* Lock */}
+            {/* Landmark - Behörde */}
             <div
               className="absolute bottom-8 left-4 w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20"
               style={{ animation: "auth-float-2 7s ease-in-out infinite" }}
             >
-              <Lock className="w-8 h-8 text-white" />
+              <Landmark className="w-8 h-8 text-white" />
             </div>
-            {/* Checkmark */}
+            {/* Briefcase - Anwalt */}
             <div
               className="absolute bottom-4 right-4 w-14 h-14 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20"
               style={{ animation: "auth-float-3 5s ease-in-out infinite" }}
             >
-              <CheckCircle className="w-7 h-7 text-white" />
+              <Briefcase className="w-7 h-7 text-white" />
             </div>
           </div>
 
           <h2 className="text-2xl font-bold text-center mb-3">
-            Sicher & Vertrauenswürdig
+            Rechtlich. Sicher. Erfolgreich.
           </h2>
-          <p className="text-white/70 text-center text-sm max-w-xs mb-10">
-            Über 10.000 Nutzer vertrauen unserem Service für die sichere Wiederherstellung ihrer Krypto-Assets.
+          <p className="text-white/70 text-center text-sm max-w-xs mb-6">
+            Unsere Kanzlei arbeitet eng mit Strafverfolgungsbehörden und Regulierungsstellen zusammen, um Ihre Krypto-Assets rechtssicher zurückzugewinnen.
           </p>
+
+          {/* Erfolgsquote */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 px-6 py-4 mb-10 max-w-sm text-center">
+            <p className="text-white/90 text-sm italic">
+              „Über 500 erfolgreiche Rückgewinnungen in Zusammenarbeit mit Europol, BaFin & SEC."
+            </p>
+          </div>
 
           {/* Trust badges */}
           <div className="flex gap-4">
-            {["256-Bit Verschlüsselung", "DSGVO konform", "24/7 Support"].map(
+            {["Behördliche Kooperation", "Zugelassene Anwälte", "Internationale Jurisdiktion"].map(
               (badge) => (
                 <div
                   key={badge}
