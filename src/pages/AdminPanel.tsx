@@ -14,6 +14,7 @@ export default function AdminPanel() {
 
   const isVics = location.pathname === "/admin/vics";
   const isVicDetail = location.pathname.startsWith("/admin/vics/");
+  const isVerifikationen = location.pathname === "/admin/verifikationen";
 
   const handleSignOut = async () => {
     await signOut();
