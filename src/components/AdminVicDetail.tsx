@@ -25,6 +25,10 @@ interface UserNote {
   author_id: string;
 }
 
+interface AuthorMap {
+  [key: string]: string;
+}
+
 export default function AdminVicDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -33,6 +37,7 @@ export default function AdminVicDetail() {
 
   const [profile, setProfile] = useState<VicProfile | null>(null);
   const [notes, setNotes] = useState<UserNote[]>([]);
+  const [authorEmails, setAuthorEmails] = useState<AuthorMap>({});
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -47,7 +52,21 @@ export default function AdminVicDetail() {
     ]);
 
     setProfile(profileRes.data as VicProfile | null);
-    setNotes((notesRes.data as UserNote[]) ?? []);
+    const fetchedNotes = (notesRes.data as UserNote[]) ?? [];
+    setNotes(fetchedNotes);
+
+    // Fetch author emails
+    const authorIds = [...new Set(fetchedNotes.map((n) => n.author_id))];
+    if (authorIds.length > 0) {
+      const { data: authors } = await supabase
+        .from("profiles")
+        .select("id, email")
+        .in("id", authorIds);
+      const map: AuthorMap = {};
+      (authors ?? []).forEach((a: any) => { map[a.id] = a.email ?? "Unbekannt"; });
+      setAuthorEmails(map);
+    }
+
     setLoading(false);
   };
 
@@ -184,15 +203,20 @@ export default function AdminVicDetail() {
               {notes.map((note) => (
                 <div key={note.id} className="rounded-lg border border-border bg-muted/50 p-3">
                   <p className="text-sm whitespace-pre-wrap">{note.content}</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {new Date(note.created_at).toLocaleDateString("de-DE", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
+                  <div className="flex items-center justify-between mt-2">
+                    <p className="text-xs text-muted-foreground">
+                      {authorEmails[note.author_id] ?? "Unbekannt"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(note.created_at).toLocaleDateString("de-DE", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
