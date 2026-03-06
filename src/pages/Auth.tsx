@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Lock, CheckCircle, Eye, EyeOff } from "lucide-react";
+import { Scale, Landmark, Briefcase, Eye, EyeOff, Shield } from "lucide-react";
 import { useEffect } from "react";
 
 export default function Auth() {
