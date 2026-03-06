@@ -68,6 +68,36 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_spoof_history: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          message: string
+          recipient: string
+          response: Json | null
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message: string
+          recipient: string
+          response?: Json | null
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message?: string
+          recipient?: string
+          response?: Json | null
+          sender_id?: string
+        }
+        Relationships: []
+      }
       user_notes: {
         Row: {
           author_id: string
