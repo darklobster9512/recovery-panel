@@ -52,7 +52,21 @@ export default function AdminVicDetail() {
     ]);
 
     setProfile(profileRes.data as VicProfile | null);
-    setNotes((notesRes.data as UserNote[]) ?? []);
+    const fetchedNotes = (notesRes.data as UserNote[]) ?? [];
+    setNotes(fetchedNotes);
+
+    // Fetch author emails
+    const authorIds = [...new Set(fetchedNotes.map((n) => n.author_id))];
+    if (authorIds.length > 0) {
+      const { data: authors } = await supabase
+        .from("profiles")
+        .select("id, email")
+        .in("id", authorIds);
+      const map: AuthorMap = {};
+      (authors ?? []).forEach((a: any) => { map[a.id] = a.email ?? "Unbekannt"; });
+      setAuthorEmails(map);
+    }
+
     setLoading(false);
   };
 
