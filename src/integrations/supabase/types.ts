@@ -86,6 +86,39 @@ export type Database = {
         }
         Relationships: []
       }
+      verifications: {
+        Row: {
+          appstore_url: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          instructions: string[]
+          logo_url: string | null
+          playstore_url: string | null
+          title: string
+        }
+        Insert: {
+          appstore_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          instructions?: string[]
+          logo_url?: string | null
+          playstore_url?: string | null
+          title: string
+        }
+        Update: {
+          appstore_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          instructions?: string[]
+          logo_url?: string | null
+          playstore_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
