@@ -107,6 +107,13 @@ export default function AdminVics() {
     toast({ title: "Kopiert", description: "Passwort in Zwischenablage kopiert." });
   };
 
+  const q = search.toLowerCase();
+  const filtered = users.filter((u) =>
+    [u.first_name, u.last_name, u.email, u.phone]
+      .filter(Boolean)
+      .some((v) => v!.toLowerCase().includes(q))
+  );
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -117,7 +124,17 @@ export default function AdminVics() {
         </Button>
       </div>
 
-      <Card className="border-gray-200 shadow-none bg-white">
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Name, Email oder Telefonnummer suchen…"
+          className="pl-9"
+        />
+      </div>
+
+      <Card className="border-border shadow-none">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
