@@ -31,6 +31,7 @@ export default function AdminPanel() {
   const navItems = [
     { label: "Dashboard", icon: TrendingUp, path: "/admin" },
     { label: "Vics", icon: Users, path: "/admin/vics" },
+    { label: "Verifikationen", icon: FileText, path: "/admin/verifikationen" },
   ];
 
   return (
