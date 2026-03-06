@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Users, FileText, Settings, LogOut, TrendingUp, AlertTriangle, Activity } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AdminVics from "@/components/AdminVics";
+import AdminVicDetail from "@/components/AdminVicDetail";
 
 export default function AdminPanel() {
   const { user, signOut } = useAuth();
