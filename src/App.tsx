@@ -27,6 +27,7 @@ const App = () => (
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/vics" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/vics/:id" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
+          <Route path="/admin/verifikationen" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
