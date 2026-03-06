@@ -25,8 +25,10 @@ export default function AdminVics() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [search, setSearch] = useState("");
   const [form, setForm] = useState({ first_name: "", last_name: "", email: "", phone: "" });
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const fetchUsers = async () => {
     setLoading(true);
