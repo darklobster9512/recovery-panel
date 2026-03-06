@@ -83,7 +83,9 @@ export default function AdminPanel() {
           </div>
           <p className="text-gray-500 text-sm mb-8">{user?.email}</p>
 
-          {isVics ? (
+          {isVicDetail ? (
+            <AdminVicDetail />
+          ) : isVics ? (
             <AdminVics />
           ) : (
             <>
