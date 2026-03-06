@@ -200,7 +200,9 @@ export default function AdminPhoneNumbers() {
       <Card className="border-border shadow-none">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Telefonnummer hinzufügen</CardTitle>
-          <img src={anosimLogo} alt="Anosim" className="h-6 opacity-60" />
+          <a href="https://anosim.net" target="_blank" rel="noopener noreferrer">
+            <img src={anosimLogo} alt="Anosim" className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
+          </a>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
