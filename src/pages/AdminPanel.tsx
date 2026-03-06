@@ -29,8 +29,6 @@ export default function AdminPanel() {
   const navItems = [
     { label: "Dashboard", icon: TrendingUp, path: "/admin" },
     { label: "Vics", icon: Users, path: "/admin/vics" },
-    { label: "Cases", icon: FileText, path: "/admin/cases" },
-    { label: "Einstellungen", icon: Settings, path: "/admin/settings" },
   ];
 
   return (
