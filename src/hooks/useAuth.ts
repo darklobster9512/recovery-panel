@@ -25,7 +25,7 @@ export function useAuth() {
       .select("role")
       .eq("user_id", userId)
       .limit(1)
-      .single();
+      .maybeSingle();
     return (data?.role as AppRole) ?? null;
   };
 
