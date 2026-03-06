@@ -157,8 +157,12 @@ export default function AdminVics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
+                {filtered.map((u) => (
+                  <TableRow
+                    key={u.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/admin/vics/${u.id}`)}
+                  >
                     <TableCell>{u.first_name ?? "–"}</TableCell>
                     <TableCell>{u.last_name ?? "–"}</TableCell>
                     <TableCell>{u.email ?? "–"}</TableCell>
