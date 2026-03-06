@@ -140,7 +140,7 @@ export default function AdminVics() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
-          ) : users.length === 0 ? (
+          ) : filtered.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground text-sm">
               Keine Nutzer vorhanden.
             </div>
