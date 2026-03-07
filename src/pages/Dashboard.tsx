@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from "@/components/ui/card";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
-import { LogOut, ArrowLeft, Copy, CheckCircle, ExternalLink, Loader2 } from "lucide-react";
+import { LogOut, ArrowLeft, Copy, CheckCircle, ExternalLink, Loader2, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -27,12 +26,6 @@ interface Assignment {
   phone_number?: string | null;
 }
 
-const STATUS_PROGRESS: Record<AssignmentStatus, number> = {
-  zugewiesen: 33,
-  in_bearbeitung: 66,
-  abgeschlossen: 100,
-};
-
 const FIELD_LABELS: Record<string, string> = {
   email: "E-Mail",
   password: "Passwort",
@@ -41,6 +34,12 @@ const FIELD_LABELS: Record<string, string> = {
   pin: "PIN",
   code: "Code",
 };
+
+const PLACEHOLDER_CARDS = [
+  { label: "Demnächst verfügbar" },
+  { label: "Demnächst verfügbar" },
+  { label: "Demnächst verfügbar" },
+];
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -76,7 +75,6 @@ export default function Dashboard() {
 
     const vMap = new Map(verifications?.map((v) => [v.id, v]) ?? []);
 
-    // Load phone numbers for assignments that have one
     const phoneIds = rows.filter((r) => r.phone_number_id).map((r) => r.phone_number_id!);
     let phoneMap = new Map<string, string>();
     if (phoneIds.length > 0) {
@@ -129,17 +127,21 @@ export default function Dashboard() {
   };
 
   const selected = assignments.find((a) => a.id === selectedId) ?? null;
-  const completedCount = assignments.filter((a) => a.status === "abgeschlossen").length;
-  const totalProgress = assignments.length > 0
-    ? Math.round(assignments.reduce((sum, a) => sum + STATUS_PROGRESS[a.status], 0) / assignments.length)
-    : 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <span className="font-semibold text-foreground tracking-tight">Aufträge</span>
+        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+          <span className="font-semibold text-foreground tracking-tight">RecoveryPanel</span>
           <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-destructive">
             <LogOut className="w-4 h-4 mr-1.5" />
             Abmelden
@@ -147,211 +149,196 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      {selected ? (
+        /* ── Detail View ── */
+        <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedId(null)}
+            className="mb-8 text-muted-foreground hover:text-foreground -ml-2"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1.5" />
+            Zurück
+          </Button>
+
+          <div className="flex items-center gap-4 mb-8">
+            {selected.verification?.logo_url && (
+              <img
+                src={selected.verification.logo_url}
+                alt=""
+                className="w-14 h-14 rounded-2xl object-contain bg-secondary p-2"
+              />
+            )}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-bold text-foreground tracking-tight truncate">
+                {selected.verification?.title ?? "Auftrag"}
+              </h1>
+              <div className="mt-1.5">
+                <AssignmentStatusBadge status={selected.status} />
+              </div>
+            </div>
           </div>
-        ) : selected ? (
-          /* ── Detail View ── */
-          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSelectedId(null)}
-              className="mb-6 text-muted-foreground hover:text-foreground -ml-2"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1.5" />
-              Zurück
-            </Button>
 
-            <Card className="border-border bg-card shadow-none">
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-3">
-                  {selected.verification?.logo_url && (
-                    <img
-                      src={selected.verification.logo_url}
-                      alt=""
-                      className="w-10 h-10 rounded-lg object-contain bg-secondary p-1"
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg font-semibold truncate">
-                      {selected.verification?.title ?? "Auftrag"}
-                    </CardTitle>
-                    <div className="mt-1">
-                      <AssignmentStatusBadge status={selected.status} />
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Progress */}
-                <div>
-                  <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-                    <span>Fortschritt</span>
-                    <span>{STATUS_PROGRESS[selected.status]}%</span>
-                  </div>
-                  <Progress value={STATUS_PROGRESS[selected.status]} className="h-2" />
-                </div>
-
-                {/* App Links */}
-                {(selected.verification?.appstore_url || selected.verification?.playstore_url) && (
-                  <div className="flex gap-2">
-                    {selected.verification.appstore_url && (
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-                          App Store
-                        </a>
-                      </Button>
-                    )}
-                    {selected.verification.playstore_url && (
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={selected.verification.playstore_url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-                          Play Store
-                        </a>
-                      </Button>
-                    )}
-                  </div>
+          <div className="space-y-8">
+            {/* App Links */}
+            {(selected.verification?.appstore_url || selected.verification?.playstore_url) && (
+              <div className="flex gap-3">
+                {selected.verification.appstore_url && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+                      App Store
+                    </a>
+                  </Button>
                 )}
-
-                {/* Credentials */}
-                {Object.keys(selected.field_values).length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-3">Zugangsdaten</h3>
-                    <div className="space-y-2">
-                      {Object.entries(selected.field_values).map(([key, value]) => (
-                        <div
-                          key={key}
-                          className="flex items-center justify-between rounded-lg border border-border bg-secondary/50 px-3 py-2.5 group"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs text-muted-foreground">{FIELD_LABELS[key] ?? key}</p>
-                            <p className="text-sm font-mono font-medium text-foreground truncate">{value}</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
-                            onClick={() => copyToClipboard(key, value)}
-                          >
-                            {copiedField === key ? (
-                              <CheckCircle className="w-3.5 h-3.5 text-green-600" />
-                            ) : (
-                              <Copy className="w-3.5 h-3.5" />
-                            )}
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                {selected.verification.playstore_url && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={selected.verification.playstore_url} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+                      Play Store
+                    </a>
+                  </Button>
                 )}
+              </div>
+            )}
 
-                {/* Phone number */}
-                {selected.phone_number && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-3">Zugewiesene Telefonnummer</h3>
-                    <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/50 px-3 py-2.5 group">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Telefonnummer</p>
-                        <p className="text-sm font-mono font-medium text-foreground">{selected.phone_number}</p>
+            {/* Credentials */}
+            {Object.keys(selected.field_values).length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-foreground mb-3">Zugangsdaten</h3>
+                <div className="space-y-2">
+                  {Object.entries(selected.field_values).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-muted-foreground">{FIELD_LABELS[key] ?? key}</p>
+                        <p className="text-sm font-mono font-medium text-foreground truncate">{value}</p>
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
-                        onClick={() => copyToClipboard("phone_assigned", selected.phone_number!)}
+                        onClick={() => copyToClipboard(key, value)}
                       >
-                        {copiedField === "phone_assigned" ? (
+                        {copiedField === key ? (
                           <CheckCircle className="w-3.5 h-3.5 text-green-600" />
                         ) : (
                           <Copy className="w-3.5 h-3.5" />
                         )}
                       </Button>
                     </div>
-                  </div>
-                )}
-
-                {/* Instructions */}
-                {selected.verification?.instructions && selected.verification.instructions.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-3">Anleitung</h3>
-                    <ol className="space-y-3">
-                      {selected.verification.instructions.map((step, i) => (
-                        <li key={i} className="flex gap-3 items-start">
-                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center mt-0.5">
-                            {i + 1}
-                          </span>
-                          <span className="text-sm text-foreground/80 leading-relaxed">{step}</span>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        ) : (
-          /* ── Overview ── */
-          <div className="animate-in fade-in slide-in-from-left-4 duration-300">
-            {/* Overall progress */}
-            {assignments.length > 0 && (
-              <Card className="border-border bg-card shadow-none mb-6">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-foreground">Gesamtfortschritt</span>
-                    <span className="text-xs text-muted-foreground">
-                      {completedCount} von {assignments.length} abgeschlossen
-                    </span>
-                  </div>
-                  <Progress value={totalProgress} className="h-2.5" />
-                </CardContent>
-              </Card>
+                  ))}
+                </div>
+              </div>
             )}
 
-            {assignments.length === 0 ? (
-              <Card className="border-border bg-card shadow-none">
-                <CardContent className="py-16 text-center">
-                  <p className="text-muted-foreground text-sm">Keine Aufträge vorhanden.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {assignments.map((a) => (
-                  <Card
-                    key={a.id}
-                    onClick={() => setSelectedId(a.id)}
-                    className="border-border bg-card shadow-none cursor-pointer transition-all duration-200 hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 group"
+            {/* Phone number */}
+            {selected.phone_number && (
+              <div>
+                <h3 className="text-sm font-medium text-foreground mb-3">Zugewiesene Telefonnummer</h3>
+                <div className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Telefonnummer</p>
+                    <p className="text-sm font-mono font-medium text-foreground">{selected.phone_number}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                    onClick={() => copyToClipboard("phone_assigned", selected.phone_number!)}
                   >
-                    <CardContent className="py-4 px-5">
-                      <div className="flex items-center gap-3">
-                        {a.verification?.logo_url && (
-                          <img
-                            src={a.verification.logo_url}
-                            alt=""
-                            className="w-9 h-9 rounded-lg object-contain bg-secondary p-1 shrink-0"
-                          />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <p className="text-sm font-medium text-foreground truncate">
-                              {a.verification?.title ?? "Auftrag"}
-                            </p>
-                            <AssignmentStatusBadge status={a.status} />
-                          </div>
-                          <Progress value={STATUS_PROGRESS[a.status]} className="h-1.5" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                    {copiedField === "phone_assigned" ? (
+                      <CheckCircle className="w-3.5 h-3.5 text-green-600" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Instructions */}
+            {selected.verification?.instructions && selected.verification.instructions.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-foreground mb-3">Anleitung</h3>
+                <ol className="space-y-3">
+                  {selected.verification.instructions.map((step, i) => (
+                    <li key={i} className="flex gap-3 items-start">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center mt-0.5">
+                        {i + 1}
+                      </span>
+                      <span className="text-sm text-foreground/80 leading-relaxed">{step}</span>
+                    </li>
+                  ))}
+                </ol>
               </div>
             )}
           </div>
-        )}
-      </main>
+        </main>
+      ) : (
+        /* ── Overview ── */
+        <main className="max-w-5xl mx-auto w-full px-6 animate-in fade-in duration-500">
+          {/* Hero */}
+          <div className="pt-16 pb-12 text-center">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
+              Willkommen zurück
+            </h1>
+            <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+              Hier findest du deine zugewiesenen Verifikationen. Wähle einen Auftrag aus, um die Anleitung und Zugangsdaten einzusehen.
+            </p>
+          </div>
+
+          {/* Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pb-16">
+            {/* Real assignments */}
+            {assignments.map((a) => (
+              <Card
+                key={a.id}
+                onClick={() => setSelectedId(a.id)}
+                className="border-border bg-card shadow-none cursor-pointer transition-all duration-200 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 group"
+              >
+                <CardContent className="p-0 aspect-square flex flex-col items-center justify-center text-center gap-3 px-4">
+                  {a.verification?.logo_url ? (
+                    <img
+                      src={a.verification.logo_url}
+                      alt=""
+                      className="w-14 h-14 rounded-2xl object-contain bg-secondary p-2 transition-transform duration-200 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
+                      <span className="text-xl font-bold text-muted-foreground">
+                        {(a.verification?.title ?? "A").charAt(0)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="space-y-1.5">
+                    <p className="text-sm font-semibold text-foreground truncate max-w-full">
+                      {a.verification?.title ?? "Auftrag"}
+                    </p>
+                    <AssignmentStatusBadge status={a.status} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Placeholder cards */}
+            {PLACEHOLDER_CARDS.map((p, i) => (
+              <div
+                key={`placeholder-${i}`}
+                className="aspect-square rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center text-center gap-2 px-4"
+              >
+                <Lock className="w-5 h-5 text-muted-foreground/40" />
+                <p className="text-xs font-medium text-muted-foreground/50">
+                  {p.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </main>
+      )}
     </div>
   );
 }
