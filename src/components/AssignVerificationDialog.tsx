@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Plus } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface VicUser {
   id: string;
