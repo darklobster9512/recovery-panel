@@ -6,7 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Send, Copy, StickyNote } from "lucide-react";
+import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck } from "lucide-react";
+
+interface VerificationAssignment {
+  id: string;
+  field_values: Record<string, string>;
+  phone_number_id: string | null;
+  created_at: string;
+  verification: {
+    title: string;
+    logo_url: string | null;
+    required_fields: string[];
+  };
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  identcode: "Identcode",
+  identlink: "Identlink",
+  email: "Email",
+  username: "Anmeldename",
+  password: "Passwort",
+  phone: "Telefonnummer",
+};
 
 interface VicProfile {
   id: string;
@@ -38,6 +59,8 @@ export default function AdminVicDetail() {
   const [profile, setProfile] = useState<VicProfile | null>(null);
   const [notes, setNotes] = useState<UserNote[]>([]);
   const [authorEmails, setAuthorEmails] = useState<AuthorMap>({});
+  const [assignments, setAssignments] = useState<VerificationAssignment[]>([]);
+  const [assignmentPhones, setAssignmentPhones] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -46,14 +69,41 @@ export default function AdminVicDetail() {
     if (!id) return;
     setLoading(true);
 
-    const [profileRes, notesRes] = await Promise.all([
+    const [profileRes, notesRes, assignRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", id).maybeSingle(),
       supabase.from("user_notes").select("*").eq("user_id", id).order("created_at", { ascending: false }),
+      supabase.from("verification_assignments").select("id, field_values, phone_number_id, created_at, verification:verifications(title, logo_url, required_fields)").eq("user_id", id).order("created_at", { ascending: false }),
     ]);
 
     setProfile(profileRes.data as VicProfile | null);
     const fetchedNotes = (notesRes.data as UserNote[]) ?? [];
     setNotes(fetchedNotes);
+
+    // Assignments
+    const fetchedAssignments = (assignRes.data ?? []).map((a: any) => ({
+      ...a,
+      verification: a.verification,
+      field_values: a.field_values as Record<string, string>,
+    })) as VerificationAssignment[];
+    setAssignments(fetchedAssignments);
+
+    // Fetch phone numbers for assignments
+    const phoneIds = fetchedAssignments.map((a) => a.phone_number_id).filter(Boolean) as string[];
+    if (phoneIds.length > 0) {
+      const { data: phones } = await supabase.from("phone_numbers").select("id, token").in("id", phoneIds);
+      const phoneMap: Record<string, string> = {};
+      await Promise.all(
+        (phones ?? []).map(async (p: any) => {
+          try {
+            const { data: proxyData } = await supabase.functions.invoke("anosim-proxy", { body: { token: p.token } });
+            phoneMap[p.id] = proxyData?.number || p.token;
+          } catch {
+            phoneMap[p.id] = p.token;
+          }
+        })
+      );
+      setAssignmentPhones(phoneMap);
+    }
 
     // Fetch author emails
     const authorIds = [...new Set(fetchedNotes.map((n) => n.author_id))];
@@ -166,6 +216,52 @@ export default function AdminVicDetail() {
               )}
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Assigned Verifications */}
+      <Card className="border-border shadow-none">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5" /> Zugewiesene Verifikationen
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {assignments.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">Keine Verifikationen zugewiesen.</p>
+          ) : (
+            <div className="space-y-3">
+              {assignments.map((a) => (
+                <div key={a.id} className="rounded-lg border border-border bg-muted/50 p-3">
+                  <div className="flex items-center gap-3 mb-2">
+                    {a.verification?.logo_url ? (
+                      <img src={a.verification.logo_url} alt="" className="w-8 h-8 rounded object-contain" />
+                    ) : (
+                      <div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">Logo</div>
+                    )}
+                    <span className="font-medium text-sm">{a.verification?.title ?? "–"}</span>
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      {new Date(a.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(a.field_values).map(([key, val]) => (
+                      <div key={key}>
+                        <p className="text-xs text-muted-foreground">{FIELD_LABELS[key] || key}</p>
+                        <p className="text-sm">{val || "–"}</p>
+                      </div>
+                    ))}
+                    {a.phone_number_id && (
+                      <div>
+                        <p className="text-xs text-muted-foreground">Telefonnummer</p>
+                        <p className="text-sm">{assignmentPhones[a.phone_number_id] || "Laden..."}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 

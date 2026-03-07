@@ -236,24 +236,21 @@ export default function AdminVerifications() {
                     </div>
                   )}
                   <span className="text-sm font-semibold text-foreground text-center">{v.title}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {v.instructions.length} Anweisung{v.instructions.length !== 1 ? "en" : ""}
-                  </span>
-                </CardContent>
-                {/* Action buttons */}
-                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8"
-                    onClick={() => {
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setAssignVerification(v);
                       setAssignDialogOpen(true);
                     }}
-                    title="Zuweisen"
                   >
-                    <UserPlus className="w-4 h-4" />
+                    <UserPlus className="w-3.5 h-3.5" /> Zuweisen
                   </Button>
+                </CardContent>
+                {/* Edit button */}
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
                     size="icon"
                     variant="ghost"

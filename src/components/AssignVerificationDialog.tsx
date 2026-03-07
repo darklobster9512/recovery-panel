@@ -63,6 +63,8 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   // Step 2: Field values
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
+  const [phoneDataMap, setPhoneDataMap] = useState<Record<string, string>>({});
+  const [loadingPhones, setLoadingPhones] = useState(false);
   const [selectedPhoneId, setSelectedPhoneId] = useState<string>("");
   const [showNewPhone, setShowNewPhone] = useState(false);
   const [newPhoneLink, setNewPhoneLink] = useState("");
@@ -106,10 +108,31 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   };
 
   const fetchPhoneNumbers = async () => {
+    setLoadingPhones(true);
     const { data } = await supabase
       .from("phone_numbers")
       .select("id, token, api_url");
-    setPhoneNumbers((data as PhoneNumber[]) || []);
+    const phones = (data as PhoneNumber[]) || [];
+    setPhoneNumbers(phones);
+
+    // Fetch actual phone numbers via anosim-proxy
+    const map: Record<string, string> = {};
+    await Promise.all(
+      phones.map(async (p) => {
+        try {
+          const { data: proxyData } = await supabase.functions.invoke("anosim-proxy", {
+            body: { token: p.token },
+          });
+          if (proxyData?.number) {
+            map[p.id] = proxyData.number;
+          }
+        } catch {
+          // fallback handled in render
+        }
+      })
+    );
+    setPhoneDataMap(map);
+    setLoadingPhones(false);
   };
 
   const filteredVics = vics.filter((v) => {
@@ -260,9 +283,11 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                       <SelectValue placeholder="Telefonnummer auswählen" />
                     </SelectTrigger>
                     <SelectContent>
-                      {phoneNumbers.map((p) => (
+                      {loadingPhones ? (
+                        <SelectItem value="_loading" disabled>Laden...</SelectItem>
+                      ) : phoneNumbers.map((p) => (
                         <SelectItem key={p.id} value={p.id}>
-                          {p.token}
+                          {phoneDataMap[p.id] || p.token}
                         </SelectItem>
                       ))}
                     </SelectContent>
