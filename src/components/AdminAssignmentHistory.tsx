@@ -94,6 +94,7 @@ export default function AdminAssignmentHistory() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editedFields, setEditedFields] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [editedStatus, setEditedStatus] = useState<AssignmentStatus>("zugewiesen");
 
   // Phone management
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
