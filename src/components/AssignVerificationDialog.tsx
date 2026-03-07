@@ -92,10 +92,17 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
   const fetchVics = async () => {
     setLoadingVics(true);
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", "user");
+    const [rolesRes, assignmentsRes] = await Promise.all([
+      supabase.from("user_roles").select("user_id").eq("role", "user"),
+      verification
+        ? supabase.from("verification_assignments").select("user_id").eq("verification_id", verification.id)
+        : Promise.resolve({ data: [] }),
+    ]);
+
+    const assignedIds = new Set((assignmentsRes.data || []).map((a: any) => a.user_id));
+    setAssignedUserIds(assignedIds);
+
+    const roles = rolesRes.data;
     if (roles && roles.length > 0) {
       const ids = roles.map((r) => r.user_id);
       const { data: profiles } = await supabase
