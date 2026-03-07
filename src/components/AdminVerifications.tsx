@@ -26,6 +26,7 @@ import {
 import { Plus, Pencil, Trash2, X, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AssignVerificationDialog from "@/components/AssignVerificationDialog";
+import AdminAssignmentHistory from "@/components/AdminAssignmentHistory";
 
 interface Verification {
   id: string;
@@ -262,6 +263,10 @@ export default function AdminVerifications() {
                 </div>
               </Card>
             ))}
+      </div>
+
+      <div className="mt-8">
+        <AdminAssignmentHistory />
       </div>
 
       {/* Create / Edit Dialog */}
