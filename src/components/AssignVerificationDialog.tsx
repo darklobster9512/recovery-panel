@@ -153,6 +153,9 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
     );
   });
 
+  const availableVics = filteredVics.filter((v) => !assignedUserIds.has(v.id));
+  const assignedVics = filteredVics.filter((v) => assignedUserIds.has(v.id));
+
   const extractToken = (url: string): string | null => {
     try {
       const u = new URL(url);
