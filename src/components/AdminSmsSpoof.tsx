@@ -262,7 +262,7 @@ export default function AdminSmsSpoof() {
               <RefreshCw className="w-4 h-4" />
             </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1 overflow-hidden">
             {loadingHistory ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
