@@ -265,6 +265,10 @@ export default function AdminVerifications() {
             ))}
       </div>
 
+      <div className="mt-8">
+        <AdminAssignmentHistory />
+      </div>
+
       {/* Create / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) { setDialogOpen(false); resetForm(); } }}>
         <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
