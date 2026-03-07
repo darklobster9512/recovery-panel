@@ -140,8 +140,9 @@ export default function AdminAssignmentHistory() {
 
     setAssignments(
       assignmentData.map((d) => ({
-        ...d,
+      ...d,
         field_values: (d.field_values as Record<string, string>) || {},
+        status: (d.status as AssignmentStatus) || "zugewiesen",
         profile: profileMap.get(d.user_id) || null,
         verification: verificationMap.get(d.verification_id) || null,
       }))
