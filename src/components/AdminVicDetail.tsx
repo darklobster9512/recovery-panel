@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck } from "lucide-react";
+import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 
 interface VerificationAssignment {
   id: string;
