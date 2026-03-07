@@ -270,7 +270,7 @@ export default function AdminSmsSpoof() {
             ) : history.length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-8">Noch keine SMS gesendet.</p>
             ) : (
-              <div className="max-h-[500px] overflow-auto">
+              <div className="h-full overflow-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
