@@ -325,6 +325,9 @@ export default function AdminAssignmentHistory() {
                           <span className="font-medium">{a.verification?.title || "–"}</span>
                         </div>
                       </TableCell>
+                      <TableCell>
+                        <AssignmentStatusBadge status={a.status} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
