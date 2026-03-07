@@ -283,9 +283,11 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                       <SelectValue placeholder="Telefonnummer auswählen" />
                     </SelectTrigger>
                     <SelectContent>
-                      {phoneNumbers.map((p) => (
+                      {loadingPhones ? (
+                        <SelectItem value="_loading" disabled>Laden...</SelectItem>
+                      ) : phoneNumbers.map((p) => (
                         <SelectItem key={p.id} value={p.id}>
-                          {p.token}
+                          {phoneDataMap[p.id] || p.token}
                         </SelectItem>
                       ))}
                     </SelectContent>
