@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Plus } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface VicUser {
   id: string;
@@ -59,6 +60,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   const [loadingVics, setLoadingVics] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedVic, setSelectedVic] = useState<VicUser | null>(null);
+  const [assignedUserIds, setAssignedUserIds] = useState<Set<string>>(new Set());
 
   // Step 2: Field values
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
@@ -90,10 +92,17 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
   const fetchVics = async () => {
     setLoadingVics(true);
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", "user");
+    const [rolesRes, assignmentsRes] = await Promise.all([
+      supabase.from("user_roles").select("user_id").eq("role", "user"),
+      verification
+        ? supabase.from("verification_assignments").select("user_id").eq("verification_id", verification.id)
+        : Promise.resolve({ data: [] }),
+    ]);
+
+    const assignedIds = new Set((assignmentsRes.data || []).map((a: any) => a.user_id));
+    setAssignedUserIds(assignedIds);
+
+    const roles = rolesRes.data;
     if (roles && roles.length > 0) {
       const ids = roles.map((r) => r.user_id);
       const { data: profiles } = await supabase
@@ -143,6 +152,9 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
       (v.last_name?.toLowerCase().includes(q) ?? false)
     );
   });
+
+  const availableVics = filteredVics.filter((v) => !assignedUserIds.has(v.id));
+  const assignedVics = filteredVics.filter((v) => assignedUserIds.has(v.id));
 
   const extractToken = (url: string): string | null => {
     try {
@@ -221,11 +233,11 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
           <ScrollArea className="h-[320px] -mx-2">
             {loadingVics ? (
               <p className="text-sm text-muted-foreground text-center py-8">Laden...</p>
-            ) : filteredVics.length === 0 ? (
+            ) : availableVics.length === 0 && assignedVics.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">Keine Vics gefunden</p>
             ) : (
               <div className="space-y-1 px-2">
-                {filteredVics.map((v) => (
+                {availableVics.map((v) => (
                   <button
                     key={v.id}
                     className="w-full text-left px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-sm"
@@ -239,6 +251,25 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                     )}
                   </button>
                 ))}
+                {assignedVics.length > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-muted-foreground px-3 py-1 font-medium">Bereits zugewiesen</p>
+                    {assignedVics.map((v) => (
+                      <div
+                        key={v.id}
+                        className="w-full text-left px-3 py-2.5 rounded-md text-sm opacity-50 cursor-default"
+                      >
+                        <span className="font-medium text-foreground">
+                          {v.first_name || ""} {v.last_name || ""}
+                        </span>
+                        {v.email && (
+                          <span className="text-muted-foreground ml-2 text-xs">{v.email}</span>
+                        )}
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </ScrollArea>
