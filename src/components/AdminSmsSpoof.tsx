@@ -228,7 +228,7 @@ export default function AdminSmsSpoof() {
   return (
     <div className="space-y-6">
       {/* Top: Send Form + History */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Left: Send Form */}
         <Card className="border-gray-200 shadow-none bg-white">
           <CardHeader>
@@ -255,14 +255,14 @@ export default function AdminSmsSpoof() {
         </Card>
 
         {/* Right: History */}
-        <Card className="border-gray-200 shadow-none bg-white">
+        <Card className="border-gray-200 shadow-none bg-white max-h-[420px] flex flex-col overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Verlauf</CardTitle>
             <Button variant="ghost" size="icon" onClick={() => { setLoadingHistory(true); fetchHistory(); }}>
               <RefreshCw className="w-4 h-4" />
             </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1 overflow-hidden">
             {loadingHistory ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -270,7 +270,7 @@ export default function AdminSmsSpoof() {
             ) : history.length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-8">Noch keine SMS gesendet.</p>
             ) : (
-              <div className="max-h-[500px] overflow-auto">
+              <div className="h-full overflow-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
