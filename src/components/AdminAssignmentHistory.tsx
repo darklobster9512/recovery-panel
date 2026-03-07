@@ -110,21 +110,39 @@ export default function AdminAssignmentHistory() {
 
   const fetchAssignments = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data: assignmentData, error } = await supabase
       .from("verification_assignments")
-      .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by, profile:profiles!verification_assignments_user_id_fkey(id, email, first_name, last_name, phone, temp_password), verification:verifications!verification_assignments_verification_id_fkey(id, title, logo_url, required_fields)")
+      .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by")
       .order("created_at", { ascending: false });
 
-    if (!error && data) {
-      setAssignments(
-        (data as any[]).map((d) => ({
-          ...d,
-          field_values: (d.field_values as Record<string, string>) || {},
-          profile: Array.isArray(d.profile) ? d.profile[0] ?? null : d.profile,
-          verification: Array.isArray(d.verification) ? d.verification[0] ?? null : d.verification,
-        }))
-      );
+    if (error || !assignmentData) {
+      setLoading(false);
+      return;
     }
+
+    const userIds = [...new Set(assignmentData.map((a) => a.user_id))];
+    const verificationIds = [...new Set(assignmentData.map((a) => a.verification_id))];
+
+    const [profilesRes, verificationsRes] = await Promise.all([
+      userIds.length > 0
+        ? supabase.from("profiles").select("id, email, first_name, last_name, phone, temp_password").in("id", userIds)
+        : { data: [] },
+      verificationIds.length > 0
+        ? supabase.from("verifications").select("id, title, logo_url, required_fields").in("id", verificationIds)
+        : { data: [] },
+    ]);
+
+    const profileMap = new Map((profilesRes.data || []).map((p: any) => [p.id, p]));
+    const verificationMap = new Map((verificationsRes.data || []).map((v: any) => [v.id, v]));
+
+    setAssignments(
+      assignmentData.map((d) => ({
+        ...d,
+        field_values: (d.field_values as Record<string, string>) || {},
+        profile: profileMap.get(d.user_id) || null,
+        verification: verificationMap.get(d.verification_id) || null,
+      }))
+    );
     setLoading(false);
   };
 
