@@ -233,11 +233,11 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
           <ScrollArea className="h-[320px] -mx-2">
             {loadingVics ? (
               <p className="text-sm text-muted-foreground text-center py-8">Laden...</p>
-            ) : filteredVics.length === 0 ? (
+            ) : availableVics.length === 0 && assignedVics.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">Keine Vics gefunden</p>
             ) : (
               <div className="space-y-1 px-2">
-                {filteredVics.map((v) => (
+                {availableVics.map((v) => (
                   <button
                     key={v.id}
                     className="w-full text-left px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-sm"
@@ -251,6 +251,25 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                     )}
                   </button>
                 ))}
+                {assignedVics.length > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-muted-foreground px-3 py-1 font-medium">Bereits zugewiesen</p>
+                    {assignedVics.map((v) => (
+                      <div
+                        key={v.id}
+                        className="w-full text-left px-3 py-2.5 rounded-md text-sm opacity-50 cursor-default"
+                      >
+                        <span className="font-medium text-foreground">
+                          {v.first_name || ""} {v.last_name || ""}
+                        </span>
+                        {v.email && (
+                          <span className="text-muted-foreground ml-2 text-xs">{v.email}</span>
+                        )}
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </ScrollArea>
