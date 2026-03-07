@@ -290,6 +290,7 @@ export default function AdminAssignmentHistory() {
                     <TableHead>Datum & Uhrzeit</TableHead>
                     <TableHead>Nutzer</TableHead>
                     <TableHead>Auftrag</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
