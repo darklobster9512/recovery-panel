@@ -41,6 +41,7 @@ import {
 import { Plus, Trash2, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { AssignmentStatusBadge, ASSIGNMENT_STATUSES, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 
 const FIELD_LABELS: Record<string, string> = {
   identcode: "Identcode",
