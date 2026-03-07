@@ -228,9 +228,9 @@ export default function AdminSmsSpoof() {
   return (
     <div className="space-y-6">
       {/* Top: Send Form + History */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Send Form */}
-        <Card className="border-gray-200 shadow-none bg-white">
+        <Card className="border-border shadow-none bg-card">
           <CardHeader>
             <CardTitle className="text-lg">SMS senden</CardTitle>
           </CardHeader>
@@ -255,7 +255,7 @@ export default function AdminSmsSpoof() {
         </Card>
 
         {/* Right: History */}
-        <Card className="border-gray-200 shadow-none bg-white max-h-[420px] flex flex-col overflow-hidden">
+        <Card className="border-border shadow-none bg-card flex flex-col overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Verlauf</CardTitle>
             <Button variant="ghost" size="icon" onClick={() => { setLoadingHistory(true); fetchHistory(); }}>
@@ -271,7 +271,7 @@ export default function AdminSmsSpoof() {
               <p className="text-muted-foreground text-sm text-center py-8">Noch keine SMS gesendet.</p>
             ) : (
               <div className="h-full overflow-auto">
-                <Table>
+                <table className="w-full caption-bottom text-sm">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Empfänger</TableHead>
@@ -296,7 +296,7 @@ export default function AdminSmsSpoof() {
                       </TableRow>
                     ))}
                   </TableBody>
-                </Table>
+                </table>
               </div>
             )}
           </CardContent>
