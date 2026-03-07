@@ -60,6 +60,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   const [loadingVics, setLoadingVics] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedVic, setSelectedVic] = useState<VicUser | null>(null);
+  const [assignedUserIds, setAssignedUserIds] = useState<Set<string>>(new Set());
 
   // Step 2: Field values
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
