@@ -7,12 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck } from "lucide-react";
+import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 
 interface VerificationAssignment {
   id: string;
   field_values: Record<string, string>;
   phone_number_id: string | null;
   created_at: string;
+  status: AssignmentStatus;
   verification: {
     title: string;
     logo_url: string | null;
@@ -72,7 +74,7 @@ export default function AdminVicDetail() {
     const [profileRes, notesRes, assignRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", id).maybeSingle(),
       supabase.from("user_notes").select("*").eq("user_id", id).order("created_at", { ascending: false }),
-      supabase.from("verification_assignments").select("id, field_values, phone_number_id, created_at, verification:verifications(title, logo_url, required_fields)").eq("user_id", id).order("created_at", { ascending: false }),
+      supabase.from("verification_assignments").select("id, field_values, phone_number_id, created_at, status, verification:verifications(title, logo_url, required_fields)").eq("user_id", id).order("created_at", { ascending: false }),
     ]);
 
     setProfile(profileRes.data as VicProfile | null);
@@ -240,6 +242,7 @@ export default function AdminVicDetail() {
                       <div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">Logo</div>
                     )}
                     <span className="font-medium text-sm">{a.verification?.title ?? "–"}</span>
+                    <AssignmentStatusBadge status={a.status} />
                     <span className="text-xs text-muted-foreground ml-auto">
                       {new Date(a.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })}
                     </span>

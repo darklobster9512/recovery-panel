@@ -41,6 +41,7 @@ import {
 import { Plus, Trash2, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { AssignmentStatusBadge, ASSIGNMENT_STATUSES, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 
 const FIELD_LABELS: Record<string, string> = {
   identcode: "Identcode",
@@ -59,6 +60,7 @@ interface AssignmentRow {
   field_values: Record<string, string>;
   phone_number_id: string | null;
   created_by: string | null;
+  status: AssignmentStatus;
   profile: {
     id: string;
     email: string | null;
@@ -92,6 +94,7 @@ export default function AdminAssignmentHistory() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editedFields, setEditedFields] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [editedStatus, setEditedStatus] = useState<AssignmentStatus>("zugewiesen");
 
   // Phone management
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
@@ -112,7 +115,7 @@ export default function AdminAssignmentHistory() {
     setLoading(true);
     const { data: assignmentData, error } = await supabase
       .from("verification_assignments")
-      .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by")
+      .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by, status")
       .order("created_at", { ascending: false });
 
     if (error || !assignmentData) {
@@ -137,8 +140,9 @@ export default function AdminAssignmentHistory() {
 
     setAssignments(
       assignmentData.map((d) => ({
-        ...d,
+      ...d,
         field_values: (d.field_values as Record<string, string>) || {},
+        status: (d.status as AssignmentStatus) || "zugewiesen",
         profile: profileMap.get(d.user_id) || null,
         verification: verificationMap.get(d.verification_id) || null,
       }))
@@ -149,6 +153,7 @@ export default function AdminAssignmentHistory() {
   const openDetail = (a: AssignmentRow) => {
     setSelected(a);
     setEditedFields({ ...(a.field_values || {}) });
+    setEditedStatus(a.status || "zugewiesen");
     setSelectedPhoneId(a.phone_number_id || "");
     setShowNewPhone(false);
     setNewPhoneLink("");
@@ -220,7 +225,7 @@ export default function AdminAssignmentHistory() {
 
     const { error } = await supabase
       .from("verification_assignments")
-      .update({ field_values: editedFields, phone_number_id: phoneNumberId })
+      .update({ field_values: editedFields, phone_number_id: phoneNumberId, status: editedStatus })
       .eq("id", selected.id);
 
     if (error) {
@@ -285,6 +290,7 @@ export default function AdminAssignmentHistory() {
                     <TableHead>Datum & Uhrzeit</TableHead>
                     <TableHead>Nutzer</TableHead>
                     <TableHead>Auftrag</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -318,6 +324,9 @@ export default function AdminAssignmentHistory() {
                           )}
                           <span className="font-medium">{a.verification?.title || "–"}</span>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <AssignmentStatusBadge status={a.status} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -385,6 +394,21 @@ export default function AdminAssignmentHistory() {
                     ))}
                 </div>
               )}
+
+              {/* Status */}
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</p>
+                <Select value={editedStatus} onValueChange={(v) => setEditedStatus(v as AssignmentStatus)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ASSIGNMENT_STATUSES.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Phone number */}
               {selected.verification?.required_fields.includes("phone") && (
