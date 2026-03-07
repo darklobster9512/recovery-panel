@@ -63,6 +63,8 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   // Step 2: Field values
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
+  const [phoneDataMap, setPhoneDataMap] = useState<Record<string, string>>({});
+  const [loadingPhones, setLoadingPhones] = useState(false);
   const [selectedPhoneId, setSelectedPhoneId] = useState<string>("");
   const [showNewPhone, setShowNewPhone] = useState(false);
   const [newPhoneLink, setNewPhoneLink] = useState("");
