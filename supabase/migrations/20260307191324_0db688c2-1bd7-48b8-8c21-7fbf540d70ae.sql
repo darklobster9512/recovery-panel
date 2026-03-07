@@ -1,0 +1,1 @@
+ALTER TABLE public.verifications ADD COLUMN required_fields text[] NOT NULL DEFAULT '{}';
