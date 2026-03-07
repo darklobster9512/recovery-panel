@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -22,19 +23,30 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import AssignVerificationDialog from "@/components/AssignVerificationDialog";
 
 interface Verification {
   id: string;
   title: string;
   logo_url: string | null;
   instructions: string[];
+  required_fields: string[];
   appstore_url: string | null;
   playstore_url: string | null;
   created_by: string | null;
   created_at: string;
 }
+
+const REQUIRED_FIELD_OPTIONS: { value: string; label: string }[] = [
+  { value: "identcode", label: "Identcode" },
+  { value: "identlink", label: "Identlink" },
+  { value: "email", label: "Email" },
+  { value: "username", label: "Anmeldename" },
+  { value: "password", label: "Passwort" },
+  { value: "phone", label: "Telefonnummer" },
+];
 
 export default function AdminVerifications() {
   const { user } = useAuth();
@@ -49,10 +61,15 @@ export default function AdminVerifications() {
   // Form state
   const [title, setTitle] = useState("");
   const [instructions, setInstructions] = useState<string[]>([""]);
+  const [requiredFields, setRequiredFields] = useState<string[]>([]);
   const [appstoreUrl, setAppstoreUrl] = useState("");
   const [playstoreUrl, setPlaystoreUrl] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+  // Assign dialog
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [assignVerification, setAssignVerification] = useState<Verification | null>(null);
 
   useEffect(() => {
     fetchVerifications();
@@ -71,6 +88,7 @@ export default function AdminVerifications() {
   const resetForm = () => {
     setTitle("");
     setInstructions([""]);
+    setRequiredFields([]);
     setAppstoreUrl("");
     setPlaystoreUrl("");
     setLogoFile(null);
@@ -87,6 +105,7 @@ export default function AdminVerifications() {
     setEditing(v);
     setTitle(v.title);
     setInstructions(v.instructions.length > 0 ? v.instructions : [""]);
+    setRequiredFields(v.required_fields || []);
     setAppstoreUrl(v.appstore_url || "");
     setPlaystoreUrl(v.playstore_url || "");
     setLogoPreview(v.logo_url);
@@ -109,6 +128,12 @@ export default function AdminVerifications() {
     return data.publicUrl;
   };
 
+  const toggleField = (field: string) => {
+    setRequiredFields((prev) =>
+      prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field]
+    );
+  };
+
   const handleSave = async () => {
     if (!title.trim()) {
       toast({ title: "Titel ist erforderlich", variant: "destructive" });
@@ -125,6 +150,7 @@ export default function AdminVerifications() {
           title: title.trim(),
           logo_url: logoUrl,
           instructions: filteredInstructions,
+          required_fields: requiredFields,
           appstore_url: appstoreUrl.trim() || null,
           playstore_url: playstoreUrl.trim() || null,
         })
@@ -139,6 +165,7 @@ export default function AdminVerifications() {
         title: title.trim(),
         logo_url: logoUrl,
         instructions: filteredInstructions,
+        required_fields: requiredFields,
         appstore_url: appstoreUrl.trim() || null,
         playstore_url: playstoreUrl.trim() || null,
         created_by: user?.id,
@@ -179,7 +206,7 @@ export default function AdminVerifications() {
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {/* Create Card — always first */}
+        {/* Create Card */}
         <Card
           className="border-dashed border-2 border-gray-300 bg-white hover:border-[hsl(221,100%,50%)] hover:bg-[hsl(221,100%,97%)] cursor-pointer transition-colors flex items-center justify-center min-h-[180px]"
           onClick={openCreate}
@@ -208,19 +235,34 @@ export default function AdminVerifications() {
                       Logo
                     </div>
                   )}
-                  <span className="text-sm font-semibold text-gray-900 text-center">{v.title}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-sm font-semibold text-foreground text-center">{v.title}</span>
+                  <span className="text-xs text-muted-foreground">
                     {v.instructions.length} Anweisung{v.instructions.length !== 1 ? "en" : ""}
                   </span>
                 </CardContent>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                  onClick={() => openEdit(v)}
-                >
-                  <Pencil className="w-4 h-4" />
-                </Button>
+                {/* Action buttons */}
+                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    onClick={() => {
+                      setAssignVerification(v);
+                      setAssignDialogOpen(true);
+                    }}
+                    title="Zuweisen"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    onClick={() => openEdit(v)}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                </div>
               </Card>
             ))}
       </div>
@@ -241,7 +283,7 @@ export default function AdminVerifications() {
                   <img
                     src={logoFile ? URL.createObjectURL(logoFile) : logoPreview!}
                     alt="Logo"
-                    className="w-12 h-12 rounded-lg object-contain border border-gray-200"
+                    className="w-12 h-12 rounded-lg object-contain border border-border"
                   />
                 )}
                 <Input
@@ -316,6 +358,25 @@ export default function AdminVerifications() {
                 onChange={(e) => setPlaystoreUrl(e.target.value)}
               />
             </div>
+
+            {/* Required Fields */}
+            <div>
+              <Label>Erforderliche Verifikationsdaten</Label>
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                {REQUIRED_FIELD_OPTIONS.map((opt) => (
+                  <label
+                    key={opt.value}
+                    className="flex items-center gap-2 text-sm cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={requiredFields.includes(opt.value)}
+                      onCheckedChange={() => toggleField(opt.value)}
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
 
           <DialogFooter className="flex-row justify-between sm:justify-between">
@@ -355,6 +416,13 @@ export default function AdminVerifications() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Assign Dialog */}
+      <AssignVerificationDialog
+        open={assignDialogOpen}
+        onOpenChange={setAssignDialogOpen}
+        verification={assignVerification}
+      />
     </>
   );
 }
