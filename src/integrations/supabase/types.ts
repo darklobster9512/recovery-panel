@@ -149,6 +149,7 @@ export type Database = {
           instructions: string[]
           logo_url: string | null
           playstore_url: string | null
+          required_fields: string[]
           title: string
         }
         Insert: {
@@ -159,6 +160,7 @@ export type Database = {
           instructions?: string[]
           logo_url?: string | null
           playstore_url?: string | null
+          required_fields?: string[]
           title: string
         }
         Update: {
@@ -169,6 +171,7 @@ export type Database = {
           instructions?: string[]
           logo_url?: string | null
           playstore_url?: string | null
+          required_fields?: string[]
           title?: string
         }
         Relationships: []
