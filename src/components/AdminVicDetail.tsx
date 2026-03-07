@@ -14,6 +14,7 @@ interface VerificationAssignment {
   field_values: Record<string, string>;
   phone_number_id: string | null;
   created_at: string;
+  status: AssignmentStatus;
   verification: {
     title: string;
     logo_url: string | null;
