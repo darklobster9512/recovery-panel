@@ -140,6 +140,51 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_assignments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          field_values: Json
+          id: string
+          phone_number_id: string | null
+          user_id: string
+          verification_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          field_values?: Json
+          id?: string
+          phone_number_id?: string | null
+          user_id: string
+          verification_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          field_values?: Json
+          id?: string
+          phone_number_id?: string | null
+          user_id?: string
+          verification_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_assignments_phone_number_id_fkey"
+            columns: ["phone_number_id"]
+            isOneToOne: false
+            referencedRelation: "phone_numbers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verification_assignments_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "verifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       verifications: {
         Row: {
           appstore_url: string | null
