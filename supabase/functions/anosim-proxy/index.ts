@@ -40,13 +40,6 @@ Deno.serve(async (req) => {
     _role: "admin",
   });
 
-  if (!isAdmin) {
-    return new Response(JSON.stringify({ error: "Forbidden" }), {
-      status: 403,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
   try {
     const { token: apiToken } = await req.json();
     if (!apiToken) {
@@ -54,6 +47,41 @@ Deno.serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // If not admin, verify the user has an assignment linked to this phone number token
+    if (!isAdmin) {
+      const serviceClient = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
+      const { data: phoneRow } = await serviceClient
+        .from("phone_numbers")
+        .select("id")
+        .eq("token", apiToken)
+        .maybeSingle();
+
+      if (!phoneRow) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: assignment } = await serviceClient
+        .from("verification_assignments")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("phone_number_id", phoneRow.id)
+        .limit(1)
+        .maybeSingle();
+
+      if (!assignment) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     const apiRes = await fetch(
