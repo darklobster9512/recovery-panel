@@ -255,7 +255,7 @@ export default function AdminSmsSpoof() {
         </Card>
 
         {/* Right: History */}
-        <Card className="border-gray-200 shadow-none bg-white">
+        <Card className="border-gray-200 shadow-none bg-white max-h-[420px] flex flex-col overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Verlauf</CardTitle>
             <Button variant="ghost" size="icon" onClick={() => { setLoadingHistory(true); fetchHistory(); }}>
