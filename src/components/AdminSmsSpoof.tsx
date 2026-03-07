@@ -228,7 +228,7 @@ export default function AdminSmsSpoof() {
   return (
     <div className="space-y-6">
       {/* Top: Send Form + History */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Left: Send Form */}
         <Card className="border-gray-200 shadow-none bg-white">
           <CardHeader>
