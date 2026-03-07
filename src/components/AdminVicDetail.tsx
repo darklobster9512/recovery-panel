@@ -242,6 +242,7 @@ export default function AdminVicDetail() {
                       <div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">Logo</div>
                     )}
                     <span className="font-medium text-sm">{a.verification?.title ?? "–"}</span>
+                    <AssignmentStatusBadge status={a.status} />
                     <span className="text-xs text-muted-foreground ml-auto">
                       {new Date(a.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })}
                     </span>

@@ -395,6 +395,21 @@ export default function AdminAssignmentHistory() {
                 </div>
               )}
 
+              {/* Status */}
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</p>
+                <Select value={editedStatus} onValueChange={(v) => setEditedStatus(v as AssignmentStatus)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ASSIGNMENT_STATUSES.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Phone number */}
               {selected.verification?.required_fields.includes("phone") && (
                 <div className="space-y-2">
