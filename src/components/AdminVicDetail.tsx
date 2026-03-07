@@ -74,7 +74,7 @@ export default function AdminVicDetail() {
     const [profileRes, notesRes, assignRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", id).maybeSingle(),
       supabase.from("user_notes").select("*").eq("user_id", id).order("created_at", { ascending: false }),
-      supabase.from("verification_assignments").select("id, field_values, phone_number_id, created_at, verification:verifications(title, logo_url, required_fields)").eq("user_id", id).order("created_at", { ascending: false }),
+      supabase.from("verification_assignments").select("id, field_values, phone_number_id, created_at, status, verification:verifications(title, logo_url, required_fields)").eq("user_id", id).order("created_at", { ascending: false }),
     ]);
 
     setProfile(profileRes.data as VicProfile | null);
