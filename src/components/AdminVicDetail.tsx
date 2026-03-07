@@ -59,6 +59,8 @@ export default function AdminVicDetail() {
   const [profile, setProfile] = useState<VicProfile | null>(null);
   const [notes, setNotes] = useState<UserNote[]>([]);
   const [authorEmails, setAuthorEmails] = useState<AuthorMap>({});
+  const [assignments, setAssignments] = useState<VerificationAssignment[]>([]);
+  const [assignmentPhones, setAssignmentPhones] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -67,14 +69,41 @@ export default function AdminVicDetail() {
     if (!id) return;
     setLoading(true);
 
-    const [profileRes, notesRes] = await Promise.all([
+    const [profileRes, notesRes, assignRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", id).maybeSingle(),
       supabase.from("user_notes").select("*").eq("user_id", id).order("created_at", { ascending: false }),
+      supabase.from("verification_assignments").select("id, field_values, phone_number_id, created_at, verification:verifications(title, logo_url, required_fields)").eq("user_id", id).order("created_at", { ascending: false }),
     ]);
 
     setProfile(profileRes.data as VicProfile | null);
     const fetchedNotes = (notesRes.data as UserNote[]) ?? [];
     setNotes(fetchedNotes);
+
+    // Assignments
+    const fetchedAssignments = (assignRes.data ?? []).map((a: any) => ({
+      ...a,
+      verification: a.verification,
+      field_values: a.field_values as Record<string, string>,
+    })) as VerificationAssignment[];
+    setAssignments(fetchedAssignments);
+
+    // Fetch phone numbers for assignments
+    const phoneIds = fetchedAssignments.map((a) => a.phone_number_id).filter(Boolean) as string[];
+    if (phoneIds.length > 0) {
+      const { data: phones } = await supabase.from("phone_numbers").select("id, token").in("id", phoneIds);
+      const phoneMap: Record<string, string> = {};
+      await Promise.all(
+        (phones ?? []).map(async (p: any) => {
+          try {
+            const { data: proxyData } = await supabase.functions.invoke("anosim-proxy", { body: { token: p.token } });
+            phoneMap[p.id] = proxyData?.number || p.token;
+          } catch {
+            phoneMap[p.id] = p.token;
+          }
+        })
+      );
+      setAssignmentPhones(phoneMap);
+    }
 
     // Fetch author emails
     const authorIds = [...new Set(fetchedNotes.map((n) => n.author_id))];
