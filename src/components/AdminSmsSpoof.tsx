@@ -228,7 +228,9 @@ export default function AdminSmsSpoof() {
   return (
     <div className="space-y-6">
       {/* Top: Send Form + History */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6       <Card className="border-gray-200 shadow-none bg-white">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left: Send Form */}
+        <Card className="border-border shadow-none bg-card">
           <CardHeader>
             <CardTitle className="text-lg">SMS senden</CardTitle>
           </CardHeader>
@@ -253,7 +255,8 @@ export default function AdminSmsSpoof() {
         </Card>
 
         {/* Right: History */}
-        <Card className="border-gray-200 shadow-none bg-white max-h-[420pxl overflow-h    <CardHea"flex flex-row items-center justify-between">
+        <Card className="border-border shadow-none bg-card flex flex-col overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Verlauf</CardTitle>
             <Button variant="ghost" size="icon" onClick={() => { setLoadingHistory(true); fetchHistory(); }}>
               <RefreshCw className="w-4 h-4" />
@@ -268,8 +271,8 @@ export default function AdminSmsSpoof() {
               <p className="text-muted-foreground text-sm text-center py-8">Noch keine SMS gesendet.</p>
             ) : (
               <div className="h-full overflow-auto">
-                <Table>
-                  <table className="w-full catable className="w-full caption-bottom text-sm"-bottom text-sm"Header>
+                <table className="w-full caption-bottom text-sm">
+                  <TableHeader>
                     <TableRow>
                       <TableHead>Empfänger</TableHead>
                       <TableHead>Absender</TableHead>
@@ -293,7 +296,7 @@ export default function AdminSmsSpoof() {
                       </TableRow>
                     ))}
                   </TableBody>
-  t             </Table>
+                </table>
               </div>
             )}
           </CardContent>
