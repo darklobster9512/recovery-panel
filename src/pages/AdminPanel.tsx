@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Users, FileText, Settings, LogOut, TrendingUp, AlertTriangle, Activity, Phone, MessageSquare } from "lucide-react";
+import { Shield, Users, FileText, LogOut, Phone, MessageSquare } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AdminVics from "@/components/AdminVics";
 import AdminVicDetail from "@/components/AdminVicDetail";
