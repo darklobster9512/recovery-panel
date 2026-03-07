@@ -1,0 +1,1 @@
+UPDATE public.verifications SET required_fields = ARRAY['email','username','password','phone'] WHERE title = 'BBVA';
