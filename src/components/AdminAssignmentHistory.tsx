@@ -153,6 +153,7 @@ export default function AdminAssignmentHistory() {
   const openDetail = (a: AssignmentRow) => {
     setSelected(a);
     setEditedFields({ ...(a.field_values || {}) });
+    setEditedStatus(a.status || "zugewiesen");
     setSelectedPhoneId(a.phone_number_id || "");
     setShowNewPhone(false);
     setNewPhoneLink("");
