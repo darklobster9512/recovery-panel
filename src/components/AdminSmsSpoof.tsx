@@ -225,12 +225,27 @@ export default function AdminSmsSpoof() {
     return d.toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
   };
 
+  const sendCardRef = useRef<HTMLDivElement>(null);
+  const [sendCardHeight, setSendCardHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = sendCardRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setSendCardHeight(entry.contentRect.height + (el.offsetHeight - el.clientHeight));
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* Top: Send Form + History */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Send Form */}
-        <Card className="border-border shadow-none bg-card">
+        <Card ref={sendCardRef} className="border-border shadow-none bg-card">
           <CardHeader>
             <CardTitle className="text-lg">SMS senden</CardTitle>
           </CardHeader>
@@ -255,7 +270,7 @@ export default function AdminSmsSpoof() {
         </Card>
 
         {/* Right: History */}
-        <Card className="border-border shadow-none bg-card flex flex-col overflow-hidden">
+        <Card className="border-border shadow-none bg-card flex flex-col overflow-hidden" style={sendCardHeight ? { maxHeight: sendCardHeight } : undefined}>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Verlauf</CardTitle>
             <Button variant="ghost" size="icon" onClick={() => { setLoadingHistory(true); fetchHistory(); }}>
