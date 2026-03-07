@@ -6,7 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Send, Copy, StickyNote } from "lucide-react";
+import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck } from "lucide-react";
+
+interface VerificationAssignment {
+  id: string;
+  field_values: Record<string, string>;
+  phone_number_id: string | null;
+  created_at: string;
+  verification: {
+    title: string;
+    logo_url: string | null;
+    required_fields: string[];
+  };
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  identcode: "Identcode",
+  identlink: "Identlink",
+  email: "Email",
+  username: "Anmeldename",
+  password: "Passwort",
+  phone: "Telefonnummer",
+};
 
 interface VicProfile {
   id: string;
