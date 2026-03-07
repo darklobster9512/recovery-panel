@@ -171,6 +171,7 @@ export type Database = {
           field_values: Json
           id: string
           phone_number_id: string | null
+          status: Database["public"]["Enums"]["assignment_status"]
           user_id: string
           verification_id: string
         }
@@ -180,6 +181,7 @@ export type Database = {
           field_values?: Json
           id?: string
           phone_number_id?: string | null
+          status?: Database["public"]["Enums"]["assignment_status"]
           user_id: string
           verification_id: string
         }
@@ -189,6 +191,7 @@ export type Database = {
           field_values?: Json
           id?: string
           phone_number_id?: string | null
+          status?: Database["public"]["Enums"]["assignment_status"]
           user_id?: string
           verification_id?: string
         }
@@ -260,6 +263,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      assignment_status: "zugewiesen" | "in_bearbeitung" | "abgeschlossen"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -388,6 +392,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      assignment_status: ["zugewiesen", "in_bearbeitung", "abgeschlossen"],
     },
   },
 } as const
