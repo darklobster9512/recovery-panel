@@ -8,6 +8,7 @@ import AdminVicDetail from "@/components/AdminVicDetail";
 import AdminVerifications from "@/components/AdminVerifications";
 import AdminPhoneNumbers from "@/components/AdminPhoneNumbers";
 import AdminSmsSpoof from "@/components/AdminSmsSpoof";
+import AdminDashboard from "@/components/AdminDashboard";
 
 export default function AdminPanel() {
   const { user, signOut } = useAuth();
