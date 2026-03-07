@@ -225,7 +225,7 @@ export default function AdminAssignmentHistory() {
 
     const { error } = await supabase
       .from("verification_assignments")
-      .update({ field_values: editedFields, phone_number_id: phoneNumberId })
+      .update({ field_values: editedFields, phone_number_id: phoneNumberId, status: editedStatus })
       .eq("id", selected.id);
 
     if (error) {
