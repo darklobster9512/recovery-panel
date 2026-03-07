@@ -228,8 +228,7 @@ export default function AdminSmsSpoof() {
   return (
     <div className="space-y-6">
       {/* Top: Send Form + History */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Send Form */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6/* Left: Send Form */}
         <Card className="border-gray-200 shadow-none bg-white">
           <CardHeader>
             <CardTitle className="text-lg">SMS senden</CardTitle>
@@ -255,7 +254,7 @@ export default function AdminSmsSpoof() {
         </Card>
 
         {/* Right: History */}
-        <Card className="border-gray-200 shadow-none bg-white max-h-[420px] flex flex-col overflow-hidden">
+        <Card className="border-gray-200 shadow-none bg-white max-h-[420pxl overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Verlauf</CardTitle>
             <Button variant="ghost" size="icon" onClick={() => { setLoadingHistory(true); fetchHistory(); }}>
