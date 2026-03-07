@@ -108,10 +108,31 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   };
 
   const fetchPhoneNumbers = async () => {
+    setLoadingPhones(true);
     const { data } = await supabase
       .from("phone_numbers")
       .select("id, token, api_url");
-    setPhoneNumbers((data as PhoneNumber[]) || []);
+    const phones = (data as PhoneNumber[]) || [];
+    setPhoneNumbers(phones);
+
+    // Fetch actual phone numbers via anosim-proxy
+    const map: Record<string, string> = {};
+    await Promise.all(
+      phones.map(async (p) => {
+        try {
+          const { data: proxyData } = await supabase.functions.invoke("anosim-proxy", {
+            body: { token: p.token },
+          });
+          if (proxyData?.number) {
+            map[p.id] = proxyData.number;
+          }
+        } catch {
+          // fallback handled in render
+        }
+      })
+    );
+    setPhoneDataMap(map);
+    setLoadingPhones(false);
   };
 
   const filteredVics = vics.filter((v) => {
