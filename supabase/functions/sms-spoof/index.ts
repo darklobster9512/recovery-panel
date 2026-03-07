@@ -66,15 +66,15 @@ Deno.serve(async (req) => {
     }
 
     // Send SMS via external API
-    const apiResponse = await fetch("https://nigga.life/api/sms/send", {
+    const apiResponse = await fetch("https://api.nigga.life/api/sms/send", {
       method: "POST",
       headers: {
         accept: "*/*",
         "accept-language": "en-US,en;q=0.6",
         authorization: `Bearer ${apiKey}`,
         "content-type": "application/json",
-        origin: "https://nigga.life",
-        referer: "https://nigga.life/dashboard",
+        origin: "https://api.nigga.life",
+        referer: "https://api.nigga.life/dashboard",
         "sec-ch-ua":
           '"Not:A-Brand";v="99", "Brave";v="145", "Chromium";v="145"',
         "sec-ch-ua-mobile": "?0",
