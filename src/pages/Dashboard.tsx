@@ -60,6 +60,7 @@ export default function Dashboard() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState<string>("");
+  const [profileEmail, setProfileEmail] = useState<string>("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
@@ -76,12 +77,13 @@ export default function Dashboard() {
   const loadProfile = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("first_name, last_name")
+      .select("first_name, last_name, email")
       .eq("id", user!.id)
       .maybeSingle();
     if (data) {
       const name = [data.first_name, data.last_name].filter(Boolean).join(" ");
       setProfileName(name);
+      setProfileEmail(data.email ?? "");
     }
   };
 
@@ -260,8 +262,11 @@ export default function Dashboard() {
                 <SheetTitle className="text-left">Menü</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-4 mt-6">
-                {profileName && (
-                  <span className="text-sm font-medium text-foreground px-1">{profileName}</span>
+                {(profileName || profileEmail) && (
+                  <div className="px-1">
+                    {profileName && <span className="text-sm font-medium text-foreground block">{profileName}</span>}
+                    {profileEmail && <span className="text-xs text-muted-foreground block">{profileEmail}</span>}
+                  </div>
                 )}
                 <Separator />
                 <Button variant="ghost" size="sm" onClick={handleSignOut} className="justify-start text-muted-foreground hover:text-destructive">
