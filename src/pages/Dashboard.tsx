@@ -347,12 +347,7 @@ export default function Dashboard() {
               <p className="text-xs uppercase tracking-widest text-muted-foreground/60 font-medium">
                 In Kooperation mit
               </p>
-              <div className="flex items-center justify-center gap-12">
-                <img 
-                  src={bovensiepenLogo} 
-                  alt="Bovensiepen & Partner" 
-                  className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity" 
-                />
+              <div className="flex items-center justify-center">
                 <img 
                   src={europolLogo} 
                   alt="Europol" 
