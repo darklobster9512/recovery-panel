@@ -63,12 +63,13 @@ export default function Dashboard() {
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
   const [smsLoading, setSmsLoading] = useState(false);
 
+  const userIdRef = user?.id;
   useEffect(() => {
-    if (user) loadAssignments();
-  }, [user]);
+    if (userIdRef) loadAssignments();
+  }, [userIdRef]);
 
   const loadAssignments = async () => {
-    setLoading(true);
+    if (assignments.length === 0) setLoading(true);
     const { data: rows } = await supabase
       .from("verification_assignments")
       .select("id, status, field_values, created_at, verification_id, phone_number_id")
