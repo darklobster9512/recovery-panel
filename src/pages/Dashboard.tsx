@@ -233,7 +233,8 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+        {/* Desktop Header */}
+        <div className="hidden md:flex max-w-5xl mx-auto px-6 h-14 items-center justify-between">
           <img src={bovensiepenLogo} alt="Bovensiepen & Partner" className="h-9 w-auto" />
           <div className="flex items-center gap-3">
             {profileName && (
@@ -244,6 +245,33 @@ export default function Dashboard() {
               Abmelden
             </Button>
           </div>
+        </div>
+
+        {/* Mobile/Tablet Header */}
+        <div className="flex md:hidden relative h-14 items-center justify-center px-4">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="absolute left-4 top-1/2 -translate-y-1/2">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64">
+              <SheetHeader>
+                <SheetTitle className="text-left">Menü</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-4 mt-6">
+                {profileName && (
+                  <span className="text-sm font-medium text-foreground px-1">{profileName}</span>
+                )}
+                <Separator />
+                <Button variant="ghost" size="sm" onClick={handleSignOut} className="justify-start text-muted-foreground hover:text-destructive">
+                  <LogOut className="w-4 h-4 mr-1.5" />
+                  Abmelden
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+          <img src={bovensiepenLogo} alt="Bovensiepen & Partner" className="h-9 w-auto" />
         </div>
       </header>
 
