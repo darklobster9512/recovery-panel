@@ -227,7 +227,7 @@ export default function Dashboard() {
 
       {selected ? (
         /* ── Detail View ── */
-        <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
+        <main className="max-w-5xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
           <Button
             variant="ghost"
             size="sm"
