@@ -63,9 +63,10 @@ export default function Dashboard() {
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
   const [smsLoading, setSmsLoading] = useState(false);
 
+  const userIdRef = user?.id;
   useEffect(() => {
-    if (user) loadAssignments();
-  }, [user]);
+    if (userIdRef) loadAssignments();
+  }, [userIdRef]);
 
   const loadAssignments = async () => {
     setLoading(true);
