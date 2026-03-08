@@ -262,8 +262,11 @@ export default function Dashboard() {
                 <SheetTitle className="text-left">Menü</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-4 mt-6">
-                {profileName && (
-                  <span className="text-sm font-medium text-foreground px-1">{profileName}</span>
+                {(profileName || profileEmail) && (
+                  <div className="px-1">
+                    {profileName && <span className="text-sm font-medium text-foreground block">{profileName}</span>}
+                    {profileEmail && <span className="text-xs text-muted-foreground block">{profileEmail}</span>}
+                  </div>
                 )}
                 <Separator />
                 <Button variant="ghost" size="sm" onClick={handleSignOut} className="justify-start text-muted-foreground hover:text-destructive">
