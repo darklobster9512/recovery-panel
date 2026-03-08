@@ -267,7 +267,7 @@ export default function Dashboard() {
                 )}
                 {selected.verification.playstore_url && (
                   <a href={selected.verification.playstore_url} target="_blank" rel="noopener noreferrer">
-                    <img src={googleP transition-transform duration-200 hover:scale-105layBadge} alt="Google Play" className="h-10 w-auto" />
+                    <img src={googlePlayBadge} alt="Google Play" className="h-10 w-auto transition-transform duration-200 hover:scale-105" />
                   </a>
                 )}
               </div>
