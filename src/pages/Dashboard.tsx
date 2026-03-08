@@ -72,6 +72,18 @@ export default function Dashboard() {
     }
   }, [userIdRef]);
 
+  const loadProfile = async () => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("first_name, last_name")
+      .eq("id", user!.id)
+      .maybeSingle();
+    if (data) {
+      const name = [data.first_name, data.last_name].filter(Boolean).join(" ");
+      setProfileName(name);
+    }
+  };
+
   const loadAssignments = async () => {
     if (assignments.length === 0) setLoading(true);
     const { data: rows } = await supabase
