@@ -262,7 +262,7 @@ export default function Dashboard() {
               <div className="flex gap-3 flex-wrap">
                 {selected.verification.appstore_url && (
                   <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer">
-                    <img src={appStoreBadge} alt="App Store" className="h-10 w-auto" />
+                    <img src={appStoreBadge} alt="App Store" className="h-10 w-auto transition-transform duration-200 hover:scale-105" />
                   </a>
                 )}
                 {selected.verification.playstore_url && (
