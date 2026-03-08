@@ -42,7 +42,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, s) => {
+      (event, s) => {
+        // Only update state for meaningful auth events, not token refreshes
+        if (event === 'TOKEN_REFRESHED') {
+          // Just update session silently, no loading state change
+          setSession(s);
+          return;
+        }
+        
         setSession(s);
         setUser(s?.user ?? null);
         if (s?.user) {
