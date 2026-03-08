@@ -66,7 +66,10 @@ export default function Dashboard() {
 
   const userIdRef = user?.id;
   useEffect(() => {
-    if (userIdRef) loadAssignments();
+    if (userIdRef) {
+      loadAssignments();
+      loadProfile();
+    }
   }, [userIdRef]);
 
   const loadAssignments = async () => {
