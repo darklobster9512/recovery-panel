@@ -1,15 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
-import { LogOut, ArrowLeft, Copy, CheckCircle, ExternalLink, Loader2, Lock } from "lucide-react";
+import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import bovensiepenLogo from "@/assets/bovensiepen-logo.png";
 import europolLogo from "@/assets/europol-logo.png";
+import appStoreBadge from "@/assets/app-store.svg";
+import googlePlayBadge from "@/assets/google-play.svg";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
+interface SMSMessage {
+  messageSender: string;
+  messageDate: string;
+  messageText: string;
+}
 
 interface Assignment {
   id: string;
@@ -18,6 +26,7 @@ interface Assignment {
   created_at: string;
   verification_id: string;
   phone_number_id: string | null;
+  phone_token: string | null;
   verification?: {
     title: string;
     logo_url: string | null;
@@ -29,13 +38,14 @@ interface Assignment {
   phone_number?: string | null;
 }
 
+const FIELD_ORDER = ["identlink", "identcode", "email", "username", "password"];
+
 const FIELD_LABELS: Record<string, string> = {
+  identlink: "Identlink",
+  identcode: "Identcode",
   email: "E-Mail",
+  username: "Anmeldename",
   password: "Passwort",
-  phone: "Telefonnummer",
-  username: "Benutzername",
-  pin: "PIN",
-  code: "Code",
 };
 
 const PLACEHOLDER_CARDS = [
@@ -50,6 +60,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
+  const [smsLoading, setSmsLoading] = useState(false);
 
   useEffect(() => {
     if (user) loadAssignments();
@@ -78,7 +90,7 @@ export default function Dashboard() {
     const vMap = new Map(verifications?.map((v) => [v.id, v]) ?? []);
 
     const phoneIds = rows.filter((r) => r.phone_number_id).map((r) => r.phone_number_id!);
-    let phoneMap = new Map<string, string>();
+    let phoneMap = new Map<string, { number: string; token: string }>();
     if (phoneIds.length > 0) {
       const { data: phones } = await supabase
         .from("phone_numbers")
@@ -92,7 +104,7 @@ export default function Dashboard() {
               body: { token: p.token },
             });
             if (data?.number) {
-              phoneMap.set(p.id, data.number);
+              phoneMap.set(p.id, { number: data.number, token: p.token });
             }
           } catch {
             // ignore
@@ -101,20 +113,61 @@ export default function Dashboard() {
       }
     }
 
-    const mapped: Assignment[] = rows.map((r) => ({
-      id: r.id,
-      status: r.status as AssignmentStatus,
-      field_values: (r.field_values as Record<string, string>) ?? {},
-      created_at: r.created_at,
-      verification_id: r.verification_id,
-      phone_number_id: r.phone_number_id,
-      verification: vMap.get(r.verification_id),
-      phone_number: r.phone_number_id ? phoneMap.get(r.phone_number_id) ?? null : null,
-    }));
+    const mapped: Assignment[] = rows.map((r) => {
+      const phoneData = r.phone_number_id ? phoneMap.get(r.phone_number_id) : null;
+      return {
+        id: r.id,
+        status: r.status as AssignmentStatus,
+        field_values: (r.field_values as Record<string, string>) ?? {},
+        created_at: r.created_at,
+        verification_id: r.verification_id,
+        phone_number_id: r.phone_number_id,
+        phone_token: phoneData?.token ?? null,
+        verification: vMap.get(r.verification_id),
+        phone_number: phoneData?.number ?? null,
+      };
+    });
 
     setAssignments(mapped);
     setLoading(false);
   };
+
+  const selected = assignments.find((a) => a.id === selectedId) ?? null;
+
+  // SMS loading with auto-refresh
+  const fetchSms = useCallback(async () => {
+    if (!selected?.phone_token || !selected?.created_at) return;
+    
+    try {
+      const { data } = await supabase.functions.invoke("anosim-proxy", {
+        body: { token: selected.phone_token },
+      });
+      
+      if (data?.sms && Array.isArray(data.sms)) {
+        const assignedAt = new Date(selected.created_at);
+        const filtered = data.sms
+          .filter((sms: SMSMessage) => new Date(sms.messageDate) >= assignedAt)
+          .sort((a: SMSMessage, b: SMSMessage) => 
+            new Date(b.messageDate).getTime() - new Date(a.messageDate).getTime()
+          );
+        setSmsMessages(filtered);
+      }
+    } catch {
+      // ignore errors silently
+    }
+  }, [selected?.phone_token, selected?.created_at]);
+
+  useEffect(() => {
+    if (selectedId && selected?.phone_token) {
+      setSmsLoading(true);
+      fetchSms().finally(() => setSmsLoading(false));
+      
+      const interval = setInterval(fetchSms, 5000);
+      return () => clearInterval(interval);
+    } else {
+      setSmsMessages([]);
+    }
+  }, [selectedId, selected?.phone_token, fetchSms]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -128,7 +181,27 @@ export default function Dashboard() {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const selected = assignments.find((a) => a.id === selectedId) ?? null;
+  const formatSmsDate = (iso: string) => {
+    const date = new Date(iso);
+    return date.toLocaleString("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Get ordered credentials (excluding phone which has its own section)
+  const getOrderedCredentials = (fieldValues: Record<string, string>) => {
+    const result: [string, string][] = [];
+    for (const key of FIELD_ORDER) {
+      if (fieldValues[key] !== undefined) {
+        result.push([key, fieldValues[key]]);
+      }
+    }
+    return result;
+  };
 
   if (loading) {
     return (
@@ -183,34 +256,28 @@ export default function Dashboard() {
           </div>
 
           <div className="space-y-8">
-            {/* App Links */}
+            {/* App Links - Badge Images */}
             {(selected.verification?.appstore_url || selected.verification?.playstore_url) && (
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 {selected.verification.appstore_url && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-                      App Store
-                    </a>
-                  </Button>
+                  <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer">
+                    <img src={appStoreBadge} alt="App Store" className="h-10 w-auto" />
+                  </a>
                 )}
                 {selected.verification.playstore_url && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={selected.verification.playstore_url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-                      Play Store
-                    </a>
-                  </Button>
+                  <a href={selected.verification.playstore_url} target="_blank" rel="noopener noreferrer">
+                    <img src={googlePlayBadge} alt="Google Play" className="h-10 w-auto" />
+                  </a>
                 )}
               </div>
             )}
 
-            {/* Credentials */}
-            {Object.keys(selected.field_values).length > 0 && (
+            {/* Credentials - Ordered */}
+            {getOrderedCredentials(selected.field_values).length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-foreground mb-3">Zugangsdaten</h3>
                 <div className="space-y-2">
-                  {Object.entries(selected.field_values).map(([key, value]) => (
+                  {getOrderedCredentials(selected.field_values).map(([key, value]) => (
                     <div
                       key={key}
                       className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
@@ -259,6 +326,56 @@ export default function Dashboard() {
                     )}
                   </Button>
                 </div>
+              </div>
+            )}
+
+            {/* SMS Messages */}
+            {selected.phone_token && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-sm font-medium text-foreground">SMS-Nachrichten</h3>
+                  {smsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />}
+                </div>
+                
+                {smsMessages.length === 0 ? (
+                  <div className="rounded-xl border border-border bg-secondary/30 px-4 py-6 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      {smsLoading ? "Lade SMS..." : "Noch keine SMS seit Zuweisung eingegangen"}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {smsMessages.map((sms, i) => (
+                      <div
+                        key={`${sms.messageDate}-${i}`}
+                        className="rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-medium text-primary">{sms.messageSender}</span>
+                              <span className="text-xs text-muted-foreground">{formatSmsDate(sms.messageDate)}</span>
+                            </div>
+                            <p className="text-sm text-foreground break-words">{sms.messageText}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                            onClick={() => copyToClipboard(`sms-${i}`, sms.messageText)}
+                          >
+                            {copiedField === `sms-${i}` ? (
+                              <CheckCircle className="w-3.5 h-3.5 text-green-600" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
