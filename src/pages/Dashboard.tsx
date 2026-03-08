@@ -143,7 +143,7 @@ export default function Dashboard() {
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <img src={bovensiepenLogo} alt="Bovensiepen & Partner" className="h-7 w-auto" />
+          <img src={bovensiepenLogo} alt="Bovensiepen & Partner" className="h-9 w-auto" />
           <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-destructive">
             <LogOut className="w-4 h-4 mr-1.5" />
             Abmelden
