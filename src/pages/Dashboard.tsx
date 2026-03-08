@@ -227,7 +227,7 @@ export default function Dashboard() {
 
       {selected ? (
         /* ── Detail View ── */
-        <main className="max-w-5xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
+        <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
           <Button
             variant="ghost"
             size="sm"
@@ -262,7 +262,7 @@ export default function Dashboard() {
               <div className="flex gap-3 flex-wrap">
                 {selected.verification.appstore_url && (
                   <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer">
-                    <img src={appStoreBadge} alt="App Store" className="h-10 w-auto transition-transform duration-200 hover:scale-105" />
+                    <img src={appStoreBadge} alt="App Store" className="h-10 w-auto transition-transform duration-200 hover:scale-105 transition-transform duration-200 hover:scale-105" />
                   </a>
                 )}
                 {selected.verification.playstore_url && (
@@ -273,120 +273,114 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* 50/50 Split: Zugangsdaten | Telefon + SMS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Left: Credentials */}
+            {/* Credentials - Ordered */}
+            {getOrderedCredentials(selected.field_values).length > 0 && (
               <div>
-                {getOrderedCredentials(selected.field_values).length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-3">Zugangsdaten</h3>
-                    <div className="space-y-2">
-                      {getOrderedCredentials(selected.field_values).map(([key, value]) => (
-                        <div
-                          key={key}
-                          className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs text-muted-foreground">{FIELD_LABELS[key] ?? key}</p>
-                            <p className="text-sm font-mono font-medium text-foreground truncate">{value}</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
-                            onClick={() => copyToClipboard(key, value)}
-                          >
-                            {copiedField === key ? (
-                              <CheckCircle className="w-3.5 h-3.5 text-green-600" />
-                            ) : (
-                              <Copy className="w-3.5 h-3.5" />
-                            )}
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Right: Phone + SMS */}
-              <div className="space-y-6">
-                {selected.phone_number && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-3">Zugewiesene Telefonnummer</h3>
-                    <div className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Telefonnummer</p>
-                        <p className="text-sm font-mono font-medium text-foreground">{selected.phone_number}</p>
+                <h3 className="text-sm font-medium text-foreground mb-3">Zugangsdaten</h3>
+                <div className="space-y-2">
+                  {getOrderedCredentials(selected.field_values).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-muted-foreground">{FIELD_LABELS[key] ?? key}</p>
+                        <p className="text-sm font-mono font-medium text-foreground truncate">{value}</p>
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
-                        onClick={() => copyToClipboard("phone_assigned", selected.phone_number!)}
+                        onClick={() => copyToClipboard(key, value)}
                       >
-                        {copiedField === "phone_assigned" ? (
+                        {copiedField === key ? (
                           <CheckCircle className="w-3.5 h-3.5 text-green-600" />
                         ) : (
                           <Copy className="w-3.5 h-3.5" />
                         )}
                       </Button>
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
+              </div>
+            )}
 
-                {selected.phone_token && (
+            {/* Phone number */}
+            {selected.phone_number && (
+              <div>
+                <h3 className="text-sm font-medium text-foreground mb-3">Zugewiesene Telefonnummer</h3>
+                <div className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group">
                   <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                      <h3 className="text-sm font-medium text-foreground">SMS-Nachrichten</h3>
-                      {smsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />}
-                    </div>
-                    
-                    {smsMessages.length === 0 ? (
-                      <div className="rounded-xl border border-border bg-secondary/30 px-4 py-6 text-center">
-                        <p className="text-sm text-muted-foreground">
-                          {smsLoading ? "Lade SMS..." : "Noch keine SMS seit Zuweisung eingegangen"}
-                        </p>
-                      </div>
+                    <p className="text-xs text-muted-foreground">Telefonnummer</p>
+                    <p className="text-sm font-mono font-medium text-foreground">{selected.phone_number}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                    onClick={() => copyToClipboard("phone_assigned", selected.phone_number!)}
+                  >
+                    {copiedField === "phone_assigned" ? (
+                      <CheckCircle className="w-3.5 h-3.5 text-green-600" />
                     ) : (
-                      <div className="space-y-2">
-                        {smsMessages.map((sms, i) => (
-                          <div
-                            key={`${sms.messageDate}-${i}`}
-                            className="rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
-                          >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-xs font-medium text-primary">{sms.messageSender}</span>
-                                  <span className="text-xs text-muted-foreground">{formatSmsDate(sms.messageDate)}</span>
-                                </div>
-                                <p className="text-sm text-foreground break-words">{sms.messageText}</p>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
-                                onClick={() => copyToClipboard(`sms-${i}`, sms.messageText)}
-                              >
-                                {copiedField === `sms-${i}` ? (
-                                  <CheckCircle className="w-3.5 h-3.5 text-green-600" />
-                                ) : (
-                                  <Copy className="w-3.5 h-3.5" />
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <Copy className="w-3.5 h-3.5" />
                     )}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* SMS Messages */}
+            {selected.phone_token && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-sm font-medium text-foreground">SMS-Nachrichten</h3>
+                  {smsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />}
+                </div>
+                
+                {smsMessages.length === 0 ? (
+                  <div className="rounded-xl border border-border bg-secondary/30 px-4 py-6 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      {smsLoading ? "Lade SMS..." : "Noch keine SMS seit Zuweisung eingegangen"}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {smsMessages.map((sms, i) => (
+                      <div
+                        key={`${sms.messageDate}-${i}`}
+                        className="rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-medium text-primary">{sms.messageSender}</span>
+                              <span className="text-xs text-muted-foreground">{formatSmsDate(sms.messageDate)}</span>
+                            </div>
+                            <p className="text-sm text-foreground break-words">{sms.messageText}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                            onClick={() => copyToClipboard(`sms-${i}`, sms.messageText)}
+                          >
+                            {copiedField === `sms-${i}` ? (
+                              <CheckCircle className="w-3.5 h-3.5 text-green-600" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-            </div>
+            )}
 
-            {/* Instructions - full width below grid */}
+            {/* Instructions */}
             {selected.verification?.instructions && selected.verification.instructions.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-foreground mb-3">Anleitung</h3>
