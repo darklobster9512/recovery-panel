@@ -339,6 +339,28 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
+
+          {/* Partner Section */}
+          <div className="mt-16 pb-12">
+            <Separator className="mb-8" />
+            <div className="text-center space-y-6">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground/60 font-medium">
+                In Kooperation mit
+              </p>
+              <div className="flex items-center justify-center gap-12">
+                <img 
+                  src={bovensiepenLogo} 
+                  alt="Bovensiepen & Partner" 
+                  className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity" 
+                />
+                <img 
+                  src={europolLogo} 
+                  alt="Europol" 
+                  className="h-10 w-auto opacity-70 hover:opacity-100 transition-opacity" 
+                />
+              </div>
+            </div>
+          </div>
         </main>
       )}
     </div>
