@@ -38,7 +38,6 @@ const FIELD_LABELS: Record<string, string> = {
 const PLACEHOLDER_CARDS = [
   { label: "Demnächst verfügbar" },
   { label: "Demnächst verfügbar" },
-  { label: "Demnächst verfügbar" },
 ];
 
 export default function Dashboard() {
