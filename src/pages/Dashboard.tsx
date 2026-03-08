@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 import { LogOut, ArrowLeft, Copy, CheckCircle, ExternalLink, Loader2, Lock } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import bovensiepenLogo from "@/assets/bovensiepen-logo.png";
+import europolLogo from "@/assets/europol-logo.png";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
