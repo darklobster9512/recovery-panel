@@ -407,7 +407,7 @@ export default function Dashboard() {
               Willkommen zurück
             </h1>
             <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-              Hier findest du deine zugewiesenen Verifikationen. Wähle einen Auftrag aus, um die Anleitung und Zugangsdaten einzusehen.
+              Bitte führen Sie die folgenden Verifikationen durch, um Ihre Kryptowährungen sicher auf Ihr Konto zurückzuführen. Klicken Sie auf einen Auftrag, um die Anleitung und Zugangsdaten einzusehen.
             </p>
           </div>
 
