@@ -43,23 +43,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, s) => {
-        // Only update state for meaningful auth events, not token refreshes
-        if (event === 'TOKEN_REFRESHED') {
-          // Just update session silently, no loading state change
-          setSession(s);
-          return;
-        }
-        
         setSession(s);
-        setUser(s?.user ?? null);
-        if (s?.user) {
+
+        if (event === 'SIGNED_IN' && s?.user) {
+          setUser(s.user);
           setTimeout(() => {
             fetchRole(s.user.id).then(() => setLoading(false));
           }, 0);
-        } else {
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
           setRole(null);
           setLoading(false);
         }
+        // All other events (TOKEN_REFRESHED, INITIAL_SESSION, etc.) → do nothing
       }
     );
 
