@@ -156,6 +156,8 @@ export default function AdminAssignmentHistory() {
       ...d,
         field_values: (d.field_values as Record<string, string>) || {},
         status: (d.status as AssignmentStatus) || "zugewiesen",
+        sms_monitoring_active: d.sms_monitoring_active ?? true,
+        hidden_sms: (d.hidden_sms as string[]) || [],
         profile: profileMap.get(d.user_id) || null,
         verification: verificationMap.get(d.verification_id) || null,
       }))
