@@ -172,10 +172,91 @@ export default function AdminAssignmentHistory() {
     setSelectedPhoneId(a.phone_number_id || "");
     setShowNewPhone(false);
     setNewPhoneLink("");
+    setSmsMessages([]);
     setDialogOpen(true);
 
     if (a.verification?.required_fields.includes("phone")) {
       fetchPhoneNumbers();
+    }
+
+    // Load SMS if phone is assigned
+    if (a.phone_number_id) {
+      loadSmsForAssignment(a);
+    }
+  };
+
+  const loadSmsForAssignment = async (a: AssignmentRow) => {
+    setSmsLoading(true);
+    try {
+      // Get the phone token
+      const { data: phone } = await supabase
+        .from("phone_numbers")
+        .select("token")
+        .eq("id", a.phone_number_id!)
+        .single();
+      
+      if (!phone) { setSmsLoading(false); return; }
+
+      const { data } = await supabase.functions.invoke("anosim-proxy", {
+        body: { token: phone.token },
+      });
+
+      if (data?.sms && Array.isArray(data.sms)) {
+        const assignedAt = new Date(a.created_at);
+        const filtered = data.sms
+          .filter((sms: SMSMessage) => new Date(sms.messageDate) >= assignedAt)
+          .sort((a: SMSMessage, b: SMSMessage) =>
+            new Date(b.messageDate).getTime() - new Date(a.messageDate).getTime()
+          );
+        setSmsMessages(filtered);
+      }
+    } catch {
+      // ignore
+    }
+    setSmsLoading(false);
+  };
+
+  const getSmsKey = (sms: SMSMessage) => `${sms.messageSender}|${sms.messageDate}`;
+
+  const toggleHideSms = async (sms: SMSMessage) => {
+    if (!selected) return;
+    const key = getSmsKey(sms);
+    const currentHidden = selected.hidden_sms || [];
+    const isHidden = currentHidden.includes(key);
+    const newHidden = isHidden
+      ? currentHidden.filter((k) => k !== key)
+      : [...currentHidden, key];
+
+    const { error } = await supabase
+      .from("verification_assignments")
+      .update({ hidden_sms: newHidden })
+      .eq("id", selected.id);
+
+    if (!error) {
+      setSelected({ ...selected, hidden_sms: newHidden });
+      setAssignments((prev) =>
+        prev.map((a) => (a.id === selected.id ? { ...a, hidden_sms: newHidden } : a))
+      );
+    }
+  };
+
+  const toggleMonitoring = async () => {
+    if (!selected) return;
+    const newVal = !selected.sms_monitoring_active;
+
+    const { error } = await supabase
+      .from("verification_assignments")
+      .update({ sms_monitoring_active: newVal })
+      .eq("id", selected.id);
+
+    if (!error) {
+      setSelected({ ...selected, sms_monitoring_active: newVal });
+      setAssignments((prev) =>
+        prev.map((a) => (a.id === selected.id ? { ...a, sms_monitoring_active: newVal } : a))
+      );
+      toast({
+        title: newVal ? "SMS-Überwachung aktiviert" : "SMS-Überwachung gestoppt",
+      });
     }
   };
 
