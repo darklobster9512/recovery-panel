@@ -93,7 +93,7 @@ export default function Dashboard() {
     if (assignments.length === 0) setLoading(true);
     const { data: rows } = await supabase
       .from("verification_assignments")
-      .select("id, status, field_values, created_at, verification_id, phone_number_id")
+      .select("id, status, field_values, created_at, verification_id, phone_number_id, sms_monitoring_active, hidden_sms")
       .eq("user_id", user!.id)
       .order("created_at", { ascending: false });
 
