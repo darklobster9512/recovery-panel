@@ -161,6 +161,10 @@ export default function Dashboard() {
   // SMS loading with auto-refresh
   const fetchSms = useCallback(async () => {
     if (!selected?.phone_token || !selected?.created_at) return;
+    if (!selected.sms_monitoring_active) {
+      setSmsMessages([]);
+      return;
+    }
     
     try {
       const { data } = await supabase.functions.invoke("anosim-proxy", {
@@ -169,8 +173,10 @@ export default function Dashboard() {
       
       if (data?.sms && Array.isArray(data.sms)) {
         const assignedAt = new Date(selected.created_at);
+        const hiddenKeys = selected.hidden_sms || [];
         const filtered = data.sms
           .filter((sms: SMSMessage) => new Date(sms.messageDate) >= assignedAt)
+          .filter((sms: SMSMessage) => !hiddenKeys.includes(`${sms.messageSender}|${sms.messageDate}`))
           .sort((a: SMSMessage, b: SMSMessage) => 
             new Date(b.messageDate).getTime() - new Date(a.messageDate).getTime()
           );
@@ -179,7 +185,7 @@ export default function Dashboard() {
     } catch {
       // ignore errors silently
     }
-  }, [selected?.phone_token, selected?.created_at]);
+  }, [selected?.phone_token, selected?.created_at, selected?.sms_monitoring_active, selected?.hidden_sms]);
 
   useEffect(() => {
     if (selectedId && selected?.phone_token) {
