@@ -98,6 +98,10 @@ export default function AdminAssignmentHistory() {
   const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // SMS
+  const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
+  const [smsLoading, setSmsLoading] = useState(false);
+
   // Detail dialog
   const [selected, setSelected] = useState<AssignmentRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
