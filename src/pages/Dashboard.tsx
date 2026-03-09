@@ -145,6 +145,8 @@ export default function Dashboard() {
         verification_id: r.verification_id,
         phone_number_id: r.phone_number_id,
         phone_token: phoneData?.token ?? null,
+        sms_monitoring_active: (r as any).sms_monitoring_active ?? true,
+        hidden_sms: ((r as any).hidden_sms as string[]) ?? [],
         verification: vMap.get(r.verification_id),
         phone_number: phoneData?.number ?? null,
       };
