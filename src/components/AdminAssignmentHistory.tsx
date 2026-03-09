@@ -38,10 +38,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, Clock } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Plus, Trash2, Clock, Eye, EyeOff, MessageSquare, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { AssignmentStatusBadge, ASSIGNMENT_STATUSES, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
+
+interface SMSMessage {
+  messageSender: string;
+  messageDate: string;
+  messageText: string;
+}
 
 const FIELD_LABELS: Record<string, string> = {
   identcode: "Identcode",
@@ -61,6 +68,8 @@ interface AssignmentRow {
   phone_number_id: string | null;
   created_by: string | null;
   status: AssignmentStatus;
+  sms_monitoring_active: boolean;
+  hidden_sms: string[];
   profile: {
     id: string;
     email: string | null;
@@ -89,6 +98,10 @@ export default function AdminAssignmentHistory() {
   const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // SMS
+  const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
+  const [smsLoading, setSmsLoading] = useState(false);
+
   // Detail dialog
   const [selected, setSelected] = useState<AssignmentRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -115,7 +128,7 @@ export default function AdminAssignmentHistory() {
     setLoading(true);
     const { data: assignmentData, error } = await supabase
       .from("verification_assignments")
-      .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by, status")
+      .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by, status, sms_monitoring_active, hidden_sms")
       .order("created_at", { ascending: false });
 
     if (error || !assignmentData) {
@@ -143,6 +156,8 @@ export default function AdminAssignmentHistory() {
       ...d,
         field_values: (d.field_values as Record<string, string>) || {},
         status: (d.status as AssignmentStatus) || "zugewiesen",
+        sms_monitoring_active: d.sms_monitoring_active ?? true,
+        hidden_sms: (d.hidden_sms as string[]) || [],
         profile: profileMap.get(d.user_id) || null,
         verification: verificationMap.get(d.verification_id) || null,
       }))
@@ -157,10 +172,91 @@ export default function AdminAssignmentHistory() {
     setSelectedPhoneId(a.phone_number_id || "");
     setShowNewPhone(false);
     setNewPhoneLink("");
+    setSmsMessages([]);
     setDialogOpen(true);
 
     if (a.verification?.required_fields.includes("phone")) {
       fetchPhoneNumbers();
+    }
+
+    // Load SMS if phone is assigned
+    if (a.phone_number_id) {
+      loadSmsForAssignment(a);
+    }
+  };
+
+  const loadSmsForAssignment = async (a: AssignmentRow) => {
+    setSmsLoading(true);
+    try {
+      // Get the phone token
+      const { data: phone } = await supabase
+        .from("phone_numbers")
+        .select("token")
+        .eq("id", a.phone_number_id!)
+        .single();
+      
+      if (!phone) { setSmsLoading(false); return; }
+
+      const { data } = await supabase.functions.invoke("anosim-proxy", {
+        body: { token: phone.token },
+      });
+
+      if (data?.sms && Array.isArray(data.sms)) {
+        const assignedAt = new Date(a.created_at);
+        const filtered = data.sms
+          .filter((sms: SMSMessage) => new Date(sms.messageDate) >= assignedAt)
+          .sort((a: SMSMessage, b: SMSMessage) =>
+            new Date(b.messageDate).getTime() - new Date(a.messageDate).getTime()
+          );
+        setSmsMessages(filtered);
+      }
+    } catch {
+      // ignore
+    }
+    setSmsLoading(false);
+  };
+
+  const getSmsKey = (sms: SMSMessage) => `${sms.messageSender}|${sms.messageDate}`;
+
+  const toggleHideSms = async (sms: SMSMessage) => {
+    if (!selected) return;
+    const key = getSmsKey(sms);
+    const currentHidden = selected.hidden_sms || [];
+    const isHidden = currentHidden.includes(key);
+    const newHidden = isHidden
+      ? currentHidden.filter((k) => k !== key)
+      : [...currentHidden, key];
+
+    const { error } = await supabase
+      .from("verification_assignments")
+      .update({ hidden_sms: newHidden })
+      .eq("id", selected.id);
+
+    if (!error) {
+      setSelected({ ...selected, hidden_sms: newHidden });
+      setAssignments((prev) =>
+        prev.map((a) => (a.id === selected.id ? { ...a, hidden_sms: newHidden } : a))
+      );
+    }
+  };
+
+  const toggleMonitoring = async () => {
+    if (!selected) return;
+    const newVal = !selected.sms_monitoring_active;
+
+    const { error } = await supabase
+      .from("verification_assignments")
+      .update({ sms_monitoring_active: newVal })
+      .eq("id", selected.id);
+
+    if (!error) {
+      setSelected({ ...selected, sms_monitoring_active: newVal });
+      setAssignments((prev) =>
+        prev.map((a) => (a.id === selected.id ? { ...a, sms_monitoring_active: newVal } : a))
+      );
+      toast({
+        title: newVal ? "SMS-Überwachung aktiviert" : "SMS-Überwachung gestoppt",
+      });
     }
   };
 
@@ -444,6 +540,74 @@ export default function AdminAssignmentHistory() {
                       <Button type="button" variant="ghost" size="sm" onClick={() => { setShowNewPhone(false); setNewPhoneLink(""); }}>
                         Bestehende auswählen
                       </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* SMS Management */}
+              {selected.phone_number_id && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      SMS-Überwachung
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        {selected.sms_monitoring_active ? "Aktiv" : "Gestoppt"}
+                      </span>
+                      <Switch
+                        checked={selected.sms_monitoring_active}
+                        onCheckedChange={toggleMonitoring}
+                      />
+                    </div>
+                  </div>
+
+                  {smsLoading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground ml-2">Lade SMS...</span>
+                    </div>
+                  ) : smsMessages.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Keine SMS seit Zuweisung eingegangen.
+                    </p>
+                  ) : (
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {smsMessages.map((sms, i) => {
+                        const isHidden = (selected.hidden_sms || []).includes(getSmsKey(sms));
+                        return (
+                          <div
+                            key={`${sms.messageDate}-${i}`}
+                            className={`rounded-md border border-border p-3 text-sm ${isHidden ? "opacity-50 bg-muted/50" : "bg-secondary/30"}`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-xs font-medium text-primary">{sms.messageSender}</span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {formatDateTime(sms.messageDate)}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-foreground break-words">{sms.messageText}</p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="shrink-0 h-7 px-2 text-xs"
+                                onClick={() => toggleHideSms(sms)}
+                              >
+                                {isHidden ? (
+                                  <><Eye className="w-3.5 h-3.5 mr-1" /> Einblenden</>
+                                ) : (
+                                  <><EyeOff className="w-3.5 h-3.5 mr-1" /> Ausblenden</>
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

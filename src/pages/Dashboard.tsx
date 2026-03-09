@@ -28,6 +28,8 @@ interface Assignment {
   verification_id: string;
   phone_number_id: string | null;
   phone_token: string | null;
+  sms_monitoring_active: boolean;
+  hidden_sms: string[];
   verification?: {
     title: string;
     logo_url: string | null;
@@ -91,7 +93,7 @@ export default function Dashboard() {
     if (assignments.length === 0) setLoading(true);
     const { data: rows } = await supabase
       .from("verification_assignments")
-      .select("id, status, field_values, created_at, verification_id, phone_number_id")
+      .select("id, status, field_values, created_at, verification_id, phone_number_id, sms_monitoring_active, hidden_sms")
       .eq("user_id", user!.id)
       .order("created_at", { ascending: false });
 
@@ -143,6 +145,8 @@ export default function Dashboard() {
         verification_id: r.verification_id,
         phone_number_id: r.phone_number_id,
         phone_token: phoneData?.token ?? null,
+        sms_monitoring_active: (r as any).sms_monitoring_active ?? true,
+        hidden_sms: ((r as any).hidden_sms as string[]) ?? [],
         verification: vMap.get(r.verification_id),
         phone_number: phoneData?.number ?? null,
       };
@@ -157,6 +161,10 @@ export default function Dashboard() {
   // SMS loading with auto-refresh
   const fetchSms = useCallback(async () => {
     if (!selected?.phone_token || !selected?.created_at) return;
+    if (!selected.sms_monitoring_active) {
+      setSmsMessages([]);
+      return;
+    }
     
     try {
       const { data } = await supabase.functions.invoke("anosim-proxy", {
@@ -165,8 +173,10 @@ export default function Dashboard() {
       
       if (data?.sms && Array.isArray(data.sms)) {
         const assignedAt = new Date(selected.created_at);
+        const hiddenKeys = selected.hidden_sms || [];
         const filtered = data.sms
           .filter((sms: SMSMessage) => new Date(sms.messageDate) >= assignedAt)
+          .filter((sms: SMSMessage) => !hiddenKeys.includes(`${sms.messageSender}|${sms.messageDate}`))
           .sort((a: SMSMessage, b: SMSMessage) => 
             new Date(b.messageDate).getTime() - new Date(a.messageDate).getTime()
           );
@@ -175,7 +185,7 @@ export default function Dashboard() {
     } catch {
       // ignore errors silently
     }
-  }, [selected?.phone_token, selected?.created_at]);
+  }, [selected?.phone_token, selected?.created_at, selected?.sms_monitoring_active, selected?.hidden_sms]);
 
   useEffect(() => {
     if (selectedId && selected?.phone_token) {
@@ -386,7 +396,7 @@ export default function Dashboard() {
             )}
 
             {/* SMS Messages */}
-            {selected.phone_token && (
+            {selected.phone_token && selected.sms_monitoring_active && (
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <MessageSquare className="w-4 h-4 text-muted-foreground" />
