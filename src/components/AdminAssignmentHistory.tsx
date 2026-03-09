@@ -68,6 +68,8 @@ interface AssignmentRow {
   phone_number_id: string | null;
   created_by: string | null;
   status: AssignmentStatus;
+  sms_monitoring_active: boolean;
+  hidden_sms: string[];
   profile: {
     id: string;
     email: string | null;
