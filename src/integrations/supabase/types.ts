@@ -169,8 +169,10 @@ export type Database = {
           created_at: string
           created_by: string | null
           field_values: Json
+          hidden_sms: Json
           id: string
           phone_number_id: string | null
+          sms_monitoring_active: boolean
           status: Database["public"]["Enums"]["assignment_status"]
           user_id: string
           verification_id: string
@@ -179,8 +181,10 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           field_values?: Json
+          hidden_sms?: Json
           id?: string
           phone_number_id?: string | null
+          sms_monitoring_active?: boolean
           status?: Database["public"]["Enums"]["assignment_status"]
           user_id: string
           verification_id: string
@@ -189,8 +193,10 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           field_values?: Json
+          hidden_sms?: Json
           id?: string
           phone_number_id?: string | null
+          sms_monitoring_active?: boolean
           status?: Database["public"]["Enums"]["assignment_status"]
           user_id?: string
           verification_id?: string
