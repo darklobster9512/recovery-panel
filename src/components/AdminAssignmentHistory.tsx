@@ -38,10 +38,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, Clock } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Plus, Trash2, Clock, Eye, EyeOff, MessageSquare, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { AssignmentStatusBadge, ASSIGNMENT_STATUSES, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
+
+interface SMSMessage {
+  messageSender: string;
+  messageDate: string;
+  messageText: string;
+}
 
 const FIELD_LABELS: Record<string, string> = {
   identcode: "Identcode",
