@@ -28,6 +28,8 @@ interface Assignment {
   verification_id: string;
   phone_number_id: string | null;
   phone_token: string | null;
+  sms_monitoring_active: boolean;
+  hidden_sms: string[];
   verification?: {
     title: string;
     logo_url: string | null;

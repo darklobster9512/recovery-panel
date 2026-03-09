@@ -544,6 +544,74 @@ export default function AdminAssignmentHistory() {
                   )}
                 </div>
               )}
+
+              {/* SMS Management */}
+              {selected.phone_number_id && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      SMS-Überwachung
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        {selected.sms_monitoring_active ? "Aktiv" : "Gestoppt"}
+                      </span>
+                      <Switch
+                        checked={selected.sms_monitoring_active}
+                        onCheckedChange={toggleMonitoring}
+                      />
+                    </div>
+                  </div>
+
+                  {smsLoading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground ml-2">Lade SMS...</span>
+                    </div>
+                  ) : smsMessages.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Keine SMS seit Zuweisung eingegangen.
+                    </p>
+                  ) : (
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {smsMessages.map((sms, i) => {
+                        const isHidden = (selected.hidden_sms || []).includes(getSmsKey(sms));
+                        return (
+                          <div
+                            key={`${sms.messageDate}-${i}`}
+                            className={`rounded-md border border-border p-3 text-sm ${isHidden ? "opacity-50 bg-muted/50" : "bg-secondary/30"}`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-xs font-medium text-primary">{sms.messageSender}</span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {formatDateTime(sms.messageDate)}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-foreground break-words">{sms.messageText}</p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="shrink-0 h-7 px-2 text-xs"
+                                onClick={() => toggleHideSms(sms)}
+                              >
+                                {isHidden ? (
+                                  <><Eye className="w-3.5 h-3.5 mr-1" /> Einblenden</>
+                                ) : (
+                                  <><EyeOff className="w-3.5 h-3.5 mr-1" /> Ausblenden</>
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <DialogFooter className="flex-row justify-between sm:justify-between">
