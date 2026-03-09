@@ -128,7 +128,7 @@ export default function AdminAssignmentHistory() {
     setLoading(true);
     const { data: assignmentData, error } = await supabase
       .from("verification_assignments")
-      .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by, status")
+      .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by, status, sms_monitoring_active, hidden_sms")
       .order("created_at", { ascending: false });
 
     if (error || !assignmentData) {
