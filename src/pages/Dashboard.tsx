@@ -396,7 +396,7 @@ export default function Dashboard() {
             )}
 
             {/* SMS Messages */}
-            {selected.phone_token && (
+            {selected.phone_token && selected.sms_monitoring_active && (
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <MessageSquare className="w-4 h-4 text-muted-foreground" />
