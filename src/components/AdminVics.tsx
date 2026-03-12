@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, Loader2, Copy, Search } from "lucide-react";
+import { UserPlus, Loader2, Copy, Search, Eye } from "lucide-react";
 
 interface VicUser {
   id: string;
