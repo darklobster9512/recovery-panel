@@ -20,6 +20,7 @@ export default function AdminPanel() {
   const isVerifikationen = location.pathname === "/admin/verifikationen";
   const isTelefonnummern = location.pathname === "/admin/telefonnummern";
   const isSmsSpoof = location.pathname === "/admin/sms-spoof";
+  const isUeberpruefung = location.pathname === "/admin/ueberpruefung";
 
   const handleSignOut = async () => {
     await signOut();
