@@ -9,7 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Download, FileText, Image as ImageIcon, File, Loader2, Eye } from "lucide-react";
+import { ArrowLeft, Download, FileText, Image as ImageIcon, File, Loader2, Eye, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 interface DocGroup {
@@ -46,6 +47,7 @@ function getFileIcon(type: string) {
 export default function AdminDocuments() {
   const [groups, setGroups] = useState<DocGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [detail, setDetail] = useState<{ userId: string; assignmentId: string; title: string; userName: string } | null>(null);
   const [docs, setDocs] = useState<DocDetail[]>([]);
   const [docsLoading, setDocsLoading] = useState(false);
@@ -265,8 +267,29 @@ export default function AdminDocuments() {
     );
   }
 
+  const q = search.toLowerCase();
+  const filteredGroups = groups.filter((g) =>
+    [g.user_name, g.user_email, g.verification_title]
+      .some((v) => v?.toLowerCase().includes(q))
+  );
+
   return (
-    <div className="rounded-xl border border-border bg-white overflow-hidden">
+    <div>
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Name, E-Mail oder Auftrag suchen…"
+          className="pl-9"
+        />
+      </div>
+      {filteredGroups.length === 0 ? (
+        <div className="rounded-xl border border-border bg-white px-6 py-12 text-center">
+          <p className="text-muted-foreground">Keine Ergebnisse gefunden.</p>
+        </div>
+      ) : (
+      <div className="rounded-xl border border-border bg-white overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -278,7 +301,7 @@ export default function AdminDocuments() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {groups.map((g) => (
+          {filteredGroups.map((g) => (
             <TableRow
               key={`${g.user_id}-${g.assignment_id}`}
               className="cursor-pointer"
@@ -308,6 +331,8 @@ export default function AdminDocuments() {
           ))}
         </TableBody>
       </Table>
+    </div>
+    )}
     </div>
   );
 }
