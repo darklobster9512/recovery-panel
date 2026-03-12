@@ -110,16 +110,35 @@ export default function DocumentUpload({ onBack }: { onBack: () => void }) {
     })();
   }, [user]);
 
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+
   const loadDocuments = useCallback(async () => {
     if (!selectedAssignment || !user) return;
     setLoadingDocs(true);
+    setSignedUrls({});
     const { data } = await supabase
       .from("user_documents")
       .select("id, file_name, file_type, file_size, created_at, file_path")
       .eq("assignment_id", selectedAssignment)
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
-    setDocuments((data as UploadedDoc[]) ?? []);
+    const docList = (data as UploadedDoc[]) ?? [];
+    setDocuments(docList);
+
+    // Generate signed URLs
+    const paths = docList.map((d) => d.file_path);
+    if (paths.length > 0) {
+      const { data: signed } = await supabase.storage
+        .from("user-documents")
+        .createSignedUrls(paths, 3600);
+      if (signed) {
+        const urls: Record<string, string> = {};
+        for (const s of signed) {
+          if (s.signedUrl) urls[s.path ?? ""] = s.signedUrl;
+        }
+        setSignedUrls(urls);
+      }
+    }
     setLoadingDocs(false);
   }, [selectedAssignment, user]);
 
