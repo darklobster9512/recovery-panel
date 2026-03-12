@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -6,16 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Scale, Landmark, Briefcase, Eye, EyeOff, Shield } from "lucide-react";
-import { useEffect } from "react";
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
   const { user, role } = useAuth();
 
@@ -28,22 +25,11 @@ export default function Auth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin },
-        });
-        if (error) throw error;
-        setSuccess("Bestätigungsmail gesendet! Bitte prüfe dein Postfach.");
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -66,12 +52,10 @@ export default function Auth() {
 
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              {isLogin ? "Willkommen zurück" : "Konto erstellen"}
+              Willkommen zurück
             </h1>
             <p className="mt-2 text-gray-500 text-sm">
-              {isLogin
-                ? "Melde dich an, um auf dein Dashboard zuzugreifen."
-                : "Erstelle ein Konto, um loszulegen."}
+              Melde dich an, um auf dein Dashboard zuzugreifen.
             </p>
           </div>
 
@@ -119,32 +103,15 @@ export default function Auth() {
             {error && (
               <p className="text-sm text-red-600 bg-red-50 rounded-lg p-3">{error}</p>
             )}
-            {success && (
-              <p className="text-sm text-green-700 bg-green-50 rounded-lg p-3">{success}</p>
-            )}
 
             <Button
               type="submit"
               disabled={loading}
               className="w-full h-11 rounded-lg bg-[hsl(221,100%,50%)] hover:bg-[hsl(221,100%,45%)] text-white font-medium text-sm"
             >
-              {loading ? "Laden..." : isLogin ? "Anmelden" : "Registrieren"}
+              {loading ? "Laden..." : "Anmelden"}
             </Button>
           </form>
-
-          <p className="text-center text-sm text-gray-500">
-            {isLogin ? "Noch kein Konto?" : "Bereits registriert?"}{" "}
-            <button
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setError("");
-                setSuccess("");
-              }}
-              className="text-[hsl(221,100%,50%)] hover:underline font-medium"
-            >
-              {isLogin ? "Registrieren" : "Anmelden"}
-            </button>
-          </p>
         </div>
       </div>
 
@@ -161,23 +128,19 @@ export default function Auth() {
 
         {/* Floating elements */}
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-12 text-white">
-          {/* Animated icons */}
           <div className="relative w-64 h-64 mb-12">
-            {/* Scale - Justiz */}
             <div
               className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20"
               style={{ animation: "auth-float-1 6s ease-in-out infinite" }}
             >
               <Scale className="w-10 h-10 text-white" />
             </div>
-            {/* Landmark - Behörde */}
             <div
               className="absolute bottom-8 left-4 w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20"
               style={{ animation: "auth-float-2 7s ease-in-out infinite" }}
             >
               <Landmark className="w-8 h-8 text-white" />
             </div>
-            {/* Briefcase - Anwalt */}
             <div
               className="absolute bottom-4 right-4 w-14 h-14 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20"
               style={{ animation: "auth-float-3 5s ease-in-out infinite" }}
@@ -193,14 +156,12 @@ export default function Auth() {
             Unsere Kanzlei arbeitet eng mit Strafverfolgungsbehörden und Regulierungsstellen zusammen, um Ihre Krypto-Assets rechtssicher zurückzugewinnen.
           </p>
 
-          {/* Erfolgsquote */}
           <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 px-6 py-4 mb-10 max-w-sm text-center">
             <p className="text-white/90 text-sm italic">
               „Über 500 erfolgreiche Rückgewinnungen in Zusammenarbeit mit Europol, BaFin & SEC."
             </p>
           </div>
 
-          {/* Trust badges */}
           <div className="flex gap-4">
             {["Behördliche Kooperation", "Zugelassene Anwälte", "Internationale Jurisdiktion"].map(
               (badge) => (
