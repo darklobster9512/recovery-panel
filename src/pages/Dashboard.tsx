@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
-import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send } from "lucide-react";
+import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -24,6 +24,7 @@ import appStoreBadge from "@/assets/app-store.svg";
 import googlePlayBadge from "@/assets/google-play.svg";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import DocumentUpload from "@/components/DocumentUpload";
 
 interface SMSMessage {
   messageSender: string;
@@ -78,6 +79,7 @@ export default function Dashboard() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
   const [smsLoading, setSmsLoading] = useState(false);
+  const [showDocUpload, setShowDocUpload] = useState(false);
 
   const userIdRef = user?.id;
   useEffect(() => {
@@ -260,6 +262,10 @@ export default function Dashboard() {
         <div className="hidden md:flex max-w-5xl mx-auto px-6 h-14 items-center justify-between">
           <img src={bovensiepenLogo} alt="Bovensiepen & Partner" className="h-9 w-auto" />
           <div className="flex items-center gap-3">
+            <Button size="sm" onClick={() => { setShowDocUpload(true); setSelectedId(null); }}>
+              <FileUp className="w-4 h-4 mr-1.5" />
+              Dokumente hochladen
+            </Button>
             {profileName && (
               <span className="text-sm font-medium text-foreground">{profileName}</span>
             )}
@@ -290,6 +296,10 @@ export default function Dashboard() {
                   </div>
                 )}
                 <Separator />
+                <Button size="sm" onClick={() => { setShowDocUpload(true); setSelectedId(null); }} className="justify-start">
+                  <FileUp className="w-4 h-4 mr-1.5" />
+                  Dokumente hochladen
+                </Button>
                 <Button variant="ghost" size="sm" onClick={handleSignOut} className="justify-start text-muted-foreground hover:text-destructive">
                   <LogOut className="w-4 h-4 mr-1.5" />
                   Abmelden
@@ -301,7 +311,9 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {selected ? (
+      {showDocUpload ? (
+        <DocumentUpload onBack={() => setShowDocUpload(false)} />
+      ) : selected ? (
         /* ── Detail View ── */
         <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
           <Button

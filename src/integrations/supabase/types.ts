@@ -122,6 +122,47 @@ export type Database = {
         }
         Relationships: []
       }
+      user_documents: {
+        Row: {
+          assignment_id: string
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          assignment_id: string
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number
+          file_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          assignment_id?: string
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_documents_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "verification_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_notes: {
         Row: {
           author_id: string
