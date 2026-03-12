@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, Users, FileText, LogOut, Phone, MessageSquare, LayoutDashboard, ClipboardCheck } from "lucide-react";
+import { Shield, Users, FileText, LogOut, Phone, MessageSquare, LayoutDashboard, ClipboardCheck, FolderOpen } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AdminVics from "@/components/AdminVics";
 import AdminVicDetail from "@/components/AdminVicDetail";
