@@ -296,6 +296,10 @@ export default function Dashboard() {
                   </div>
                 )}
                 <Separator />
+                <Button size="sm" onClick={() => { setShowDocUpload(true); setSelectedId(null); }} className="justify-start">
+                  <FileUp className="w-4 h-4 mr-1.5" />
+                  Dokumente hochladen
+                </Button>
                 <Button variant="ghost" size="sm" onClick={handleSignOut} className="justify-start text-muted-foreground hover:text-destructive">
                   <LogOut className="w-4 h-4 mr-1.5" />
                   Abmelden
