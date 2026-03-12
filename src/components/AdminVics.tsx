@@ -147,34 +147,60 @@ export default function AdminVics() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
+              <TableRow>
                   <TableHead>Vorname</TableHead>
                   <TableHead>Nachname</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Telefon</TableHead>
                   <TableHead>Temp. Passwort</TableHead>
                   <TableHead>Erstellt am</TableHead>
+                  <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((u) => (
-                  <TableRow
-                    key={u.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => navigate(`/admin/vics/${u.id}`)}
-                  >
-                    <TableCell>{u.first_name ?? "–"}</TableCell>
-                    <TableCell>{u.last_name ?? "–"}</TableCell>
-                    <TableCell>{u.email ?? "–"}</TableCell>
-                    <TableCell>{u.phone ?? "–"}</TableCell>
-                    <TableCell>
+                  <TableRow key={u.id} className="hover:bg-muted/50">
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => navigate(`/admin/vics/${u.id}`)}
+                    >
+                      {u.first_name ?? "–"}
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => navigate(`/admin/vics/${u.id}`)}
+                    >
+                      {u.last_name ?? "–"}
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => navigate(`/admin/vics/${u.id}`)}
+                    >
+                      {u.email ?? "–"}
+                    </TableCell>
+                    <TableCell
+                      className={u.phone ? "cursor-pointer" : ""}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (u.phone) {
+                          navigator.clipboard.writeText(u.phone);
+                          toast({ title: "Kopiert", description: "Telefonnummer in Zwischenablage kopiert." });
+                        }
+                      }}
+                    >
+                      {u.phone ?? "–"}
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       {u.temp_password ? (
                         <span className="inline-flex items-center gap-1.5">
                           <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">
                             {u.temp_password}
                           </code>
                           <button
-                            onClick={() => copyToClipboard(u.temp_password!)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyToClipboard(u.temp_password!);
+                            }}
                             className="text-muted-foreground hover:text-foreground transition-colors"
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -192,6 +218,14 @@ export default function AdminVics() {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
+                    </TableCell>
+                    <TableCell>
+                      <button
+                        onClick={() => navigate(`/admin/vics/${u.id}`)}
+                        className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))}

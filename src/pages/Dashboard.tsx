@@ -525,7 +525,7 @@ export default function Dashboard() {
           </div>
 
           {/* Partner Section */}
-          <div className="mt-16 pb-12">
+          <div className="mt-16 pb-12 opacity-0 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "forwards" }}>
             <Separator className="mb-8" />
             <div className="text-center space-y-6">
               <p className="text-xs uppercase tracking-widest text-muted-foreground/60 font-medium">
