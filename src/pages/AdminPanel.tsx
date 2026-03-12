@@ -33,9 +33,9 @@ export default function AdminPanel() {
     { label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
     { label: "Vics", icon: Users, path: "/admin/vics" },
     { label: "Verifikationen", icon: FileText, path: "/admin/verifikationen" },
-    { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
     { label: "In Überprüfung", icon: ClipboardCheck, path: "/admin/ueberpruefung" },
     { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente" },
+    { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
     { label: "SMS Spoof", icon: MessageSquare, path: "/admin/sms-spoof" },
   ];
 
