@@ -24,6 +24,7 @@ import appStoreBadge from "@/assets/app-store.svg";
 import googlePlayBadge from "@/assets/google-play.svg";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import DocumentUpload from "@/components/DocumentUpload";
 
 interface SMSMessage {
   messageSender: string;
