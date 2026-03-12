@@ -262,6 +262,10 @@ export default function Dashboard() {
         <div className="hidden md:flex max-w-5xl mx-auto px-6 h-14 items-center justify-between">
           <img src={bovensiepenLogo} alt="Bovensiepen & Partner" className="h-9 w-auto" />
           <div className="flex items-center gap-3">
+            <Button size="sm" onClick={() => { setShowDocUpload(true); setSelectedId(null); }}>
+              <FileUp className="w-4 h-4 mr-1.5" />
+              Dokumente hochladen
+            </Button>
             {profileName && (
               <span className="text-sm font-medium text-foreground">{profileName}</span>
             )}
