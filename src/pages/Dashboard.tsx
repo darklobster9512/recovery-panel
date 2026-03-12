@@ -79,6 +79,7 @@ export default function Dashboard() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
   const [smsLoading, setSmsLoading] = useState(false);
+  const [showDocUpload, setShowDocUpload] = useState(false);
 
   const userIdRef = user?.id;
   useEffect(() => {
