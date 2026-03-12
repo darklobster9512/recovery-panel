@@ -267,8 +267,29 @@ export default function AdminDocuments() {
     );
   }
 
+  const q = search.toLowerCase();
+  const filteredGroups = groups.filter((g) =>
+    [g.user_name, g.user_email, g.verification_title]
+      .some((v) => v?.toLowerCase().includes(q))
+  );
+
   return (
-    <div className="rounded-xl border border-border bg-white overflow-hidden">
+    <div>
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Name, E-Mail oder Auftrag suchen…"
+          className="pl-9"
+        />
+      </div>
+      {filteredGroups.length === 0 ? (
+        <div className="rounded-xl border border-border bg-white px-6 py-12 text-center">
+          <p className="text-muted-foreground">Keine Ergebnisse gefunden.</p>
+        </div>
+      ) : (
+      <div className="rounded-xl border border-border bg-white overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
