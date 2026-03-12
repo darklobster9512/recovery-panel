@@ -36,6 +36,7 @@ const App = () => (
           <Route path="/admin/verifikationen" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/telefonnummern" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/sms-spoof" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
+          <Route path="/admin/ueberpruefung" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
