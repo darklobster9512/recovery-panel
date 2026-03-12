@@ -47,6 +47,7 @@ function getFileIcon(type: string) {
 export default function AdminDocuments() {
   const [groups, setGroups] = useState<DocGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [detail, setDetail] = useState<{ userId: string; assignmentId: string; title: string; userName: string } | null>(null);
   const [docs, setDocs] = useState<DocDetail[]>([]);
   const [docsLoading, setDocsLoading] = useState(false);
