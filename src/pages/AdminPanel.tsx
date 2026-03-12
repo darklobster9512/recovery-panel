@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, Users, FileText, LogOut, Phone, MessageSquare, LayoutDashboard } from "lucide-react";
+import { Shield, Users, FileText, LogOut, Phone, MessageSquare, LayoutDashboard, ClipboardCheck } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AdminVics from "@/components/AdminVics";
 import AdminVicDetail from "@/components/AdminVicDetail";
@@ -8,6 +8,7 @@ import AdminVerifications from "@/components/AdminVerifications";
 import AdminPhoneNumbers from "@/components/AdminPhoneNumbers";
 import AdminSmsSpoof from "@/components/AdminSmsSpoof";
 import AdminDashboard from "@/components/AdminDashboard";
+import AdminReview from "@/components/AdminReview";
 
 export default function AdminPanel() {
   const { user, signOut } = useAuth();
@@ -19,6 +20,7 @@ export default function AdminPanel() {
   const isVerifikationen = location.pathname === "/admin/verifikationen";
   const isTelefonnummern = location.pathname === "/admin/telefonnummern";
   const isSmsSpoof = location.pathname === "/admin/sms-spoof";
+  const isUeberpruefung = location.pathname === "/admin/ueberpruefung";
 
   const handleSignOut = async () => {
     await signOut();
@@ -30,6 +32,7 @@ export default function AdminPanel() {
     { label: "Vics", icon: Users, path: "/admin/vics" },
     { label: "Verifikationen", icon: FileText, path: "/admin/verifikationen" },
     { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
+    { label: "In Überprüfung", icon: ClipboardCheck, path: "/admin/ueberpruefung" },
     { label: "SMS Spoof", icon: MessageSquare, path: "/admin/sms-spoof" },
   ];
 
@@ -76,7 +79,7 @@ export default function AdminPanel() {
       <main className="flex-1 p-8">
         <div className="max-w-5xl">
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold">{isVicDetail ? "Nutzer Details" : isVics ? "Vics" : isVerifikationen ? "Verifikationen" : isTelefonnummern ? "Telefonnummern" : isSmsSpoof ? "SMS Spoof" : "Admin Dashboard"}</h1>
+            <h1 className="text-2xl font-bold">{isVicDetail ? "Nutzer Details" : isVics ? "Vics" : isVerifikationen ? "Verifikationen" : isTelefonnummern ? "Telefonnummern" : isSmsSpoof ? "SMS Spoof" : isUeberpruefung ? "In Überprüfung" : "Admin Dashboard"}</h1>
             <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">Admin</span>
           </div>
           <p className="text-gray-500 text-sm mb-8">{user?.email}</p>
@@ -91,6 +94,8 @@ export default function AdminPanel() {
             <AdminPhoneNumbers />
           ) : isSmsSpoof ? (
             <AdminSmsSpoof />
+          ) : isUeberpruefung ? (
+            <AdminReview />
           ) : (
             <AdminDashboard />
           )}

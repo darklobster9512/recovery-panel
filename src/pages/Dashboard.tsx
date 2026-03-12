@@ -4,9 +4,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
-import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu } from "lucide-react";
+import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import bovensiepenLogo from "@/assets/bovensiepen-logo.png";
 import europolLogo from "@/assets/europol-logo.png";
 import appStoreBadge from "@/assets/app-store.svg";
@@ -460,6 +471,79 @@ export default function Dashboard() {
                   ))}
                 </ol>
               </div>
+            )}
+
+            {/* Status banners & submit button */}
+            {selected.status === "abgelehnt" && (
+              <div className="flex items-start gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3 dark:border-red-500/30 dark:bg-red-500/10">
+                <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-red-700 dark:text-red-400">Auftrag abgelehnt</p>
+                  <p className="text-sm text-red-600/80 dark:text-red-400/70">Bitte führen Sie den Auftrag erneut gemäß der Anleitung durch und reichen Sie ihn dann wieder ein.</p>
+                </div>
+              </div>
+            )}
+
+            {selected.status === "in_ueberpruefung" && (
+              <div className="flex items-start gap-3 rounded-xl border border-orange-300 bg-orange-50 px-4 py-3 dark:border-orange-500/30 dark:bg-orange-500/10">
+                <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-orange-700 dark:text-orange-400">In Überprüfung</p>
+                  <p className="text-sm text-orange-600/80 dark:text-orange-400/70">Ihr Auftrag wird derzeit überprüft. Bitte haben Sie etwas Geduld.</p>
+                </div>
+              </div>
+            )}
+
+            {selected.status === "genehmigt" && (
+              <div className="flex items-start gap-3 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Erfolgreich abgeschlossen</p>
+                  <p className="text-sm text-emerald-600/80 dark:text-emerald-400/70">Dieser Auftrag wurde erfolgreich genehmigt.</p>
+                </div>
+              </div>
+            )}
+
+            {(selected.status === "zugewiesen" || selected.status === "abgelehnt") && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button className="w-full" size="lg">
+                    <Send className="w-4 h-4 mr-2" />
+                    Auftrag abschließen
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Auftrag zur Überprüfung einreichen?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Bitte bestätigen Sie, dass Sie den Auftrag gemäß der Anleitung erfolgreich abgeschlossen haben. Der Auftrag wird anschließend zur Überprüfung eingereicht.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={async () => {
+                        const { error } = await supabase
+                          .from("verification_assignments")
+                          .update({ status: "in_ueberpruefung" as any })
+                          .eq("id", selected.id);
+                        if (error) {
+                          toast.error("Fehler: " + error.message);
+                        } else {
+                          toast.success("Auftrag zur Überprüfung eingereicht");
+                          setAssignments((prev) =>
+                            prev.map((a) =>
+                              a.id === selected.id ? { ...a, status: "in_ueberpruefung" as AssignmentStatus } : a
+                            )
+                          );
+                        }
+                      }}
+                    >
+                      Bestätigen
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </div>
         </main>
