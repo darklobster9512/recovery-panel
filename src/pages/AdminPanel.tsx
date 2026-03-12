@@ -34,6 +34,7 @@ export default function AdminPanel() {
     { label: "Verifikationen", icon: FileText, path: "/admin/verifikationen" },
     { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
     { label: "In Überprüfung", icon: ClipboardCheck, path: "/admin/ueberpruefung" },
+    { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente" },
     { label: "SMS Spoof", icon: MessageSquare, path: "/admin/sms-spoof" },
   ];
 
