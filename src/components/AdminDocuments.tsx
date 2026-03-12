@@ -301,7 +301,7 @@ export default function AdminDocuments() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {groups.map((g) => (
+          {filteredGroups.map((g) => (
             <TableRow
               key={`${g.user_id}-${g.assignment_id}`}
               className="cursor-pointer"
@@ -331,6 +331,8 @@ export default function AdminDocuments() {
           ))}
         </TableBody>
       </Table>
+    </div>
+    )}
     </div>
   );
 }
