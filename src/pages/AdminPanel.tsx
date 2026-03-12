@@ -94,6 +94,8 @@ export default function AdminPanel() {
             <AdminVerifications />
           ) : isTelefonnummern ? (
             <AdminPhoneNumbers />
+          ) : isDokumente ? (
+            <AdminDocuments />
           ) : isSmsSpoof ? (
             <AdminSmsSpoof />
           ) : isUeberpruefung ? (

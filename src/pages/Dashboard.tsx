@@ -311,7 +311,9 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {selected ? (
+      {showDocUpload ? (
+        <DocumentUpload onBack={() => setShowDocUpload(false)} />
+      ) : selected ? (
         /* ── Detail View ── */
         <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
           <Button
