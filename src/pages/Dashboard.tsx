@@ -465,9 +465,9 @@ export default function Dashboard() {
         </main>
       ) : (
         /* ── Overview ── */
-        <main className="max-w-5xl mx-auto w-full px-6 animate-in fade-in duration-500">
+        <main className="max-w-5xl mx-auto w-full px-6">
           {/* Hero */}
-          <div className="pt-16 pb-12 text-center">
+          <div className="pt-16 pb-12 text-center opacity-0 animate-fade-in" style={{ animationDelay: "0ms", animationFillMode: "forwards" }}>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
               Willkommen zurück
             </h1>
@@ -478,7 +478,7 @@ export default function Dashboard() {
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pb-16">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pb-16 opacity-0 animate-fade-in" style={{ animationDelay: "150ms", animationFillMode: "forwards" }}>
             {/* Real assignments */}
             {assignments.map((a) => (
               <Card
@@ -525,7 +525,7 @@ export default function Dashboard() {
           </div>
 
           {/* Partner Section */}
-          <div className="mt-16 pb-12">
+          <div className="mt-16 pb-12 opacity-0 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "forwards" }}>
             <Separator className="mb-8" />
             <div className="text-center space-y-6">
               <p className="text-xs uppercase tracking-widest text-muted-foreground/60 font-medium">
