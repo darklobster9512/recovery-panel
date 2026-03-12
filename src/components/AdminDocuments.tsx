@@ -212,8 +212,30 @@ export default function AdminDocuments() {
                           size="icon"
                           className="h-8 w-8"
                           onClick={() => window.open(url, "_blank")}
+                          title="Vorschau"
                         >
-                          {isImage ? <Eye className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+                          <Eye className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={async () => {
+                            try {
+                              const res = await fetch(url);
+                              const blob = await res.blob();
+                              const a = document.createElement("a");
+                              a.href = URL.createObjectURL(blob);
+                              a.download = doc.file_name;
+                              a.click();
+                              URL.revokeObjectURL(a.href);
+                            } catch {
+                              toast.error("Download fehlgeschlagen");
+                            }
+                          }}
+                          title="Herunterladen"
+                        >
+                          <Download className="w-3.5 h-3.5" />
                         </Button>
                       </div>
                     )}

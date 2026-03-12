@@ -403,36 +403,46 @@ export default function DocumentUpload({ onBack }: { onBack: () => void }) {
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {documents.map((doc) => {
                 const Icon = getFileIcon(doc.file_type);
+                const url = signedUrls[doc.file_path];
+                const isImage = doc.file_type.startsWith("image/");
+
                 return (
                   <div
                     key={doc.id}
-                    className="flex items-center gap-3 rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
+                    className="rounded-xl border border-border bg-secondary/50 overflow-hidden group"
                   >
-                    <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{doc.file_name}</p>
-                      <p className="text-xs text-muted-foreground">
+                    {isImage && url ? (
+                      <div className="aspect-video bg-secondary/30 flex items-center justify-center overflow-hidden">
+                        <img src={url} alt={doc.file_name} className="w-full h-full object-contain" />
+                      </div>
+                    ) : (
+                      <div className="aspect-video bg-secondary/30 flex items-center justify-center">
+                        <Icon className="w-10 h-10 text-muted-foreground/40" />
+                      </div>
+                    )}
+                    <div className="px-3 py-2.5">
+                      <p className="text-xs font-medium text-foreground truncate">{doc.file_name}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
                         {formatFileSize(doc.file_size)} •{" "}
                         {new Date(doc.created_at).toLocaleString("de-DE", {
                           day: "2-digit",
                           month: "2-digit",
                           year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
                         })}
                       </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full mt-2 h-7 text-xs"
+                        onClick={() => handleDownload(doc)}
+                      >
+                        <Download className="w-3 h-3 mr-1" />
+                        Download
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100"
-                      onClick={() => handleDownload(doc)}
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                    </Button>
                   </div>
                 );
               })}
