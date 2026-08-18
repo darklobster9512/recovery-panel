@@ -68,12 +68,37 @@ export default function Auth() {
 
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Willkommen zurück
+              {mode === "login" ? "Willkommen zurück" : "Konto erstellen"}
             </h1>
             <p className="mt-2 text-gray-500 text-sm">
-              Melde dich an, um auf dein Dashboard zuzugreifen.
+              {mode === "login"
+                ? "Melde dich an, um auf dein Dashboard zuzugreifen."
+                : "Registriere dich mit E-Mail und Passwort."}
             </p>
           </div>
+
+          <div className="grid grid-cols-2 gap-1 p-1 bg-gray-100 rounded-lg">
+            {(["login", "register"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => {
+                  setMode(m);
+                  setError("");
+                  setInfo("");
+                }}
+                className={`h-9 rounded-md text-sm font-medium transition-colors ${
+                  mode === m
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {m === "login" ? "Anmelden" : "Registrieren"}
+              </button>
+            ))}
+          </div>
+
+
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
