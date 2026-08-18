@@ -8,10 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Scale, Landmark, Briefcase, Eye, EyeOff, Shield } from "lucide-react";
 
 export default function Auth() {
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user, role } = useAuth();
@@ -25,17 +27,31 @@ export default function Auth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setInfo("");
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      if (mode === "register") {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin },
+        });
+        if (error) throw error;
+        if (!data.session) {
+          setInfo("Konto erstellt. Bitte bestätige deine E-Mail-Adresse, um dich anzumelden.");
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex bg-white text-gray-900">
