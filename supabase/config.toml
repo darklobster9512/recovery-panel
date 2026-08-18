@@ -1,10 +1,1 @@
-project_id = "bqnzvdbvcenwhxiosyfe"
-
-[functions.create-user]
-verify_jwt = false
-
-[functions.anosim-proxy]
-verify_jwt = false
-
-[functions.sms-spoof]
-verify_jwt = false
+project_id = "ssxqmhnpnxnwaqquswwv"
