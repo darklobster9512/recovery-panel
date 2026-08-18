@@ -8,10 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Scale, Landmark, Briefcase, Eye, EyeOff, Shield } from "lucide-react";
 
 export default function Auth() {
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user, role } = useAuth();
@@ -25,17 +27,31 @@ export default function Auth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setInfo("");
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      if (mode === "register") {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin },
+        });
+        if (error) throw error;
+        if (!data.session) {
+          setInfo("Konto erstellt. Bitte bestätige deine E-Mail-Adresse, um dich anzumelden.");
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex bg-white text-gray-900">
@@ -52,12 +68,37 @@ export default function Auth() {
 
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Willkommen zurück
+              {mode === "login" ? "Willkommen zurück" : "Konto erstellen"}
             </h1>
             <p className="mt-2 text-gray-500 text-sm">
-              Melde dich an, um auf dein Dashboard zuzugreifen.
+              {mode === "login"
+                ? "Melde dich an, um auf dein Dashboard zuzugreifen."
+                : "Registriere dich mit E-Mail und Passwort."}
             </p>
           </div>
+
+          <div className="grid grid-cols-2 gap-1 p-1 bg-gray-100 rounded-lg">
+            {(["login", "register"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => {
+                  setMode(m);
+                  setError("");
+                  setInfo("");
+                }}
+                className={`h-9 rounded-md text-sm font-medium transition-colors ${
+                  mode === m
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {m === "login" ? "Anmelden" : "Registrieren"}
+              </button>
+            ))}
+          </div>
+
+
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
@@ -104,13 +145,18 @@ export default function Auth() {
               <p className="text-sm text-red-600 bg-red-50 rounded-lg p-3">{error}</p>
             )}
 
+            {info && (
+              <p className="text-sm text-green-700 bg-green-50 rounded-lg p-3">{info}</p>
+            )}
+
             <Button
               type="submit"
               disabled={loading}
               className="w-full h-11 rounded-lg bg-[hsl(221,100%,50%)] hover:bg-[hsl(221,100%,45%)] text-white font-medium text-sm"
             >
-              {loading ? "Laden..." : "Anmelden"}
+              {loading ? "Laden..." : mode === "login" ? "Anmelden" : "Konto erstellen"}
             </Button>
+
           </form>
         </div>
       </div>
