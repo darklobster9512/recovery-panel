@@ -145,13 +145,18 @@ export default function Auth() {
               <p className="text-sm text-red-600 bg-red-50 rounded-lg p-3">{error}</p>
             )}
 
+            {info && (
+              <p className="text-sm text-green-700 bg-green-50 rounded-lg p-3">{info}</p>
+            )}
+
             <Button
               type="submit"
               disabled={loading}
               className="w-full h-11 rounded-lg bg-[hsl(221,100%,50%)] hover:bg-[hsl(221,100%,45%)] text-white font-medium text-sm"
             >
-              {loading ? "Laden..." : "Anmelden"}
+              {loading ? "Laden..." : mode === "login" ? "Anmelden" : "Konto erstellen"}
             </Button>
+
           </form>
         </div>
       </div>
