@@ -307,7 +307,9 @@ export default function Dashboard() {
               </div>
             </SheetContent>
           </Sheet>
-          <img src={bovensiepenLogo} alt="Bovensiepen & Partner" className="h-9 w-auto" />
+          <span className="font-serif text-lg tracking-tight text-foreground">
+            Korte <span className="opacity-60">&amp;</span> Partner
+          </span>
         </div>
       </header>
 
