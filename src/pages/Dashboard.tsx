@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import bovensiepenLogo from "@/assets/bovensiepen-logo.png";
+
 import europolLogo from "@/assets/europol-logo.png";
 import appStoreBadge from "@/assets/app-store.svg";
 import googlePlayBadge from "@/assets/google-play.svg";
@@ -260,7 +260,9 @@ export default function Dashboard() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
         {/* Desktop Header */}
         <div className="hidden md:flex max-w-5xl mx-auto px-6 h-14 items-center justify-between">
-          <img src={bovensiepenLogo} alt="Bovensiepen & Partner" className="h-9 w-auto" />
+          <span className="font-serif text-xl tracking-tight text-foreground">
+            Korte <span className="opacity-60">&amp;</span> Partner
+          </span>
           <div className="flex items-center gap-3">
             <Button size="sm" onClick={() => { setShowDocUpload(true); setSelectedId(null); }}>
               <FileUp className="w-4 h-4 mr-1.5" />
@@ -307,7 +309,9 @@ export default function Dashboard() {
               </div>
             </SheetContent>
           </Sheet>
-          <img src={bovensiepenLogo} alt="Bovensiepen & Partner" className="h-9 w-auto" />
+          <span className="font-serif text-lg tracking-tight text-foreground">
+            Korte <span className="opacity-60">&amp;</span> Partner
+          </span>
         </div>
       </header>
 
