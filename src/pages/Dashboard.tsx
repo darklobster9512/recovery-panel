@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import bovensiepenLogo from "@/assets/bovensiepen-logo.png";
+
 import europolLogo from "@/assets/europol-logo.png";
 import appStoreBadge from "@/assets/app-store.svg";
 import googlePlayBadge from "@/assets/google-play.svg";
