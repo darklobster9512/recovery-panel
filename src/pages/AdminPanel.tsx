@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, Users, FileText, LogOut, Phone, MessageSquare, LayoutDashboard, ClipboardCheck, FolderOpen } from "lucide-react";
+import { Shield, Users, FileText, LogOut, Phone, MessageSquare, LayoutDashboard, ClipboardCheck, FolderOpen, Mail } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AdminVics from "@/components/AdminVics";
 import AdminVicDetail from "@/components/AdminVicDetail";
@@ -10,6 +10,7 @@ import AdminSmsSpoof from "@/components/AdminSmsSpoof";
 import AdminDashboard from "@/components/AdminDashboard";
 import AdminReview from "@/components/AdminReview";
 import AdminDocuments from "@/components/AdminDocuments";
+import AdminEmailTemplates from "@/components/AdminEmailTemplates";
 
 export default function AdminPanel() {
   const { user, signOut } = useAuth();
