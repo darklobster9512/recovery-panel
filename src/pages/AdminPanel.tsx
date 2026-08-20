@@ -102,6 +102,8 @@ export default function AdminPanel() {
             <AdminDocuments />
           ) : isSmsSpoof ? (
             <AdminSmsSpoof />
+          ) : isEmails ? (
+            <AdminEmailTemplates />
           ) : isUeberpruefung ? (
             <AdminReview />
           ) : (
