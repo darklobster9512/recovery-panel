@@ -24,6 +24,7 @@ export default function AdminPanel() {
   const isSmsSpoof = location.pathname === "/admin/sms-spoof";
   const isUeberpruefung = location.pathname === "/admin/ueberpruefung";
   const isDokumente = location.pathname === "/admin/dokumente";
+  const isEmails = location.pathname === "/admin/emails";
 
   const handleSignOut = async () => {
     await signOut();
@@ -38,6 +39,7 @@ export default function AdminPanel() {
     { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente" },
     { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
     { label: "SMS Spoof", icon: MessageSquare, path: "/admin/sms-spoof" },
+    { label: "Email Vorlagen", icon: Mail, path: "/admin/emails" },
   ];
 
   return (
