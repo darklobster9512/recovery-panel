@@ -15,15 +15,10 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-const FOOTER_LINES = [
-  "Korte &amp; Partner",
-  "Domstraße 15",
-  "20095 Hamburg",
-  "Telefon: 040 573086460",
-  "E-Mail: info@korte-kanzlei.de",
-  "Dr. Thomas Korte",
-  "DE317391938",
-];
+const FOOTER_BLOCK = [
+  "Korte &amp; Partner · Domstraße 15 · 20095 Hamburg · Telefon: 040 573086460",
+  "E-Mail: info@korte-kanzlei.de · Dr. Thomas Korte · DE317391938",
+] as const;
 
 export function renderCredentialsEmail(data: CredentialsEmailData): string {
   const firstName = escapeHtml(data.firstName.trim());
