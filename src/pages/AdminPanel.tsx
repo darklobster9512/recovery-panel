@@ -98,8 +98,6 @@ export default function AdminPanel() {
             <AdminPhoneNumbers />
           ) : isDokumente ? (
             <AdminDocuments />
-          ) : isSmsSpoof ? (
-            <AdminSmsSpoof />
           ) : isEmails ? (
             <AdminEmailTemplates />
           ) : isUeberpruefung ? (
