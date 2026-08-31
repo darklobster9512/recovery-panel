@@ -20,7 +20,6 @@ export default function AdminPanel() {
   const isVicDetail = location.pathname.startsWith("/admin/vics/");
   const isVerifikationen = location.pathname === "/admin/verifikationen";
   const isTelefonnummern = location.pathname === "/admin/telefonnummern";
-  const isSmsSpoof = location.pathname === "/admin/sms-spoof";
   const isUeberpruefung = location.pathname === "/admin/ueberpruefung";
   const isDokumente = location.pathname === "/admin/dokumente";
   const isEmails = location.pathname === "/admin/emails";
