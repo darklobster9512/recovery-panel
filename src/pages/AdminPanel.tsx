@@ -36,7 +36,7 @@ export default function AdminPanel() {
     { label: "In Überprüfung", icon: ClipboardCheck, path: "/admin/ueberpruefung" },
     { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente" },
     { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
-    { label: "SMS Spoof", icon: MessageSquare, path: "/admin/sms-spoof" },
+    
     { label: "Email Vorlagen", icon: Mail, path: "/admin/emails" },
   ];
 
