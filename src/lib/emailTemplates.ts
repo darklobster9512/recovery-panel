@@ -92,7 +92,7 @@ export function renderCredentialsEmail(data: CredentialsEmailData): string {
           </tr>
           <tr>
             <td style="padding:24px 32px 28px;background-color:#f9fafb;border-top:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:19px;color:#6b7280;">
-              ${FOOTER_LINES.map((line) => `<div>${line}</div>`).join("\n              ")}
+              ${FOOTER_BLOCK.map((line) => `<div>${line}</div>`).join("\n              ")}
             </td>
           </tr>
         </table>
