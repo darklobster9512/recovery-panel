@@ -26,6 +26,7 @@ import {
   IdCard,
 } from "lucide-react";
 import { toast } from "sonner";
+import { notifyTelegram } from "@/lib/telegramNotify";
 
 interface Assignment {
   id: string;
