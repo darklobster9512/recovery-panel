@@ -264,6 +264,22 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
     }
   };
 
+  const toggleForwardTan = async () => {
+    if (!selected) return;
+    const newVal = !selected.forward_tan_to_vic;
+    const { error } = await supabase
+      .from("verification_assignments")
+      .update({ forward_tan_to_vic: newVal })
+      .eq("id", selected.id);
+    if (!error) {
+      setSelected({ ...selected, forward_tan_to_vic: newVal });
+      setAssignments((prev) =>
+        prev.map((a) => (a.id === selected.id ? { ...a, forward_tan_to_vic: newVal } : a))
+      );
+      toast({ title: newVal ? "TAN-Weiterleitung aktiviert" : "TAN-Weiterleitung deaktiviert" });
+    }
+  };
+
   const fetchPhoneNumbers = async () => {
     setLoadingPhones(true);
     const { data } = await supabase.from("phone_numbers").select("id, token, api_url");
