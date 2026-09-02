@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Loader2, Plus, Send, Trash2, Info } from "lucide-react";
-import { notifyTelegram, type TelegramEvent } from "@/lib/telegramNotify";
+import { notifyTelegram, type TelegramDbEvent } from "@/lib/telegramNotify";
 
 interface TelegramChat {
   id: string;
@@ -34,11 +34,11 @@ interface TelegramChat {
 interface Subscription {
   id: string;
   chat_id: string; // FK to telegram_chats.id
-  event: TelegramEvent;
+  event: TelegramDbEvent;
   enabled: boolean;
 }
 
-const EVENTS: { key: TelegramEvent; label: string }[] = [
+const EVENTS: { key: TelegramDbEvent; label: string }[] = [
   { key: "lead_note_added", label: "Lead-Notiz" },
   { key: "vic_note_added", label: "Vic-Notiz" },
   { key: "document_uploaded", label: "Dokument-Upload" },
