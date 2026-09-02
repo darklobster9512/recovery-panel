@@ -451,7 +451,9 @@ export default function AdminVerifications() {
         open={assignDialogOpen}
         onOpenChange={setAssignDialogOpen}
         verification={assignVerification}
+        onAssigned={() => setHistoryRefreshToken((n) => n + 1)}
       />
+
     </>
   );
 }
