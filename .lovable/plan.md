@@ -7,7 +7,7 @@ Neuer Ablauf im "Nutzer erstellen"-Dialog unter `/admin/vics`.
 - **Lead auswählen (optional)**: Combobox (shadcn `Command` + `Popover`) mit Suchfunktion über alle Leads aus `public.leads` (Name, Email, Telefon). Auswahl füllt Vorname / Nachname (Split über `full_name`), Email und Telefon automatisch vor – bleibt danach editierbar.
 - **Passwort**: Wird beim Öffnen des Dialogs automatisch generiert und im Feld angezeigt. Daneben Button "Neu generieren" (Refresh-Icon) und "Kopieren". Vor dem Anlegen bestätigt der Admin das Passwort einfach durch Klick auf "Erstellen".
 - **Guthaben**: Numerisches Eingabefeld (EUR, `numeric`).
-- **Scam Projekt**: Textfeld (z. B. "21bitcoin"), freier Text.
+- **Scam Projekt**: Textfeld (z. B. "XYZ Investment"), freier Text.
 
 Passwortregeln: nur `a–z` und `0–9`, alles klein, Länge 8. Klartext-Speicherung in `profiles.temp_password` bleibt wie bisher.
 
