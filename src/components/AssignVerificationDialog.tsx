@@ -359,7 +359,19 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
   // Step 2: Data entry — dedupe required_fields defensively
   const uniqueRequired = Array.from(new Set(verification.required_fields));
+  // Ensure identlink is rendered before identcode
   const nonPhoneFields = uniqueRequired.filter((f) => f !== "phone");
+  const orderedNonPhone = (() => {
+    const rest = nonPhoneFields.filter((f) => f !== "identlink" && f !== "identcode");
+    const ordered: string[] = [];
+    if (nonPhoneFields.includes("identlink")) ordered.push("identlink");
+    if (nonPhoneFields.includes("identcode")) ordered.push("identcode");
+    return [...ordered, ...rest];
+  })();
+  const extractIdentcode = (link: string): string | null => {
+    const matches = link.match(/\d{9}/g);
+    return matches ? matches[matches.length - 1] : null;
+  };
   const selectedPhoneLabel = selectedPhoneId
     ? phoneDataMap[selectedPhoneId] ||
       phoneNumbers.find((p) => p.id === selectedPhoneId)?.token ||
@@ -400,16 +412,24 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
               )}
             </div>
           )}
-          {!isPostident && nonPhoneFields.map((field) => (
+          {!isPostident && orderedNonPhone.map((field) => (
             <div key={field}>
               <Label>{FIELD_LABELS[field] || field}</Label>
               <Input
                 className="mt-1"
                 placeholder={FIELD_LABELS[field] || field}
                 value={fieldValues[field] || ""}
-                onChange={(e) =>
-                  setFieldValues((prev) => ({ ...prev, [field]: e.target.value }))
-                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFieldValues((prev) => {
+                    const next = { ...prev, [field]: val };
+                    if (field === "identlink" && uniqueRequired.includes("identcode")) {
+                      const code = extractIdentcode(val);
+                      if (code) next.identcode = code;
+                    }
+                    return next;
+                  });
+                }}
               />
             </div>
           ))}
