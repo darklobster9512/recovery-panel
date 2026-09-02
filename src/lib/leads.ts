@@ -249,7 +249,7 @@ export async function parseLeadsFile(file: File): Promise<ParseResult> {
     return {
       full_name: get("full_name") || null,
       email: get("email") || null,
-      phone_number: get("phone_number") || null,
+      phone_number: normalizePhone(get("phone_number")) || null,
       schadenshoehe: parseAmount(get("schadenshoehe")),
       vorfall: get("vorfall") || null,
       external_id: get("external_id") || null,
