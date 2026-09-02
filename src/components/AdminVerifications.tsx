@@ -116,6 +116,7 @@ export default function AdminVerifications() {
     setPlaystoreUrl(v.playstore_url || "");
     setLogoPreview(v.logo_url);
     setLogoFile(null);
+    setType((v.type as VerificationType) || "videocall");
     setDialogOpen(true);
   };
 
