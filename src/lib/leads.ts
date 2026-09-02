@@ -215,6 +215,11 @@ function parseAmount(value: string): number | null {
   return Number.isFinite(num) ? num : null;
 }
 
+/** Removes a leading "p:" prefix (as exported by the lead source) and trims whitespace. */
+export function normalizePhone(value: string): string {
+  return value.replace(/^\s*p\s*:\s*/i, "").trim();
+}
+
 export async function parseLeadsFile(file: File): Promise<ParseResult> {
   const text = decodeFile(await file.arrayBuffer());
   const firstLine = text.split("\n")[0] ?? "";
@@ -244,7 +249,7 @@ export async function parseLeadsFile(file: File): Promise<ParseResult> {
     return {
       full_name: get("full_name") || null,
       email: get("email") || null,
-      phone_number: get("phone_number") || null,
+      phone_number: normalizePhone(get("phone_number")) || null,
       schadenshoehe: parseAmount(get("schadenshoehe")),
       vorfall: get("vorfall") || null,
       external_id: get("external_id") || null,
