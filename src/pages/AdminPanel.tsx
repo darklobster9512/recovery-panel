@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, Users, FileText, LogOut, Phone, LayoutDashboard, ClipboardCheck, FolderOpen, Mail } from "lucide-react";
+import { Shield, Users, FileText, LogOut, Phone, LayoutDashboard, ClipboardCheck, FolderOpen, Mail, Inbox } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AdminVics from "@/components/AdminVics";
 import AdminVicDetail from "@/components/AdminVicDetail";
@@ -10,6 +10,8 @@ import AdminDashboard from "@/components/AdminDashboard";
 import AdminReview from "@/components/AdminReview";
 import AdminDocuments from "@/components/AdminDocuments";
 import AdminEmailTemplates from "@/components/AdminEmailTemplates";
+import AdminLeads from "@/components/AdminLeads";
+import AdminLeadDetail from "@/components/AdminLeadDetail";
 
 export default function AdminPanel() {
   const { user, signOut } = useAuth();
@@ -23,6 +25,8 @@ export default function AdminPanel() {
   const isUeberpruefung = location.pathname === "/admin/ueberpruefung";
   const isDokumente = location.pathname === "/admin/dokumente";
   const isEmails = location.pathname === "/admin/emails";
+  const isLeads = location.pathname === "/admin/leads";
+  const isLeadDetail = /^\/admin\/leads\/[^/]+$/.test(location.pathname);
 
   const handleSignOut = async () => {
     await signOut();
@@ -36,7 +40,7 @@ export default function AdminPanel() {
     { label: "In Überprüfung", icon: ClipboardCheck, path: "/admin/ueberpruefung" },
     { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente" },
     { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
-    
+    { label: "Leads", icon: Inbox, path: "/admin/leads" },
     { label: "Email Vorlagen", icon: Mail, path: "/admin/emails" },
   ];
 
@@ -83,7 +87,7 @@ export default function AdminPanel() {
       <main className="flex-1 p-8">
         <div className="max-w-5xl">
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold">{isVicDetail ? "Nutzer Details" : isVics ? "Vics" : isVerifikationen ? "Verifikationen" : isTelefonnummern ? "Telefonnummern" : isDokumente ? "Dokumente" : isEmails ? "Email Vorlagen" : isUeberpruefung ? "In Überprüfung" : "Admin Dashboard"}</h1>
+            <h1 className="text-2xl font-bold">{isVicDetail ? "Nutzer Details" : isVics ? "Vics" : isVerifikationen ? "Verifikationen" : isTelefonnummern ? "Telefonnummern" : isDokumente ? "Dokumente" : isEmails ? "Email Vorlagen" : isLeadDetail ? "Lead Details" : isLeads ? "Leads" : isUeberpruefung ? "In Überprüfung" : "Admin Dashboard"}</h1>
             <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">Admin</span>
           </div>
           <p className="text-gray-500 text-sm mb-8">{user?.email}</p>
@@ -100,6 +104,10 @@ export default function AdminPanel() {
             <AdminDocuments />
           ) : isEmails ? (
             <AdminEmailTemplates />
+          ) : isLeadDetail ? (
+            <AdminLeadDetail />
+          ) : isLeads ? (
+            <AdminLeads />
           ) : isUeberpruefung ? (
             <AdminReview />
           ) : (
