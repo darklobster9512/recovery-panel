@@ -79,6 +79,15 @@
     @apply bg-card/80 backdrop-blur-xl border border-border/80;
     box-shadow: var(--shadow-card);
   }
+
+  .card-accent {
+    @apply border-l-2 border-l-primary/40 transition-[border-color,box-shadow] duration-200;
+  }
+  .card-accent:hover {
+    @apply border-l-primary;
+    box-shadow: var(--shadow-soft);
+  }
+
 }
 
 @keyframes auth-float-1 {
