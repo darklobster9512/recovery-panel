@@ -454,87 +454,151 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
       ""
     : "";
 
+  const vicInitials = `${selectedVic.first_name?.[0] ?? ""}${selectedVic.last_name?.[0] ?? ""}`.toUpperCase() || "?";
+  const typeLabel = isPostident ? "Postident" : "Videocall";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center gap-3">
-            <VerificationLogo
-              value={verification.logo_url ?? null}
-              alt={verification.title}
-              className="w-10 h-10 rounded-md object-cover shrink-0"
-            />
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">Auftrag</p>
-              <DialogTitle className="truncate">{verification.title}</DialogTitle>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground pt-2">
-            Daten für {selectedVic.first_name} {selectedVic.last_name}
-          </p>
+      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto p-6 gap-0 rounded-xl">
+        <DialogHeader className="space-y-0">
+          <DialogShellHeader
+            icon={
+              <div className="w-full h-full rounded-xl overflow-hidden bg-card flex items-center justify-center">
+                <VerificationLogo
+                  value={verification.logo_url ?? null}
+                  alt={verification.title}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            }
+            eyebrow="Zuweisung – Ident-Daten"
+            title={<DialogTitle asChild><span>{verification.title}</span></DialogTitle>}
+            description={
+              <span className="inline-flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${isPostident ? "bg-amber-100 text-amber-700" : "bg-primary/10 text-primary"}`}>
+                  {typeLabel}
+                </span>
+                <span>
+                  Für <span className="font-medium text-foreground">{selectedVic.first_name} {selectedVic.last_name}</span>
+                </span>
+              </span>
+            }
+          />
         </DialogHeader>
-        <div className="space-y-4 py-2">
+
+        <div className="space-y-6 py-6">
+          <DialogSection label="Vic">
+            <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/30 px-3 py-2.5">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 text-primary flex items-center justify-center text-xs font-semibold">
+                {vicInitials}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {selectedVic.first_name} {selectedVic.last_name}
+                </p>
+                {selectedVic.email && <p className="text-xs text-muted-foreground truncate">{selectedVic.email}</p>}
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedVic(null)} disabled={saving}>
+                Ändern
+              </Button>
+            </div>
+          </DialogSection>
+
           {isPostident && (
-            <div>
-              <Label>PDF-Datei (Postident)</Label>
-              <Input
-                className="mt-1"
-                type="file"
-                accept="application/pdf"
-                onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
-              />
-              {pdfFile && (
-                <p className="text-xs text-muted-foreground mt-1">{pdfFile.name}</p>
-              )}
-            </div>
+            <DialogSection label="Postident-Dokument">
+              <div className="rounded-lg border-2 border-dashed border-border/70 bg-muted/20 p-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">PDF-Datei hochladen</p>
+                    <p className="text-xs text-muted-foreground">Nur PDF, max. eine Datei.</p>
+                  </div>
+                </div>
+                <Input
+                  className="mt-3"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+                />
+                {pdfFile && (
+                  <div className="mt-2 flex items-center gap-2 text-xs">
+                    <FileText className="w-3.5 h-3.5 text-primary" />
+                    <span className="font-medium text-foreground truncate">{pdfFile.name}</span>
+                    <span className="text-muted-foreground">· {(pdfFile.size / 1024).toFixed(1)} KB</span>
+                  </div>
+                )}
+              </div>
+            </DialogSection>
           )}
-          {!isPostident && orderedNonPhone.map((field) => (
-            <div key={field}>
-              <Label>{FIELD_LABELS[field] || field}</Label>
-              <Input
-                className="mt-1"
-                placeholder={FIELD_LABELS[field] || field}
-                value={fieldValues[field] || ""}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setFieldValues((prev) => {
-                    const next = { ...prev, [field]: val };
-                    if (field === "identlink" && uniqueRequired.includes("identcode")) {
-                      const code = extractIdentcode(val);
-                      if (code) next.identcode = code;
-                    }
-                    return next;
-                  });
-                }}
-              />
-            </div>
-          ))}
+
+          {!isPostident && orderedNonPhone.length > 0 && (
+            <DialogSection label="Ident-Daten">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {orderedNonPhone.map((field) => {
+                  const isLink = field === "identlink";
+                  const isCode = field === "identcode";
+                  const parsedHint = isLink && fieldValues.identcode ? `Identcode erkannt: ${fieldValues.identcode}` : null;
+                  return (
+                    <div key={field} className={isLink ? "sm:col-span-2 space-y-1.5" : "space-y-1.5"}>
+                      <Label className="text-sm font-medium">{FIELD_LABELS[field] || field}</Label>
+                      <Input
+                        placeholder={isLink ? "https://webid-gateway.de/..." : FIELD_LABELS[field] || field}
+                        value={fieldValues[field] || ""}
+                        readOnly={isCode && !!fieldValues.identlink}
+                        className={isCode && !!fieldValues.identlink ? "font-mono bg-muted/50" : ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValues((prev) => {
+                            const next = { ...prev, [field]: val };
+                            if (field === "identlink" && uniqueRequired.includes("identcode")) {
+                              const code = extractIdentcode(val);
+                              if (code) next.identcode = code;
+                            }
+                            return next;
+                          });
+                        }}
+                      />
+                      {parsedHint && (
+                        <p className="text-[11px] text-primary font-medium flex items-center gap-1">
+                          <Check className="w-3 h-3" /> {parsedHint}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </DialogSection>
+          )}
 
           {!isPostident && uniqueRequired.includes("phone") && (
-            <div>
-              <Label>Telefonnummer</Label>
+            <DialogSection label="Telefonnummer">
               {!showNewPhone ? (
-                <div className="space-y-2 mt-1">
+                <div className="space-y-2">
                   <Popover open={phonePopoverOpen} onOpenChange={setPhonePopoverOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         type="button"
                         variant="outline"
                         role="combobox"
-                        className="w-full justify-between font-normal"
+                        className="w-full justify-between font-normal h-10"
                       >
-                        <span className={cn(!selectedPhoneLabel && "text-muted-foreground")}>
-                          {selectedPhoneLabel || "Telefonnummer auswählen"}
+                        <span className="flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-muted-foreground" />
+                          <span className={cn(!selectedPhoneLabel && "text-muted-foreground")}>
+                            {selectedPhoneLabel || "Nummer auswählen"}
+                          </span>
                         </span>
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
                       <Command>
-                        <CommandInput placeholder="Nummer suchen..." />
+                        <CommandInput placeholder="Nummer suchen…" />
                         <CommandList>
                           <CommandEmpty>
-                            {loadingPhones ? "Laden..." : "Keine Nummer gefunden"}
+                            {loadingPhones ? "Lädt…" : "Keine Nummer gefunden"}
                           </CommandEmpty>
                           <CommandGroup>
                             {phoneNumbers.map((p) => {
@@ -565,67 +629,77 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                   </Popover>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     onClick={() => setShowNewPhone(true)}
+                    className="text-primary hover:text-primary gap-1.5"
                   >
-                    <Plus className="w-4 h-4 mr-1" /> Neuen Anosim-Link hinzufügen
+                    <Plus className="w-3.5 h-3.5" /> Neuen Anosim-Link hinzufügen
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-2 mt-1">
+                <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                  <Label className="text-xs font-medium text-primary uppercase tracking-wider">Neuer Anosim-Link</Label>
                   <Input
                     placeholder="https://anosim.net/share?token=..."
                     value={newPhoneLink}
                     onChange={(e) => setNewPhoneLink(e.target.value)}
                   />
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={handleAddPhone}
-                      disabled={addingPhone || !newPhoneLink.trim()}
-                    >
-                      {addingPhone ? "Speichert..." : "Speichern"}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setShowNewPhone(false);
-                        setNewPhoneLink("");
-                      }}
-                      disabled={addingPhone}
-                    >
-                      Abbrechen
-                    </Button>
-                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Wird beim Zuweisen automatisch gespeichert.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowNewPhone(false);
+                      setNewPhoneLink("");
+                    }}
+                    disabled={addingPhone}
+                  >
+                    Abbrechen
+                  </Button>
                 </div>
+              )}
+            </DialogSection>
           )}
 
           {!isPostident && uniqueRequired.includes("phone") && (
-            <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+            <label
+              className={cn(
+                "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors select-none",
+                forwardTanToVic
+                  ? "border-primary/40 bg-primary/5"
+                  : "border-border/60 bg-muted/20 hover:border-border"
+              )}
+            >
               <input
                 type="checkbox"
-                className="h-4 w-4 rounded border-border accent-primary"
+                className="h-4 w-4 mt-0.5 rounded border-border accent-primary shrink-0"
                 checked={forwardTanToVic}
                 onChange={(e) => setForwardTanToVic(e.target.checked)}
               />
-              <span>TAN an Vic-Nummer senden</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium flex items-center gap-1.5">
+                  <MessageSquare className="w-4 h-4 text-primary" /> TAN an Vic-Nummer weiterleiten
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Eingehende SMS werden automatisch als „&lt;code&gt; – Ihr Code für die Verifizierung" per seven.io weitergesendet.
+                </p>
+              </div>
             </label>
           )}
         </div>
-          )}
-        </div>
-        <DialogFooter>
+
+        <DialogFooterBar>
           <Button variant="outline" onClick={() => setSelectedVic(null)} disabled={saving}>
             Zurück
           </Button>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? "Speichert..." : "Zuweisen"}
+          <Button onClick={handleSave} disabled={saving} className="gap-2 min-w-[120px]">
+            {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Weist zu…</> : <><ShieldAlert className="w-4 h-4" /> Zuweisen</>}
           </Button>
-        </DialogFooter>
+        </DialogFooterBar>
       </DialogContent>
     </Dialog>
   );
