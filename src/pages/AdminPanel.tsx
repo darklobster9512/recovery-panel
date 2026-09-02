@@ -37,12 +37,12 @@ export default function AdminPanel() {
 
   const navItems = [
     { label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
+    { label: "Leads", icon: Inbox, path: "/admin/leads" },
     { label: "Vics", icon: Users, path: "/admin/vics" },
     { label: "Verifikationen", icon: FileText, path: "/admin/verifikationen" },
     { label: "In Überprüfung", icon: ClipboardCheck, path: "/admin/ueberpruefung" },
     { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente" },
     { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
-    { label: "Leads", icon: Inbox, path: "/admin/leads" },
     { label: "Email Vorlagen", icon: Mail, path: "/admin/emails" },
     { label: "Einstellungen", icon: Settings, path: "/admin/einstellungen" },
   ];
