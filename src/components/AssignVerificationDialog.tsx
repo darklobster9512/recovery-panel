@@ -286,6 +286,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
         field_values: isPostident ? {} : fieldValues,
         phone_number_id: phoneNumberId,
         created_by: user?.id,
+        forward_tan_to_vic: !isPostident && uniqueRequired.includes("phone") ? forwardTanToVic : false,
       })
       .select("id")
       .single();
