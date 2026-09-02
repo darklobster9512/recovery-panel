@@ -22,6 +22,7 @@ import AdminEmailTemplates from "@/components/AdminEmailTemplates";
 import AdminLeads from "@/components/AdminLeads";
 import AdminLeadDetail from "@/components/AdminLeadDetail";
 import AdminSettings from "@/components/AdminSettings";
+import AdminTelegram from "@/components/AdminTelegram";
 
 type NavItem = { label: string; icon: typeof LayoutDashboard; path: string; exact?: boolean; group?: string };
 
