@@ -202,7 +202,7 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
       if (!phone) { setSmsLoading(false); return; }
 
       const { data } = await supabase.functions.invoke("anosim-proxy", {
-        body: { token: phone.token },
+        body: { token: phone.token, assignmentId: a.id },
       });
 
       if (data?.sms && Array.isArray(data.sms)) {
