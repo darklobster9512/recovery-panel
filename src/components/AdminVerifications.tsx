@@ -98,6 +98,7 @@ export default function AdminVerifications() {
     setPlaystoreUrl("");
     setLogoFile(null);
     setLogoPreview(null);
+    setType("videocall");
     setEditing(null);
   };
 
