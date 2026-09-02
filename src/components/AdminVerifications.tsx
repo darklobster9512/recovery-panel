@@ -241,6 +241,9 @@ export default function AdminVerifications() {
                     </div>
                   )}
                   <span className="text-sm font-semibold text-foreground text-center">{v.title}</span>
+                  <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full ${v.type === "postident" ? "bg-amber-100 text-amber-700" : "bg-[hsl(221,100%,97%)] text-[hsl(221,100%,50%)]"}`}>
+                    {v.type === "postident" ? "Postident" : "Videocall"}
+                  </span>
                   <Button
                     variant="outline"
                     size="sm"
