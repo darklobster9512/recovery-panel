@@ -93,9 +93,34 @@ export default function AdminVicDetail() {
       supabase.from("verification_assignments").select("id, field_values, phone_number_id, created_at, status, verification:verifications(title, logo_url, required_fields)").eq("user_id", id).order("created_at", { ascending: false }),
     ]);
 
-    setProfile(profileRes.data as VicProfile | null);
+    const fetchedProfile = profileRes.data as VicProfile | null;
+    setProfile(fetchedProfile);
     const fetchedNotes = (notesRes.data as UserNote[]) ?? [];
     setNotes(fetchedNotes);
+
+    // Source lead (only when this vic was imported from a lead)
+    if (fetchedProfile?.source_lead_id) {
+      const leadId = fetchedProfile.source_lead_id;
+      const [leadRes, leadNotesRes] = await Promise.all([
+        supabase.from("leads").select("*").eq("id", leadId).maybeSingle(),
+        supabase.from("lead_notes").select("*").eq("lead_id", leadId).order("created_at", { ascending: true }),
+      ]);
+      setSourceLead((leadRes.data as Lead) ?? null);
+      const fetchedLeadNotes = (leadNotesRes.data as LeadNote[]) ?? [];
+      setLeadNotes(fetchedLeadNotes);
+
+      const leadAuthorIds = [...new Set(fetchedLeadNotes.map((n) => n.author_id).filter(Boolean))] as string[];
+      if (leadAuthorIds.length > 0) {
+        const { data: leadAuthors } = await supabase.from("profiles").select("id, email").in("id", leadAuthorIds);
+        const leadMap: AuthorMap = {};
+        (leadAuthors ?? []).forEach((a: any) => { leadMap[a.id] = a.email ?? "Unbekannt"; });
+        setLeadAuthorEmails(leadMap);
+      }
+    } else {
+      setSourceLead(null);
+      setLeadNotes([]);
+    }
+
 
     // Assignments
     const fetchedAssignments = (assignRes.data ?? []).map((a: any) => ({
