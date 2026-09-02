@@ -372,8 +372,8 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
         <DialogHeader>
           <div className="flex items-center gap-3">
             <VerificationLogo
-              logoUrl={verification.logo_url ?? null}
-              title={verification.title}
+              value={verification.logo_url ?? null}
+              alt={verification.title}
               className="w-10 h-10 rounded-md object-cover shrink-0"
             />
             <div className="min-w-0">
