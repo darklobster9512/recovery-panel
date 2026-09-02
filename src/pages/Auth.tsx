@@ -54,9 +54,10 @@ export default function Auth() {
 
 
   return (
-    <div className="min-h-screen flex bg-white text-gray-900">
-      {/* Left — Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4 md:p-8">
+      <div className="max-w-6xl w-full flex flex-col md:flex-row shadow-2xl rounded-3xl overflow-hidden bg-white min-h-[800px]">
+        {/* Left — Form */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
           <div className="flex items-center gap-2 mb-12">
