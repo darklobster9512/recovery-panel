@@ -212,10 +212,10 @@ export default function AdminLeads() {
                         value={lead.status}
                         onValueChange={(v) => changeStatus(lead, v as LeadStatus)}
                       >
-                        <SelectTrigger className="h-8 w-full border-0 bg-transparent p-0 shadow-none focus:ring-0 [&>svg]:hidden">
+                        <SelectTrigger className="h-8 w-full border-0 bg-transparent p-0 pr-1 shadow-none focus:ring-0 flex items-center gap-1 cursor-pointer hover:bg-gray-50 rounded-md">
                           <Badge
                             variant="secondary"
-                            className={`w-full justify-center ${statusMeta(lead.status).className}`}
+                            className={`flex-1 justify-center ${statusMeta(lead.status).className}`}
                           >
                             {statusMeta(lead.status).label}
                           </Badge>
