@@ -48,7 +48,7 @@ const FIELD_LABELS: Record<string, string> = {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  verification: { id: string; title: string; required_fields: string[] } | null;
+  verification: { id: string; title: string; required_fields: string[]; type?: string } | null;
 }
 
 export default function AssignVerificationDialog({ open, onOpenChange, verification }: Props) {
