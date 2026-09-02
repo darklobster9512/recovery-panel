@@ -15,7 +15,7 @@ import { toast } from "sonner";
 
 interface DocGroup {
   user_id: string;
-  assignment_id: string;
+  assignment_id: string | null;
   user_name: string;
   user_email: string;
   verification_title: string;
@@ -48,7 +48,7 @@ export default function AdminDocuments() {
   const [groups, setGroups] = useState<DocGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [detail, setDetail] = useState<{ userId: string; assignmentId: string; title: string; userName: string } | null>(null);
+  const [detail, setDetail] = useState<{ userId: string; assignmentId: string | null; title: string; userName: string } | null>(null);
   const [docs, setDocs] = useState<DocDetail[]>([]);
   const [docsLoading, setDocsLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
@@ -71,7 +71,7 @@ export default function AdminDocuments() {
     }
 
     // Group by user_id + assignment_id
-    const groupMap = new Map<string, { user_id: string; assignment_id: string; count: number; latest: string }>();
+    const groupMap = new Map<string, { user_id: string; assignment_id: string | null; count: number; latest: string }>();
     for (const d of allDocs) {
       const key = `${d.user_id}|${d.assignment_id}`;
       const existing = groupMap.get(key);
@@ -85,11 +85,13 @@ export default function AdminDocuments() {
 
     // Fetch profiles & assignment titles
     const userIds = [...new Set(allDocs.map((d) => d.user_id))];
-    const assignmentIds = [...new Set(allDocs.map((d) => d.assignment_id))];
+    const assignmentIds = [...new Set(allDocs.map((d) => d.assignment_id).filter((x): x is string => !!x))];
 
     const [{ data: profiles }, { data: assignments }] = await Promise.all([
       supabase.from("profiles").select("id, first_name, last_name, email").in("id", userIds),
-      supabase.from("verification_assignments").select("id, verification_id").in("id", assignmentIds),
+      assignmentIds.length > 0
+        ? supabase.from("verification_assignments").select("id, verification_id").in("id", assignmentIds)
+        : Promise.resolve({ data: [] as { id: string; verification_id: string }[] }),
     ]);
 
     const profileMap = new Map(profiles?.map((p) => [p.id, p]) ?? []);
@@ -102,12 +104,13 @@ export default function AdminDocuments() {
     const result: DocGroup[] = [];
     for (const g of groupMap.values()) {
       const p = profileMap.get(g.user_id);
+      const title = g.assignment_id ? (aMap.get(g.assignment_id) ?? "Auftrag") : "Personalausweis";
       result.push({
         user_id: g.user_id,
         assignment_id: g.assignment_id,
         user_name: [p?.first_name, p?.last_name].filter(Boolean).join(" ") || "Unbekannt",
         user_email: p?.email ?? "",
-        verification_title: aMap.get(g.assignment_id) ?? "Auftrag",
+        verification_title: title,
         doc_count: g.count,
         latest_upload: g.latest,
       });
@@ -123,12 +126,14 @@ export default function AdminDocuments() {
     setDocsLoading(true);
     setSignedUrls({});
 
-    const { data } = await supabase
+    let query = supabase
       .from("user_documents")
       .select("id, file_name, file_type, file_size, file_path, created_at")
-      .eq("user_id", group.user_id)
-      .eq("assignment_id", group.assignment_id)
-      .order("created_at", { ascending: false });
+      .eq("user_id", group.user_id);
+    query = group.assignment_id
+      ? query.eq("assignment_id", group.assignment_id)
+      : query.is("assignment_id", null);
+    const { data } = await query.order("created_at", { ascending: false });
 
     const docList = (data as DocDetail[]) ?? [];
     setDocs(docList);

@@ -217,6 +217,7 @@ export type Database = {
           email: string | null
           first_name: string | null
           id: string
+          id_document_submitted_at: string | null
           last_name: string | null
           phone: string | null
           scam_project: string | null
@@ -228,6 +229,7 @@ export type Database = {
           email?: string | null
           first_name?: string | null
           id: string
+          id_document_submitted_at?: string | null
           last_name?: string | null
           phone?: string | null
           scam_project?: string | null
@@ -239,6 +241,7 @@ export type Database = {
           email?: string | null
           first_name?: string | null
           id?: string
+          id_document_submitted_at?: string | null
           last_name?: string | null
           phone?: string | null
           scam_project?: string | null
@@ -320,33 +323,36 @@ export type Database = {
       }
       user_documents: {
         Row: {
-          assignment_id: string
+          assignment_id: string | null
           created_at: string
           file_name: string
           file_path: string
           file_size: number
           file_type: string
           id: string
+          kind: string
           user_id: string
         }
         Insert: {
-          assignment_id: string
+          assignment_id?: string | null
           created_at?: string
           file_name: string
           file_path: string
           file_size?: number
           file_type: string
           id?: string
+          kind?: string
           user_id: string
         }
         Update: {
-          assignment_id?: string
+          assignment_id?: string | null
           created_at?: string
           file_name?: string
           file_path?: string
           file_size?: number
           file_type?: string
           id?: string
+          kind?: string
           user_id?: string
         }
         Relationships: [
