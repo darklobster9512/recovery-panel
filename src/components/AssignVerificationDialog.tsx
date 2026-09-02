@@ -82,6 +82,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
       setSelectedPhoneId("");
       setShowNewPhone(false);
       setNewPhoneLink("");
+      setPdfFile(null);
       setSearch("");
       fetchVics();
     }
