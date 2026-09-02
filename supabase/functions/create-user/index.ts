@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { email, first_name, last_name, phone, password, balance, scam_project } = body;
+    const { email, first_name, last_name, phone, password, balance, scam_project, source_lead_id } = body;
 
     if (!email || !first_name || !last_name) {
       return new Response(JSON.stringify({ error: "email, first_name, last_name are required" }), {
@@ -157,6 +157,10 @@ Deno.serve(async (req) => {
 
     if (scam_project !== undefined && scam_project !== null) {
       updatePayload.scam_project = scam_project;
+    }
+
+    if (typeof source_lead_id === "string" && source_lead_id) {
+      updatePayload.source_lead_id = source_lead_id;
     }
 
     const { error: updateError } = await adminClient

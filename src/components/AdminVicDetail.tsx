@@ -3,12 +3,21 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck, Inbox, ExternalLink } from "lucide-react";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 import VerificationLogo from "@/components/VerificationLogo";
+import {
+  formatDateTime,
+  formatEur,
+  statusMeta,
+  type Lead,
+  type LeadNote,
+} from "@/lib/leads";
+
 
 interface VerificationAssignment {
   id: string;
@@ -40,7 +49,9 @@ interface VicProfile {
   phone: string | null;
   temp_password: string | null;
   created_at: string;
+  source_lead_id: string | null;
 }
+
 
 interface UserNote {
   id: string;
@@ -64,9 +75,13 @@ export default function AdminVicDetail() {
   const [authorEmails, setAuthorEmails] = useState<AuthorMap>({});
   const [assignments, setAssignments] = useState<VerificationAssignment[]>([]);
   const [assignmentPhones, setAssignmentPhones] = useState<Record<string, string>>({});
+  const [sourceLead, setSourceLead] = useState<Lead | null>(null);
+  const [leadNotes, setLeadNotes] = useState<LeadNote[]>([]);
+  const [leadAuthorEmails, setLeadAuthorEmails] = useState<AuthorMap>({});
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
 
   const fetchData = async () => {
     if (!id) return;
@@ -78,9 +93,34 @@ export default function AdminVicDetail() {
       supabase.from("verification_assignments").select("id, field_values, phone_number_id, created_at, status, verification:verifications(title, logo_url, required_fields)").eq("user_id", id).order("created_at", { ascending: false }),
     ]);
 
-    setProfile(profileRes.data as VicProfile | null);
+    const fetchedProfile = profileRes.data as VicProfile | null;
+    setProfile(fetchedProfile);
     const fetchedNotes = (notesRes.data as UserNote[]) ?? [];
     setNotes(fetchedNotes);
+
+    // Source lead (only when this vic was imported from a lead)
+    if (fetchedProfile?.source_lead_id) {
+      const leadId = fetchedProfile.source_lead_id;
+      const [leadRes, leadNotesRes] = await Promise.all([
+        supabase.from("leads").select("*").eq("id", leadId).maybeSingle(),
+        supabase.from("lead_notes").select("*").eq("lead_id", leadId).order("created_at", { ascending: true }),
+      ]);
+      setSourceLead((leadRes.data as Lead) ?? null);
+      const fetchedLeadNotes = (leadNotesRes.data as LeadNote[]) ?? [];
+      setLeadNotes(fetchedLeadNotes);
+
+      const leadAuthorIds = [...new Set(fetchedLeadNotes.map((n) => n.author_id).filter(Boolean))] as string[];
+      if (leadAuthorIds.length > 0) {
+        const { data: leadAuthors } = await supabase.from("profiles").select("id, email").in("id", leadAuthorIds);
+        const leadMap: AuthorMap = {};
+        (leadAuthors ?? []).forEach((a: any) => { leadMap[a.id] = a.email ?? "Unbekannt"; });
+        setLeadAuthorEmails(leadMap);
+      }
+    } else {
+      setSourceLead(null);
+      setLeadNotes([]);
+    }
+
 
     // Assignments
     const fetchedAssignments = (assignRes.data ?? []).map((a: any) => ({
@@ -221,6 +261,78 @@ export default function AdminVicDetail() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Source Lead */}
+      {sourceLead && (
+        <Card className="border-border shadow-none">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Inbox className="w-5 h-5" /> Herkunft: Lead
+              <Badge variant="secondary" className={statusMeta(sourceLead.status).className}>
+                {statusMeta(sourceLead.status).label}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-auto gap-1"
+                onClick={() => navigate(`/admin/leads/${sourceLead.id}`)}
+              >
+                Zum Lead <ExternalLink className="w-3.5 h-3.5" />
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Name</p>
+                <p className="text-sm font-medium">{sourceLead.full_name || "–"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Email</p>
+                <p className="text-sm font-medium">{sourceLead.email || "–"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Telefon</p>
+                <p className="text-sm font-medium">{sourceLead.phone_number || "–"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Schadenshöhe</p>
+                <p className="text-sm font-medium">{formatEur(sourceLead.schadenshoehe)}</p>
+              </div>
+              <div className="sm:col-span-2">
+                <p className="text-xs text-muted-foreground mb-0.5">Importiert am</p>
+                <p className="text-sm font-medium">{formatDateTime(sourceLead.imported_at)}</p>
+              </div>
+              <div className="sm:col-span-2">
+                <p className="text-xs text-muted-foreground mb-0.5">Was ist vorgefallen?</p>
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">{sourceLead.vorfall || "–"}</p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium mb-2">Lead-Notizen</p>
+              {leadNotes.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Keine Notizen zu diesem Lead.</p>
+              ) : (
+                <div className="space-y-2">
+                  {leadNotes.map((n) => (
+                    <div key={n.id} className="rounded-lg border border-border bg-muted/50 p-3">
+                      <p className="text-sm whitespace-pre-wrap">{n.content}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="text-xs text-muted-foreground">
+                          {n.author_id ? leadAuthorEmails[n.author_id] ?? "Unbekannt" : "System"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{formatDateTime(n.created_at)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
 
       {/* Assigned Verifications */}
       <Card className="border-border shadow-none">

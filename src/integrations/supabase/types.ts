@@ -221,6 +221,7 @@ export type Database = {
           last_name: string | null
           phone: string | null
           scam_project: string | null
+          source_lead_id: string | null
           temp_password: string | null
         }
         Insert: {
@@ -233,6 +234,7 @@ export type Database = {
           last_name?: string | null
           phone?: string | null
           scam_project?: string | null
+          source_lead_id?: string | null
           temp_password?: string | null
         }
         Update: {
@@ -245,9 +247,18 @@ export type Database = {
           last_name?: string | null
           phone?: string | null
           scam_project?: string | null
+          source_lead_id?: string | null
           temp_password?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_source_lead_id_fkey"
+            columns: ["source_lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sms_spoof_history: {
         Row: {

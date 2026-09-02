@@ -159,6 +159,7 @@ export default function AdminVics() {
           password,
           balance: form.balance || null,
           scam_project: form.scam_project || null,
+          source_lead_id: selectedLeadId || null,
         },
       });
 
