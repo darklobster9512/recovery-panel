@@ -570,8 +570,20 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                     </Button>
                   </div>
                 </div>
-              )}
-            </div>
+          )}
+
+          {!isPostident && uniqueRequired.includes("phone") && (
+            <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-border accent-primary"
+                checked={forwardTanToVic}
+                onChange={(e) => setForwardTanToVic(e.target.checked)}
+              />
+              <span>TAN an Vic-Nummer senden</span>
+            </label>
+          )}
+        </div>
           )}
         </div>
         <DialogFooter>
