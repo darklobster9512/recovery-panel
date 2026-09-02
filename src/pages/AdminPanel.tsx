@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Shield, Users, FileText, LogOut, Phone, LayoutDashboard,
-  ClipboardCheck, FolderOpen, Mail, Inbox, Settings,
+  ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
