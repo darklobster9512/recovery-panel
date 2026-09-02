@@ -98,7 +98,7 @@ export default function AdminPanel() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <Sidebar collapsible="icon">
+        <Sidebar collapsible="icon" className="[&>div[data-sidebar=sidebar]]:bg-gradient-to-b [&>div[data-sidebar=sidebar]]:from-[hsl(221,100%,50%)] [&>div[data-sidebar=sidebar]]:to-[hsl(221,100%,35%)]">
           <SidebarHeader>
             <div className="flex items-center gap-3 px-3 py-4">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-primary">
