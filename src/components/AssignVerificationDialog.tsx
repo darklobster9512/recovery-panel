@@ -70,7 +70,10 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   const [selectedPhoneId, setSelectedPhoneId] = useState<string>("");
   const [showNewPhone, setShowNewPhone] = useState(false);
   const [newPhoneLink, setNewPhoneLink] = useState("");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const isPostident = verification?.type === "postident";
 
   useEffect(() => {
     if (open) {
