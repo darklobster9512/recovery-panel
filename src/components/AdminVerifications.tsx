@@ -76,6 +76,8 @@ export default function AdminVerifications() {
   // Assign dialog
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [assignVerification, setAssignVerification] = useState<Verification | null>(null);
+  const [historyRefreshToken, setHistoryRefreshToken] = useState(0);
+
 
   useEffect(() => {
     fetchVerifications();
@@ -268,7 +270,7 @@ export default function AdminVerifications() {
       </div>
 
       <div className="mt-8">
-        <AdminAssignmentHistory />
+        <AdminAssignmentHistory refreshToken={historyRefreshToken} />
       </div>
 
       {/* Create / Edit Dialog */}
@@ -449,7 +451,9 @@ export default function AdminVerifications() {
         open={assignDialogOpen}
         onOpenChange={setAssignDialogOpen}
         verification={assignVerification}
+        onAssigned={() => setHistoryRefreshToken((n) => n + 1)}
       />
+
     </>
   );
 }
