@@ -43,6 +43,7 @@ import { Plus, Trash2, Clock, Eye, EyeOff, MessageSquare, Loader2 } from "lucide
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { AssignmentStatusBadge, ASSIGNMENT_STATUSES, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
+import VerificationLogo from "@/components/VerificationLogo";
 
 interface SMSMessage {
   messageSender: string;
@@ -411,13 +412,11 @@ export default function AdminAssignmentHistory() {
                       </TableCell>
                       <TableCell className="text-sm">
                         <div className="flex items-center gap-2">
-                          {a.verification?.logo_url && (
-                            <img
-                              src={a.verification.logo_url}
-                              alt={a.verification.title}
-                              className="w-6 h-6 rounded object-contain"
-                            />
-                          )}
+                          <VerificationLogo
+                            value={a.verification?.logo_url ?? null}
+                            alt={a.verification?.title ?? ""}
+                            className="w-6 h-6 rounded object-contain"
+                          />
                           <span className="font-medium">{a.verification?.title || "–"}</span>
                         </div>
                       </TableCell>
@@ -439,9 +438,11 @@ export default function AdminAssignmentHistory() {
           <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                {selected.verification?.logo_url && (
-                  <img src={selected.verification.logo_url} alt="" className="w-6 h-6 rounded object-contain" />
-                )}
+                <VerificationLogo
+                  value={selected.verification?.logo_url ?? null}
+                  alt={selected.verification?.title ?? ""}
+                  className="w-6 h-6 rounded object-contain"
+                />
                 {selected.verification?.title || "Zuweisung"}
               </DialogTitle>
             </DialogHeader>

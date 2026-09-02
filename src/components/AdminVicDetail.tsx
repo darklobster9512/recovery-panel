@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck } from "lucide-react";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
+import VerificationLogo from "@/components/VerificationLogo";
 
 interface VerificationAssignment {
   id: string;
@@ -236,11 +237,12 @@ export default function AdminVicDetail() {
               {assignments.map((a) => (
                 <div key={a.id} className="rounded-lg border border-border bg-muted/50 p-3">
                   <div className="flex items-center gap-3 mb-2">
-                    {a.verification?.logo_url ? (
-                      <img src={a.verification.logo_url} alt="" className="w-8 h-8 rounded object-contain" />
-                    ) : (
-                      <div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">Logo</div>
-                    )}
+                    <VerificationLogo
+                      value={a.verification?.logo_url ?? null}
+                      alt={a.verification?.title ?? ""}
+                      className="w-8 h-8 rounded object-contain"
+                      fallback={<div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">Logo</div>}
+                    />
                     <span className="font-medium text-sm">{a.verification?.title ?? "–"}</span>
                     <AssignmentStatusBadge status={a.status} />
                     <span className="text-xs text-muted-foreground ml-auto">

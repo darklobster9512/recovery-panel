@@ -27,6 +27,7 @@ import { Plus, Pencil, Trash2, X, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AssignVerificationDialog from "@/components/AssignVerificationDialog";
 import AdminAssignmentHistory from "@/components/AdminAssignmentHistory";
+import VerificationLogo from "@/components/VerificationLogo";
 
 type VerificationType = "videocall" | "postident";
 
@@ -131,8 +132,7 @@ export default function AdminVerifications() {
       toast({ title: "Logo-Upload fehlgeschlagen", description: error.message, variant: "destructive" });
       return null;
     }
-    const { data } = supabase.storage.from("verification-logos").getPublicUrl(path);
-    return data.publicUrl;
+    return path;
   };
 
   const toggleField = (field: string) => {
@@ -229,17 +229,12 @@ export default function AdminVerifications() {
           : verifications.map((v) => (
               <Card key={v.id} className="border-gray-200 bg-white min-h-[180px] relative group">
                 <CardContent className="p-4 flex flex-col items-center justify-center h-full gap-3">
-                  {v.logo_url ? (
-                    <img
-                      src={v.logo_url}
-                      alt={v.title}
-                      className="w-14 h-14 rounded-lg object-contain"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs font-medium">
-                      Logo
-                    </div>
-                  )}
+                  <VerificationLogo
+                    value={v.logo_url}
+                    alt={v.title}
+                    className="w-14 h-14 rounded-lg object-contain"
+                    fallback={<div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs font-medium">Logo</div>}
+                  />
                   <span className="text-sm font-semibold text-foreground text-center">{v.title}</span>
                   <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full ${v.type === "postident" ? "bg-amber-100 text-amber-700" : "bg-[hsl(221,100%,97%)] text-[hsl(221,100%,50%)]"}`}>
                     {v.type === "postident" ? "Postident" : "Videocall"}
@@ -309,13 +304,11 @@ export default function AdminVerifications() {
             <div>
               <Label>Logo</Label>
               <div className="mt-1 flex items-center gap-3">
-                {(logoPreview || logoFile) && (
-                  <img
-                    src={logoFile ? URL.createObjectURL(logoFile) : logoPreview!}
-                    alt="Logo"
-                    className="w-12 h-12 rounded-lg object-contain border border-border"
-                  />
-                )}
+                {logoFile ? (
+                  <img src={logoPreview ?? ""} alt="Logo" className="w-12 h-12 rounded-lg object-contain border border-border" />
+                ) : logoPreview ? (
+                  <VerificationLogo value={logoPreview} alt="Logo" className="w-12 h-12 rounded-lg object-contain border border-border" />
+                ) : null}
                 <Input
                   type="file"
                   accept="image/*"
