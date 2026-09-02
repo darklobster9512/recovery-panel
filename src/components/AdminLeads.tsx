@@ -73,6 +73,15 @@ export default function AdminLeads() {
 
   const bump = () => setRefreshKey((k) => k + 1);
 
+  const copyValue = async (value: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast({ title: `${label} kopiert`, description: value });
+    } catch {
+      toast({ title: "Kopieren fehlgeschlagen", variant: "destructive" });
+    }
+  };
+
   const changeStatus = async (lead: Lead, status: LeadStatus) => {
     setLeads((prev) => prev.map((l) => (l.id === lead.id ? { ...l, status } : l)));
     const { error } = await supabase.from("leads").update({ status }).eq("id", lead.id);
@@ -141,7 +150,7 @@ export default function AdminLeads() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-36">Importiert am</TableHead>
-                  <TableHead>Voller Name</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead className="w-40">Telefonnummer</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead className="w-32">Schadenshöhe</TableHead>
@@ -157,8 +166,32 @@ export default function AdminLeads() {
                       {formatDateTime(lead.imported_at)}
                     </TableCell>
                     <TableCell className="font-medium">{lead.full_name ?? "—"}</TableCell>
-                    <TableCell className="whitespace-nowrap">{lead.phone_number ?? "—"}</TableCell>
-                    <TableCell>{lead.email ?? "—"}</TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {lead.phone_number ? (
+                        <button
+                          onClick={() => copyValue(lead.phone_number!, "Telefonnummer")}
+                          title="Klicken zum Kopieren"
+                          className="hover:text-[hsl(221,100%,50%)] hover:underline"
+                        >
+                          {lead.phone_number}
+                        </button>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {lead.email ? (
+                        <button
+                          onClick={() => copyValue(lead.email!, "Email")}
+                          title="Klicken zum Kopieren"
+                          className="hover:text-[hsl(221,100%,50%)] hover:underline"
+                        >
+                          {lead.email}
+                        </button>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap tabular-nums">
                       {formatEur(lead.schadenshoehe)}
                     </TableCell>
@@ -179,15 +212,24 @@ export default function AdminLeads() {
                         value={lead.status}
                         onValueChange={(v) => changeStatus(lead, v as LeadStatus)}
                       >
-                        <SelectTrigger className="h-8 w-[150px] border-0 bg-transparent px-1 shadow-none focus:ring-0">
-                          <Badge variant="secondary" className={statusMeta(lead.status).className}>
+                        <SelectTrigger className="h-8 w-full border-0 bg-transparent p-0 shadow-none focus:ring-0 [&>svg]:hidden">
+                          <Badge
+                            variant="secondary"
+                            className={`w-full justify-center ${statusMeta(lead.status).className}`}
+                          >
                             {statusMeta(lead.status).label}
                           </Badge>
                         </SelectTrigger>
                         <SelectContent>
                           {LEAD_STATUSES.map((s) => (
-                            <SelectItem key={s.value} value={s.value}>
-                              {s.label}
+                            <SelectItem
+                              key={s.value}
+                              value={s.value}
+                              className="pl-2 [&>span:first-child]:hidden [&>span]:w-full"
+                            >
+                              <Badge variant="secondary" className={`w-full justify-center ${s.className}`}>
+                                {s.label}
+                              </Badge>
                             </SelectItem>
                           ))}
                         </SelectContent>
