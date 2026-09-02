@@ -232,10 +232,47 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
     setSaving(true);
 
-    const phoneNumberId =
+    let phoneNumberId: string | null =
       !isPostident && verification.required_fields.includes("phone") && selectedPhoneId
         ? selectedPhoneId
         : null;
+
+    // Auto-save pending new Anosim link
+    if (
+      !isPostident &&
+      verification.required_fields.includes("phone") &&
+      showNewPhone &&
+      newPhoneLink.trim()
+    ) {
+      const link = newPhoneLink.trim();
+      const token = extractToken(link);
+      if (!token) {
+        toast({ title: "Ungültiger Anosim-Link", variant: "destructive" });
+        setSaving(false);
+        return;
+      }
+      const { data: inserted, error: insErr } = await supabase
+        .from("phone_numbers")
+        .insert({ token, api_url: link, created_by: user?.id })
+        .select("id, token, api_url")
+        .single();
+      if (insErr || !inserted) {
+        toast({
+          title: "Fehler beim Speichern der Telefonnummer",
+          description: insErr?.message,
+          variant: "destructive",
+        });
+        setSaving(false);
+        return;
+      }
+      const num = await resolvePhoneNumber(inserted.token);
+      setPhoneNumbers((prev) => [...prev, inserted as PhoneNumber]);
+      if (num) setPhoneDataMap((prev) => ({ ...prev, [inserted.id]: num }));
+      phoneNumberId = inserted.id;
+      setSelectedPhoneId(inserted.id);
+      setShowNewPhone(false);
+      setNewPhoneLink("");
+    }
 
     const { data: assignment, error } = await supabase
       .from("verification_assignments")
