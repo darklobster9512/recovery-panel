@@ -57,6 +57,15 @@ interface ForwardContext {
   sevenioFromName: string;
 }
 
+export interface ForwardResult {
+  forwarded: number;
+  checked: number;
+  reason?: string;
+  forwardedCodes?: Array<{ code: string; vicPhone: string; sender: string; text: string }>;
+  newSms?: Array<{ sender: string; text: string; date: string }>;
+  vicPhone?: string;
+}
+
 /**
  * Process a single assignment: fetch its Anosim SMS, forward new TAN codes to the Vic.
  * Marks every SMS it evaluated (forwarded or not) as processed so it is not re-evaluated.
@@ -64,7 +73,7 @@ interface ForwardContext {
 export async function processAssignmentForward(
   ctx: ForwardContext,
   assignmentId: string
-): Promise<{ forwarded: number; checked: number; reason?: string }> {
+): Promise<ForwardResult> {
   const { serviceClient, sevenioApiKey, sevenioFromName } = ctx;
 
   // Load assignment
