@@ -225,7 +225,7 @@ export default function AdminVics() {
         />
       </div>
 
-      <Card className="border-border shadow-none">
+      <Card className="border-border/60 bg-card shadow-card">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">

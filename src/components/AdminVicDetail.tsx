@@ -226,7 +226,7 @@ export default function AdminVicDetail() {
       </Button>
 
       {/* Profile Card */}
-      <Card className="border-border shadow-none">
+      <Card className="border-border/60 bg-card shadow-card">
         <CardHeader>
           <CardTitle className="text-lg">
             {profile.first_name} {profile.last_name}
@@ -264,7 +264,7 @@ export default function AdminVicDetail() {
 
       {/* Source Lead */}
       {sourceLead && (
-        <Card className="border-border shadow-none">
+        <Card className="border-border/60 bg-card shadow-card">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Inbox className="w-5 h-5" /> Herkunft: Lead
@@ -335,7 +335,7 @@ export default function AdminVicDetail() {
 
 
       {/* Assigned Verifications */}
-      <Card className="border-border shadow-none">
+      <Card className="border-border/60 bg-card shadow-card">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <ShieldCheck className="w-5 h-5" /> Zugewiesene Verifikationen
@@ -383,7 +383,7 @@ export default function AdminVicDetail() {
       </Card>
 
       {/* Notes Section */}
-      <Card className="border-border shadow-none">
+      <Card className="border-border/60 bg-card shadow-card">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <StickyNote className="w-5 h-5" /> Notizen

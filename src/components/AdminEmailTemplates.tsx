@@ -43,7 +43,7 @@ export default function AdminEmailTemplates() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-gray-200 shadow-none bg-white">
+      <Card className="border-border/60 bg-card shadow-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Mail className="w-4 h-4 text-[hsl(221,100%,50%)]" />
@@ -103,7 +103,7 @@ export default function AdminEmailTemplates() {
         </CardContent>
       </Card>
 
-      <Card className="border-gray-200 shadow-none bg-white">
+      <Card className="border-border/60 bg-card shadow-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Vorschau</CardTitle>
         </CardHeader>

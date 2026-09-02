@@ -226,10 +226,10 @@ export default function AdminVerifications() {
 
         {loading
           ? Array.from({ length: 3 }).map((_, i) => (
-              <Card key={i} className="border-gray-200 bg-white min-h-[180px] animate-pulse" />
+              <Card key={i} className="border-border/60 bg-card min-h-[180px] animate-pulse" />
             ))
           : verifications.map((v) => (
-              <Card key={v.id} className="border-gray-200 bg-white min-h-[180px] relative group">
+              <Card key={v.id} className="border-border/60 bg-card min-h-[180px] relative group">
                 <CardContent className="p-4 flex flex-col items-center justify-center h-full gap-3">
                   <VerificationLogo
                     value={v.logo_url}

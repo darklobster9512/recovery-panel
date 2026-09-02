@@ -100,7 +100,7 @@ export default function AdminSettings() {
       </TabsList>
 
       <TabsContent value="branding">
-        <Card className="border-gray-200 shadow-none bg-white">
+        <Card className="border-border/60 bg-card shadow-card">
           <CardHeader><CardTitle className="text-base">Branding</CardTitle></CardHeader>
           <CardContent className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -122,7 +122,7 @@ export default function AdminSettings() {
       </TabsContent>
 
       <TabsContent value="integrations">
-        <Card className="border-gray-200 shadow-none bg-white">
+        <Card className="border-border/60 bg-card shadow-card">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Resend & seven.io</CardTitle>
             <Button variant="ghost" size="sm" onClick={() => setShowKeys((v) => !v)} className="gap-1">
@@ -180,7 +180,7 @@ export default function AdminSettings() {
       </TabsContent>
 
       <TabsContent value="sms">
-        <Card className="border-gray-200 shadow-none bg-white">
+        <Card className="border-border/60 bg-card shadow-card">
           <CardHeader><CardTitle className="text-base">SMS-Vorlage: Zugangsdaten</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
