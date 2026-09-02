@@ -23,7 +23,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, X, UserPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, X, UserPlus, ShieldCheck, AlertTriangle, Loader2 } from "lucide-react";
+import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 import { useToast } from "@/hooks/use-toast";
 import AssignVerificationDialog from "@/components/AssignVerificationDialog";
 import AdminAssignmentHistory from "@/components/AdminAssignmentHistory";
