@@ -325,7 +325,9 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
     }
 
     toast({ title: "Verifikation zugewiesen" });
+    onAssigned?.();
     onOpenChange(false);
+
     setSaving(false);
   };
 
