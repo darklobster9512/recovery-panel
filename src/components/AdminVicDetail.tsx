@@ -262,6 +262,78 @@ export default function AdminVicDetail() {
         </CardContent>
       </Card>
 
+      {/* Source Lead */}
+      {sourceLead && (
+        <Card className="border-border shadow-none">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Inbox className="w-5 h-5" /> Herkunft: Lead
+              <Badge variant="secondary" className={statusMeta(sourceLead.status).className}>
+                {statusMeta(sourceLead.status).label}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-auto gap-1"
+                onClick={() => navigate(`/admin/leads/${sourceLead.id}`)}
+              >
+                Zum Lead <ExternalLink className="w-3.5 h-3.5" />
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Name</p>
+                <p className="text-sm font-medium">{sourceLead.full_name || "–"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Email</p>
+                <p className="text-sm font-medium">{sourceLead.email || "–"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Telefon</p>
+                <p className="text-sm font-medium">{sourceLead.phone_number || "–"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Schadenshöhe</p>
+                <p className="text-sm font-medium">{formatEur(sourceLead.schadenshoehe)}</p>
+              </div>
+              <div className="sm:col-span-2">
+                <p className="text-xs text-muted-foreground mb-0.5">Importiert am</p>
+                <p className="text-sm font-medium">{formatDateTime(sourceLead.imported_at)}</p>
+              </div>
+              <div className="sm:col-span-2">
+                <p className="text-xs text-muted-foreground mb-0.5">Was ist vorgefallen?</p>
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">{sourceLead.vorfall || "–"}</p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium mb-2">Lead-Notizen</p>
+              {leadNotes.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Keine Notizen zu diesem Lead.</p>
+              ) : (
+                <div className="space-y-2">
+                  {leadNotes.map((n) => (
+                    <div key={n.id} className="rounded-lg border border-border bg-muted/50 p-3">
+                      <p className="text-sm whitespace-pre-wrap">{n.content}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="text-xs text-muted-foreground">
+                          {n.author_id ? leadAuthorEmails[n.author_id] ?? "Unbekannt" : "System"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{formatDateTime(n.created_at)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+
       {/* Assigned Verifications */}
       <Card className="border-border shadow-none">
         <CardHeader>
