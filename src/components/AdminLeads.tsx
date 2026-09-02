@@ -127,7 +127,7 @@ export default function AdminLeads() {
       <LeadActivityLog refreshKey={refreshKey} />
 
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           {loading ? (
             <div className="flex items-center gap-2 text-sm text-gray-500 p-6">
               <Loader2 className="w-4 h-4 animate-spin" /> Lädt…
@@ -137,17 +137,17 @@ export default function AdminLeads() {
               {leads.length === 0 ? "Noch keine Leads importiert." : "Keine Treffer."}
             </p>
           ) : (
-            <Table>
+            <Table className="min-w-[1100px]">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Importiert am</TableHead>
+                  <TableHead className="w-36">Importiert am</TableHead>
                   <TableHead>Voller Name</TableHead>
-                  <TableHead>Telefonnummer</TableHead>
+                  <TableHead className="w-40">Telefonnummer</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Schadenshöhe</TableHead>
-                  <TableHead>Was ist vorgefallen?</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Aktionen</TableHead>
+                  <TableHead className="w-32">Schadenshöhe</TableHead>
+                  <TableHead className="min-w-[240px]">Was ist vorgefallen?</TableHead>
+                  <TableHead className="w-44">Status</TableHead>
+                  <TableHead className="w-24 text-right sticky right-0 bg-white">Aktionen</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -162,7 +162,7 @@ export default function AdminLeads() {
                     <TableCell className="whitespace-nowrap tabular-nums">
                       {formatEur(lead.schadenshoehe)}
                     </TableCell>
-                    <TableCell className="max-w-[220px]">
+                    <TableCell>
                       {lead.vorfall ? (
                         <button
                           onClick={() => setVorfallLead(lead)}
@@ -193,7 +193,7 @@ export default function AdminLeads() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
+                    <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white">
                       <Button
                         variant="ghost"
                         size="icon"
