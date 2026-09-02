@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import LeadNotesPanel from "@/components/LeadNotesPanel";
 import LeadActivityLog from "@/components/LeadActivityLog";
 import {
@@ -39,7 +39,6 @@ export default function AdminLeadDetail() {
   const { toast } = useToast();
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
-  const [rawOpen, setRawOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const load = useCallback(async () => {
@@ -149,25 +148,6 @@ export default function AdminLeadDetail() {
         </CardContent>
       </Card>
 
-      {lead.raw && Object.keys(lead.raw).length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Rohdaten</CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setRawOpen((o) => !o)}>
-                {rawOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-              </Button>
-            </div>
-          </CardHeader>
-          {rawOpen && (
-            <CardContent>
-              {Object.entries(lead.raw).map(([k, v]) => (
-                <Row key={k} label={k} value={String(v)} />
-              ))}
-            </CardContent>
-          )}
-        </Card>
-      )}
 
       <Card>
         <CardHeader className="pb-2">
