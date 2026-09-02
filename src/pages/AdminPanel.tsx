@@ -28,6 +28,7 @@ export default function AdminPanel() {
   const isEmails = location.pathname === "/admin/emails";
   const isLeads = location.pathname === "/admin/leads";
   const isLeadDetail = /^\/admin\/leads\/[^/]+$/.test(location.pathname);
+  const isEinstellungen = location.pathname === "/admin/einstellungen";
 
   const handleSignOut = async () => {
     await signOut();
