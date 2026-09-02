@@ -28,7 +28,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Eye, Loader2, MessageSquare, Upload } from "lucide-react";
+import { Eye, Loader2, MessageSquare, Upload, FileText } from "lucide-react";
+import { DialogShellHeader } from "@/components/admin/DialogShell";
 import LeadImportDialog from "@/components/LeadImportDialog";
 import LeadNotesDialog from "@/components/LeadNotesDialog";
 import LeadActivityLog from "@/components/LeadActivityLog";
