@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Copy, Mail } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { renderCredentialsEmail } from "@/lib/emailTemplates";
+import { AppSettings, DEFAULT_SETTINGS, buildLoginUrl, fetchAppSettings } from "@/lib/settings";
 
 const TEMPLATES = [
   { id: "credentials", label: "Zugangsdaten – neues Benutzerkonto" },
@@ -13,15 +14,23 @@ const TEMPLATES = [
 
 export default function AdminEmailTemplates() {
   const [templateId, setTemplateId] = useState<typeof TEMPLATES[number]["id"]>("credentials");
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [form, setForm] = useState({
     firstName: "Max",
     lastName: "Mustermann",
     email: "max.mustermann@example.com",
     password: "a1b2c3",
-    loginUrl: `${window.location.origin}/auth`,
   });
 
-  const html = useMemo(() => renderCredentialsEmail(form), [form]);
+  useEffect(() => {
+    fetchAppSettings().then(setSettings).catch(() => {});
+  }, []);
+
+  const loginUrl = useMemo(() => buildLoginUrl(settings), [settings]);
+  const html = useMemo(
+    () => renderCredentialsEmail({ ...form, loginUrl }, settings),
+    [form, settings, loginUrl],
+  );
 
   async function copyHtml() {
     try {
@@ -61,43 +70,27 @@ export default function AdminEmailTemplates() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="preview_first_name">Vorname</Label>
-              <Input
-                id="preview_first_name"
-                value={form.firstName}
-                onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
-              />
+              <Input id="preview_first_name" value={form.firstName}
+                onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="preview_last_name">Nachname</Label>
-              <Input
-                id="preview_last_name"
-                value={form.lastName}
-                onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
-              />
+              <Input id="preview_last_name" value={form.lastName}
+                onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="preview_email">E-Mail</Label>
-              <Input
-                id="preview_email"
-                value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              />
+              <Input id="preview_email" value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="preview_password">Passwort</Label>
-              <Input
-                id="preview_password"
-                value={form.password}
-                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-              />
+              <Input id="preview_password" value={form.password}
+                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="preview_login_url">Login-Link</Label>
-              <Input
-                id="preview_login_url"
-                value={form.loginUrl}
-                onChange={(e) => setForm((f) => ({ ...f, loginUrl: e.target.value }))}
-              />
+              <Label>Login-Link (aus Einstellungen)</Label>
+              <Input value={loginUrl} readOnly className="bg-gray-50" />
             </div>
           </div>
 
@@ -116,11 +109,7 @@ export default function AdminEmailTemplates() {
         </CardHeader>
         <CardContent>
           <div className="rounded-xl border border-gray-200 overflow-hidden bg-gray-100">
-            <iframe
-              title="E-Mail Vorschau"
-              srcDoc={html}
-              className="w-full h-[820px] border-0 bg-white"
-            />
+            <iframe title="E-Mail Vorschau" srcDoc={html} className="w-full h-[820px] border-0 bg-white" />
           </div>
         </CardContent>
       </Card>

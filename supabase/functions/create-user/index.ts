@@ -1,4 +1,48 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  AppSettings,
+  buildLoginUrl,
+  renderCredentialsEmail,
+  renderTemplate,
+} from "../_shared/emailTemplate.ts";
+
+async function sendEmail(s: AppSettings, to: string, subject: string, html: string) {
+  if (!s.resend_api_key || !s.resend_from_email) {
+    return { ok: false, skipped: true, reason: "Resend nicht konfiguriert" };
+  }
+  const from = s.resend_from_name
+    ? `${s.resend_from_name} <${s.resend_from_email}>`
+    : s.resend_from_email;
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${s.resend_api_key}`,
+    },
+    body: JSON.stringify({ from, to: [to], subject, html }),
+  });
+  const body = await res.text();
+  return { ok: res.ok, status: res.status, body };
+}
+
+async function sendSms(s: AppSettings, to: string, text: string) {
+  if (!s.sevenio_api_key) {
+    return { ok: false, skipped: true, reason: "seven.io nicht konfiguriert" };
+  }
+  const params = new URLSearchParams({ to, text });
+  if (s.sevenio_from_name) params.set("from", s.sevenio_from_name);
+  const res = await fetch("https://gateway.seven.io/api/sms", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-Api-Key": s.sevenio_api_key,
+      Accept: "application/json",
+    },
+    body: params.toString(),
+  });
+  const body = await res.text();
+  return { ok: res.ok, status: res.status, body };
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -124,6 +168,56 @@ Deno.serve(async (req) => {
       console.error("Profile update error:", updateError);
     }
 
+    // Load settings + SMS template and dispatch email/SMS
+    let emailResult: unknown = { skipped: true, reason: "not attempted" };
+    let smsResult: unknown = { skipped: true, reason: "not attempted" };
+    try {
+      const { data: settings } = await adminClient
+        .from("app_settings")
+        .select("*")
+        .eq("id", true)
+        .maybeSingle();
+
+      if (settings) {
+        const s = settings as AppSettings;
+        const loginUrl = buildLoginUrl(s);
+        const html = renderCredentialsEmail(
+          { firstName: first_name, lastName: last_name, email, password, loginUrl },
+          s,
+        );
+        emailResult = await sendEmail(
+          s,
+          email,
+          `Ihre Zugangsdaten – ${s.company_name || "Mandantenportal"}`,
+          html,
+        );
+
+        if (phone) {
+          const { data: tpl } = await adminClient
+            .from("sms_templates_config")
+            .select("content")
+            .eq("key", "credentials")
+            .maybeSingle();
+          if (tpl?.content) {
+            const smsText = renderTemplate(tpl.content, {
+              first_name,
+              last_name,
+              company_name: s.company_name || "",
+              email,
+            });
+            smsResult = await sendSms(s, phone, smsText);
+          } else {
+            smsResult = { skipped: true, reason: "SMS-Vorlage fehlt" };
+          }
+        } else {
+          smsResult = { skipped: true, reason: "keine Telefonnummer" };
+        }
+      }
+    } catch (dispatchErr) {
+      console.error("Dispatch error:", dispatchErr);
+      emailResult = { ok: false, error: String(dispatchErr) };
+    }
+
     return new Response(
       JSON.stringify({
         id: newUser.user.id,
@@ -134,6 +228,8 @@ Deno.serve(async (req) => {
         temp_password: password,
         balance: updatePayload.balance ?? null,
         scam_project: updatePayload.scam_project ?? null,
+        email_result: emailResult,
+        sms_result: smsResult,
       }),
       {
         status: 200,

@@ -1,3 +1,5 @@
+import type { AppSettings } from "./settings";
+
 export interface CredentialsEmailData {
   firstName: string;
   lastName: string;
@@ -15,18 +17,31 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-const FOOTER_BLOCK = [
-  "Korte &amp; Partner · Domstraße 15 · 20095 Hamburg · Telefon: 040 573086460",
-  "E-Mail: info@korte-kanzlei.de · Dr. Thomas Korte · DE317391938",
-] as const;
+function footerLines(s: AppSettings): string[] {
+  const line1 = [s.company_name, s.street, s.city, s.phone ? `Telefon: ${s.phone}` : ""]
+    .filter(Boolean)
+    .map(escapeHtml)
+    .join(" · ");
+  const line2 = [s.email ? `E-Mail: ${s.email}` : "", s.lawyer, s.vat_id]
+    .filter(Boolean)
+    .map(escapeHtml)
+    .join(" · ");
+  return [line1, line2].filter(Boolean);
+}
 
-export function renderCredentialsEmail(data: CredentialsEmailData): string {
+export function renderCredentialsEmail(
+  data: CredentialsEmailData,
+  settings: AppSettings,
+): string {
   const firstName = escapeHtml(data.firstName.trim());
   const lastName = escapeHtml(data.lastName.trim());
   const email = escapeHtml(data.email.trim());
   const password = escapeHtml(data.password.trim());
   const loginUrl = escapeHtml(data.loginUrl.trim());
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
+  const companyName = escapeHtml(settings.company_name || "");
+  const contactEmail = escapeHtml(settings.email || "");
+  const footer = footerLines(settings);
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -43,10 +58,10 @@ export function renderCredentialsEmail(data: CredentialsEmailData): string {
           <tr>
             <td style="padding:28px 32px;border-bottom:1px solid #e5e7eb;">
               <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:600;color:#111827;letter-spacing:-0.3px;">
-                Korte <span style="opacity:0.6;">&amp;</span> Partner
+                ${companyName}
               </div>
               <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b7280;margin-top:4px;letter-spacing:0.6px;text-transform:uppercase;">
-                Rechtsanwaltskanzlei Hamburg
+                Rechtsanwaltskanzlei
               </div>
             </td>
           </tr>
@@ -86,13 +101,13 @@ export function renderCredentialsEmail(data: CredentialsEmailData): string {
               <p style="margin:20px 0 0;font-size:13px;line-height:21px;color:#6b7280;">
                 Bitte geben Sie diese Zugangsdaten nicht an Dritte weiter und bewahren Sie sie sicher auf.
                 Sollten Sie diese E-Mail unerwartet erhalten haben, kontaktieren Sie uns bitte unter
-                <a href="mailto:info@korte-kanzlei.de" style="color:#0061FF;text-decoration:none;">info@korte-kanzlei.de</a>.
+                <a href="mailto:${contactEmail}" style="color:#0061FF;text-decoration:none;">${contactEmail}</a>.
               </p>
             </td>
           </tr>
           <tr>
             <td style="padding:24px 32px 28px;background-color:#f9fafb;border-top:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:19px;color:#6b7280;">
-              ${FOOTER_BLOCK.map((line) => `<div>${line}</div>`).join("\n              ")}
+              ${footer.map((line) => `<div>${line}</div>`).join("\n              ")}
             </td>
           </tr>
         </table>
