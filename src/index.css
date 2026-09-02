@@ -49,11 +49,12 @@
 
     --gradient-primary: linear-gradient(135deg, hsl(221 100% 50%), hsl(217 100% 66%));
     --gradient-surface:
-      radial-gradient(1100px 550px at 0% -10%, hsl(221 100% 50% / 0.06), transparent 70%),
-      radial-gradient(900px 500px at 100% 0%, hsl(217 100% 66% / 0.05), transparent 65%),
-      linear-gradient(180deg, hsl(221 60% 99%), hsl(221 60% 97%));
-    --shadow-card: 0 1px 2px hsl(220 40% 20% / 0.06), 0 8px 24px -6px hsl(220 40% 20% / 0.10);
-    --shadow-card-hover: 0 2px 4px hsl(220 40% 20% / 0.06), 0 12px 32px -8px hsl(220 40% 20% / 0.12);
+      radial-gradient(1100px 550px at 0% -10%, hsl(221 100% 50% / 0.10), transparent 70%),
+      radial-gradient(900px 500px at 100% 0%, hsl(217 100% 66% / 0.09), transparent 65%),
+      linear-gradient(180deg, hsl(221 45% 96%), hsl(221 40% 93%));
+    --shadow-card: 0 1px 2px hsl(220 40% 20% / 0.08), 0 12px 32px -8px hsl(220 40% 20% / 0.16);
+    --shadow-card-hover: 0 2px 6px hsl(220 40% 20% / 0.10), 0 18px 40px -10px hsl(220 40% 20% / 0.20);
+
     --shadow-elegant: 0 20px 60px -20px hsl(221 100% 50% / 0.35);
     --shadow-soft: 0 8px 24px -8px hsl(221 100% 50% / 0.18);
   }
