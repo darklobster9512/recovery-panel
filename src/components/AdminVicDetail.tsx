@@ -75,9 +75,13 @@ export default function AdminVicDetail() {
   const [authorEmails, setAuthorEmails] = useState<AuthorMap>({});
   const [assignments, setAssignments] = useState<VerificationAssignment[]>([]);
   const [assignmentPhones, setAssignmentPhones] = useState<Record<string, string>>({});
+  const [sourceLead, setSourceLead] = useState<Lead | null>(null);
+  const [leadNotes, setLeadNotes] = useState<LeadNote[]>([]);
+  const [leadAuthorEmails, setLeadAuthorEmails] = useState<AuthorMap>({});
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
 
   const fetchData = async () => {
     if (!id) return;
