@@ -78,7 +78,7 @@ export default function LeadActivityLog({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
-            <History className="w-4 h-4 text-gray-400" />
+            <History className="w-4 h-4 text-muted-foreground" />
             {title}
           </CardTitle>
           {!leadId && (
@@ -91,23 +91,23 @@ export default function LeadActivityLog({
       {open && (
         <CardContent className="pt-0">
           {loading ? (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="w-4 h-4 animate-spin" /> Lädt…
             </div>
           ) : items.length === 0 ? (
-            <p className="text-sm text-gray-500">Noch keine Aktivität.</p>
+            <p className="text-sm text-muted-foreground">Noch keine Aktivität.</p>
           ) : (
             <ul className="space-y-2 max-h-64 overflow-y-auto pr-1">
               {items.map((a) => (
-                <li key={a.id} className="text-sm flex flex-wrap gap-x-2 border-b border-gray-100 pb-2 last:border-0">
-                  <span className="text-gray-400 tabular-nums">{formatDateTime(a.created_at)}</span>
-                  <span className="text-gray-600">
+                <li key={a.id} className="text-sm flex flex-wrap gap-x-2 border-b border-border/60 pb-2 last:border-0">
+                  <span className="text-muted-foreground tabular-nums">{formatDateTime(a.created_at)}</span>
+                  <span className="text-foreground/75">
                     {(a.actor_id ? actors[a.actor_id] : null) ?? "System"}
                   </span>
                   {!leadId && (
-                    <span className="font-medium text-gray-900">{leadNames[a.lead_id] ?? "—"}</span>
+                    <span className="font-medium text-foreground">{leadNames[a.lead_id] ?? "—"}</span>
                   )}
-                  <span className="text-gray-700">{activityLabel(a)}</span>
+                  <span className="text-foreground/80">{activityLabel(a)}</span>
                 </li>
               ))}
             </ul>

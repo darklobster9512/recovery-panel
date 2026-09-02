@@ -139,11 +139,11 @@ export default function AdminLeads() {
       <Card>
         <CardContent className="p-0 overflow-x-auto">
           {loading ? (
-            <div className="flex items-center gap-2 text-sm text-gray-500 p-6">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground p-6">
               <Loader2 className="w-4 h-4 animate-spin" /> Lädt…
             </div>
           ) : filtered.length === 0 ? (
-            <p className="text-sm text-gray-500 p-6">
+            <p className="text-sm text-muted-foreground p-6">
               {leads.length === 0 ? "Noch keine Leads importiert." : "Keine Treffer."}
             </p>
           ) : (
@@ -163,7 +163,7 @@ export default function AdminLeads() {
               <TableBody>
                 {filtered.map((lead) => (
                   <TableRow key={lead.id}>
-                    <TableCell className="whitespace-nowrap text-gray-500 tabular-nums">
+                    <TableCell className="whitespace-nowrap text-muted-foreground tabular-nums">
                       {formatDateTime(lead.imported_at)}
                     </TableCell>
                     <TableCell className="font-medium">{lead.full_name ?? "—"}</TableCell>
@@ -213,7 +213,7 @@ export default function AdminLeads() {
                         value={lead.status}
                         onValueChange={(v) => changeStatus(lead, v as LeadStatus)}
                       >
-                        <SelectTrigger className="h-8 w-full border-0 bg-transparent p-0 pr-1 shadow-none focus:ring-0 flex items-center gap-1 cursor-pointer hover:bg-gray-50 rounded-md">
+                        <SelectTrigger className="h-8 w-full border-0 bg-transparent p-0 pr-1 shadow-none focus:ring-0 flex items-center gap-1 cursor-pointer hover:bg-muted/60 rounded-md">
                           <Badge
                             variant="secondary"
                             className={`flex-1 justify-center ${statusMeta(lead.status).className}`}

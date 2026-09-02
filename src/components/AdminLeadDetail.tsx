@@ -26,8 +26,8 @@ import {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-4 py-2 border-b border-gray-100 last:border-0">
-      <span className="text-sm text-gray-500">{label}</span>
+    <div className="flex justify-between gap-4 py-2 border-b border-border/60 last:border-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
       <span className="text-sm font-medium text-right break-all">{value}</span>
     </div>
   );
@@ -70,7 +70,7 @@ export default function AdminLeadDetail() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="w-4 h-4 animate-spin" /> Lädt…
       </div>
     );
@@ -79,7 +79,7 @@ export default function AdminLeadDetail() {
   if (!lead) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-gray-500">Lead nicht gefunden.</p>
+        <p className="text-sm text-muted-foreground">Lead nicht gefunden.</p>
         <Button variant="outline" onClick={() => navigate("/admin/leads")}>
           <ArrowLeft className="w-4 h-4 mr-2" /> Zurück
         </Button>
@@ -142,7 +142,7 @@ export default function AdminLeadDetail() {
         <CardContent className="space-y-4">
           <Row label="Schadenshöhe" value={formatEur(lead.schadenshoehe)} />
           <div>
-            <p className="text-sm text-gray-500 mb-1">Was ist vorgefallen?</p>
+            <p className="text-sm text-muted-foreground mb-1">Was ist vorgefallen?</p>
             <p className="text-sm whitespace-pre-wrap leading-relaxed">{lead.vorfall ?? "—"}</p>
           </div>
         </CardContent>

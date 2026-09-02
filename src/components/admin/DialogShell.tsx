@@ -26,7 +26,7 @@ export function DialogShellHeader({
     tone === "primary" ? { background: "var(--gradient-primary)" } : undefined;
 
   return (
-    <div className="-mx-6 -mt-6 px-6 pt-6 pb-5 border-b border-border/60 bg-[hsl(221_45%_98%)] rounded-t-lg">
+    <div className="-mx-6 -mt-6 px-6 pt-6 pb-5 border-b border-border/70 bg-muted/50 rounded-t-lg">
       <div className="flex items-start gap-4">
         <div
           className={cn(

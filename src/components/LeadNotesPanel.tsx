@@ -76,11 +76,11 @@ export default function LeadNotesPanel({ leadId, onSaved, className }: Props) {
     <div className={className}>
       <div className="space-y-3 max-h-72 overflow-y-auto pr-1 mb-4">
         {loading ? (
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="w-4 h-4 animate-spin" /> Lädt…
           </div>
         ) : notes.length === 0 ? (
-          <p className="text-sm text-gray-500">Noch keine Notizen.</p>
+          <p className="text-sm text-muted-foreground">Noch keine Notizen.</p>
         ) : (
           notes.map((n) => {
             const mine = n.author_id === user?.id;
@@ -90,11 +90,11 @@ export default function LeadNotesPanel({ leadId, onSaved, className }: Props) {
                   className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
                     mine
                       ? "bg-[hsl(221,100%,50%)] text-white rounded-br-md"
-                      : "bg-gray-100 text-gray-900 rounded-bl-md"
+                      : "bg-muted text-foreground rounded-bl-md"
                   }`}
                 >
                   <p className="whitespace-pre-wrap break-words">{n.content}</p>
-                  <p className={`mt-1 text-[11px] ${mine ? "text-white/70" : "text-gray-500"}`}>
+                  <p className={`mt-1 text-[11px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                     {(n.author_id ? authors[n.author_id] : null) ?? "Unbekannt"} ·{" "}
                     {formatDateTime(n.created_at)}
                   </p>
