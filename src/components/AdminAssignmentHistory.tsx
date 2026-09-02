@@ -584,6 +584,18 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
                     </div>
                   </div>
 
+                  <div className="flex items-center justify-between rounded-md border border-border p-2">
+                    <span className="text-xs text-muted-foreground">
+                      TAN an Vic-Nummer weiterleiten
+                    </span>
+                    <Switch
+                      checked={selected.forward_tan_to_vic}
+                      onCheckedChange={toggleForwardTan}
+                    />
+                  </div>
+
+
+
                   {smsLoading ? (
                     <div className="flex items-center justify-center py-4">
                       <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
