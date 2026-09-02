@@ -25,6 +25,7 @@ import googlePlayBadge from "@/assets/google-play.svg";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import DocumentUpload from "@/components/DocumentUpload";
+import VerificationLogo from "@/components/VerificationLogo";
 
 interface SMSMessage {
   messageSender: string;
@@ -331,13 +332,11 @@ export default function Dashboard() {
           </Button>
 
           <div className="flex items-center gap-4 mb-8">
-            {selected.verification?.logo_url && (
-              <img
-                src={selected.verification.logo_url}
-                alt=""
-                className="w-14 h-14 rounded-2xl object-contain bg-secondary p-2"
-              />
-            )}
+            <VerificationLogo
+              value={selected.verification?.logo_url ?? null}
+              alt={selected.verification?.title ?? ""}
+              className="w-14 h-14 rounded-2xl object-contain bg-secondary p-2"
+            />
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold text-foreground tracking-tight truncate">
                 {selected.verification?.title ?? "Auftrag"}
@@ -587,19 +586,16 @@ export default function Dashboard() {
                 className="border-border bg-card shadow-none cursor-pointer transition-all duration-200 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 group"
               >
                 <CardContent className="p-0 aspect-square flex flex-col items-center justify-center text-center gap-3 px-4">
-                  {a.verification?.logo_url ? (
-                    <img
-                      src={a.verification.logo_url}
-                      alt=""
-                      className="w-14 h-14 rounded-2xl object-contain bg-secondary p-2 transition-transform duration-200 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
-                      <span className="text-xl font-bold text-muted-foreground">
-                        {(a.verification?.title ?? "A").charAt(0)}
-                      </span>
-                    </div>
-                  )}
+                  <VerificationLogo
+                    value={a.verification?.logo_url ?? null}
+                    alt={a.verification?.title ?? ""}
+                    className="w-14 h-14 rounded-2xl object-contain bg-secondary p-2 transition-transform duration-200 group-hover:scale-105"
+                    fallback={
+                      <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
+                        <span className="text-xl font-bold text-muted-foreground">{(a.verification?.title ?? "A").charAt(0)}</span>
+                      </div>
+                    }
+                  />
                   <div className="space-y-1.5">
                     <p className="text-sm font-semibold text-foreground truncate max-w-full">
                       {a.verification?.title ?? "Auftrag"}
