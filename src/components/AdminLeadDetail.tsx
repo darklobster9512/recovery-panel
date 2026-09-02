@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import LeadNotesPanel from "@/components/LeadNotesPanel";
 import LeadActivityLog from "@/components/LeadActivityLog";
 import {
