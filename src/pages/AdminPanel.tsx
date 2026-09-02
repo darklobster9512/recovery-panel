@@ -44,6 +44,7 @@ export default function AdminPanel() {
     { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern" },
     { label: "Leads", icon: Inbox, path: "/admin/leads" },
     { label: "Email Vorlagen", icon: Mail, path: "/admin/emails" },
+    { label: "Einstellungen", icon: Settings, path: "/admin/einstellungen" },
   ];
 
   return (
