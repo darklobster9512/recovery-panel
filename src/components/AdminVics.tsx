@@ -8,10 +8,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, Loader2, Copy, Search, Eye, RefreshCw, Check, ChevronsUpDown } from "lucide-react";
+import { UserPlus, Loader2, Copy, Search, Eye, RefreshCw, Check, ChevronsUpDown, KeyRound, User, Wallet } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 
 interface VicUser {
   id: string;
