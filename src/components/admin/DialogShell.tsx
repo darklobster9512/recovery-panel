@@ -20,10 +20,9 @@ export function DialogShellHeader({
 }: DialogShellHeaderProps) {
   const badgeClass =
     tone === "danger"
-      ? "bg-destructive/10 text-destructive ring-1 ring-destructive/20"
-      : "text-primary-foreground shadow-elegant ring-1 ring-primary/30";
-  const badgeStyle =
-    tone === "primary" ? { background: "var(--gradient-primary)" } : undefined;
+      ? "bg-destructive/10 text-destructive"
+      : "bg-primary/10 text-primary";
+  const badgeStyle = undefined;
 
 
   return (
