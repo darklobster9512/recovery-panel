@@ -1,4 +1,48 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  AppSettings,
+  buildLoginUrl,
+  renderCredentialsEmail,
+  renderTemplate,
+} from "../_shared/emailTemplate.ts";
+
+async function sendEmail(s: AppSettings, to: string, subject: string, html: string) {
+  if (!s.resend_api_key || !s.resend_from_email) {
+    return { ok: false, skipped: true, reason: "Resend nicht konfiguriert" };
+  }
+  const from = s.resend_from_name
+    ? `${s.resend_from_name} <${s.resend_from_email}>`
+    : s.resend_from_email;
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${s.resend_api_key}`,
+    },
+    body: JSON.stringify({ from, to: [to], subject, html }),
+  });
+  const body = await res.text();
+  return { ok: res.ok, status: res.status, body };
+}
+
+async function sendSms(s: AppSettings, to: string, text: string) {
+  if (!s.sevenio_api_key) {
+    return { ok: false, skipped: true, reason: "seven.io nicht konfiguriert" };
+  }
+  const params = new URLSearchParams({ to, text });
+  if (s.sevenio_from_name) params.set("from", s.sevenio_from_name);
+  const res = await fetch("https://gateway.seven.io/api/sms", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-Api-Key": s.sevenio_api_key,
+      Accept: "application/json",
+    },
+    body: params.toString(),
+  });
+  const body = await res.text();
+  return { ok: res.ok, status: res.status, body };
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
