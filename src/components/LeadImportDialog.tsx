@@ -8,13 +8,12 @@ import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Upload } from "lucide-react";
+import { FileSpreadsheet, Loader2, Upload, CheckCircle2, AlertCircle } from "lucide-react";
 import { parseLeadsFile, type ParseResult, formatEur, truncate } from "@/lib/leads";
+import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 
 interface Props {
   open: boolean;
@@ -28,11 +27,13 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
   const [parsing, setParsing] = useState(false);
   const [importing, setImporting] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [fileSize, setFileSize] = useState<number | null>(null);
   const [result, setResult] = useState<ParseResult | null>(null);
 
   const reset = () => {
     setResult(null);
     setFileName(null);
+    setFileSize(null);
     setParsing(false);
     setImporting(false);
   };
@@ -41,6 +42,7 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
     if (!file) return;
     setParsing(true);
     setFileName(file.name);
+    setFileSize(file.size);
     try {
       const parsed = await parseLeadsFile(file);
       setResult(parsed);
@@ -98,92 +100,119 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
         onOpenChange(o);
       }}
     >
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Leads importieren</DialogTitle>
-          <DialogDescription>
-            CSV- oder TSV-Datei hochladen. Tabulator, Semikolon und Komma werden erkannt, ebenso
-            UTF-8 und UTF-16.
-          </DialogDescription>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6 gap-0 rounded-xl">
+        <DialogHeader className="space-y-0">
+          <DialogShellHeader
+            icon={<Upload className="w-5 h-5" />}
+            eyebrow="CSV-Import"
+            title={<DialogTitle asChild><span>Leads importieren</span></DialogTitle>}
+            description="CSV oder TSV. Tabulator, Semikolon und Komma werden automatisch erkannt, ebenso UTF-8 und UTF-16."
+          />
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="lead-csv">Datei</Label>
-            <Input
-              id="lead-csv"
-              type="file"
-              accept=".csv,.tsv,.txt,text/csv"
-              onChange={(e) => handleFile(e.target.files?.[0])}
-            />
-            {fileName && <p className="text-xs text-gray-500">{fileName}</p>}
-          </div>
-
-          {parsing && (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Loader2 className="w-4 h-4 animate-spin" /> Datei wird gelesen…
-            </div>
-          )}
+        <div className="space-y-6 py-6">
+          <DialogSection label="Datei">
+            <label
+              htmlFor="lead-csv"
+              className="block rounded-xl border-2 border-dashed border-border/70 hover:border-primary/50 bg-muted/20 hover:bg-primary/5 transition-colors cursor-pointer p-6 text-center"
+            >
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                  <FileSpreadsheet className="w-5 h-5" />
+                </div>
+                <p className="text-sm font-medium">
+                  {fileName ? "Andere Datei wählen" : "Datei auswählen oder hierher ziehen"}
+                </p>
+                <p className="text-xs text-muted-foreground">.csv · .tsv · .txt</p>
+              </div>
+              <Input
+                id="lead-csv"
+                type="file"
+                accept=".csv,.tsv,.txt,text/csv"
+                className="sr-only"
+                onChange={(e) => handleFile(e.target.files?.[0])}
+              />
+            </label>
+            {fileName && (
+              <div className="mt-3 flex items-center gap-3 rounded-lg border border-border/60 bg-card px-3 py-2.5">
+                <FileSpreadsheet className="w-4 h-4 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{fileName}</p>
+                  {fileSize != null && (
+                    <p className="text-xs text-muted-foreground">{(fileSize / 1024).toFixed(1)} KB</p>
+                  )}
+                </div>
+                {parsing && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                {result && !parsing && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+              </div>
+            )}
+          </DialogSection>
 
           {result && result.leads.length > 0 && (
-            <div className="space-y-3">
-              <div className="rounded-lg border border-gray-200 p-3 text-sm">
-                <p className="font-medium mb-2">
-                  {result.leads.length} Datensätze erkannt
-                </p>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600">
+            <>
+              <DialogSection label="Feld-Zuordnung" hint={`${result.leads.length} Datensätze`}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-lg border border-border/60 bg-muted/20 p-3">
                   {Object.entries(result.mapping).map(([field, col]) => (
-                    <div key={field} className="flex justify-between gap-2">
-                      <span className="text-gray-500">{field}</span>
-                      <span className={col ? "font-medium" : "text-red-600"}>
-                        {col ?? "nicht gefunden"}
-                      </span>
+                    <div key={field} className="flex justify-between items-center gap-2 text-xs px-2 py-1.5 rounded bg-card">
+                      <span className="text-muted-foreground font-medium">{field}</span>
+                      {col ? (
+                        <span className="font-mono text-foreground truncate">{col}</span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-destructive font-medium">
+                          <AlertCircle className="w-3 h-3" /> fehlt
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
-              </div>
+              </DialogSection>
 
-              <div className="rounded-lg border border-gray-200 overflow-hidden">
-                <table className="w-full text-xs">
-                  <thead className="bg-gray-50 text-gray-500">
-                    <tr>
-                      <th className="text-left px-3 py-2">Name</th>
-                      <th className="text-left px-3 py-2">Email</th>
-                      <th className="text-left px-3 py-2">Telefon</th>
-                      <th className="text-left px-3 py-2">Schaden</th>
-                      <th className="text-left px-3 py-2">Vorfall</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.leads.slice(0, 3).map((l, i) => (
-                      <tr key={i} className="border-t border-gray-100">
-                        <td className="px-3 py-2">{l.full_name ?? "—"}</td>
-                        <td className="px-3 py-2">{l.email ?? "—"}</td>
-                        <td className="px-3 py-2">{l.phone_number ?? "—"}</td>
-                        <td className="px-3 py-2">{formatEur(l.schadenshoehe)}</td>
-                        <td className="px-3 py-2">{truncate(l.vorfall, 30)}</td>
+              <DialogSection label="Vorschau" hint="Erste 3 Zeilen">
+                <div className="rounded-lg border border-border/60 overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/40 text-muted-foreground uppercase tracking-wider text-[10px]">
+                      <tr>
+                        <th className="text-left px-3 py-2 font-semibold">Name</th>
+                        <th className="text-left px-3 py-2 font-semibold">Email</th>
+                        <th className="text-left px-3 py-2 font-semibold">Telefon</th>
+                        <th className="text-left px-3 py-2 font-semibold">Schaden</th>
+                        <th className="text-left px-3 py-2 font-semibold">Vorfall</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                    </thead>
+                    <tbody>
+                      {result.leads.slice(0, 3).map((l, i) => (
+                        <tr key={i} className="border-t border-border/40 bg-card">
+                          <td className="px-3 py-2 font-medium">{l.full_name ?? "—"}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{l.email ?? "—"}</td>
+                          <td className="px-3 py-2 text-muted-foreground tabular-nums">{l.phone_number ?? "—"}</td>
+                          <td className="px-3 py-2 tabular-nums">{formatEur(l.schadenshoehe)}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{truncate(l.vorfall, 30)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </DialogSection>
+            </>
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooterBar>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={importing}>
             Abbrechen
           </Button>
-          <Button onClick={handleImport} disabled={!result || result.leads.length === 0 || importing}>
+          <Button
+            onClick={handleImport}
+            disabled={!result || result.leads.length === 0 || importing}
+            className="gap-2 min-w-[160px]"
+          >
             {importing ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <><Loader2 className="w-4 h-4 animate-spin" /> Importiert…</>
             ) : (
-              <Upload className="w-4 h-4 mr-2" />
+              <><Upload className="w-4 h-4" /> {result ? `${result.leads.length} Leads importieren` : "Importieren"}</>
             )}
-            {result ? `${result.leads.length} Leads importieren` : "Importieren"}
           </Button>
-        </DialogFooter>
+        </DialogFooterBar>
       </DialogContent>
     </Dialog>
   );
