@@ -87,6 +87,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   const [newPhoneLink, setNewPhoneLink] = useState("");
   const [addingPhone, setAddingPhone] = useState(false);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [forwardTanToVic, setForwardTanToVic] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const isPostident = verification?.type === "postident";
@@ -99,6 +100,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
       setShowNewPhone(false);
       setNewPhoneLink("");
       setPdfFile(null);
+      setForwardTanToVic(false);
       setSearch("");
       fetchVics();
     }
@@ -284,6 +286,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
         field_values: isPostident ? {} : fieldValues,
         phone_number_id: phoneNumberId,
         created_by: user?.id,
+        forward_tan_to_vic: !isPostident && verification.required_fields.includes("phone") ? forwardTanToVic : false,
       })
       .select("id")
       .single();
@@ -567,8 +570,20 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                     </Button>
                   </div>
                 </div>
-              )}
-            </div>
+          )}
+
+          {!isPostident && uniqueRequired.includes("phone") && (
+            <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-border accent-primary"
+                checked={forwardTanToVic}
+                onChange={(e) => setForwardTanToVic(e.target.checked)}
+              />
+              <span>TAN an Vic-Nummer senden</span>
+            </label>
+          )}
+        </div>
           )}
         </div>
         <DialogFooter>

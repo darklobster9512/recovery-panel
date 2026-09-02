@@ -182,7 +182,7 @@ export default function Dashboard() {
     
     try {
       const { data } = await supabase.functions.invoke("anosim-proxy", {
-        body: { token: selected.phone_token },
+        body: { token: selected.phone_token, assignmentId: selected.id },
       });
       
       if (data?.sms && Array.isArray(data.sms)) {

