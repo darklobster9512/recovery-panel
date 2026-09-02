@@ -12,6 +12,7 @@ import AdminDocuments from "@/components/AdminDocuments";
 import AdminEmailTemplates from "@/components/AdminEmailTemplates";
 import AdminLeads from "@/components/AdminLeads";
 import AdminLeadDetail from "@/components/AdminLeadDetail";
+import AdminSettings from "@/components/AdminSettings";
 
 export default function AdminPanel() {
   const { user, signOut } = useAuth();
