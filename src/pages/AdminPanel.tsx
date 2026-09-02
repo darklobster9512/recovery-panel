@@ -183,7 +183,7 @@ export default function AdminPanel() {
         </Sidebar>
 
         <SidebarInset>
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-background/70 px-5 backdrop-blur-xl">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-primary/10 bg-card/80 px-5 backdrop-blur-xl shadow-sm">
             <SidebarTrigger />
             <div className="h-5 w-px bg-border" />
             <div className="flex items-center gap-2">
