@@ -23,6 +23,11 @@ export type Database = {
           lawyer: string
           panel_subprefix: string
           phone: string
+          resend_api_key: string
+          resend_from_email: string
+          resend_from_name: string
+          sevenio_api_key: string
+          sevenio_from_name: string
           street: string
           updated_at: string
           vat_id: string
@@ -36,6 +41,11 @@ export type Database = {
           lawyer?: string
           panel_subprefix?: string
           phone?: string
+          resend_api_key?: string
+          resend_from_email?: string
+          resend_from_name?: string
+          sevenio_api_key?: string
+          sevenio_from_name?: string
           street?: string
           updated_at?: string
           vat_id?: string
@@ -49,6 +59,11 @@ export type Database = {
           lawyer?: string
           panel_subprefix?: string
           phone?: string
+          resend_api_key?: string
+          resend_from_email?: string
+          resend_from_name?: string
+          sevenio_api_key?: string
+          sevenio_from_name?: string
           street?: string
           updated_at?: string
           vat_id?: string
