@@ -23,7 +23,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, X, UserPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, X, UserPlus, ShieldCheck, AlertTriangle, Loader2 } from "lucide-react";
+import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 import { useToast } from "@/hooks/use-toast";
 import AssignVerificationDialog from "@/components/AssignVerificationDialog";
 import AdminAssignmentHistory from "@/components/AdminAssignmentHistory";
@@ -275,71 +276,78 @@ export default function AdminVerifications() {
 
       {/* Create / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) { setDialogOpen(false); resetForm(); } }}>
-        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editing ? "Verifikation bearbeiten" : "Neue Verifikation"}</DialogTitle>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-6 gap-0 rounded-xl">
+          <DialogHeader className="space-y-0">
+            <DialogShellHeader
+              icon={<ShieldCheck className="w-5 h-5" />}
+              eyebrow={editing ? "Verifikation bearbeiten" : "Neu erstellen"}
+              title={<DialogTitle asChild><span>{editing ? title || "Verifikation bearbeiten" : "Neue Verifikation"}</span></DialogTitle>}
+              description="Grunddaten, Ident-Typ und die für den Vic erforderlichen Felder festlegen."
+            />
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
-            {/* Type */}
-            <div>
-              <Label>Typ</Label>
-              <div className="mt-1 inline-flex rounded-lg border border-border/60 p-1 bg-muted/60">
+          <div className="space-y-6 py-6">
+            <DialogSection label="Typ">
+              <div className="inline-flex rounded-lg border border-border/60 p-1 bg-muted/60">
                 {(["videocall", "postident"] as VerificationType[]).map((t) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => setType(t)}
-                    className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                    className={`px-4 py-1.5 text-sm rounded-md transition-all ${
                       type === t
-                        ? "bg-card text-primary shadow-sm font-medium"
-                        : "text-gray-600 hover:text-gray-900"
+                        ? "bg-card text-primary shadow-sm font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {t === "videocall" ? "Videocall" : "Postident"}
                   </button>
                 ))}
               </div>
-            </div>
+            </DialogSection>
 
-            {/* Logo */}
-            <div>
-              <Label>Logo</Label>
-              <div className="mt-1 flex items-center gap-3">
-                {logoFile ? (
-                  <img src={logoPreview ?? ""} alt="Logo" className="w-12 h-12 rounded-lg object-contain border border-border" />
-                ) : logoPreview ? (
-                  <VerificationLogo value={logoPreview} alt="Logo" className="w-12 h-12 rounded-lg object-contain border border-border" />
-                ) : null}
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0] ?? null;
-                    setLogoFile(f);
-                    if (f) setLogoPreview(URL.createObjectURL(f));
-                  }}
-                />
+            <DialogSection label="Grunddaten">
+              <div className="grid grid-cols-[auto,1fr] gap-4 items-start">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-16 h-16 rounded-xl border border-border/60 bg-muted/40 flex items-center justify-center overflow-hidden">
+                    {logoFile && logoPreview ? (
+                      <img src={logoPreview} alt="Logo" className="w-full h-full object-contain" />
+                    ) : logoPreview ? (
+                      <VerificationLogo value={logoPreview} alt="Logo" className="w-full h-full object-contain" />
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Logo</span>
+                    )}
+                  </div>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    className="text-xs w-40"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0] ?? null;
+                      setLogoFile(f);
+                      if (f) setLogoPreview(URL.createObjectURL(f));
+                    }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Titel</Label>
+                  <Input
+                    placeholder="z.B. Deutsche Bank"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Wird dem Vic im Dashboard angezeigt.</p>
+                </div>
               </div>
-            </div>
+            </DialogSection>
 
-            {/* Title */}
-            <div>
-              <Label>Titel</Label>
-              <Input
-                className="mt-1"
-                placeholder="z.B. BBVA"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-
-            {/* Instructions */}
-            <div>
-              <Label>Anweisungen</Label>
-              <div className="space-y-2 mt-1">
+            <DialogSection label="Anweisungen für den Vic">
+              <div className="space-y-2">
                 {instructions.map((inst, idx) => (
-                  <div key={idx} className="flex gap-2">
+                  <div key={idx} className="flex gap-2 items-center">
+                    <span className="w-6 h-6 rounded-full bg-muted text-xs font-semibold text-muted-foreground flex items-center justify-center shrink-0">
+                      {idx + 1}
+                    </span>
                     <Input
                       placeholder={`Anweisung ${idx + 1}`}
                       value={inst}
@@ -350,7 +358,7 @@ export default function AdminVerifications() {
                         type="button"
                         size="icon"
                         variant="ghost"
-                        className="shrink-0"
+                        className="shrink-0 text-muted-foreground hover:text-destructive"
                         onClick={() => removeInstruction(idx)}
                       >
                         <X className="w-4 h-4" />
@@ -358,90 +366,106 @@ export default function AdminVerifications() {
                     )}
                   </div>
                 ))}
-                <Button type="button" variant="outline" size="sm" onClick={addInstruction}>
-                  <Plus className="w-4 h-4 mr-1" /> Anweisung hinzufügen
+                <Button type="button" variant="outline" size="sm" onClick={addInstruction} className="gap-1.5">
+                  <Plus className="w-4 h-4" /> Anweisung hinzufügen
                 </Button>
               </div>
-            </div>
+            </DialogSection>
 
             {type !== "postident" && (
               <>
-                {/* Download Links */}
-                <div>
-                  <Label>App Store Link</Label>
-                  <Input
-                    className="mt-1"
-                    placeholder="https://apps.apple.com/..."
-                    value={appstoreUrl}
-                    onChange={(e) => setAppstoreUrl(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Play Store Link</Label>
-                  <Input
-                    className="mt-1"
-                    placeholder="https://play.google.com/..."
-                    value={playstoreUrl}
-                    onChange={(e) => setPlaystoreUrl(e.target.value)}
-                  />
-                </div>
-
-                {/* Required Fields */}
-                <div>
-                  <Label>Erforderliche Verifikationsdaten</Label>
-                  <div className="grid grid-cols-2 gap-3 mt-2">
-                    {REQUIRED_FIELD_OPTIONS.map((opt) => (
-                      <label
-                        key={opt.value}
-                        className="flex items-center gap-2 text-sm cursor-pointer"
-                      >
-                        <Checkbox
-                          checked={requiredFields.includes(opt.value)}
-                          onCheckedChange={() => toggleField(opt.value)}
-                        />
-                        {opt.label}
-                      </label>
-                    ))}
+                <DialogSection label="App-Links">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">App Store</Label>
+                      <Input
+                        placeholder="https://apps.apple.com/..."
+                        value={appstoreUrl}
+                        onChange={(e) => setAppstoreUrl(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Play Store</Label>
+                      <Input
+                        placeholder="https://play.google.com/..."
+                        value={playstoreUrl}
+                        onChange={(e) => setPlaystoreUrl(e.target.value)}
+                      />
+                    </div>
                   </div>
-                </div>
+                </DialogSection>
+
+                <DialogSection label="Erforderliche Ident-Daten" hint={`${requiredFields.length} ausgewählt`}>
+                  <div className="grid grid-cols-2 gap-2 p-3 rounded-lg border border-border/60 bg-muted/30">
+                    {REQUIRED_FIELD_OPTIONS.map((opt) => {
+                      const active = requiredFields.includes(opt.value);
+                      return (
+                        <label
+                          key={opt.value}
+                          className={`flex items-center gap-2 text-sm cursor-pointer px-3 py-2 rounded-md border transition-colors ${
+                            active
+                              ? "border-primary/40 bg-primary/5 text-foreground"
+                              : "border-transparent hover:bg-card"
+                          }`}
+                        >
+                          <Checkbox
+                            checked={active}
+                            onCheckedChange={() => toggleField(opt.value)}
+                          />
+                          <span className="font-medium">{opt.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </DialogSection>
               </>
             )}
           </div>
 
-          <DialogFooter className="flex-row justify-between sm:justify-between">
-            {editing && (
+          <DialogFooterBar className="justify-between">
+            {editing ? (
               <Button
-                variant="destructive"
+                variant="ghost"
                 onClick={() => setDeleteDialogOpen(true)}
                 disabled={saving}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-1.5"
               >
-                <Trash2 className="w-4 h-4 mr-1" /> Löschen
+                <Trash2 className="w-4 h-4" /> Löschen
               </Button>
-            )}
-            <div className="flex gap-2 ml-auto">
+            ) : <span />}
+            <div className="flex gap-2">
               <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }} disabled={saving}>
                 Abbrechen
               </Button>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? "Speichert..." : "Speichern"}
+              <Button onClick={handleSave} disabled={saving} className="gap-2 min-w-[120px]">
+                {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Speichert…</> : editing ? "Änderungen sichern" : "Erstellen"}
               </Button>
             </div>
-          </DialogFooter>
+          </DialogFooterBar>
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirmation */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Verifikation löschen?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Diese Aktion kann nicht rückgängig gemacht werden.
-            </AlertDialogDescription>
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center ring-1 ring-destructive/20 shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <AlertDialogTitle className="text-lg">Verifikation löschen?</AlertDialogTitle>
+                <AlertDialogDescription className="mt-1">
+                  Die Verifikation und alle Referenzen werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.
+                </AlertDialogDescription>
+              </div>
+            </div>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Löschen</AlertDialogAction>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Endgültig löschen
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
