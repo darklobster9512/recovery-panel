@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send } from "lucide-react";
 import { formatDateTime, type LeadNote } from "@/lib/leads";
+import { notifyTelegram } from "@/lib/telegramNotify";
 
 interface Props {
   leadId: string;
