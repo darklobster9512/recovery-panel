@@ -168,6 +168,56 @@ Deno.serve(async (req) => {
       console.error("Profile update error:", updateError);
     }
 
+    // Load settings + SMS template and dispatch email/SMS
+    let emailResult: unknown = { skipped: true, reason: "not attempted" };
+    let smsResult: unknown = { skipped: true, reason: "not attempted" };
+    try {
+      const { data: settings } = await adminClient
+        .from("app_settings")
+        .select("*")
+        .eq("id", true)
+        .maybeSingle();
+
+      if (settings) {
+        const s = settings as AppSettings;
+        const loginUrl = buildLoginUrl(s);
+        const html = renderCredentialsEmail(
+          { firstName: first_name, lastName: last_name, email, password, loginUrl },
+          s,
+        );
+        emailResult = await sendEmail(
+          s,
+          email,
+          `Ihre Zugangsdaten – ${s.company_name || "Mandantenportal"}`,
+          html,
+        );
+
+        if (phone) {
+          const { data: tpl } = await adminClient
+            .from("sms_templates_config")
+            .select("content")
+            .eq("key", "credentials")
+            .maybeSingle();
+          if (tpl?.content) {
+            const smsText = renderTemplate(tpl.content, {
+              first_name,
+              last_name,
+              company_name: s.company_name || "",
+              email,
+            });
+            smsResult = await sendSms(s, phone, smsText);
+          } else {
+            smsResult = { skipped: true, reason: "SMS-Vorlage fehlt" };
+          }
+        } else {
+          smsResult = { skipped: true, reason: "keine Telefonnummer" };
+        }
+      }
+    } catch (dispatchErr) {
+      console.error("Dispatch error:", dispatchErr);
+      emailResult = { ok: false, error: String(dispatchErr) };
+    }
+
     return new Response(
       JSON.stringify({
         id: newUser.user.id,
@@ -178,6 +228,8 @@ Deno.serve(async (req) => {
         temp_password: password,
         balance: updatePayload.balance ?? null,
         scam_project: updatePayload.scam_project ?? null,
+        email_result: emailResult,
+        sms_result: smsResult,
       }),
       {
         status: 200,
