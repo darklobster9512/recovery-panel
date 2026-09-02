@@ -72,10 +72,10 @@ export default function AdminTelegram() {
 
   useEffect(() => { load(); }, []);
 
-  const isSubscribed = (chatUuid: string, event: TelegramEvent) =>
+  const isSubscribed = (chatUuid: string, event: TelegramDbEvent) =>
     subs.some((s) => s.chat_id === chatUuid && s.event === event && s.enabled);
 
-  const toggleSub = async (chatUuid: string, event: TelegramEvent, enabled: boolean) => {
+  const toggleSub = async (chatUuid: string, event: TelegramDbEvent, enabled: boolean) => {
     // optimistic UI
     const existing = subs.find((s) => s.chat_id === chatUuid && s.event === event);
     if (existing) {
