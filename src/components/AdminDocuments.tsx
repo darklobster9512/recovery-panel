@@ -15,7 +15,7 @@ import { toast } from "sonner";
 
 interface DocGroup {
   user_id: string;
-  assignment_id: string;
+  assignment_id: string | null;
   user_name: string;
   user_email: string;
   verification_title: string;
@@ -71,7 +71,7 @@ export default function AdminDocuments() {
     }
 
     // Group by user_id + assignment_id
-    const groupMap = new Map<string, { user_id: string; assignment_id: string; count: number; latest: string }>();
+    const groupMap = new Map<string, { user_id: string; assignment_id: string | null; count: number; latest: string }>();
     for (const d of allDocs) {
       const key = `${d.user_id}|${d.assignment_id}`;
       const existing = groupMap.get(key);
@@ -126,12 +126,14 @@ export default function AdminDocuments() {
     setDocsLoading(true);
     setSignedUrls({});
 
-    const { data } = await supabase
+    let query = supabase
       .from("user_documents")
       .select("id, file_name, file_type, file_size, file_path, created_at")
-      .eq("user_id", group.user_id)
-      .eq("assignment_id", group.assignment_id)
-      .order("created_at", { ascending: false });
+      .eq("user_id", group.user_id);
+    query = group.assignment_id
+      ? query.eq("assignment_id", group.assignment_id)
+      : query.is("assignment_id", null);
+    const { data } = await query.order("created_at", { ascending: false });
 
     const docList = (data as DocDetail[]) ?? [];
     setDocs(docList);
