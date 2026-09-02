@@ -197,7 +197,7 @@ export default function AdminPhoneNumbers() {
   return (
     <div className="space-y-6">
       {/* Add phone number */}
-      <Card className="border-border shadow-none">
+      <Card className="border-border/60 bg-card shadow-card">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Telefonnummer hinzufügen</CardTitle>
           <a href="https://anosim.net" target="_blank" rel="noopener noreferrer">
@@ -228,7 +228,7 @@ export default function AdminPhoneNumbers() {
       ) : entries.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">Keine Telefonnummern vorhanden.</p>
       ) : (
-        <Card className="border-border shadow-none">
+        <Card className="border-border/60 bg-card shadow-card">
           <CardContent className="p-0">
             <Table>
               <TableHeader>

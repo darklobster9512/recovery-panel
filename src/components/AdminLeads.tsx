@@ -156,7 +156,7 @@ export default function AdminLeads() {
                   <TableHead className="w-32">Schadenshöhe</TableHead>
                   <TableHead className="min-w-[240px]">Was ist vorgefallen?</TableHead>
                   <TableHead className="w-44">Status</TableHead>
-                  <TableHead className="w-24 text-right sticky right-0 bg-white">Aktionen</TableHead>
+                  <TableHead className="w-24 text-right sticky right-0 bg-card">Aktionen</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -235,7 +235,7 @@ export default function AdminLeads() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white">
+                    <TableCell className="text-right whitespace-nowrap sticky right-0 bg-card">
                       <Button
                         variant="ghost"
                         size="icon"

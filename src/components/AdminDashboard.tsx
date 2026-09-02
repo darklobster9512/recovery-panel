@@ -108,7 +108,7 @@ export default function AdminDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map(s => (
-          <Card key={s.label} className="border-gray-200 shadow-none bg-white">
+          <Card key={s.label} className="border-border/60 bg-card shadow-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-gray-500">{s.label}</CardTitle>
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${s.className}`}>
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Assignments */}
-        <Card className="border-gray-200 shadow-none bg-white">
+        <Card className="border-border/60 bg-card shadow-card">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Letzte Zuweisungen</CardTitle>
           </CardHeader>
@@ -173,7 +173,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Recent SMS */}
-        <Card className="border-gray-200 shadow-none bg-white">
+        <Card className="border-border/60 bg-card shadow-card">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Letzte SMS</CardTitle>
           </CardHeader>

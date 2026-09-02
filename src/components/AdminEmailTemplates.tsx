@@ -43,7 +43,7 @@ export default function AdminEmailTemplates() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-gray-200 shadow-none bg-white">
+      <Card className="border-border/60 bg-card shadow-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Mail className="w-4 h-4 text-[hsl(221,100%,50%)]" />
@@ -59,7 +59,7 @@ export default function AdminEmailTemplates() {
                 className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                   templateId === t.id
                     ? "border-[hsl(221,100%,50%)] bg-[hsl(221,100%,97%)] text-[hsl(221,100%,50%)]"
-                    : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    : "border-border/60 text-muted-foreground hover:bg-muted/60"
                 }`}
               >
                 {t.label}
@@ -103,12 +103,12 @@ export default function AdminEmailTemplates() {
         </CardContent>
       </Card>
 
-      <Card className="border-gray-200 shadow-none bg-white">
+      <Card className="border-border/60 bg-card shadow-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Vorschau</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-xl border border-gray-200 overflow-hidden bg-gray-100">
+          <div className="rounded-xl border border-border/60 overflow-hidden bg-muted/40">
             <iframe title="E-Mail Vorschau" srcDoc={html} className="w-full h-[820px] border-0 bg-white" />
           </div>
         </CardContent>

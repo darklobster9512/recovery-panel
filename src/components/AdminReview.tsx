@@ -102,7 +102,7 @@ export default function AdminReview() {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+    <div className="rounded-lg border border-border/60 bg-card overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
