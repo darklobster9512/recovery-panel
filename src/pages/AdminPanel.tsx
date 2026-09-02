@@ -101,15 +101,12 @@ export default function AdminPanel() {
         <Sidebar collapsible="icon">
           <SidebarHeader>
             <div className="flex items-center gap-3 px-3 py-4">
-              <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-primary-foreground shadow-soft"
-                style={{ background: "var(--gradient-primary)" }}
-              >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-primary">
                 <Shield className="h-5 w-5" />
               </div>
               <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
                 <span className="truncate text-base font-bold text-sidebar-foreground">Admin Panel</span>
-                <span className="truncate text-xs text-sidebar-foreground/60">Korte &amp; Partner</span>
+                <span className="truncate text-xs text-sidebar-foreground/70">Korte &amp; Partner</span>
               </div>
             </div>
           </SidebarHeader>
@@ -137,9 +134,9 @@ export default function AdminPanel() {
                             <SidebarMenuButton
                               asChild
                               tooltip={item.label}
-                              className={`h-10 rounded-lg text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+                              className={`h-10 rounded-lg text-sidebar-foreground/90 hover:bg-white/10 hover:text-sidebar-foreground ${
                                 active
-                                  ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-soft hover:bg-sidebar-primary hover:text-sidebar-primary-foreground"
+                                  ? "bg-white text-primary font-medium shadow-sm hover:bg-white hover:text-primary"
                                   : ""
                               }`}
                             >
@@ -158,21 +155,21 @@ export default function AdminPanel() {
             ))}
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-sidebar-border">
+          <SidebarFooter className="border-t border-white/15">
             <div className="flex items-center gap-2 px-2 py-3">
               <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">
+                <AvatarFallback className="bg-white text-xs font-semibold text-primary">
                   {initials}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
                 <p className="truncate text-xs font-medium text-sidebar-foreground">{user?.email}</p>
-                <p className="truncate text-[10px] capitalize text-sidebar-foreground/60">Administrator</p>
+                <p className="truncate text-[10px] capitalize text-sidebar-foreground/70">Administrator</p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 shrink-0 text-sidebar-foreground/70 hover:bg-destructive/10 hover:text-destructive group-data-[collapsible=icon]:hidden"
+                className="h-8 w-8 shrink-0 text-sidebar-foreground/90 hover:bg-white/10 hover:text-white group-data-[collapsible=icon]:hidden"
                 onClick={handleSignOut}
                 aria-label="Abmelden"
               >
@@ -183,20 +180,17 @@ export default function AdminPanel() {
         </Sidebar>
 
         <SidebarInset>
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-primary/10 bg-card/80 px-5 backdrop-blur-xl shadow-sm">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background px-5">
             <SidebarTrigger />
             <div className="h-5 w-px bg-border" />
             <div className="flex items-center gap-2">
-              <h1 className="text-sm font-semibold tracking-tight">{title}</h1>
+              <h1 className="text-sm font-semibold tracking-tight text-foreground">{title}</h1>
               <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded-full uppercase tracking-wide">
                 Admin
               </span>
             </div>
           </header>
-          <main
-            className="flex-1 p-6 lg:p-8"
-            style={{ background: "var(--gradient-surface)", minHeight: "calc(100vh - 3.5rem)" }}
-          >
+          <main className="flex-1 p-6 lg:p-8 bg-background" style={{ minHeight: "calc(100vh - 3.5rem)" }}>
             {renderRoute(location.pathname)}
           </main>
         </SidebarInset>
