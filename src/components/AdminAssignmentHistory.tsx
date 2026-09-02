@@ -71,6 +71,7 @@ interface AssignmentRow {
   status: AssignmentStatus;
   sms_monitoring_active: boolean;
   hidden_sms: string[];
+  forward_tan_to_vic: boolean;
   profile: {
     id: string;
     email: string | null;
