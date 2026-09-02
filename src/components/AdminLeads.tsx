@@ -73,6 +73,15 @@ export default function AdminLeads() {
 
   const bump = () => setRefreshKey((k) => k + 1);
 
+  const copyValue = async (value: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast({ title: `${label} kopiert`, description: value });
+    } catch {
+      toast({ title: "Kopieren fehlgeschlagen", variant: "destructive" });
+    }
+  };
+
   const changeStatus = async (lead: Lead, status: LeadStatus) => {
     setLeads((prev) => prev.map((l) => (l.id === lead.id ? { ...l, status } : l)));
     const { error } = await supabase.from("leads").update({ status }).eq("id", lead.id);
