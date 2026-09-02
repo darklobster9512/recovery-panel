@@ -330,6 +330,12 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
     }
 
     toast({ title: "Verifikation zugewiesen" });
+    notifyTelegram("assignment_created", {
+      vic_name: `${selectedVic.first_name ?? ""} ${selectedVic.last_name ?? ""}`.trim() || (selectedVic.email ?? "Unbekannt"),
+      vic_email: selectedVic.email,
+      verification_title: verification.title,
+      verification_type: isPostident ? "Postident" : "Videocall",
+    });
     onAssigned?.();
     onOpenChange(false);
 
