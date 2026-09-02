@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          city: string
+          company_name: string
+          email: string
+          id: boolean
+          lawyer: string
+          panel_subprefix: string
+          phone: string
+          street: string
+          updated_at: string
+          vat_id: string
+          website: string
+        }
+        Insert: {
+          city?: string
+          company_name?: string
+          email?: string
+          id?: boolean
+          lawyer?: string
+          panel_subprefix?: string
+          phone?: string
+          street?: string
+          updated_at?: string
+          vat_id?: string
+          website?: string
+        }
+        Update: {
+          city?: string
+          company_name?: string
+          email?: string
+          id?: boolean
+          lawyer?: string
+          panel_subprefix?: string
+          phone?: string
+          street?: string
+          updated_at?: string
+          vat_id?: string
+          website?: string
+        }
+        Relationships: []
+      }
       lead_activity: {
         Row: {
           action: string
@@ -240,6 +282,24 @@ export type Database = {
           id?: string
           message?: string
           sender_id?: string
+        }
+        Relationships: []
+      }
+      sms_templates_config: {
+        Row: {
+          content: string
+          key: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          key: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          key?: string
+          updated_at?: string
         }
         Relationships: []
       }
