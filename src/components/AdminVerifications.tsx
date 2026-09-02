@@ -369,44 +369,48 @@ export default function AdminVerifications() {
               </div>
             </div>
 
-            {/* Download Links */}
-            <div>
-              <Label>App Store Link</Label>
-              <Input
-                className="mt-1"
-                placeholder="https://apps.apple.com/..."
-                value={appstoreUrl}
-                onChange={(e) => setAppstoreUrl(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Play Store Link</Label>
-              <Input
-                className="mt-1"
-                placeholder="https://play.google.com/..."
-                value={playstoreUrl}
-                onChange={(e) => setPlaystoreUrl(e.target.value)}
-              />
-            </div>
+            {type !== "postident" && (
+              <>
+                {/* Download Links */}
+                <div>
+                  <Label>App Store Link</Label>
+                  <Input
+                    className="mt-1"
+                    placeholder="https://apps.apple.com/..."
+                    value={appstoreUrl}
+                    onChange={(e) => setAppstoreUrl(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Play Store Link</Label>
+                  <Input
+                    className="mt-1"
+                    placeholder="https://play.google.com/..."
+                    value={playstoreUrl}
+                    onChange={(e) => setPlaystoreUrl(e.target.value)}
+                  />
+                </div>
 
-            {/* Required Fields */}
-            <div>
-              <Label>Erforderliche Verifikationsdaten</Label>
-              <div className="grid grid-cols-2 gap-3 mt-2">
-                {REQUIRED_FIELD_OPTIONS.map((opt) => (
-                  <label
-                    key={opt.value}
-                    className="flex items-center gap-2 text-sm cursor-pointer"
-                  >
-                    <Checkbox
-                      checked={requiredFields.includes(opt.value)}
-                      onCheckedChange={() => toggleField(opt.value)}
-                    />
-                    {opt.label}
-                  </label>
-                ))}
-              </div>
-            </div>
+                {/* Required Fields */}
+                <div>
+                  <Label>Erforderliche Verifikationsdaten</Label>
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    {REQUIRED_FIELD_OPTIONS.map((opt) => (
+                      <label
+                        key={opt.value}
+                        className="flex items-center gap-2 text-sm cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={requiredFields.includes(opt.value)}
+                          onCheckedChange={() => toggleField(opt.value)}
+                        />
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <DialogFooter className="flex-row justify-between sm:justify-between">
