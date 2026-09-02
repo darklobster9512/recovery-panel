@@ -70,6 +70,7 @@ export default function AdminVerifications() {
   const [playstoreUrl, setPlaystoreUrl] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [type, setType] = useState<VerificationType>("videocall");
 
   // Assign dialog
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
