@@ -187,7 +187,7 @@ export default function AdminDocuments() {
               return (
                 <div
                   key={doc.id}
-                  className="rounded-xl border border-border/60 bg-card overflow-hidden"
+                  className="rounded-lg border border-border bg-card overflow-hidden shadow-card"
                 >
                   {isImage && url ? (
                     <div className="aspect-video bg-secondary/30 flex items-center justify-center overflow-hidden">
@@ -266,7 +266,7 @@ export default function AdminDocuments() {
 
   if (groups.length === 0) {
     return (
-      <div className="rounded-xl border border-border/60 bg-card px-6 py-12 text-center">
+      <div className="rounded-lg border border-border bg-card px-6 py-12 text-center shadow-card">
         <p className="text-muted-foreground">Noch keine Dokumente hochgeladen.</p>
       </div>
     );
@@ -279,8 +279,13 @@ export default function AdminDocuments() {
   );
 
   return (
-    <div>
-      <div className="relative mb-4">
+    <div className="space-y-6">
+      <div className="border-b border-border pb-6">
+        <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Dokumentenarchiv</p>
+        <h2 className="font-display text-2xl font-semibold">Dokumente</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Uploads nach Nutzer und Auftrag durchsuchen und prüfen.</p>
+      </div>
+      <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           value={search}
@@ -290,11 +295,11 @@ export default function AdminDocuments() {
         />
       </div>
       {filteredGroups.length === 0 ? (
-        <div className="rounded-xl border border-border/60 bg-card px-6 py-12 text-center">
+        <div className="rounded-lg border border-border bg-card px-6 py-12 text-center shadow-card">
           <p className="text-muted-foreground">Keine Ergebnisse gefunden.</p>
         </div>
       ) : (
-      <div className="rounded-xl border border-border/60 bg-card overflow-hidden">
+      <div className="rounded-lg border border-border bg-card overflow-hidden shadow-card">
       <Table>
         <TableHeader>
           <TableRow>

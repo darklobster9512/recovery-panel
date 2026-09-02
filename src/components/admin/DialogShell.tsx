@@ -18,19 +18,16 @@ export function DialogShellHeader({
   right,
   tone = "primary",
 }: DialogShellHeaderProps) {
-  const badgeClass =
-    tone === "danger"
-      ? "bg-destructive/10 text-destructive"
-      : "bg-primary/10 text-primary";
+  const badgeClass = tone === "danger" ? "bg-destructive text-destructive-foreground" : "bg-primary text-primary-foreground";
   const badgeStyle = undefined;
 
 
   return (
-    <div className="-mx-6 -mt-6 px-6 pt-6 pb-5 border-b border-border/70 bg-muted/50 rounded-t-lg">
+    <div className="-mx-6 -mt-6 border-b border-border bg-card px-6 pb-5 pt-6 rounded-t-lg">
       <div className="flex items-start gap-4">
         <div
           className={cn(
-            "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-md shadow-sm",
             badgeClass,
           )}
           style={badgeStyle}
@@ -39,11 +36,11 @@ export function DialogShellHeader({
         </div>
         <div className="min-w-0 flex-1">
           {eyebrow && (
-            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            <p className="text-[10px] font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>
               {eyebrow}
             </p>
           )}
-          <h2 className="text-lg font-semibold tracking-tight text-foreground leading-tight mt-0.5 truncate">
+          <h2 className="font-display text-lg font-semibold text-foreground leading-tight mt-0.5 truncate">
             {title}
           </h2>
           {description && (
@@ -71,7 +68,7 @@ export function DialogSection({ label, hint, children, className }: SectionProps
       {(label || hint) && (
         <div className="flex items-baseline justify-between gap-2">
           {label && (
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <h3 className="text-[11px] font-bold uppercase text-muted-foreground" style={{ letterSpacing: "0.06em" }}>
               {label}
             </h3>
           )}
@@ -93,7 +90,7 @@ export function DialogFooterBar({
   return (
     <div
       className={cn(
-        "-mx-6 -mb-6 mt-2 px-6 py-4 border-t border-border/60 bg-muted/30 rounded-b-lg flex items-center justify-end gap-2",
+        "-mx-6 -mb-6 mt-2 px-6 py-4 border-t border-border bg-muted/45 rounded-b-lg flex items-center justify-end gap-2",
         className,
       )}
     >

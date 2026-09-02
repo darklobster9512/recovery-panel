@@ -6,34 +6,34 @@ export type AssignmentStatus = "zugewiesen" | "in_bearbeitung" | "abgeschlossen"
 const STATUS_CONFIG: Record<AssignmentStatus, { label: string; className: string }> = {
   zugewiesen: {
     label: "Zugewiesen",
-    className: "bg-yellow-500/15 text-yellow-700 border-yellow-500/30 dark:text-yellow-400",
+    className: "border-warning/25 bg-warning/10 text-warning",
   },
   in_bearbeitung: {
     label: "In Bearbeitung",
-    className: "bg-blue-500/15 text-blue-700 border-blue-500/30 dark:text-blue-400",
+    className: "border-primary/25 bg-primary/10 text-primary",
   },
   abgeschlossen: {
     label: "Abgeschlossen",
-    className: "bg-green-500/15 text-green-700 border-green-500/30 dark:text-green-400",
+    className: "border-success/25 bg-success/10 text-success",
   },
   in_ueberpruefung: {
     label: "In Überprüfung",
-    className: "bg-orange-500/15 text-orange-700 border-orange-500/30 dark:text-orange-400",
+    className: "border-warning/25 bg-warning/10 text-warning",
   },
   genehmigt: {
     label: "Genehmigt",
-    className: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30 dark:text-emerald-400",
+    className: "border-success/25 bg-success/10 text-success",
   },
   abgelehnt: {
     label: "Abgelehnt",
-    className: "bg-red-500/15 text-red-700 border-red-500/30 dark:text-red-400",
+    className: "border-destructive/25 bg-destructive/10 text-destructive",
   },
 };
 
 export function AssignmentStatusBadge({ status }: { status: AssignmentStatus }) {
   const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.zugewiesen;
   return (
-    <Badge variant="outline" className={cn("text-xs font-medium", config.className)}>
+    <Badge variant="outline" className={cn("text-[11px] font-semibold", config.className)}>
       {config.label}
     </Badge>
   );

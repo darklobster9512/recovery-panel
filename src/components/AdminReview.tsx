@@ -95,14 +95,29 @@ export default function AdminReview() {
 
   if (rows.length === 0) {
     return (
-      <div className="text-center py-20 text-muted-foreground text-sm">
-        Keine Aufträge zur Überprüfung vorhanden.
+      <div className="space-y-6">
+        <div className="border-b border-border pb-6">
+          <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Qualitätssicherung</p>
+          <h2 className="font-display text-2xl font-semibold">Überprüfung</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Abgeschlossene Aufträge freigeben oder zur Korrektur ablehnen.</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card px-6 py-20 text-center shadow-card">
+          <CheckCircle className="mx-auto mb-3 h-8 w-8 text-success" />
+          <p className="font-display text-base font-semibold text-foreground">Alles geprüft</p>
+          <p className="mt-1 text-sm text-muted-foreground">Keine Aufträge zur Überprüfung vorhanden.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-border/60 bg-card overflow-hidden">
+    <div className="space-y-6">
+      <div className="border-b border-border pb-6">
+        <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Qualitätssicherung</p>
+        <h2 className="font-display text-2xl font-semibold">Überprüfung</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Abgeschlossene Aufträge freigeben oder zur Korrektur ablehnen.</p>
+      </div>
+      <div className="rounded-lg border border-border bg-card overflow-hidden shadow-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -127,7 +142,7 @@ export default function AdminReview() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-emerald-600 border-emerald-300 hover:bg-emerald-50"
+                    className="border-success/30 text-success hover:bg-success/10"
                     disabled={actionLoading === row.id}
                     onClick={() => handleAction(row.id, "genehmigt")}
                   >
@@ -141,7 +156,7 @@ export default function AdminReview() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-red-600 border-red-300 hover:bg-red-50"
+                    className="border-destructive/30 text-destructive hover:bg-destructive/10"
                     disabled={actionLoading === row.id}
                     onClick={() => handleAction(row.id, "abgelehnt")}
                   >
@@ -154,6 +169,7 @@ export default function AdminReview() {
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

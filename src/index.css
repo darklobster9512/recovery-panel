@@ -2,54 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 224 10% 10%;
+    --background: 216 33% 97%;
+    --foreground: 214 69% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 224 10% 10%;
+    --card-foreground: 214 69% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 10% 10%;
+    --popover-foreground: 214 69% 14%;
 
-    --primary: 221 100% 50%;
+    --primary: 216 76% 37%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 100% 66%;
+    --primary-glow: 216 76% 45%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 224 10% 10%;
+    --secondary: 216 27% 94%;
+    --secondary-foreground: 214 69% 14%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 216 27% 94%;
+    --muted-foreground: 215 16% 42%;
 
-    --accent: 220 14% 96%;
-    --accent-foreground: 224 10% 10%;
+    --accent: 214 48% 94%;
+    --accent-foreground: 216 76% 37%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --success: 158 64% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 36 88% 43%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 220 14% 92%;
-    --input: 220 14% 92%;
-    --ring: 221 100% 50%;
+    --border: 215 25% 88%;
+    --input: 215 25% 82%;
+    --ring: 216 76% 37%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sidebar-background: 221 100% 42%;
+    --sidebar-background: 214 69% 14%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 221 100% 42%;
-    --sidebar-accent: 221 100% 30%;
+    --sidebar-primary-foreground: 214 69% 14%;
+    --sidebar-accent: 216 76% 37%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 221 100% 30%;
+    --sidebar-border: 214 48% 24%;
     --sidebar-ring: 0 0% 100%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(221 100% 50%), hsl(217 100% 66%));
-    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 100%));
-    --shadow-card: 0 1px 2px hsl(220 20% 20% / 0.04), 0 4px 12px -4px hsl(220 20% 20% / 0.06);
-    --shadow-card-hover: 0 2px 4px hsl(220 20% 20% / 0.06), 0 12px 24px -8px hsl(220 20% 20% / 0.10);
+    --shadow-card: 0 1px 2px hsl(214 69% 14% / 0.04), 0 4px 14px -8px hsl(214 69% 14% / 0.12);
+    --shadow-card-hover: 0 8px 24px -12px hsl(214 69% 14% / 0.18);
 
     --shadow-elegant: 0 20px 60px -20px hsl(221 100% 50% / 0.35);
     --shadow-soft: 0 8px 24px -8px hsl(221 100% 50% / 0.18);
@@ -63,14 +63,64 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Manrope', sans-serif;
+    letter-spacing: 0;
   }
+
+  h1, h2, h3, h4, h5, h6 { font-family: 'Sora', sans-serif; letter-spacing: 0; }
 }
 
 @layer components {
   .card-glass {
     @apply bg-card border border-border;
     box-shadow: var(--shadow-card);
+  }
+
+  .admin-workspace {
+    font-family: 'Manrope', sans-serif;
+  }
+
+  .admin-workspace main > div > .space-y-6,
+  .admin-workspace main > div > .space-y-8 {
+    max-width: 1600px;
+  }
+
+  .admin-workspace table thead {
+    @apply bg-muted/70;
+  }
+
+  .admin-workspace table th {
+    @apply text-[11px] font-bold uppercase text-muted-foreground;
+    letter-spacing: 0.04em;
+  }
+
+  .admin-workspace table td {
+    @apply text-[13px];
+  }
+
+  .admin-workspace code {
+    @apply rounded-sm border border-border bg-muted px-1.5 py-0.5 text-foreground;
+  }
+
+  .admin-workspace [class*="space-y-6"] > h2:first-child,
+  .admin-workspace [class*="space-y-6"] > div:first-child > h2:first-child {
+    @apply font-display text-xl font-semibold text-foreground;
+  }
+
+  .admin-workspace [role="dialog"] {
+    @apply border-border bg-card;
+  }
+
+  .admin-workspace [data-radix-popper-content-wrapper] {
+    font-family: 'Manrope', sans-serif;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .admin-workspace *, .admin-workspace *::before, .admin-workspace *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 

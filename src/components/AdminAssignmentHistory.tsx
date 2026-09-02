@@ -380,9 +380,9 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
 
   return (
     <>
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
+      <Card>
+        <CardHeader className="border-b border-border px-5 py-4">
+          <CardTitle className="text-base flex items-center gap-2">
             <Clock className="w-5 h-5 text-muted-foreground" />
             Zuweisungsverlauf
           </CardTitle>

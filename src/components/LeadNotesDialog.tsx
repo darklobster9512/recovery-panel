@@ -18,7 +18,7 @@ interface Props {
 export default function LeadNotesDialog({ leadId, leadName, onClose, onSaved }: Props) {
   return (
     <Dialog open={!!leadId} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-lg p-6 gap-0 rounded-xl">
+      <DialogContent className="max-w-lg p-6 gap-0">
         <DialogHeader className="space-y-0">
           <DialogShellHeader
             icon={<MessageSquare className="w-5 h-5" />}

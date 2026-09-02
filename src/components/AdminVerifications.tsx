@@ -212,40 +212,41 @@ export default function AdminVerifications() {
     setInstructions(instructions.map((v, i) => (i === idx ? val : v)));
 
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {/* Create Card */}
-        <Card
-          className="border-dashed border-2 border-border/60 bg-card/60 hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors flex items-center justify-center min-h-[180px]"
-          onClick={openCreate}
-        >
-          <CardContent className="flex flex-col items-center justify-center p-6">
-            <Plus className="w-10 h-10 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground mt-2">Neu erstellen</span>
-          </CardContent>
-        </Card>
+    <div className="space-y-8">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Auftragssteuerung</p>
+          <h2 className="font-display text-2xl font-semibold">Verifikationen</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Auftragstypen verwalten, zuweisen und laufende Vorgänge überwachen.</p>
+        </div>
+        <Button onClick={openCreate} className="gap-2"><Plus /> Neue Verifikation</Button>
+      </div>
 
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {/* Create Card */}
         {loading
           ? Array.from({ length: 3 }).map((_, i) => (
-              <Card key={i} className="border-border/60 bg-card min-h-[180px] animate-pulse" />
+              <Card key={i} className="min-h-[172px] animate-pulse" />
             ))
           : verifications.map((v) => (
-              <Card key={v.id} className="border-border/60 bg-card min-h-[180px] relative group">
-                <CardContent className="p-4 flex flex-col items-center justify-center h-full gap-3">
+              <Card key={v.id} className="relative min-h-[172px] group">
+                <CardContent className="flex h-full flex-col items-start gap-4 p-5">
                   <VerificationLogo
                     value={v.logo_url}
                     alt={v.title}
-                    className="w-14 h-14 rounded-lg object-contain"
-                    fallback={<div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-xs font-medium">Logo</div>}
+                    className="w-12 h-12 rounded-md border border-border object-contain"
+                    fallback={<div className="w-12 h-12 rounded-md border border-border bg-muted flex items-center justify-center text-muted-foreground text-[10px] font-semibold">LOGO</div>}
                   />
-                  <span className="text-sm font-semibold text-foreground text-center">{v.title}</span>
-                  <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full ${v.type === "postident" ? "bg-amber-100 text-amber-700" : "bg-[hsl(221,100%,97%)] text-[hsl(221,100%,50%)]"}`}>
+                  <div className="min-w-0">
+                    <span className="block truncate font-display text-sm font-semibold text-foreground">{v.title}</span>
+                    <span className={`mt-2 inline-flex rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase ${v.type === "postident" ? "border-warning/25 bg-warning/10 text-warning" : "border-primary/20 bg-primary/10 text-primary"}`}>
                     {v.type === "postident" ? "Postident" : "Videocall"}
-                  </span>
+                    </span>
+                  </div>
                   <Button
-                    variant="outline"
+                    variant="default"
                     size="sm"
-                    className="gap-1.5 text-xs"
+                    className="mt-auto w-full gap-1.5 text-xs"
                     onClick={(e) => {
                       e.stopPropagation();
                       setAssignVerification(v);
@@ -270,13 +271,13 @@ export default function AdminVerifications() {
             ))}
       </div>
 
-      <div className="mt-8">
+      <div>
         <AdminAssignmentHistory refreshToken={historyRefreshToken} />
       </div>
 
       {/* Create / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) { setDialogOpen(false); resetForm(); } }}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-6 gap-0 rounded-xl">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-6 gap-0">
           <DialogHeader className="space-y-0">
             <DialogShellHeader
               icon={<ShieldCheck className="w-5 h-5" />}
@@ -288,15 +289,15 @@ export default function AdminVerifications() {
 
           <div className="space-y-6 py-6">
             <DialogSection label="Typ">
-              <div className="inline-flex rounded-lg border border-border/60 p-1 bg-muted/60">
+              <div className="inline-flex rounded-md border border-border p-1 bg-muted">
                 {(["videocall", "postident"] as VerificationType[]).map((t) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => setType(t)}
-                    className={`px-4 py-1.5 text-sm rounded-md transition-all ${
+                    className={`px-4 py-1.5 text-sm rounded-sm transition-colors ${
                       type === t
-                        ? "bg-card text-primary shadow-sm font-semibold"
+                        ? "bg-primary text-primary-foreground shadow-sm font-semibold"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -309,7 +310,7 @@ export default function AdminVerifications() {
             <DialogSection label="Grunddaten">
               <div className="grid grid-cols-[auto,1fr] gap-4 items-start">
                 <div className="flex flex-col items-center gap-2">
-                  <div className="w-16 h-16 rounded-xl border border-border/60 bg-muted/40 flex items-center justify-center overflow-hidden">
+                  <div className="w-16 h-16 rounded-md border border-border bg-muted/40 flex items-center justify-center overflow-hidden">
                     {logoFile && logoPreview ? (
                       <img src={logoPreview} alt="Logo" className="w-full h-full object-contain" />
                     ) : logoPreview ? (
@@ -345,7 +346,7 @@ export default function AdminVerifications() {
               <div className="space-y-2">
                 {instructions.map((inst, idx) => (
                   <div key={idx} className="flex gap-2 items-center">
-                    <span className="w-6 h-6 rounded-full bg-muted text-xs font-semibold text-muted-foreground flex items-center justify-center shrink-0">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                       {idx + 1}
                     </span>
                     <Input
@@ -396,7 +397,7 @@ export default function AdminVerifications() {
                 </DialogSection>
 
                 <DialogSection label="Erforderliche Ident-Daten" hint={`${requiredFields.length} ausgewählt`}>
-                  <div className="grid grid-cols-2 gap-2 p-3 rounded-lg border border-border/60 bg-muted/30">
+                  <div className="grid grid-cols-2 gap-2 p-3 rounded-md border border-border bg-muted/45">
                     {REQUIRED_FIELD_OPTIONS.map((opt) => {
                       const active = requiredFields.includes(opt.value);
                       return (
@@ -447,10 +448,10 @@ export default function AdminVerifications() {
 
       {/* Delete Confirmation */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="rounded-xl">
+        <AlertDialogContent className="rounded-lg">
           <AlertDialogHeader>
             <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center ring-1 ring-destructive/20 shrink-0">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-destructive/10 text-destructive ring-1 ring-destructive/20">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
@@ -478,6 +479,6 @@ export default function AdminVerifications() {
         onAssigned={() => setHistoryRefreshToken((n) => n + 1)}
       />
 
-    </>
+    </div>
   );
 }
