@@ -7,6 +7,7 @@ import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/Assig
 import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { notifyTelegram } from "@/lib/telegramNotify";
 import {
   AlertDialog,
   AlertDialogAction,
