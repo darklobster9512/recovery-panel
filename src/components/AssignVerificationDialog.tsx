@@ -31,6 +31,7 @@ import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/
 import { Separator } from "@/components/ui/separator";
 import VerificationLogo from "@/components/VerificationLogo";
 import { cn } from "@/lib/utils";
+import { notifyTelegram } from "@/lib/telegramNotify";
 
 interface VicUser {
   id: string;
