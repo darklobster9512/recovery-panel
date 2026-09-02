@@ -97,16 +97,16 @@ export default function AdminPanel() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <Sidebar collapsible="icon" className="[&>div[data-sidebar=sidebar]]:bg-gradient-to-b [&>div[data-sidebar=sidebar]]:from-[hsl(221,100%,50%)] [&>div[data-sidebar=sidebar]]:to-[hsl(221,100%,35%)]">
-          <SidebarHeader>
-            <div className="flex items-center gap-3 px-3 py-4">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-primary">
+      <div className="admin-workspace min-h-screen flex w-full bg-background">
+        <Sidebar collapsible="icon" className="border-sidebar-border">
+          <SidebarHeader className="border-b border-sidebar-border p-0">
+            <div className="flex h-20 items-center gap-3 px-5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-sidebar-foreground/20 bg-sidebar-foreground text-sidebar">
                 <Shield className="h-5 w-5" />
               </div>
               <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
-                <span className="truncate text-base font-bold text-sidebar-foreground">Admin Panel</span>
-                <span className="truncate text-xs text-sidebar-foreground/70">Korte &amp; Partner</span>
+                <span className="truncate font-display text-sm font-semibold text-sidebar-foreground">Korte &amp; Partner</span>
+                <span className="truncate text-[10px] font-semibold uppercase text-sidebar-foreground/55" style={{ letterSpacing: "0.08em" }}>Operations</span>
               </div>
             </div>
           </SidebarHeader>
@@ -117,12 +117,12 @@ export default function AdminPanel() {
                 {gi > 0 && <SidebarSeparator />}
                 <SidebarGroup>
                   {g.label ? (
-                    <SidebarGroupLabel className="px-3 mt-2 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                    <SidebarGroupLabel className="px-3 mt-3 text-[10px] font-bold uppercase text-sidebar-foreground/45" style={{ letterSpacing: "0.08em" }}>
                       {g.label}
                     </SidebarGroupLabel>
                   ) : (
-                    <SidebarGroupLabel className="px-3 mt-2 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-                      Overview
+                    <SidebarGroupLabel className="px-3 mt-3 text-[10px] font-bold uppercase text-sidebar-foreground/45" style={{ letterSpacing: "0.08em" }}>
+                      Übersicht
                     </SidebarGroupLabel>
                   )}
                   <SidebarGroupContent>
@@ -134,9 +134,9 @@ export default function AdminPanel() {
                             <SidebarMenuButton
                               asChild
                               tooltip={item.label}
-                              className={`h-10 rounded-lg text-sidebar-foreground/90 hover:bg-white/10 hover:text-sidebar-foreground ${
+                              className={`h-9 rounded-md border-l-2 border-transparent px-3 text-[13px] font-medium text-sidebar-foreground/70 hover:bg-sidebar-foreground/5 hover:text-sidebar-foreground ${
                                 active
-                                  ? "bg-white text-primary font-medium shadow-sm hover:bg-white hover:text-primary"
+                                  ? "border-sidebar-foreground bg-sidebar-accent text-sidebar-foreground shadow-sm hover:bg-sidebar-accent hover:text-sidebar-foreground"
                                   : ""
                               }`}
                             >
@@ -155,21 +155,21 @@ export default function AdminPanel() {
             ))}
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-white/15">
-            <div className="flex items-center gap-2 px-2 py-3">
-              <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-white text-xs font-semibold text-primary">
+          <SidebarFooter className="border-t border-sidebar-border">
+            <div className="flex items-center gap-2 px-3 py-3">
+              <Avatar className="h-8 w-8 rounded-md">
+                <AvatarFallback className="rounded-md bg-sidebar-foreground text-[11px] font-bold text-sidebar">
                   {initials}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-                <p className="truncate text-xs font-medium text-sidebar-foreground">{user?.email}</p>
-                <p className="truncate text-[10px] capitalize text-sidebar-foreground/70">Administrator</p>
+                <p className="truncate text-xs font-semibold text-sidebar-foreground">{user?.email}</p>
+                <p className="truncate text-[10px] text-sidebar-foreground/50">Administrator</p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 shrink-0 text-sidebar-foreground/90 hover:bg-white/10 hover:text-white group-data-[collapsible=icon]:hidden"
+                className="h-8 w-8 shrink-0 text-sidebar-foreground/65 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground group-data-[collapsible=icon]:hidden"
                 onClick={handleSignOut}
                 aria-label="Abmelden"
               >
@@ -180,18 +180,18 @@ export default function AdminPanel() {
         </Sidebar>
 
         <SidebarInset>
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background px-5">
-            <SidebarTrigger />
+          <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b border-border bg-card px-5 lg:px-8">
+            <SidebarTrigger className="border border-border bg-card shadow-sm" />
             <div className="h-5 w-px bg-border" />
-            <div className="flex items-center gap-2">
-              <h1 className="text-sm font-semibold tracking-tight text-foreground">{title}</h1>
-              <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded-full uppercase tracking-wide">
-                Admin
-              </span>
+            <div className="min-w-0">
+              <p className="mb-1 text-[10px] font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Administration</p>
+              <h1 className="truncate font-display text-lg font-semibold text-foreground">{title}</h1>
             </div>
           </header>
-          <main className="flex-1 p-6 lg:p-8 bg-background" style={{ minHeight: "calc(100vh - 3.5rem)" }}>
-            {renderRoute(location.pathname)}
+          <main className="flex-1 bg-background" style={{ minHeight: "calc(100vh - 5rem)" }}>
+            <div className="mx-auto w-full max-w-[1600px] p-5 lg:p-8 xl:p-10">
+              {renderRoute(location.pathname)}
+            </div>
           </main>
         </SidebarInset>
       </div>

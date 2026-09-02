@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
-import { Users, Clock, Loader2, CheckCircle2, UserPlus, FilePlus } from "lucide-react";
+import { Users, Clock, Loader2, CheckCircle2, UserPlus, FilePlus, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface StatCard {
   label: string;
   value: number | null;
   icon: React.ElementType;
-  className: string;
+  meta: string;
 }
 
 interface RecentAssignment {
@@ -97,46 +97,51 @@ export default function AdminDashboard() {
   }
 
   const stats: StatCard[] = [
-    { label: "Gesamt Vics", value: vicCount, icon: Users, className: "text-blue-600 bg-blue-50" },
-    { label: "Offen", value: openCount, icon: Clock, className: "text-yellow-600 bg-yellow-50" },
-    { label: "In Bearbeitung", value: progressCount, icon: Loader2, className: "text-blue-600 bg-blue-50" },
-    { label: "Abgeschlossen", value: doneCount, icon: CheckCircle2, className: "text-green-600 bg-green-50" },
+    { label: "Gesamt Vics", value: vicCount, icon: Users, meta: "Registrierte Nutzer" },
+    { label: "Offene Aufträge", value: openCount, icon: Clock, meta: "Noch nicht begonnen" },
+    { label: "In Bearbeitung", value: progressCount, icon: Loader2, meta: "Aktive Vorgänge" },
+    { label: "Abgeschlossen", value: doneCount, icon: CheckCircle2, meta: "Erfolgreich erledigt" },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map(s => (
-          <Card key={s.label} className="border-border/60 bg-card shadow-card">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{s.label}</CardTitle>
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${s.className}`}>
-                <s.icon className="w-4 h-4" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{loading ? "…" : s.value ?? 0}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+    <div className="space-y-8">
+      <section className="flex flex-col gap-4 border-b border-border pb-7 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Operations Center</p>
+          <h2 className="font-display text-2xl font-semibold text-foreground">Tagesübersicht</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Aktueller Stand der Nutzer- und Verifikationsprozesse.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => navigate("/admin/vics")} className="gap-2">
+            <UserPlus className="w-4 h-4" /> Nutzer erstellen
+          </Button>
+          <Button onClick={() => navigate("/admin/verifikationen")} className="gap-2">
+            <FilePlus className="w-4 h-4" /> Verifikation erstellen
+          </Button>
+        </div>
+      </section>
 
-      {/* Quick Actions */}
-      <div className="flex gap-3">
-        <Button variant="outline" size="sm" onClick={() => navigate("/admin/vics")} className="gap-2">
-          <UserPlus className="w-4 h-4" /> Nutzer erstellen
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => navigate("/admin/verifikationen")} className="gap-2">
-          <FilePlus className="w-4 h-4" /> Verifikation erstellen
-        </Button>
+      <div className="grid grid-cols-1 overflow-hidden rounded-lg border border-border bg-card shadow-card sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map(s => (
+          <div key={s.label} className="border-b border-border p-5 last:border-b-0 sm:[&:nth-child(odd)]:border-r lg:border-b-0 lg:border-r lg:last:border-r-0">
+            <div className="mb-5 flex items-center justify-between">
+              <span className="text-xs font-semibold text-muted-foreground">{s.label}</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-primary">
+                <s.icon className="h-4 w-4" />
+              </div>
+            </div>
+            <p className="font-display text-3xl font-semibold tabular-nums text-foreground">{loading ? "…" : s.value ?? 0}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{s.meta}</p>
+          </div>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Assignments */}
-        <Card className="border-border/60 bg-card shadow-card">
-          <CardHeader className="pb-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
             <CardTitle className="text-base">Letzte Zuweisungen</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/verifikationen")} className="gap-1 text-primary">Alle anzeigen <ArrowRight /></Button>
           </CardHeader>
           <CardContent className="p-0">
             {loading ? (
@@ -173,9 +178,10 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Recent SMS */}
-        <Card className="border-border/60 bg-card shadow-card">
-          <CardHeader className="pb-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
             <CardTitle className="text-base">Letzte SMS</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/telefonnummern")} className="gap-1 text-primary">Alle anzeigen <ArrowRight /></Button>
           </CardHeader>
           <CardContent className="p-0">
             {loading ? (

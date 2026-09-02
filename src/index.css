@@ -28,6 +28,10 @@
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --success: 158 64% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 36 88% 43%;
+    --warning-foreground: 0 0% 100%;
 
     --border: 215 25% 88%;
     --input: 215 25% 82%;
@@ -98,6 +102,27 @@
 
   .admin-workspace code {
     @apply rounded-sm border border-border bg-muted px-1.5 py-0.5 text-foreground;
+  }
+
+  .admin-workspace [class*="space-y-6"] > h2:first-child,
+  .admin-workspace [class*="space-y-6"] > div:first-child > h2:first-child {
+    @apply font-display text-xl font-semibold text-foreground;
+  }
+
+  .admin-workspace [role="dialog"] {
+    @apply border-border bg-card;
+  }
+
+  .admin-workspace [data-radix-popper-content-wrapper] {
+    font-family: 'Manrope', sans-serif;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .admin-workspace *, .admin-workspace *::before, .admin-workspace *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
