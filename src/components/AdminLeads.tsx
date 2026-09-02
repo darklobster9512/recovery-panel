@@ -157,8 +157,32 @@ export default function AdminLeads() {
                       {formatDateTime(lead.imported_at)}
                     </TableCell>
                     <TableCell className="font-medium">{lead.full_name ?? "—"}</TableCell>
-                    <TableCell className="whitespace-nowrap">{lead.phone_number ?? "—"}</TableCell>
-                    <TableCell>{lead.email ?? "—"}</TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {lead.phone_number ? (
+                        <button
+                          onClick={() => copyValue(lead.phone_number!, "Telefonnummer")}
+                          title="Klicken zum Kopieren"
+                          className="hover:text-[hsl(221,100%,50%)] hover:underline"
+                        >
+                          {lead.phone_number}
+                        </button>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {lead.email ? (
+                        <button
+                          onClick={() => copyValue(lead.email!, "Email")}
+                          title="Klicken zum Kopieren"
+                          className="hover:text-[hsl(221,100%,50%)] hover:underline"
+                        >
+                          {lead.email}
+                        </button>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap tabular-nums">
                       {formatEur(lead.schadenshoehe)}
                     </TableCell>
