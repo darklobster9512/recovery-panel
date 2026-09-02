@@ -93,7 +93,7 @@ interface PhoneNumber {
   api_url: string;
 }
 
-export default function AdminAssignmentHistory() {
+export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshToken?: number } = {}) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
@@ -123,7 +123,8 @@ export default function AdminAssignmentHistory() {
 
   useEffect(() => {
     fetchAssignments();
-  }, []);
+  }, [refreshToken]);
+
 
   const fetchAssignments = async () => {
     setLoading(true);
