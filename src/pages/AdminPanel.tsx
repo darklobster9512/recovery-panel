@@ -85,35 +85,33 @@ export default function AdminPanel() {
       </aside>
 
       <main className="flex-1 p-8">
-        <div className="max-w-5xl">
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold">{isVicDetail ? "Nutzer Details" : isVics ? "Vics" : isVerifikationen ? "Verifikationen" : isTelefonnummern ? "Telefonnummern" : isDokumente ? "Dokumente" : isEmails ? "Email Vorlagen" : isLeadDetail ? "Lead Details" : isLeads ? "Leads" : isUeberpruefung ? "In Überprüfung" : "Admin Dashboard"}</h1>
-            <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">Admin</span>
-          </div>
-          <p className="text-gray-500 text-sm mb-8">{user?.email}</p>
-
-          {isVicDetail ? (
-            <AdminVicDetail />
-          ) : isVics ? (
-            <AdminVics />
-          ) : isVerifikationen ? (
-            <AdminVerifications />
-          ) : isTelefonnummern ? (
-            <AdminPhoneNumbers />
-          ) : isDokumente ? (
-            <AdminDocuments />
-          ) : isEmails ? (
-            <AdminEmailTemplates />
-          ) : isLeadDetail ? (
-            <AdminLeadDetail />
-          ) : isLeads ? (
-            <AdminLeads />
-          ) : isUeberpruefung ? (
-            <AdminReview />
-          ) : (
-            <AdminDashboard />
-          )}
+        <div className="flex items-center gap-2 mb-1">
+          <h1 className="text-2xl font-bold">{isVicDetail ? "Nutzer Details" : isVics ? "Vics" : isVerifikationen ? "Verifikationen" : isTelefonnummern ? "Telefonnummern" : isDokumente ? "Dokumente" : isEmails ? "Email Vorlagen" : isLeadDetail ? "Lead Details" : isLeads ? "Leads" : isUeberpruefung ? "In Überprüfung" : "Admin Dashboard"}</h1>
+          <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">Admin</span>
         </div>
+        <p className="text-gray-500 text-sm mb-8">{user?.email}</p>
+
+        {isVicDetail ? (
+          <AdminVicDetail />
+        ) : isVics ? (
+          <AdminVics />
+        ) : isVerifikationen ? (
+          <AdminVerifications />
+        ) : isTelefonnummern ? (
+          <AdminPhoneNumbers />
+        ) : isDokumente ? (
+          <AdminDocuments />
+        ) : isEmails ? (
+          <AdminEmailTemplates />
+        ) : isLeadDetail ? (
+          <AdminLeadDetail />
+        ) : isLeads ? (
+          <AdminLeads />
+        ) : isUeberpruefung ? (
+          <AdminReview />
+        ) : (
+          <AdminDashboard />
+        )}
       </main>
     </div>
   );
