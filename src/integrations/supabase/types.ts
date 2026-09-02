@@ -270,6 +270,7 @@ export type Database = {
           playstore_url: string | null
           required_fields: string[]
           title: string
+          type: string
         }
         Insert: {
           appstore_url?: string | null
@@ -281,6 +282,7 @@ export type Database = {
           playstore_url?: string | null
           required_fields?: string[]
           title: string
+          type?: string
         }
         Update: {
           appstore_url?: string | null
@@ -292,6 +294,7 @@ export type Database = {
           playstore_url?: string | null
           required_fields?: string[]
           title?: string
+          type?: string
         }
         Relationships: []
       }
