@@ -68,6 +68,7 @@ function renderRoute(pathname: string) {
     case "/admin/dokumente": return <AdminDocuments />;
     case "/admin/telefonnummern": return <AdminPhoneNumbers />;
     case "/admin/emails": return <AdminEmailTemplates />;
+    case "/admin/telegram": return <AdminTelegram />;
     case "/admin/einstellungen": return <AdminSettings />;
     default: return <AdminDashboard />;
   }
