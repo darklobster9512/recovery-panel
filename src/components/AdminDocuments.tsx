@@ -85,11 +85,13 @@ export default function AdminDocuments() {
 
     // Fetch profiles & assignment titles
     const userIds = [...new Set(allDocs.map((d) => d.user_id))];
-    const assignmentIds = [...new Set(allDocs.map((d) => d.assignment_id))];
+    const assignmentIds = [...new Set(allDocs.map((d) => d.assignment_id).filter((x): x is string => !!x))];
 
     const [{ data: profiles }, { data: assignments }] = await Promise.all([
       supabase.from("profiles").select("id, first_name, last_name, email").in("id", userIds),
-      supabase.from("verification_assignments").select("id, verification_id").in("id", assignmentIds),
+      assignmentIds.length > 0
+        ? supabase.from("verification_assignments").select("id, verification_id").in("id", assignmentIds)
+        : Promise.resolve({ data: [] as { id: string; verification_id: string }[] }),
     ]);
 
     const profileMap = new Map(profiles?.map((p) => [p.id, p]) ?? []);
@@ -102,12 +104,13 @@ export default function AdminDocuments() {
     const result: DocGroup[] = [];
     for (const g of groupMap.values()) {
       const p = profileMap.get(g.user_id);
+      const title = g.assignment_id ? (aMap.get(g.assignment_id) ?? "Auftrag") : "Personalausweis";
       result.push({
         user_id: g.user_id,
         assignment_id: g.assignment_id,
         user_name: [p?.first_name, p?.last_name].filter(Boolean).join(" ") || "Unbekannt",
         user_email: p?.email ?? "",
-        verification_title: aMap.get(g.assignment_id) ?? "Auftrag",
+        verification_title: title,
         doc_count: g.count,
         latest_upload: g.latest,
       });
