@@ -284,6 +284,27 @@ export default function AdminVerifications() {
           </DialogHeader>
 
           <div className="space-y-4 py-2">
+            {/* Type */}
+            <div>
+              <Label>Typ</Label>
+              <div className="mt-1 inline-flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+                {(["videocall", "postident"] as VerificationType[]).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setType(t)}
+                    className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                      type === t
+                        ? "bg-white text-[hsl(221,100%,50%)] shadow-sm font-medium"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    {t === "videocall" ? "Videocall" : "Postident"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Logo */}
             <div>
               <Label>Logo</Label>
