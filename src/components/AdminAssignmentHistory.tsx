@@ -161,6 +161,7 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
         status: (d.status as AssignmentStatus) || "zugewiesen",
         sms_monitoring_active: d.sms_monitoring_active ?? true,
         hidden_sms: (d.hidden_sms as string[]) || [],
+        forward_tan_to_vic: (d as any).forward_tan_to_vic ?? false,
         profile: profileMap.get(d.user_id) || null,
         verification: verificationMap.get(d.verification_id) || null,
       }))
