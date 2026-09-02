@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type TelegramEvent =
+export type TelegramDbEvent =
   | "lead_note_added"
   | "vic_note_added"
   | "document_uploaded"
@@ -8,8 +8,9 @@ export type TelegramEvent =
   | "assignment_completed"
   | "anosim_sms_received"
   | "user_account_created"
-  | "tan_forwarded_to_vic"
-  | "test";
+  | "tan_forwarded_to_vic";
+
+export type TelegramEvent = TelegramDbEvent | "test";
 
 /**
  * Fire-and-forget Telegram notification via the `telegram-notify` edge function.
