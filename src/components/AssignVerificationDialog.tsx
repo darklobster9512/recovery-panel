@@ -48,7 +48,7 @@ const FIELD_LABELS: Record<string, string> = {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  verification: { id: string; title: string; required_fields: string[] } | null;
+  verification: { id: string; title: string; required_fields: string[]; type?: string } | null;
 }
 
 export default function AssignVerificationDialog({ open, onOpenChange, verification }: Props) {
@@ -70,7 +70,10 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   const [selectedPhoneId, setSelectedPhoneId] = useState<string>("");
   const [showNewPhone, setShowNewPhone] = useState(false);
   const [newPhoneLink, setNewPhoneLink] = useState("");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const isPostident = verification?.type === "postident";
 
   useEffect(() => {
     if (open) {
@@ -79,6 +82,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
       setSelectedPhoneId("");
       setShowNewPhone(false);
       setNewPhoneLink("");
+      setPdfFile(null);
       setSearch("");
       fetchVics();
     }
@@ -167,12 +171,22 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
   const handleSave = async () => {
     if (!verification || !selectedVic) return;
+
+    if (isPostident && !pdfFile) {
+      toast({ title: "Bitte eine PDF-Datei auswählen", variant: "destructive" });
+      return;
+    }
+    if (isPostident && pdfFile && pdfFile.type !== "application/pdf") {
+      toast({ title: "Nur PDF-Dateien erlaubt", variant: "destructive" });
+      return;
+    }
+
     setSaving(true);
 
     let phoneNumberId: string | null = null;
 
-    // Handle new phone link
-    if (verification.required_fields.includes("phone") && showNewPhone && newPhoneLink.trim()) {
+    // Handle new phone link (only relevant for non-postident with phone field)
+    if (!isPostident && verification.required_fields.includes("phone") && showNewPhone && newPhoneLink.trim()) {
       const token = extractToken(newPhoneLink.trim());
       if (!token) {
         toast({ title: "Ungültiger Anosim-Link", variant: "destructive" });
@@ -190,24 +204,56 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
         return;
       }
       phoneNumberId = inserted.id;
-    } else if (verification.required_fields.includes("phone") && selectedPhoneId) {
+    } else if (!isPostident && verification.required_fields.includes("phone") && selectedPhoneId) {
       phoneNumberId = selectedPhoneId;
     }
 
-    const { error } = await supabase.from("verification_assignments").insert({
-      verification_id: verification.id,
-      user_id: selectedVic.id,
-      field_values: fieldValues,
-      phone_number_id: phoneNumberId,
-      created_by: user?.id,
-    });
+    const { data: assignment, error } = await supabase
+      .from("verification_assignments")
+      .insert({
+        verification_id: verification.id,
+        user_id: selectedVic.id,
+        field_values: isPostident ? {} : fieldValues,
+        phone_number_id: phoneNumberId,
+        created_by: user?.id,
+      })
+      .select("id")
+      .single();
 
-    if (error) {
-      toast({ title: "Fehler beim Zuweisen", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Verifikation zugewiesen" });
-      onOpenChange(false);
+    if (error || !assignment) {
+      toast({ title: "Fehler beim Zuweisen", description: error?.message, variant: "destructive" });
+      setSaving(false);
+      return;
     }
+
+    if (isPostident && pdfFile) {
+      const safeName = pdfFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${selectedVic.id}/${assignment.id}/${crypto.randomUUID()}-${safeName}`;
+      const { error: upErr } = await supabase.storage
+        .from("user-documents")
+        .upload(path, pdfFile, { contentType: "application/pdf" });
+      if (upErr) {
+        toast({ title: "Fehler beim PDF-Upload", description: upErr.message, variant: "destructive" });
+        setSaving(false);
+        return;
+      }
+      const { error: docErr } = await supabase.from("user_documents").insert({
+        user_id: selectedVic.id,
+        assignment_id: assignment.id,
+        file_name: pdfFile.name,
+        file_path: path,
+        file_type: "application/pdf",
+        file_size: pdfFile.size,
+      });
+      if (docErr) {
+        toast({ title: "Fehler beim Speichern der Dokument-Info", description: docErr.message, variant: "destructive" });
+        setSaving(false);
+        return;
+      }
+    }
+
+    toast({ title: "Verifikation zugewiesen" });
+    onOpenChange(false);
     setSaving(false);
   };
 
@@ -290,7 +336,21 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
-          {nonPhoneFields.map((field) => (
+          {isPostident && (
+            <div>
+              <Label>PDF-Datei (Postident)</Label>
+              <Input
+                className="mt-1"
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+              />
+              {pdfFile && (
+                <p className="text-xs text-muted-foreground mt-1">{pdfFile.name}</p>
+              )}
+            </div>
+          )}
+          {!isPostident && nonPhoneFields.map((field) => (
             <div key={field}>
               <Label>{FIELD_LABELS[field] || field}</Label>
               <Input
@@ -304,7 +364,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
             </div>
           ))}
 
-          {verification.required_fields.includes("phone") && (
+          {!isPostident && verification.required_fields.includes("phone") && (
             <div>
               <Label>Telefonnummer</Label>
               {!showNewPhone ? (

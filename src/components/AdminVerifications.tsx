@@ -28,6 +28,8 @@ import { useToast } from "@/hooks/use-toast";
 import AssignVerificationDialog from "@/components/AssignVerificationDialog";
 import AdminAssignmentHistory from "@/components/AdminAssignmentHistory";
 
+type VerificationType = "videocall" | "postident";
+
 interface Verification {
   id: string;
   title: string;
@@ -36,6 +38,7 @@ interface Verification {
   required_fields: string[];
   appstore_url: string | null;
   playstore_url: string | null;
+  type: VerificationType;
   created_by: string | null;
   created_at: string;
 }
@@ -67,6 +70,7 @@ export default function AdminVerifications() {
   const [playstoreUrl, setPlaystoreUrl] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [type, setType] = useState<VerificationType>("videocall");
 
   // Assign dialog
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
@@ -94,6 +98,7 @@ export default function AdminVerifications() {
     setPlaystoreUrl("");
     setLogoFile(null);
     setLogoPreview(null);
+    setType("videocall");
     setEditing(null);
   };
 
@@ -111,6 +116,7 @@ export default function AdminVerifications() {
     setPlaystoreUrl(v.playstore_url || "");
     setLogoPreview(v.logo_url);
     setLogoFile(null);
+    setType((v.type as VerificationType) || "videocall");
     setDialogOpen(true);
   };
 
@@ -143,18 +149,21 @@ export default function AdminVerifications() {
     setSaving(true);
     const logoUrl = await uploadLogo();
     const filteredInstructions = instructions.filter((i) => i.trim() !== "");
+    const isPostident = type === "postident";
+    const payloadBase = {
+      title: title.trim(),
+      logo_url: logoUrl,
+      instructions: filteredInstructions,
+      required_fields: isPostident ? [] : requiredFields,
+      appstore_url: isPostident ? null : appstoreUrl.trim() || null,
+      playstore_url: isPostident ? null : playstoreUrl.trim() || null,
+      type,
+    };
 
     if (editing) {
       const { error } = await supabase
         .from("verifications")
-        .update({
-          title: title.trim(),
-          logo_url: logoUrl,
-          instructions: filteredInstructions,
-          required_fields: requiredFields,
-          appstore_url: appstoreUrl.trim() || null,
-          playstore_url: playstoreUrl.trim() || null,
-        })
+        .update(payloadBase)
         .eq("id", editing.id);
       if (error) {
         toast({ title: "Fehler beim Speichern", description: error.message, variant: "destructive" });
@@ -163,12 +172,7 @@ export default function AdminVerifications() {
       }
     } else {
       const { error } = await supabase.from("verifications").insert({
-        title: title.trim(),
-        logo_url: logoUrl,
-        instructions: filteredInstructions,
-        required_fields: requiredFields,
-        appstore_url: appstoreUrl.trim() || null,
-        playstore_url: playstoreUrl.trim() || null,
+        ...payloadBase,
         created_by: user?.id,
       });
       if (error) {
@@ -237,6 +241,9 @@ export default function AdminVerifications() {
                     </div>
                   )}
                   <span className="text-sm font-semibold text-foreground text-center">{v.title}</span>
+                  <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full ${v.type === "postident" ? "bg-amber-100 text-amber-700" : "bg-[hsl(221,100%,97%)] text-[hsl(221,100%,50%)]"}`}>
+                    {v.type === "postident" ? "Postident" : "Videocall"}
+                  </span>
                   <Button
                     variant="outline"
                     size="sm"
@@ -277,6 +284,27 @@ export default function AdminVerifications() {
           </DialogHeader>
 
           <div className="space-y-4 py-2">
+            {/* Type */}
+            <div>
+              <Label>Typ</Label>
+              <div className="mt-1 inline-flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+                {(["videocall", "postident"] as VerificationType[]).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setType(t)}
+                    className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                      type === t
+                        ? "bg-white text-[hsl(221,100%,50%)] shadow-sm font-medium"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    {t === "videocall" ? "Videocall" : "Postident"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Logo */}
             <div>
               <Label>Logo</Label>
@@ -341,44 +369,48 @@ export default function AdminVerifications() {
               </div>
             </div>
 
-            {/* Download Links */}
-            <div>
-              <Label>App Store Link</Label>
-              <Input
-                className="mt-1"
-                placeholder="https://apps.apple.com/..."
-                value={appstoreUrl}
-                onChange={(e) => setAppstoreUrl(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Play Store Link</Label>
-              <Input
-                className="mt-1"
-                placeholder="https://play.google.com/..."
-                value={playstoreUrl}
-                onChange={(e) => setPlaystoreUrl(e.target.value)}
-              />
-            </div>
+            {type !== "postident" && (
+              <>
+                {/* Download Links */}
+                <div>
+                  <Label>App Store Link</Label>
+                  <Input
+                    className="mt-1"
+                    placeholder="https://apps.apple.com/..."
+                    value={appstoreUrl}
+                    onChange={(e) => setAppstoreUrl(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Play Store Link</Label>
+                  <Input
+                    className="mt-1"
+                    placeholder="https://play.google.com/..."
+                    value={playstoreUrl}
+                    onChange={(e) => setPlaystoreUrl(e.target.value)}
+                  />
+                </div>
 
-            {/* Required Fields */}
-            <div>
-              <Label>Erforderliche Verifikationsdaten</Label>
-              <div className="grid grid-cols-2 gap-3 mt-2">
-                {REQUIRED_FIELD_OPTIONS.map((opt) => (
-                  <label
-                    key={opt.value}
-                    className="flex items-center gap-2 text-sm cursor-pointer"
-                  >
-                    <Checkbox
-                      checked={requiredFields.includes(opt.value)}
-                      onCheckedChange={() => toggleField(opt.value)}
-                    />
-                    {opt.label}
-                  </label>
-                ))}
-              </div>
-            </div>
+                {/* Required Fields */}
+                <div>
+                  <Label>Erforderliche Verifikationsdaten</Label>
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    {REQUIRED_FIELD_OPTIONS.map((opt) => (
+                      <label
+                        key={opt.value}
+                        className="flex items-center gap-2 text-sm cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={requiredFields.includes(opt.value)}
+                          onCheckedChange={() => toggleField(opt.value)}
+                        />
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <DialogFooter className="flex-row justify-between sm:justify-between">
