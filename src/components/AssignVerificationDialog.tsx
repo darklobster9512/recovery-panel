@@ -359,7 +359,19 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
   // Step 2: Data entry — dedupe required_fields defensively
   const uniqueRequired = Array.from(new Set(verification.required_fields));
+  // Ensure identlink is rendered before identcode
   const nonPhoneFields = uniqueRequired.filter((f) => f !== "phone");
+  const orderedNonPhone = (() => {
+    const rest = nonPhoneFields.filter((f) => f !== "identlink" && f !== "identcode");
+    const ordered: string[] = [];
+    if (nonPhoneFields.includes("identlink")) ordered.push("identlink");
+    if (nonPhoneFields.includes("identcode")) ordered.push("identcode");
+    return [...ordered, ...rest];
+  })();
+  const extractIdentcode = (link: string): string | null => {
+    const matches = link.match(/\d{9}/g);
+    return matches ? matches[matches.length - 1] : null;
+  };
   const selectedPhoneLabel = selectedPhoneId
     ? phoneDataMap[selectedPhoneId] ||
       phoneNumbers.find((p) => p.id === selectedPhoneId)?.token ||
