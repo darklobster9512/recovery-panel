@@ -332,6 +332,59 @@ export type Database = {
         }
         Relationships: []
       }
+      telegram_chats: {
+        Row: {
+          chat_id: string
+          created_at: string
+          id: string
+          label: string
+        }
+        Insert: {
+          chat_id: string
+          created_at?: string
+          id?: string
+          label: string
+        }
+        Update: {
+          chat_id?: string
+          created_at?: string
+          id?: string
+          label?: string
+        }
+        Relationships: []
+      }
+      telegram_notification_subscriptions: {
+        Row: {
+          chat_id: string
+          created_at: string
+          enabled: boolean
+          event: Database["public"]["Enums"]["telegram_event"]
+          id: string
+        }
+        Insert: {
+          chat_id: string
+          created_at?: string
+          enabled?: boolean
+          event: Database["public"]["Enums"]["telegram_event"]
+          id?: string
+        }
+        Update: {
+          chat_id?: string
+          created_at?: string
+          enabled?: boolean
+          event?: Database["public"]["Enums"]["telegram_event"]
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_notification_subscriptions_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "telegram_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_documents: {
         Row: {
           assignment_id: string | null
@@ -545,6 +598,15 @@ export type Database = {
         | "mailbox"
         | "fehlgeschlagen"
         | "erfolgreich"
+      telegram_event:
+        | "lead_note_added"
+        | "vic_note_added"
+        | "document_uploaded"
+        | "assignment_created"
+        | "assignment_completed"
+        | "anosim_sms_received"
+        | "user_account_created"
+        | "tan_forwarded_to_vic"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -687,6 +749,16 @@ export const Constants = {
         "mailbox",
         "fehlgeschlagen",
         "erfolgreich",
+      ],
+      telegram_event: [
+        "lead_note_added",
+        "vic_note_added",
+        "document_uploaded",
+        "assignment_created",
+        "assignment_completed",
+        "anosim_sms_received",
+        "user_account_created",
+        "tan_forwarded_to_vic",
       ],
     },
   },
