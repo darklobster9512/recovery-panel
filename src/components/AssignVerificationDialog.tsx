@@ -14,14 +14,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Search, Plus } from "lucide-react";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Search, Plus, ChevronsUpDown, Check } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import VerificationLogo from "@/components/VerificationLogo";
+import { cn } from "@/lib/utils";
 
 interface VicUser {
   id: string;
@@ -48,28 +56,34 @@ const FIELD_LABELS: Record<string, string> = {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  verification: { id: string; title: string; required_fields: string[]; type?: string } | null;
+  verification: {
+    id: string;
+    title: string;
+    required_fields: string[];
+    type?: string;
+    logo_url?: string | null;
+  } | null;
 }
 
 export default function AssignVerificationDialog({ open, onOpenChange, verification }: Props) {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Step 1: Vic selection
   const [vics, setVics] = useState<VicUser[]>([]);
   const [loadingVics, setLoadingVics] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedVic, setSelectedVic] = useState<VicUser | null>(null);
   const [assignedUserIds, setAssignedUserIds] = useState<Set<string>>(new Set());
 
-  // Step 2: Field values
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
   const [phoneDataMap, setPhoneDataMap] = useState<Record<string, string>>({});
   const [loadingPhones, setLoadingPhones] = useState(false);
   const [selectedPhoneId, setSelectedPhoneId] = useState<string>("");
+  const [phonePopoverOpen, setPhonePopoverOpen] = useState(false);
   const [showNewPhone, setShowNewPhone] = useState(false);
   const [newPhoneLink, setNewPhoneLink] = useState("");
+  const [addingPhone, setAddingPhone] = useState(false);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -120,6 +134,17 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
     setLoadingVics(false);
   };
 
+  const resolvePhoneNumber = async (token: string): Promise<string | null> => {
+    try {
+      const { data: proxyData } = await supabase.functions.invoke("anosim-proxy", {
+        body: { token },
+      });
+      return proxyData?.number ?? null;
+    } catch {
+      return null;
+    }
+  };
+
   const fetchPhoneNumbers = async () => {
     setLoadingPhones(true);
     const { data } = await supabase
@@ -128,20 +153,11 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
     const phones = (data as PhoneNumber[]) || [];
     setPhoneNumbers(phones);
 
-    // Fetch actual phone numbers via anosim-proxy
     const map: Record<string, string> = {};
     await Promise.all(
       phones.map(async (p) => {
-        try {
-          const { data: proxyData } = await supabase.functions.invoke("anosim-proxy", {
-            body: { token: p.token },
-          });
-          if (proxyData?.number) {
-            map[p.id] = proxyData.number;
-          }
-        } catch {
-          // fallback handled in render
-        }
+        const num = await resolvePhoneNumber(p.token);
+        if (num) map[p.id] = num;
       })
     );
     setPhoneDataMap(map);
@@ -169,6 +185,39 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
     }
   };
 
+  const handleAddPhone = async () => {
+    const link = newPhoneLink.trim();
+    if (!link) return;
+    const token = extractToken(link);
+    if (!token) {
+      toast({ title: "Ungültiger Anosim-Link", variant: "destructive" });
+      return;
+    }
+    setAddingPhone(true);
+    const { data: inserted, error } = await supabase
+      .from("phone_numbers")
+      .insert({ token, api_url: link, created_by: user?.id })
+      .select("id, token, api_url")
+      .single();
+    if (error || !inserted) {
+      toast({
+        title: "Fehler beim Speichern der Telefonnummer",
+        description: error?.message,
+        variant: "destructive",
+      });
+      setAddingPhone(false);
+      return;
+    }
+    const num = await resolvePhoneNumber(inserted.token);
+    setPhoneNumbers((prev) => [...prev, inserted as PhoneNumber]);
+    if (num) setPhoneDataMap((prev) => ({ ...prev, [inserted.id]: num }));
+    setSelectedPhoneId(inserted.id);
+    setShowNewPhone(false);
+    setNewPhoneLink("");
+    setAddingPhone(false);
+    toast({ title: "Telefonnummer gespeichert" });
+  };
+
   const handleSave = async () => {
     if (!verification || !selectedVic) return;
 
@@ -183,30 +232,10 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
     setSaving(true);
 
-    let phoneNumberId: string | null = null;
-
-    // Handle new phone link (only relevant for non-postident with phone field)
-    if (!isPostident && verification.required_fields.includes("phone") && showNewPhone && newPhoneLink.trim()) {
-      const token = extractToken(newPhoneLink.trim());
-      if (!token) {
-        toast({ title: "Ungültiger Anosim-Link", variant: "destructive" });
-        setSaving(false);
-        return;
-      }
-      const { data: inserted, error } = await supabase
-        .from("phone_numbers")
-        .insert({ token, api_url: newPhoneLink.trim(), created_by: user?.id })
-        .select("id")
-        .single();
-      if (error || !inserted) {
-        toast({ title: "Fehler beim Speichern der Telefonnummer", description: error?.message, variant: "destructive" });
-        setSaving(false);
-        return;
-      }
-      phoneNumberId = inserted.id;
-    } else if (!isPostident && verification.required_fields.includes("phone") && selectedPhoneId) {
-      phoneNumberId = selectedPhoneId;
-    }
+    const phoneNumberId =
+      !isPostident && verification.required_fields.includes("phone") && selectedPhoneId
+        ? selectedPhoneId
+        : null;
 
     const { data: assignment, error } = await supabase
       .from("verification_assignments")
@@ -246,7 +275,11 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
         file_size: pdfFile.size,
       });
       if (docErr) {
-        toast({ title: "Fehler beim Speichern der Dokument-Info", description: docErr.message, variant: "destructive" });
+        toast({
+          title: "Fehler beim Speichern der Dokument-Info",
+          description: docErr.message,
+          variant: "destructive",
+        });
         setSaving(false);
         return;
       }
@@ -324,16 +357,33 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
     );
   }
 
-  // Step 2: Data entry
-  const nonPhoneFields = verification.required_fields.filter((f) => f !== "phone");
+  // Step 2: Data entry — dedupe required_fields defensively
+  const uniqueRequired = Array.from(new Set(verification.required_fields));
+  const nonPhoneFields = uniqueRequired.filter((f) => f !== "phone");
+  const selectedPhoneLabel = selectedPhoneId
+    ? phoneDataMap[selectedPhoneId] ||
+      phoneNumbers.find((p) => p.id === selectedPhoneId)?.token ||
+      ""
+    : "";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
+          <div className="flex items-center gap-3">
+            <VerificationLogo
+              value={verification.logo_url ?? null}
+              alt={verification.title}
+              className="w-10 h-10 rounded-md object-cover shrink-0"
+            />
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">Auftrag</p>
+              <DialogTitle className="truncate">{verification.title}</DialogTitle>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground pt-2">
             Daten für {selectedVic.first_name} {selectedVic.last_name}
-          </DialogTitle>
+          </p>
         </DialogHeader>
         <div className="space-y-4 py-2">
           {isPostident && (
@@ -355,7 +405,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
               <Label>{FIELD_LABELS[field] || field}</Label>
               <Input
                 className="mt-1"
-                placeholder={FIELD_LABELS[field]}
+                placeholder={FIELD_LABELS[field] || field}
                 value={fieldValues[field] || ""}
                 onChange={(e) =>
                   setFieldValues((prev) => ({ ...prev, [field]: e.target.value }))
@@ -364,25 +414,59 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
             </div>
           ))}
 
-          {!isPostident && verification.required_fields.includes("phone") && (
+          {!isPostident && uniqueRequired.includes("phone") && (
             <div>
               <Label>Telefonnummer</Label>
               {!showNewPhone ? (
                 <div className="space-y-2 mt-1">
-                  <Select value={selectedPhoneId} onValueChange={setSelectedPhoneId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Telefonnummer auswählen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {loadingPhones ? (
-                        <SelectItem value="_loading" disabled>Laden...</SelectItem>
-                      ) : phoneNumbers.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {phoneDataMap[p.id] || p.token}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={phonePopoverOpen} onOpenChange={setPhonePopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between font-normal"
+                      >
+                        <span className={cn(!selectedPhoneLabel && "text-muted-foreground")}>
+                          {selectedPhoneLabel || "Telefonnummer auswählen"}
+                        </span>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
+                      <Command>
+                        <CommandInput placeholder="Nummer suchen..." />
+                        <CommandList>
+                          <CommandEmpty>
+                            {loadingPhones ? "Laden..." : "Keine Nummer gefunden"}
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {phoneNumbers.map((p) => {
+                              const label = phoneDataMap[p.id] || p.token;
+                              return (
+                                <CommandItem
+                                  key={p.id}
+                                  value={`${label} ${p.token}`}
+                                  onSelect={() => {
+                                    setSelectedPhoneId(p.id);
+                                    setPhonePopoverOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedPhoneId === p.id ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {label}
+                                </CommandItem>
+                              );
+                            })}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <Button
                     type="button"
                     variant="outline"
@@ -399,17 +483,28 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                     value={newPhoneLink}
                     onChange={(e) => setNewPhoneLink(e.target.value)}
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setShowNewPhone(false);
-                      setNewPhoneLink("");
-                    }}
-                  >
-                    Bestehende auswählen
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleAddPhone}
+                      disabled={addingPhone || !newPhoneLink.trim()}
+                    >
+                      {addingPhone ? "Speichert..." : "Speichern"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setShowNewPhone(false);
+                        setNewPhoneLink("");
+                      }}
+                      disabled={addingPhone}
+                    >
+                      Abbrechen
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
