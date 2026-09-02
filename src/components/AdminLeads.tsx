@@ -279,12 +279,20 @@ export default function AdminLeads() {
       />
 
       <Dialog open={!!vorfallLead} onOpenChange={(o) => !o && setVorfallLead(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Was ist vorgefallen?</DialogTitle>
-            <DialogDescription>{vorfallLead?.full_name ?? "Lead"}</DialogDescription>
+        <DialogContent className="max-w-lg p-6 gap-0 rounded-xl">
+          <DialogHeader className="space-y-0">
+            <DialogShellHeader
+              icon={<FileText className="w-5 h-5" />}
+              eyebrow="Vorfallbeschreibung"
+              title={<DialogTitle asChild><span>{vorfallLead?.full_name ?? "Lead"}</span></DialogTitle>}
+              description="Vom Lead übermittelte Schilderung des Vorfalls."
+            />
           </DialogHeader>
-          <p className="text-sm whitespace-pre-wrap leading-relaxed">{vorfallLead?.vorfall}</p>
+          <div className="pt-6">
+            <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
+              <p className="text-sm whitespace-pre-wrap leading-relaxed text-foreground">{vorfallLead?.vorfall}</p>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
