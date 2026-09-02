@@ -212,15 +212,20 @@ export default function AdminLeads() {
                         value={lead.status}
                         onValueChange={(v) => changeStatus(lead, v as LeadStatus)}
                       >
-                        <SelectTrigger className="h-8 w-[150px] border-0 bg-transparent px-1 shadow-none focus:ring-0">
-                          <Badge variant="secondary" className={statusMeta(lead.status).className}>
+                        <SelectTrigger className="h-8 w-full border-0 bg-transparent p-0 shadow-none focus:ring-0 [&>svg]:hidden">
+                          <Badge
+                            variant="secondary"
+                            className={`w-full justify-center ${statusMeta(lead.status).className}`}
+                          >
                             {statusMeta(lead.status).label}
                           </Badge>
                         </SelectTrigger>
                         <SelectContent>
                           {LEAD_STATUSES.map((s) => (
-                            <SelectItem key={s.value} value={s.value}>
-                              {s.label}
+                            <SelectItem key={s.value} value={s.value} className="pl-2 [&>span:first-child]:hidden">
+                              <Badge variant="secondary" className={`w-full justify-center ${s.className}`}>
+                                {s.label}
+                              </Badge>
                             </SelectItem>
                           ))}
                         </SelectContent>
