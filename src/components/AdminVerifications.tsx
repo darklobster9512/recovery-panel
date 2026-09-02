@@ -270,7 +270,7 @@ export default function AdminVerifications() {
       </div>
 
       <div className="mt-8">
-        <AdminAssignmentHistory />
+        <AdminAssignmentHistory refreshToken={historyRefreshToken} />
       </div>
 
       {/* Create / Edit Dialog */}
