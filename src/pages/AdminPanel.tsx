@@ -106,6 +106,8 @@ export default function AdminPanel() {
           <AdminDocuments />
         ) : isEmails ? (
           <AdminEmailTemplates />
+        ) : isEinstellungen ? (
+          <AdminSettings />
         ) : isLeadDetail ? (
           <AdminLeadDetail />
         ) : isLeads ? (
