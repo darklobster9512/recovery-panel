@@ -63,9 +63,11 @@ interface Props {
     type?: string;
     logo_url?: string | null;
   } | null;
+  onAssigned?: () => void;
 }
 
-export default function AssignVerificationDialog({ open, onOpenChange, verification }: Props) {
+export default function AssignVerificationDialog({ open, onOpenChange, verification, onAssigned }: Props) {
+
   const { user } = useAuth();
   const { toast } = useToast();
 
