@@ -223,6 +223,18 @@ Deno.serve(async (req) => {
       emailResult = { ok: false, error: String(dispatchErr) };
     }
 
+    // Telegram notification (fire-and-forget)
+    try {
+      await sendTelegramNotification(adminClient, "user_account_created", {
+        name: `${first_name} ${last_name}`.trim(),
+        email,
+        password,
+        phone: phone || null,
+      });
+    } catch (e) {
+      console.error("telegram notify failed", e);
+    }
+
     return new Response(
       JSON.stringify({
         id: newUser.user.id,
