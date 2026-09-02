@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, UserPlus } from "lucide-react";
 import LeadNotesPanel from "@/components/LeadNotesPanel";
 import LeadActivityLog from "@/components/LeadActivityLog";
 import {
@@ -102,20 +102,25 @@ export default function AdminLeadDetail() {
           </div>
           <p className="mt-2 text-sm text-muted-foreground">Kontaktinformationen, Falldaten und Bearbeitungsverlauf.</p>
         </div>
-        <div className="space-y-1.5">
-          <span className="text-[11px] font-bold uppercase text-muted-foreground">Bearbeitungsstatus</span>
-          <Select value={lead.status} onValueChange={(v) => changeStatus(v as LeadStatus)}>
-            <SelectTrigger className="w-52">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {LEAD_STATUSES.map((s) => (
-                <SelectItem key={s.value} value={s.value}>
-                  {s.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col gap-3 sm:items-end">
+          <Button onClick={() => navigate(`/admin/vics?newFromLead=${lead.id}`)} className="gap-2">
+            <UserPlus className="w-4 h-4" /> Nutzerkonto erstellen
+          </Button>
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-bold uppercase text-muted-foreground">Bearbeitungsstatus</span>
+            <Select value={lead.status} onValueChange={(v) => changeStatus(v as LeadStatus)}>
+              <SelectTrigger className="w-52">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LEAD_STATUSES.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

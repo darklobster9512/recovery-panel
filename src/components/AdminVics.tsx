@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -94,6 +94,52 @@ export default function AdminVics() {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const newFromLead = searchParams.get("newFromLead");
+
+  useEffect(() => {
+    if (!newFromLead) return;
+    let cancelled = false;
+    (async () => {
+      setPassword(generatePassword());
+      setForm({ first_name: "", last_name: "", email: "", phone: "", balance: "", scam_project: "" });
+      setSelectedLeadId("");
+      setLeadsLoading(true);
+      const { data } = await supabase
+        .from("leads")
+        .select("id, full_name, email, phone_number")
+        .order("imported_at", { ascending: false })
+        .limit(500);
+      if (cancelled) return;
+      const list = (data as LeadOption[]) ?? [];
+      setLeads(list);
+      setLeadsLoading(false);
+      const lead = list.find((l) => l.id === newFromLead);
+      if (lead) {
+        const fullName = (lead.full_name || "").trim();
+        const parts = fullName.split(/\s+/);
+        const firstName = parts.slice(0, -1).join(" ") || fullName;
+        const lastName = parts.length > 1 ? parts[parts.length - 1] : "";
+        setForm((f) => ({
+          ...f,
+          first_name: firstName,
+          last_name: lastName,
+          email: lead.email || "",
+          phone: lead.phone_number || "",
+        }));
+        setSelectedLeadId(newFromLead);
+      }
+      setDialogOpen(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete("newFromLead");
+      setSearchParams(next, { replace: true });
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newFromLead]);
 
   const fetchLeads = async () => {
     setLeadsLoading(true);
