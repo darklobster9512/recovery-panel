@@ -39,7 +39,6 @@ export default function AdminLeadDetail() {
   const { toast } = useToast();
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
-  const [rawOpen, setRawOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const load = useCallback(async () => {
