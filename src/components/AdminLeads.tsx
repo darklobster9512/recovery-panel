@@ -141,7 +141,7 @@ export default function AdminLeads() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-36">Importiert am</TableHead>
-                  <TableHead>Voller Name</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead className="w-40">Telefonnummer</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead className="w-32">Schadenshöhe</TableHead>
