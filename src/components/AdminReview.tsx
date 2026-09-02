@@ -104,7 +104,13 @@ export default function AdminReview() {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card overflow-hidden shadow-card">
+    <div className="space-y-6">
+      <div className="border-b border-border pb-6">
+        <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Qualitätssicherung</p>
+        <h2 className="font-display text-2xl font-semibold">Überprüfung</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Abgeschlossene Aufträge freigeben oder zur Korrektur ablehnen.</p>
+      </div>
+      <div className="rounded-lg border border-border bg-card overflow-hidden shadow-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -156,6 +162,7 @@ export default function AdminReview() {
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

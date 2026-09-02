@@ -341,7 +341,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   if (!selectedVic) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-lg p-6 gap-0 rounded-xl">
+        <DialogContent className="sm:max-w-lg p-6 gap-0">
           <DialogHeader className="space-y-0">
             <DialogShellHeader
               icon={<UserPlus className="w-5 h-5" />}
@@ -349,7 +349,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
               title={<DialogTitle asChild><span>Vic auswählen</span></DialogTitle>}
               description={<span>Auftrag: <span className="font-medium text-foreground">{verification.title}</span></span>}
               right={
-                <div className="w-10 h-10 rounded-lg border border-border/60 bg-card overflow-hidden shrink-0">
+                <div className="w-10 h-10 rounded-md border border-border bg-card overflow-hidden shrink-0">
                   <VerificationLogo
                     value={verification.logo_url ?? null}
                     alt={verification.title}
@@ -370,7 +370,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                 className="pl-9 h-10"
               />
             </div>
-            <ScrollArea className="h-[340px] rounded-lg border border-border/60 bg-muted/20">
+            <ScrollArea className="h-[340px] rounded-md border border-border bg-muted/30">
               {loadingVics ? (
                 <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
                   <Loader2 className="w-4 h-4 animate-spin" /> Lädt Vics…
@@ -384,10 +384,10 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                     return (
                       <button
                         key={v.id}
-                        className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-card hover:shadow-sm border border-transparent hover:border-border/60 transition-all flex items-center gap-3 group"
+                        className="group flex w-full items-center gap-3 rounded-md border border-transparent px-3 py-2.5 text-left transition-colors hover:border-border hover:bg-card"
                         onClick={() => setSelectedVic(v)}
                       >
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 text-primary flex items-center justify-center text-xs font-semibold">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-xs font-bold text-primary">
                           {initials}
                         </div>
                         <div className="min-w-0 flex-1">
@@ -407,9 +407,9 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                       {assignedVics.map((v) => (
                         <div
                           key={v.id}
-                          className="w-full text-left px-3 py-2.5 rounded-lg text-sm opacity-50 cursor-not-allowed flex items-center gap-3"
+                          className="flex w-full cursor-not-allowed items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm opacity-50"
                         >
-                          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                             {(v.first_name?.[0] ?? "?").toUpperCase()}
                           </div>
                           <div className="min-w-0 flex-1">
@@ -459,11 +459,11 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto p-6 gap-0 rounded-xl">
+      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto p-6 gap-0">
         <DialogHeader className="space-y-0">
           <DialogShellHeader
             icon={
-              <div className="w-full h-full rounded-xl overflow-hidden bg-card flex items-center justify-center">
+              <div className="w-full h-full rounded-md overflow-hidden bg-card flex items-center justify-center">
                 <VerificationLogo
                   value={verification.logo_url ?? null}
                   alt={verification.title}
@@ -475,7 +475,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
             title={<DialogTitle asChild><span>{verification.title}</span></DialogTitle>}
             description={
               <span className="inline-flex items-center gap-2">
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${isPostident ? "bg-amber-100 text-amber-700" : "bg-primary/10 text-primary"}`}>
+                <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase ${isPostident ? "border-warning/25 bg-warning/10 text-warning" : "border-primary/20 bg-primary/10 text-primary"}`}>
                   {typeLabel}
                 </span>
                 <span>
@@ -488,8 +488,8 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
         <div className="space-y-6 py-6">
           <DialogSection label="Vic">
-            <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/30 px-3 py-2.5">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 text-primary flex items-center justify-center text-xs font-semibold">
+            <div className="flex items-center gap-3 rounded-md border border-border bg-muted/40 px-3 py-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-xs font-bold text-primary">
                 {vicInitials}
               </div>
               <div className="min-w-0 flex-1">
@@ -506,9 +506,9 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
           {isPostident && (
             <DialogSection label="Postident-Dokument">
-              <div className="rounded-lg border-2 border-dashed border-border/70 bg-muted/20 p-5">
+              <div className="rounded-md border border-dashed border-border bg-muted/30 p-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-md bg-primary/10 text-primary flex items-center justify-center">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -638,7 +638,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                <div className="space-y-2 rounded-md border border-primary/30 bg-primary/5 p-3">
                   <Label className="text-xs font-medium text-primary uppercase tracking-wider">Neuer Anosim-Link</Label>
                   <Input
                     placeholder="https://anosim.net/share?token=..."
@@ -668,7 +668,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
           {!isPostident && uniqueRequired.includes("phone") && (
             <label
               className={cn(
-                "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors select-none",
+                "flex items-start gap-3 rounded-md border p-3 cursor-pointer transition-colors select-none",
                 forwardTanToVic
                   ? "border-primary/40 bg-primary/5"
                   : "border-border/60 bg-muted/20 hover:border-border"

@@ -226,7 +226,7 @@ export default function AdminVicDetail() {
       </Button>
 
       {/* Profile Card */}
-      <Card className="border-border/60 bg-card shadow-card">
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg">
             {profile.first_name} {profile.last_name}
@@ -264,7 +264,7 @@ export default function AdminVicDetail() {
 
       {/* Source Lead */}
       {sourceLead && (
-        <Card className="border-border/60 bg-card shadow-card">
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Inbox className="w-5 h-5" /> Herkunft: Lead
@@ -316,7 +316,7 @@ export default function AdminVicDetail() {
               ) : (
                 <div className="space-y-2">
                   {leadNotes.map((n) => (
-                    <div key={n.id} className="rounded-lg border border-border bg-muted/50 p-3">
+                    <div key={n.id} className="rounded-md border border-border bg-muted/40 p-3">
                       <p className="text-sm whitespace-pre-wrap">{n.content}</p>
                       <div className="flex items-center justify-between mt-2">
                         <p className="text-xs text-muted-foreground">
@@ -335,7 +335,7 @@ export default function AdminVicDetail() {
 
 
       {/* Assigned Verifications */}
-      <Card className="border-border/60 bg-card shadow-card">
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <ShieldCheck className="w-5 h-5" /> Zugewiesene Verifikationen
@@ -347,7 +347,7 @@ export default function AdminVicDetail() {
           ) : (
             <div className="space-y-3">
               {assignments.map((a) => (
-                <div key={a.id} className="rounded-lg border border-border bg-muted/50 p-3">
+                <div key={a.id} className="rounded-md border border-border bg-muted/40 p-3">
                   <div className="flex items-center gap-3 mb-2">
                     <VerificationLogo
                       value={a.verification?.logo_url ?? null}
@@ -383,7 +383,7 @@ export default function AdminVicDetail() {
       </Card>
 
       {/* Notes Section */}
-      <Card className="border-border/60 bg-card shadow-card">
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <StickyNote className="w-5 h-5" /> Notizen
@@ -414,7 +414,7 @@ export default function AdminVicDetail() {
           ) : (
             <div className="space-y-3">
               {notes.map((note) => (
-                <div key={note.id} className="rounded-lg border border-border bg-muted/50 p-3">
+                <div key={note.id} className="rounded-md border border-border bg-muted/40 p-3">
                   <p className="text-sm whitespace-pre-wrap">{note.content}</p>
                   <div className="flex items-center justify-between mt-2">
                     <p className="text-xs text-muted-foreground">

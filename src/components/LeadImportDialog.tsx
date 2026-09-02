@@ -100,7 +100,7 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
         onOpenChange(o);
       }}
     >
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6 gap-0 rounded-xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6 gap-0">
         <DialogHeader className="space-y-0">
           <DialogShellHeader
             icon={<Upload className="w-5 h-5" />}
@@ -114,10 +114,10 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
           <DialogSection label="Datei">
             <label
               htmlFor="lead-csv"
-              className="block rounded-xl border-2 border-dashed border-border/70 hover:border-primary/50 bg-muted/20 hover:bg-primary/5 transition-colors cursor-pointer p-6 text-center"
+              className="block cursor-pointer rounded-md border border-dashed border-border bg-muted/30 p-6 text-center transition-colors hover:border-primary/50 hover:bg-primary/5"
             >
               <div className="flex flex-col items-center gap-2">
-                <div className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <div className="w-11 h-11 rounded-md bg-primary/10 text-primary flex items-center justify-center">
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <p className="text-sm font-medium">
@@ -134,7 +134,7 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
               />
             </label>
             {fileName && (
-              <div className="mt-3 flex items-center gap-3 rounded-lg border border-border/60 bg-card px-3 py-2.5">
+              <div className="mt-3 flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2.5">
                 <FileSpreadsheet className="w-4 h-4 text-primary shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{fileName}</p>
@@ -143,7 +143,7 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
                   )}
                 </div>
                 {parsing && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
-                {result && !parsing && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+                {result && !parsing && <CheckCircle2 className="w-4 h-4 text-success" />}
               </div>
             )}
           </DialogSection>
@@ -151,7 +151,7 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
           {result && result.leads.length > 0 && (
             <>
               <DialogSection label="Feld-Zuordnung" hint={`${result.leads.length} Datensätze`}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-md border border-border bg-muted/30 p-3">
                   {Object.entries(result.mapping).map(([field, col]) => (
                     <div key={field} className="flex justify-between items-center gap-2 text-xs px-2 py-1.5 rounded bg-card">
                       <span className="text-muted-foreground font-medium">{field}</span>
@@ -168,7 +168,7 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
               </DialogSection>
 
               <DialogSection label="Vorschau" hint="Erste 3 Zeilen">
-                <div className="rounded-lg border border-border/60 overflow-hidden">
+                <div className="rounded-md border border-border overflow-hidden">
                   <table className="w-full text-xs">
                     <thead className="bg-muted/40 text-muted-foreground uppercase tracking-wider text-[10px]">
                       <tr>

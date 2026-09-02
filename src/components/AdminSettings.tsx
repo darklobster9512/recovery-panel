@@ -93,6 +93,11 @@ export default function AdminSettings() {
 
   return (
     <Tabs defaultValue="branding" className="space-y-6">
+      <div className="border-b border-border pb-6">
+        <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Systemkonfiguration</p>
+        <h2 className="font-display text-2xl font-semibold">Einstellungen</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Branding, Schnittstellen und Kommunikationsvorlagen konfigurieren.</p>
+      </div>
       <TabsList>
         <TabsTrigger value="branding">Branding</TabsTrigger>
         <TabsTrigger value="integrations">Integrationen</TabsTrigger>
@@ -100,8 +105,8 @@ export default function AdminSettings() {
       </TabsList>
 
       <TabsContent value="branding">
-        <Card className="border-border/60 bg-card shadow-card">
-          <CardHeader><CardTitle className="text-base">Branding</CardTitle></CardHeader>
+        <Card>
+          <CardHeader className="border-b border-border px-5 py-4"><CardTitle className="text-base">Unternehmensprofil</CardTitle></CardHeader>
           <CardContent className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {BRANDING_FIELDS.map((f) => (
@@ -122,8 +127,8 @@ export default function AdminSettings() {
       </TabsContent>
 
       <TabsContent value="integrations">
-        <Card className="border-border/60 bg-card shadow-card">
-          <CardHeader className="flex flex-row items-center justify-between">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
             <CardTitle className="text-base">Resend & seven.io</CardTitle>
             <Button variant="ghost" size="sm" onClick={() => setShowKeys((v) => !v)} className="gap-1">
               {showKeys ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -131,7 +136,7 @@ export default function AdminSettings() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-4">
+            <div className="space-y-4 rounded-md border border-border p-4">
               <h3 className="text-sm font-semibold text-foreground">Resend</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
@@ -155,7 +160,7 @@ export default function AdminSettings() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 rounded-md border border-border p-4">
               <h3 className="text-sm font-semibold text-foreground">seven.io</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
@@ -180,8 +185,8 @@ export default function AdminSettings() {
       </TabsContent>
 
       <TabsContent value="sms">
-        <Card className="border-border/60 bg-card shadow-card">
-          <CardHeader><CardTitle className="text-base">SMS-Vorlage: Zugangsdaten</CardTitle></CardHeader>
+        <Card>
+          <CardHeader className="border-b border-border px-5 py-4"><CardTitle className="text-base">SMS-Vorlage: Zugangsdaten</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
               <Label>Nachrichtentext</Label>
