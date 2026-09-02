@@ -26,7 +26,8 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Search, Plus, ChevronsUpDown, Check } from "lucide-react";
+import { Search, Plus, ChevronsUpDown, Check, UserPlus, FileText, Phone, ShieldAlert, Loader2, MessageSquare } from "lucide-react";
+import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 import { Separator } from "@/components/ui/separator";
 import VerificationLogo from "@/components/VerificationLogo";
 import { cn } from "@/lib/utils";
