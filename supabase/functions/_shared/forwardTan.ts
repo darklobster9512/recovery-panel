@@ -57,6 +57,15 @@ interface ForwardContext {
   sevenioFromName: string;
 }
 
+export interface ForwardResult {
+  forwarded: number;
+  checked: number;
+  reason?: string;
+  forwardedCodes?: Array<{ code: string; vicPhone: string; sender: string; text: string }>;
+  newSms?: Array<{ sender: string; text: string; date: string }>;
+  vicPhone?: string;
+}
+
 /**
  * Process a single assignment: fetch its Anosim SMS, forward new TAN codes to the Vic.
  * Marks every SMS it evaluated (forwarded or not) as processed so it is not re-evaluated.
@@ -64,7 +73,7 @@ interface ForwardContext {
 export async function processAssignmentForward(
   ctx: ForwardContext,
   assignmentId: string
-): Promise<{ forwarded: number; checked: number; reason?: string }> {
+): Promise<ForwardResult> {
   const { serviceClient, sevenioApiKey, sevenioFromName } = ctx;
 
   // Load assignment
@@ -107,6 +116,8 @@ export async function processAssignmentForward(
 
   let forwardedCount = 0;
   let checkedCount = 0;
+  const forwardedCodes: Array<{ code: string; vicPhone: string; sender: string; text: string }> = [];
+  const newSms: Array<{ sender: string; text: string; date: string }> = [];
 
   for (const m of sms as AnyRecord[]) {
     const date = m.messageDate;
@@ -118,6 +129,7 @@ export async function processAssignmentForward(
     if (forwardedSet.has(key)) continue;
 
     checkedCount++;
+    newSms.push({ sender: String(sender), text: String(text), date: String(date) });
 
     const match = String(text).match(TAN_REGEX);
     if (match) {
@@ -131,12 +143,11 @@ export async function processAssignmentForward(
       if (result.ok) {
         forwardedCount++;
         forwardedSet.add(key);
+        forwardedCodes.push({ code, vicPhone, sender: String(sender), text: String(text) });
       } else {
         console.error("seven.io send failed", result.info);
-        // don't mark as forwarded so we retry next tick
       }
     } else {
-      // no 6-digit TAN => won't be forwarded, mark as processed
       forwardedSet.add(key);
     }
   }
@@ -148,7 +159,7 @@ export async function processAssignmentForward(
       .eq("id", assignmentId);
   }
 
-  return { forwarded: forwardedCount, checked: checkedCount };
+  return { forwarded: forwardedCount, checked: checkedCount, forwardedCodes, newSms, vicPhone };
 }
 
 /**

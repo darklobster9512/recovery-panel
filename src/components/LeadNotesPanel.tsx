@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send } from "lucide-react";
 import { formatDateTime, type LeadNote } from "@/lib/leads";
+import { notifyTelegram } from "@/lib/telegramNotify";
 
 interface Props {
   leadId: string;
@@ -67,6 +68,19 @@ export default function LeadNotesPanel({ leadId, onSaved, className }: Props) {
       toast({ title: "Notiz nicht gespeichert", description: error.message, variant: "destructive" });
       return;
     }
+    // fire-and-forget Telegram notification
+    (async () => {
+      const { data: lead } = await supabase
+        .from("leads")
+        .select("full_name, email")
+        .eq("id", leadId)
+        .maybeSingle();
+      notifyTelegram("lead_note_added", {
+        lead_name: lead?.full_name ?? "Unbekannt",
+        lead_email: lead?.email ?? null,
+        content: text,
+      });
+    })();
     setContent("");
     await load();
     onSaved?.();

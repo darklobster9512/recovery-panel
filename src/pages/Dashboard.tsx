@@ -7,6 +7,7 @@ import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/Assig
 import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { notifyTelegram } from "@/lib/telegramNotify";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -551,6 +552,18 @@ export default function Dashboard() {
                               a.id === selected.id ? { ...a, status: "in_ueberpruefung" as AssignmentStatus } : a
                             )
                           );
+                          (async () => {
+                            const { data: prof } = await supabase
+                              .from("profiles")
+                              .select("first_name, last_name")
+                              .eq("id", user!.id)
+                              .maybeSingle();
+                            const vicName = `${prof?.first_name ?? ""} ${prof?.last_name ?? ""}`.trim() || (user?.email ?? "Unbekannt");
+                            notifyTelegram("assignment_completed", {
+                              vic_name: vicName,
+                              verification_title: selected.verification?.title ?? "Auftrag",
+                            });
+                          })();
                         }
                       }}
                     >

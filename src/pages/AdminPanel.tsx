@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Shield, Users, FileText, LogOut, Phone, LayoutDashboard,
-  ClipboardCheck, FolderOpen, Mail, Inbox, Settings,
+  ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -22,6 +22,7 @@ import AdminEmailTemplates from "@/components/AdminEmailTemplates";
 import AdminLeads from "@/components/AdminLeads";
 import AdminLeadDetail from "@/components/AdminLeadDetail";
 import AdminSettings from "@/components/AdminSettings";
+import AdminTelegram from "@/components/AdminTelegram";
 
 type NavItem = { label: string; icon: typeof LayoutDashboard; path: string; exact?: boolean; group?: string };
 
@@ -34,6 +35,7 @@ const navItems: NavItem[] = [
   { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente", group: "Betrieb" },
   { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern", group: "Betrieb" },
   { label: "Email Vorlagen", icon: Mail, path: "/admin/emails", group: "System" },
+  { label: "Telegram", icon: Send, path: "/admin/telegram", group: "System" },
   { label: "Einstellungen", icon: Settings, path: "/admin/einstellungen", group: "System" },
 ];
 
@@ -49,6 +51,7 @@ function pageTitle(pathname: string): string {
     "/admin/dokumente": "Dokumente",
     "/admin/telefonnummern": "Telefonnummern",
     "/admin/emails": "Email Vorlagen",
+    "/admin/telegram": "Telegram",
     "/admin/einstellungen": "Einstellungen",
   };
   return map[pathname] ?? "Admin";
@@ -65,6 +68,7 @@ function renderRoute(pathname: string) {
     case "/admin/dokumente": return <AdminDocuments />;
     case "/admin/telefonnummern": return <AdminPhoneNumbers />;
     case "/admin/emails": return <AdminEmailTemplates />;
+    case "/admin/telegram": return <AdminTelegram />;
     case "/admin/einstellungen": return <AdminSettings />;
     default: return <AdminDashboard />;
   }

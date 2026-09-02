@@ -17,6 +17,7 @@ import {
   type Lead,
   type LeadNote,
 } from "@/lib/leads";
+import { notifyTelegram } from "@/lib/telegramNotify";
 
 
 interface VerificationAssignment {
@@ -181,6 +182,12 @@ export default function AdminVicDetail() {
       toast({ title: "Fehler", description: "Notiz konnte nicht gespeichert werden.", variant: "destructive" });
     } else {
       toast({ title: "Gespeichert", description: "Notiz wurde hinzugefügt." });
+      const savedText = noteText.trim();
+      notifyTelegram("vic_note_added", {
+        vic_name: `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim() || "Unbekannt",
+        vic_email: profile?.email ?? null,
+        content: savedText,
+      });
       setNoteText("");
       fetchData();
     }
