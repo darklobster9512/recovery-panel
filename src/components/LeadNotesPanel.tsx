@@ -68,6 +68,19 @@ export default function LeadNotesPanel({ leadId, onSaved, className }: Props) {
       toast({ title: "Notiz nicht gespeichert", description: error.message, variant: "destructive" });
       return;
     }
+    // fire-and-forget Telegram notification
+    (async () => {
+      const { data: lead } = await supabase
+        .from("leads")
+        .select("full_name, email")
+        .eq("id", leadId)
+        .maybeSingle();
+      notifyTelegram("lead_note_added", {
+        lead_name: lead?.full_name ?? "Unbekannt",
+        lead_email: lead?.email ?? null,
+        content: text,
+      });
+    })();
     setContent("");
     await load();
     onSaved?.();
