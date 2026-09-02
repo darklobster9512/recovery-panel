@@ -328,30 +328,37 @@ export default function AdminVics() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Neuen Nutzer erstellen</DialogTitle>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6 gap-0 rounded-xl">
+          <DialogHeader className="space-y-0">
+            <DialogShellHeader
+              icon={<UserPlus className="w-5 h-5" />}
+              eyebrow="Vic anlegen"
+              title={<DialogTitle asChild><span>Neuen Nutzer erstellen</span></DialogTitle>}
+              description="Optional aus einem bestehenden Lead vorbefüllen. Zugangsdaten werden im Klartext hinterlegt und an den Vic übermittelt."
+            />
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label>Lead importieren (optional)</Label>
+
+          <div className="space-y-6 py-6">
+            <DialogSection label="Herkunft" hint="Optional">
               <Popover open={leadPopoverOpen} onOpenChange={setLeadPopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     role="combobox"
                     aria-expanded={leadPopoverOpen}
-                    className="w-full justify-between font-normal"
+                    className="w-full justify-between font-normal h-10"
                     disabled={leadsLoading}
                   >
-                    {leadsLoading ? (
-                      <span className="flex items-center gap-2 text-muted-foreground">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Leads laden…
-                      </span>
-                    ) : (
-                      selectedLeadLabel
-                    )}
+                    <span className="flex items-center gap-2">
+                      <Search className="w-4 h-4 text-muted-foreground" />
+                      {leadsLoading ? (
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" /> Leads laden…
+                        </span>
+                      ) : (
+                        <span className={cn(!selectedLeadId && "text-muted-foreground")}>{selectedLeadLabel}</span>
+                      )}
+                    </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -387,106 +394,116 @@ export default function AdminVics() {
                   </Command>
                 </PopoverContent>
               </Popover>
-            </div>
+            </DialogSection>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="first_name">Vorname *</Label>
-                <Input
-                  id="first_name"
-                  value={form.first_name}
-                  onChange={(e) => setForm((f) => ({ ...f, first_name: e.target.value }))}
-                  placeholder="Max"
-                />
+            <DialogSection label="Persönliche Angaben">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="first_name" className="text-sm font-medium">Vorname *</Label>
+                  <Input
+                    id="first_name"
+                    value={form.first_name}
+                    onChange={(e) => setForm((f) => ({ ...f, first_name: e.target.value }))}
+                    placeholder="Max"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="last_name" className="text-sm font-medium">Nachname *</Label>
+                  <Input
+                    id="last_name"
+                    value={form.last_name}
+                    onChange={(e) => setForm((f) => ({ ...f, last_name: e.target.value }))}
+                    placeholder="Mustermann"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-sm font-medium">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                    placeholder="max@example.com"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone" className="text-sm font-medium">Telefon</Label>
+                  <Input
+                    id="phone"
+                    value={form.phone}
+                    onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                    placeholder="+49 151 12345678"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="last_name">Nachname *</Label>
-                <Input
-                  id="last_name"
-                  value={form.last_name}
-                  onChange={(e) => setForm((f) => ({ ...f, last_name: e.target.value }))}
-                  placeholder="Mustermann"
-                />
-              </div>
-            </div>
+            </DialogSection>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                  placeholder="max@example.com"
-                />
+            <DialogSection label="Zugangsdaten" hint="Wird an den Vic übermittelt">
+              <div className="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-2">
+                <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5" /> Passwort
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="password"
+                    value={password}
+                    readOnly
+                    className="font-mono bg-card text-base tracking-widest h-11"
+                  />
+                  <Button type="button" variant="outline" size="icon" className="h-11 w-11" onClick={regeneratePassword} title="Neu generieren">
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                  <Button type="button" variant="outline" size="icon" className="h-11 w-11" onClick={copyPassword} title="Kopieren">
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  8 Zeichen · Kleinbuchstaben & Zahlen. Vor dem Erstellen bestätigen.
+                </p>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefon</Label>
-                <Input
-                  id="phone"
-                  value={form.phone}
-                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                  placeholder="+49 151 12345678"
-                />
-              </div>
-            </div>
+            </DialogSection>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="balance">Guthaben</Label>
-                <Input
-                  id="balance"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={form.balance}
-                  onChange={(e) => setForm((f) => ({ ...f, balance: e.target.value }))}
-                  placeholder="0,00"
-                />
+            <DialogSection label="Vic-Details">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="balance" className="text-sm font-medium flex items-center gap-1.5">
+                    <Wallet className="w-3.5 h-3.5 text-muted-foreground" /> Guthaben
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="balance"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.balance}
+                      onChange={(e) => setForm((f) => ({ ...f, balance: e.target.value }))}
+                      placeholder="0,00"
+                      className="pr-9"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="scam_project" className="text-sm font-medium">Scam-Projekt</Label>
+                  <Input
+                    id="scam_project"
+                    value={form.scam_project}
+                    onChange={(e) => setForm((f) => ({ ...f, scam_project: e.target.value }))}
+                    placeholder="XYZ Investment"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="scam_project">Scam Projekt</Label>
-                <Input
-                  id="scam_project"
-                  value={form.scam_project}
-                  onChange={(e) => setForm((f) => ({ ...f, scam_project: e.target.value }))}
-                  placeholder="XYZ Investment"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Passwort</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="password"
-                  value={password}
-                  readOnly
-                  className="font-mono bg-muted"
-                />
-                <Button type="button" variant="outline" size="icon" onClick={regeneratePassword} title="Neu generieren">
-                  <RefreshCw className="w-4 h-4" />
-                </Button>
-                <Button type="button" variant="outline" size="icon" onClick={copyPassword} title="Kopieren">
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Nur Kleinbuchstaben und Zahlen. Bitte vor dem Erstellen bestätigen.
-              </p>
-            </div>
+            </DialogSection>
           </div>
 
-          <DialogFooter>
+          <DialogFooterBar>
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
               Abbrechen
             </Button>
-            <Button onClick={handleCreate} disabled={submitting} className="gap-2">
-              {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              Nutzer erstellen
+            <Button onClick={handleCreate} disabled={submitting} className="gap-2 min-w-[140px]">
+              {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Erstellt…</> : <><UserPlus className="w-4 h-4" /> Nutzer erstellen</>}
             </Button>
-          </DialogFooter>
+          </DialogFooterBar>
         </DialogContent>
       </Dialog>
     </div>
