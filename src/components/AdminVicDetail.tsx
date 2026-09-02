@@ -49,7 +49,9 @@ interface VicProfile {
   phone: string | null;
   temp_password: string | null;
   created_at: string;
+  source_lead_id: string | null;
 }
+
 
 interface UserNote {
   id: string;
