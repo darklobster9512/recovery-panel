@@ -95,10 +95,17 @@ export default function AdminReview() {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-lg border border-border bg-card px-6 py-20 text-center shadow-card">
-        <CheckCircle className="mx-auto mb-3 h-8 w-8 text-success" />
-        <p className="font-display text-base font-semibold text-foreground">Alles geprüft</p>
-        <p className="mt-1 text-sm text-muted-foreground">Keine Aufträge zur Überprüfung vorhanden.</p>
+      <div className="space-y-6">
+        <div className="border-b border-border pb-6">
+          <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Qualitätssicherung</p>
+          <h2 className="font-display text-2xl font-semibold">Überprüfung</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Abgeschlossene Aufträge freigeben oder zur Korrektur ablehnen.</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card px-6 py-20 text-center shadow-card">
+          <CheckCircle className="mx-auto mb-3 h-8 w-8 text-success" />
+          <p className="font-display text-base font-semibold text-foreground">Alles geprüft</p>
+          <p className="mt-1 text-sm text-muted-foreground">Keine Aufträge zur Überprüfung vorhanden.</p>
+        </div>
       </div>
     );
   }

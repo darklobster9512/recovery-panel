@@ -89,31 +89,39 @@ export default function AdminLeadDetail() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <Button variant="outline" size="sm" onClick={() => navigate("/admin/leads")}>
-          <ArrowLeft className="w-4 h-4 mr-2" /> Zurück
-        </Button>
-        <Badge variant="secondary" className={statusMeta(lead.status).className}>
-          {statusMeta(lead.status).label}
-        </Badge>
-        <div className="flex-1" />
-        <Select value={lead.status} onValueChange={(v) => changeStatus(v as LeadStatus)}>
-          <SelectTrigger className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {LEAD_STATUSES.map((s) => (
-              <SelectItem key={s.value} value={s.value}>
-                {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/admin/leads")} className="mb-3 -ml-3">
+            <ArrowLeft className="w-4 h-4 mr-2" /> Zurück zu Leads
+          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="font-display text-2xl font-semibold">{lead.full_name ?? "Lead ohne Namen"}</h2>
+            <Badge variant="secondary" className={statusMeta(lead.status).className}>
+              {statusMeta(lead.status).label}
+            </Badge>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">Kontaktinformationen, Falldaten und Bearbeitungsverlauf.</p>
+        </div>
+        <div className="space-y-1.5">
+          <span className="text-[11px] font-bold uppercase text-muted-foreground">Bearbeitungsstatus</span>
+          <Select value={lead.status} onValueChange={(v) => changeStatus(v as LeadStatus)}>
+            <SelectTrigger className="w-52">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LEAD_STATUSES.map((s) => (
+                <SelectItem key={s.value} value={s.value}>
+                  {s.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="border-b border-border px-5 py-4">
             <CardTitle className="text-base">Kontakt</CardTitle>
           </CardHeader>
           <CardContent>
@@ -124,7 +132,7 @@ export default function AdminLeadDetail() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="border-b border-border px-5 py-4">
             <CardTitle className="text-base">Import</CardTitle>
           </CardHeader>
           <CardContent>
@@ -136,7 +144,7 @@ export default function AdminLeadDetail() {
       </div>
 
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="border-b border-border px-5 py-4">
           <CardTitle className="text-base">Fall</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -150,7 +158,7 @@ export default function AdminLeadDetail() {
 
 
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="border-b border-border px-5 py-4">
           <CardTitle className="text-base">Notizen</CardTitle>
         </CardHeader>
         <CardContent>

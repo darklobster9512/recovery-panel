@@ -226,7 +226,7 @@ export default function AdminVerifications() {
         {/* Create Card */}
         {loading
           ? Array.from({ length: 3 }).map((_, i) => (
-              <Card key={i} className="border-border/60 bg-card min-h-[180px] animate-pulse" />
+              <Card key={i} className="min-h-[172px] animate-pulse" />
             ))
           : verifications.map((v) => (
               <Card key={v.id} className="relative min-h-[172px] group">
@@ -346,7 +346,7 @@ export default function AdminVerifications() {
               <div className="space-y-2">
                 {instructions.map((inst, idx) => (
                   <div key={idx} className="flex gap-2 items-center">
-                    <span className="w-6 h-6 rounded-full bg-muted text-xs font-semibold text-muted-foreground flex items-center justify-center shrink-0">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                       {idx + 1}
                     </span>
                     <Input
@@ -448,10 +448,10 @@ export default function AdminVerifications() {
 
       {/* Delete Confirmation */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="rounded-xl">
+        <AlertDialogContent className="rounded-lg">
           <AlertDialogHeader>
             <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center ring-1 ring-destructive/20 shrink-0">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-destructive/10 text-destructive ring-1 ring-destructive/20">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>

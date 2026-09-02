@@ -48,8 +48,6 @@
     --sidebar-border: 214 48% 24%;
     --sidebar-ring: 0 0% 100%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(216 76% 37%), hsl(216 76% 45%));
-    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(216 33% 97%));
     --shadow-card: 0 1px 2px hsl(214 69% 14% / 0.04), 0 4px 14px -8px hsl(214 69% 14% / 0.12);
     --shadow-card-hover: 0 8px 24px -12px hsl(214 69% 14% / 0.18);
 

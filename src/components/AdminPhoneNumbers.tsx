@@ -269,7 +269,7 @@ export default function AdminPhoneNumbers() {
                           <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                         </TableCell>
                       ) : entry.error ? (
-                        <TableCell colSpan={7} className="text-red-500 text-sm">{entry.error}</TableCell>
+                        <TableCell colSpan={7} className="text-destructive text-sm">{entry.error}</TableCell>
                       ) : entry.data ? (
                         <>
                           <TableCell className="font-mono text-sm">{entry.data.number}</TableCell>
