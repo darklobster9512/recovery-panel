@@ -149,18 +149,21 @@ export default function AdminVerifications() {
     setSaving(true);
     const logoUrl = await uploadLogo();
     const filteredInstructions = instructions.filter((i) => i.trim() !== "");
+    const isPostident = type === "postident";
+    const payloadBase = {
+      title: title.trim(),
+      logo_url: logoUrl,
+      instructions: filteredInstructions,
+      required_fields: isPostident ? [] : requiredFields,
+      appstore_url: isPostident ? null : appstoreUrl.trim() || null,
+      playstore_url: isPostident ? null : playstoreUrl.trim() || null,
+      type,
+    };
 
     if (editing) {
       const { error } = await supabase
         .from("verifications")
-        .update({
-          title: title.trim(),
-          logo_url: logoUrl,
-          instructions: filteredInstructions,
-          required_fields: requiredFields,
-          appstore_url: appstoreUrl.trim() || null,
-          playstore_url: playstoreUrl.trim() || null,
-        })
+        .update(payloadBase)
         .eq("id", editing.id);
       if (error) {
         toast({ title: "Fehler beim Speichern", description: error.message, variant: "destructive" });
@@ -169,12 +172,7 @@ export default function AdminVerifications() {
       }
     } else {
       const { error } = await supabase.from("verifications").insert({
-        title: title.trim(),
-        logo_url: logoUrl,
-        instructions: filteredInstructions,
-        required_fields: requiredFields,
-        appstore_url: appstoreUrl.trim() || null,
-        playstore_url: playstoreUrl.trim() || null,
+        ...payloadBase,
         created_by: user?.id,
       });
       if (error) {
