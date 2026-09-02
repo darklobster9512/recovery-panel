@@ -35,6 +35,7 @@ const navItems: NavItem[] = [
   { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente", group: "Betrieb" },
   { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern", group: "Betrieb" },
   { label: "Email Vorlagen", icon: Mail, path: "/admin/emails", group: "System" },
+  { label: "Telegram", icon: Send, path: "/admin/telegram", group: "System" },
   { label: "Einstellungen", icon: Settings, path: "/admin/einstellungen", group: "System" },
 ];
 
