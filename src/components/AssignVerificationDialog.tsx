@@ -412,16 +412,24 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
               )}
             </div>
           )}
-          {!isPostident && nonPhoneFields.map((field) => (
+          {!isPostident && orderedNonPhone.map((field) => (
             <div key={field}>
               <Label>{FIELD_LABELS[field] || field}</Label>
               <Input
                 className="mt-1"
                 placeholder={FIELD_LABELS[field] || field}
                 value={fieldValues[field] || ""}
-                onChange={(e) =>
-                  setFieldValues((prev) => ({ ...prev, [field]: e.target.value }))
-                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFieldValues((prev) => {
+                    const next = { ...prev, [field]: val };
+                    if (field === "identlink" && uniqueRequired.includes("identcode")) {
+                      const code = extractIdentcode(val);
+                      if (code) next.identcode = code;
+                    }
+                    return next;
+                  });
+                }}
               />
             </div>
           ))}
