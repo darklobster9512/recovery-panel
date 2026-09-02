@@ -336,7 +336,21 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
-          {nonPhoneFields.map((field) => (
+          {isPostident && (
+            <div>
+              <Label>PDF-Datei (Postident)</Label>
+              <Input
+                className="mt-1"
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+              />
+              {pdfFile && (
+                <p className="text-xs text-muted-foreground mt-1">{pdfFile.name}</p>
+              )}
+            </div>
+          )}
+          {!isPostident && nonPhoneFields.map((field) => (
             <div key={field}>
               <Label>{FIELD_LABELS[field] || field}</Label>
               <Input
