@@ -90,7 +90,7 @@ export default function AdminEmailTemplates() {
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label>Login-Link (aus Einstellungen)</Label>
-              <Input value={loginUrl} readOnly className="bg-gray-50" />
+              <Input value={loginUrl} readOnly className="bg-muted/60" />
             </div>
           </div>
 
@@ -98,7 +98,7 @@ export default function AdminEmailTemplates() {
             <Button variant="outline" size="sm" onClick={copyHtml} className="gap-2">
               <Copy className="w-4 h-4" /> HTML kopieren
             </Button>
-            <p className="text-xs text-gray-500">Nur Vorschau – es wird keine E-Mail versendet.</p>
+            <p className="text-xs text-muted-foreground">Nur Vorschau – es wird keine E-Mail versendet.</p>
           </div>
         </CardContent>
       </Card>

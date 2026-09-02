@@ -220,8 +220,8 @@ export default function AdminVerifications() {
           onClick={openCreate}
         >
           <CardContent className="flex flex-col items-center justify-center p-6">
-            <Plus className="w-10 h-10 text-gray-400" />
-            <span className="text-sm text-gray-500 mt-2">Neu erstellen</span>
+            <Plus className="w-10 h-10 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground mt-2">Neu erstellen</span>
           </CardContent>
         </Card>
 
@@ -236,7 +236,7 @@ export default function AdminVerifications() {
                     value={v.logo_url}
                     alt={v.title}
                     className="w-14 h-14 rounded-lg object-contain"
-                    fallback={<div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs font-medium">Logo</div>}
+                    fallback={<div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-xs font-medium">Logo</div>}
                   />
                   <span className="text-sm font-semibold text-foreground text-center">{v.title}</span>
                   <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full ${v.type === "postident" ? "bg-amber-100 text-amber-700" : "bg-[hsl(221,100%,97%)] text-[hsl(221,100%,50%)]"}`}>

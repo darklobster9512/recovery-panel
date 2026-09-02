@@ -9,10 +9,10 @@
     --background: 0 0% 100%;
     --foreground: 224 10% 10%;
 
-    --card: 0 0% 100%;
+    --card: 216 45% 97%;
     --card-foreground: 224 10% 10%;
 
-    --popover: 0 0% 100%;
+    --popover: 216 48% 98%;
 
     --popover-foreground: 224 10% 10%;
 
@@ -23,7 +23,7 @@
     --secondary: 221 60% 97%;
     --secondary-foreground: 224 10% 10%;
 
-    --muted: 220 20% 97%;
+    --muted: 216 32% 94%;
     --muted-foreground: 220 9% 46%;
 
     --accent: 221 90% 95%;
@@ -32,8 +32,8 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 88%;
-    --input: 220 20% 91%;
+    --border: 216 30% 84%;
+    --input: 216 28% 86%;
     --ring: 221 100% 50%;
 
     --radius: 0.75rem;
@@ -49,11 +49,11 @@
 
     --gradient-primary: linear-gradient(135deg, hsl(221 100% 50%), hsl(217 100% 66%));
     --gradient-surface:
-      radial-gradient(1100px 550px at 0% -10%, hsl(221 100% 50% / 0.10), transparent 70%),
-      radial-gradient(900px 500px at 100% 0%, hsl(217 100% 66% / 0.09), transparent 65%),
-      linear-gradient(180deg, hsl(221 45% 96%), hsl(221 40% 93%));
-    --shadow-card: 0 1px 2px hsl(220 40% 20% / 0.08), 0 12px 32px -8px hsl(220 40% 20% / 0.16);
-    --shadow-card-hover: 0 2px 6px hsl(220 40% 20% / 0.10), 0 18px 40px -10px hsl(220 40% 20% / 0.20);
+      radial-gradient(1100px 550px at 0% -10%, hsl(221 100% 50% / 0.07), transparent 70%),
+      radial-gradient(900px 500px at 100% 0%, hsl(217 100% 66% / 0.06), transparent 65%),
+      linear-gradient(180deg, hsl(216 42% 96%), hsl(216 38% 93%));
+    --shadow-card: 0 1px 1px hsl(218 38% 24% / 0.05), 0 10px 28px -10px hsl(218 38% 24% / 0.14);
+    --shadow-card-hover: 0 2px 4px hsl(218 38% 24% / 0.07), 0 16px 36px -12px hsl(218 38% 24% / 0.18);
 
     --shadow-elegant: 0 20px 60px -20px hsl(221 100% 50% / 0.35);
     --shadow-soft: 0 8px 24px -8px hsl(221 100% 50% / 0.18);
@@ -73,7 +73,7 @@
 
 @layer components {
   .card-glass {
-    @apply bg-card/70 backdrop-blur-xl border border-white/60;
+    @apply bg-card/80 backdrop-blur-xl border border-border/80;
     box-shadow: var(--shadow-card);
   }
 }
