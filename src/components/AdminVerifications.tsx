@@ -76,6 +76,8 @@ export default function AdminVerifications() {
   // Assign dialog
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [assignVerification, setAssignVerification] = useState<Verification | null>(null);
+  const [historyRefreshToken, setHistoryRefreshToken] = useState(0);
+
 
   useEffect(() => {
     fetchVerifications();
