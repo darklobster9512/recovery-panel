@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { email, first_name, last_name, phone, password, balance, scam_project } = body;
+    const { email, first_name, last_name, phone, password, balance, scam_project, source_lead_id } = body;
 
     if (!email || !first_name || !last_name) {
       return new Response(JSON.stringify({ error: "email, first_name, last_name are required" }), {
