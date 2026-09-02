@@ -236,6 +236,24 @@ export default function DocumentUpload({ onBack }: { onBack: () => void }) {
       }
 
       toast.success("Dokumente erfolgreich hochgeladen");
+      // Telegram notification (fire-and-forget)
+      (async () => {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("first_name, last_name")
+          .eq("id", user.id)
+          .maybeSingle();
+        const vicName = `${prof?.first_name ?? ""} ${prof?.last_name ?? ""}`.trim() || (user.email ?? "Unbekannt");
+        const verificationTitle = assignments.find((a) => a.id === selectedAssignment)?.verification_title;
+        for (const file of files) {
+          notifyTelegram("document_uploaded", {
+            vic_name: vicName,
+            file_name: file.name,
+            verification_title: verificationTitle,
+            category: "Auftragsdokument",
+          });
+        }
+      })();
       setFiles([]);
       loadDocuments();
     } catch {
