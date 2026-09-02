@@ -364,7 +364,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
             </div>
           ))}
 
-          {verification.required_fields.includes("phone") && (
+          {!isPostident && verification.required_fields.includes("phone") && (
             <div>
               <Label>Telefonnummer</Label>
               {!showNewPhone ? (
