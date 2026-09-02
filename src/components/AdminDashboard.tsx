@@ -110,7 +110,7 @@ export default function AdminDashboard() {
         {stats.map(s => (
           <Card key={s.label} className="border-border/60 bg-card shadow-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">{s.label}</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{s.label}</CardTitle>
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${s.className}`}>
                 <s.icon className="w-4 h-4" />
               </div>
@@ -140,9 +140,9 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent className="p-0">
             {loading ? (
-              <p className="text-sm text-gray-400 px-6 pb-4">Laden…</p>
+              <p className="text-sm text-muted-foreground px-6 pb-4">Laden…</p>
             ) : recentAssignments.length === 0 ? (
-              <p className="text-sm text-gray-400 px-6 pb-4">Keine Zuweisungen vorhanden.</p>
+              <p className="text-sm text-muted-foreground px-6 pb-4">Keine Zuweisungen vorhanden.</p>
             ) : (
               <Table>
                 <TableHeader>
@@ -160,7 +160,7 @@ export default function AdminDashboard() {
                       className="cursor-pointer"
                       onClick={() => navigate(`/admin/vics/${a.user_id}`)}
                     >
-                      <TableCell className="text-xs text-gray-500">{formatDate(a.created_at)}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{formatDate(a.created_at)}</TableCell>
                       <TableCell className="text-sm">{a.userName}</TableCell>
                       <TableCell className="text-sm">{a.verificationTitle}</TableCell>
                       <TableCell><AssignmentStatusBadge status={a.status} /></TableCell>
@@ -179,9 +179,9 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent className="p-0">
             {loading ? (
-              <p className="text-sm text-gray-400 px-6 pb-4">Laden…</p>
+              <p className="text-sm text-muted-foreground px-6 pb-4">Laden…</p>
             ) : recentSms.length === 0 ? (
-              <p className="text-sm text-gray-400 px-6 pb-4">Keine SMS vorhanden.</p>
+              <p className="text-sm text-muted-foreground px-6 pb-4">Keine SMS vorhanden.</p>
             ) : (
               <Table>
                 <TableHeader>
@@ -195,7 +195,7 @@ export default function AdminDashboard() {
                 <TableBody>
                   {recentSms.map(s => (
                     <TableRow key={s.id}>
-                      <TableCell className="text-xs text-gray-500">{formatDate(s.created_at)}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{formatDate(s.created_at)}</TableCell>
                       <TableCell className="text-sm">{s.recipient}</TableCell>
                       <TableCell className="text-sm">{s.sender_id}</TableCell>
                       <TableCell className="text-sm max-w-[200px] truncate">{s.message}</TableCell>

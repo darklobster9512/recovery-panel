@@ -132,7 +132,7 @@ export default function AdminSettings() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-700">Resend</h3>
+              <h3 className="text-sm font-semibold text-foreground">Resend</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label>API-Key</Label>
@@ -156,7 +156,7 @@ export default function AdminSettings() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-700">seven.io</h3>
+              <h3 className="text-sm font-semibold text-foreground">seven.io</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label>API-Key</Label>
@@ -186,7 +186,7 @@ export default function AdminSettings() {
             <div className="space-y-1.5">
               <Label>Nachrichtentext</Label>
               <Textarea rows={6} value={smsTemplate} onChange={(e) => setSmsTemplate(e.target.value)} />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Verfügbare Variablen: <code>{"{{first_name}}"}</code>, <code>{"{{last_name}}"}</code>,{" "}
                 <code>{"{{company_name}}"}</code>, <code>{"{{email}}"}</code>
               </p>
