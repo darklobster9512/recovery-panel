@@ -14,6 +14,121 @@ export type Database = {
   }
   public: {
     Tables: {
+      lead_activity: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activity_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_notes: {
+        Row: {
+          author_id: string | null
+          content: string
+          created_at: string
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          author_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_notes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          email: string | null
+          external_id: string | null
+          full_name: string | null
+          id: string
+          imported_at: string
+          imported_by: string | null
+          phone_number: string | null
+          raw: Json | null
+          schadenshoehe: number | null
+          source: string
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+          vorfall: string | null
+        }
+        Insert: {
+          email?: string | null
+          external_id?: string | null
+          full_name?: string | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          phone_number?: string | null
+          raw?: Json | null
+          schadenshoehe?: number | null
+          source?: string
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+          vorfall?: string | null
+        }
+        Update: {
+          email?: string | null
+          external_id?: string | null
+          full_name?: string | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          phone_number?: string | null
+          raw?: Json | null
+          schadenshoehe?: number | null
+          source?: string
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+          vorfall?: string | null
+        }
+        Relationships: []
+      }
       phone_numbers: {
         Row: {
           api_url: string
@@ -320,6 +435,12 @@ export type Database = {
         | "in_ueberpruefung"
         | "genehmigt"
         | "abgelehnt"
+      lead_status:
+        | "neu"
+        | "in_bearbeitung"
+        | "mailbox"
+        | "fehlgeschlagen"
+        | "erfolgreich"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -455,6 +576,13 @@ export const Constants = {
         "in_ueberpruefung",
         "genehmigt",
         "abgelehnt",
+      ],
+      lead_status: [
+        "neu",
+        "in_bearbeitung",
+        "mailbox",
+        "fehlgeschlagen",
+        "erfolgreich",
       ],
     },
   },
