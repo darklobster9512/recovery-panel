@@ -222,7 +222,11 @@ export default function AdminLeads() {
                         </SelectTrigger>
                         <SelectContent>
                           {LEAD_STATUSES.map((s) => (
-                            <SelectItem key={s.value} value={s.value} className="pl-2 [&>span:first-child]:hidden">
+                            <SelectItem
+                              key={s.value}
+                              value={s.value}
+                              className="pl-2 [&>span:first-child]:hidden [&>span]:w-full"
+                            >
                               <Badge variant="secondary" className={`w-full justify-center ${s.className}`}>
                                 {s.label}
                               </Badge>
