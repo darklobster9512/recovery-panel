@@ -177,9 +177,9 @@ export default function AdminPhoneNumbers() {
 
   const stateBadge = (state: string) => {
     const s = state?.toLowerCase();
-    if (s === "active") return <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Active</Badge>;
-    if (s === "ended" || s === "expired") return <Badge className="bg-red-100 text-red-700 hover:bg-red-100">Ended</Badge>;
-    if (s === "pending") return <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100">Pending</Badge>;
+    if (s === "active") return <Badge className="border-success/20 bg-success/10 text-success hover:bg-success/10">Active</Badge>;
+    if (s === "ended" || s === "expired") return <Badge className="border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/10">Ended</Badge>;
+    if (s === "pending") return <Badge className="border-warning/20 bg-warning/10 text-warning hover:bg-warning/10">Pending</Badge>;
     return <Badge variant="secondary">{state}</Badge>;
   };
 
@@ -196,15 +196,20 @@ export default function AdminPhoneNumbers() {
 
   return (
     <div className="space-y-6">
+      <div className="border-b border-border pb-6">
+        <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Kommunikationsinfrastruktur</p>
+        <h2 className="font-display text-2xl font-semibold">Telefonnummern</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Anosim-Verbindungen, Laufzeiten und eingehende SMS überwachen.</p>
+      </div>
       {/* Add phone number */}
-      <Card className="border-border/60 bg-card shadow-card">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Telefonnummer hinzufügen</CardTitle>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
+          <CardTitle className="text-base">Verbindung hinzufügen</CardTitle>
           <a href="https://anosim.net" target="_blank" rel="noopener noreferrer">
             <img src={anosimLogo} alt="Anosim" className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
           </a>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-5">
           <div className="flex gap-2">
             <Input
               value={linkInput}
@@ -228,7 +233,7 @@ export default function AdminPhoneNumbers() {
       ) : entries.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">Keine Telefonnummern vorhanden.</p>
       ) : (
-        <Card className="border-border/60 bg-card shadow-card">
+        <Card>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
@@ -282,7 +287,7 @@ export default function AdminPhoneNumbers() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-red-600"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
                           onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -301,7 +306,7 @@ export default function AdminPhoneNumbers() {
                                 .sort((a, b) => new Date(b.messageDate).getTime() - new Date(a.messageDate).getTime())
                                 .slice(0, 10)
                                 .map((sms, idx) => (
-                                  <div key={idx} className="rounded border border-border bg-background p-3">
+                                  <div key={idx} className="rounded-md border border-border bg-card p-3">
                                     <div className="flex items-center justify-between mb-1">
                                       <span className="text-xs font-medium">{sms.messageSender}</span>
                                       <span className="text-xs text-muted-foreground">{formatDate(sms.messageDate)}</span>

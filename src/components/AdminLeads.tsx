@@ -107,7 +107,19 @@ export default function AdminLeads() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Vertriebspipeline</p>
+          <h2 className="font-display text-2xl font-semibold">Leads</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Importierte Kontakte prüfen, qualifizieren und weiterbearbeiten.</p>
+        </div>
+        <Button onClick={() => setImportOpen(true)}>
+          <Upload className="w-4 h-4" />
+          Leads importieren
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3 shadow-card">
         <Input
           placeholder="Suche nach Name, Email, Telefon…"
           value={search}
@@ -128,10 +140,7 @@ export default function AdminLeads() {
           </SelectContent>
         </Select>
         <div className="flex-1" />
-        <Button onClick={() => setImportOpen(true)}>
-          <Upload className="w-4 h-4 mr-2" />
-          Leads importieren
-        </Button>
+        <span className="text-xs font-semibold text-muted-foreground">{filtered.length} von {leads.length} Einträgen</span>
       </div>
 
       <LeadActivityLog refreshKey={refreshKey} />
@@ -172,7 +181,7 @@ export default function AdminLeads() {
                         <button
                           onClick={() => copyValue(lead.phone_number!, "Telefonnummer")}
                           title="Klicken zum Kopieren"
-                          className="hover:text-[hsl(221,100%,50%)] hover:underline"
+                            className="hover:text-primary hover:underline"
                         >
                           {lead.phone_number}
                         </button>
@@ -185,7 +194,7 @@ export default function AdminLeads() {
                         <button
                           onClick={() => copyValue(lead.email!, "Email")}
                           title="Klicken zum Kopieren"
-                          className="hover:text-[hsl(221,100%,50%)] hover:underline"
+                          className="hover:text-primary hover:underline"
                         >
                           {lead.email}
                         </button>
@@ -200,7 +209,7 @@ export default function AdminLeads() {
                       {lead.vorfall ? (
                         <button
                           onClick={() => setVorfallLead(lead)}
-                          className="text-left hover:text-[hsl(221,100%,50%)] hover:underline"
+                          className="text-left hover:text-primary hover:underline"
                         >
                           {truncate(lead.vorfall, 60)}
                         </button>
@@ -279,7 +288,7 @@ export default function AdminLeads() {
       />
 
       <Dialog open={!!vorfallLead} onOpenChange={(o) => !o && setVorfallLead(null)}>
-        <DialogContent className="max-w-lg p-6 gap-0 rounded-xl">
+        <DialogContent className="max-w-lg p-6 gap-0">
           <DialogHeader className="space-y-0">
             <DialogShellHeader
               icon={<FileText className="w-5 h-5" />}
@@ -289,7 +298,7 @@ export default function AdminLeads() {
             />
           </DialogHeader>
           <div className="pt-6">
-            <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
+            <div className="rounded-md border border-border bg-muted/45 p-4">
               <p className="text-sm whitespace-pre-wrap leading-relaxed text-foreground">{vorfallLead?.vorfall}</p>
             </div>
           </div>

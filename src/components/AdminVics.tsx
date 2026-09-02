@@ -207,16 +207,20 @@ export default function AdminVics() {
     : "Lead suchen…";
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">Vics – Nutzerverwaltung</h2>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Nutzerverwaltung</p>
+          <h2 className="font-display text-2xl font-semibold">Vics</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Konten, Kontaktdaten und Zugangsinformationen zentral verwalten.</p>
+        </div>
         <Button onClick={openDialog} className="gap-2">
           <UserPlus className="w-4 h-4" />
           Nutzer erstellen
         </Button>
       </div>
 
-      <div className="relative mb-4">
+      <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           value={search}
@@ -226,7 +230,7 @@ export default function AdminVics() {
         />
       </div>
 
-      <Card className="border-border/60 bg-card shadow-card">
+      <Card>
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
@@ -328,7 +332,7 @@ export default function AdminVics() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6 gap-0 rounded-xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6 gap-0">
           <DialogHeader className="space-y-0">
             <DialogShellHeader
               icon={<UserPlus className="w-5 h-5" />}
@@ -439,7 +443,7 @@ export default function AdminVics() {
             </DialogSection>
 
             <DialogSection label="Zugangsdaten" hint="Wird an den Vic übermittelt">
-              <div className="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-2">
+              <div className="rounded-md border border-border bg-muted/45 p-4 space-y-2">
                 <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                   <KeyRound className="w-3.5 h-3.5" /> Passwort
                 </Label>
