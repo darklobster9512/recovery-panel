@@ -28,6 +28,8 @@ import { useToast } from "@/hooks/use-toast";
 import AssignVerificationDialog from "@/components/AssignVerificationDialog";
 import AdminAssignmentHistory from "@/components/AdminAssignmentHistory";
 
+type VerificationType = "videocall" | "postident";
+
 interface Verification {
   id: string;
   title: string;
@@ -36,6 +38,7 @@ interface Verification {
   required_fields: string[];
   appstore_url: string | null;
   playstore_url: string | null;
+  type: VerificationType;
   created_by: string | null;
   created_at: string;
 }
