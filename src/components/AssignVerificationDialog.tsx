@@ -100,6 +100,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
       setShowNewPhone(false);
       setNewPhoneLink("");
       setPdfFile(null);
+      setForwardTanToVic(false);
       setSearch("");
       fetchVics();
     }
