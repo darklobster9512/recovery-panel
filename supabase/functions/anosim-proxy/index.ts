@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadSevenIoSettings, processAssignmentForward } from "../_shared/forwardTan.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,7 +42,7 @@ Deno.serve(async (req) => {
   });
 
   try {
-    const { token: apiToken } = await req.json();
+    const { token: apiToken, assignmentId } = await req.json();
     if (!apiToken) {
       return new Response(JSON.stringify({ error: "Token required" }), {
         status: 400,
@@ -49,12 +50,13 @@ Deno.serve(async (req) => {
       });
     }
 
+    const serviceClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
     // If not admin, verify the user has an assignment linked to this phone number token
     if (!isAdmin) {
-      const serviceClient = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-      );
       const { data: phoneRow } = await serviceClient
         .from("phone_numbers")
         .select("id")
@@ -89,6 +91,27 @@ Deno.serve(async (req) => {
     );
 
     const data = await apiRes.json();
+
+    // Inline TAN forwarding (fire-and-forget so the response isn't delayed).
+    if (assignmentId && typeof assignmentId === "string") {
+      (async () => {
+        try {
+          const settings = await loadSevenIoSettings(serviceClient);
+          if (settings) {
+            await processAssignmentForward(
+              {
+                serviceClient,
+                sevenioApiKey: settings.apiKey,
+                sevenioFromName: settings.fromName,
+              },
+              assignmentId
+            );
+          }
+        } catch (e) {
+          console.error("inline forward failed", e);
+        }
+      })();
+    }
 
     return new Response(JSON.stringify(data), {
       status: apiRes.status,
