@@ -341,62 +341,93 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
   if (!selectedVic) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Vic auswählen – {verification.title}</DialogTitle>
-          </DialogHeader>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Suchen..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+        <DialogContent className="sm:max-w-lg p-6 gap-0 rounded-xl">
+          <DialogHeader className="space-y-0">
+            <DialogShellHeader
+              icon={<UserPlus className="w-5 h-5" />}
+              eyebrow="Zuweisen"
+              title={<DialogTitle asChild><span>Vic auswählen</span></DialogTitle>}
+              description={<span>Auftrag: <span className="font-medium text-foreground">{verification.title}</span></span>}
+              right={
+                <div className="w-10 h-10 rounded-lg border border-border/60 bg-card overflow-hidden shrink-0">
+                  <VerificationLogo
+                    value={verification.logo_url ?? null}
+                    alt={verification.title}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              }
             />
-          </div>
-          <ScrollArea className="h-[320px] -mx-2">
-            {loadingVics ? (
-              <p className="text-sm text-muted-foreground text-center py-8">Laden...</p>
-            ) : availableVics.length === 0 && assignedVics.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">Keine Vics gefunden</p>
-            ) : (
-              <div className="space-y-1 px-2">
-                {availableVics.map((v) => (
-                  <button
-                    key={v.id}
-                    className="w-full text-left px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-sm"
-                    onClick={() => setSelectedVic(v)}
-                  >
-                    <span className="font-medium text-foreground">
-                      {v.first_name || ""} {v.last_name || ""}
-                    </span>
-                    {v.email && (
-                      <span className="text-muted-foreground ml-2 text-xs">{v.email}</span>
-                    )}
-                  </button>
-                ))}
-                {assignedVics.length > 0 && (
-                  <>
-                    <Separator className="my-2" />
-                    <p className="text-xs text-muted-foreground px-3 py-1 font-medium">Bereits zugewiesen</p>
-                    {assignedVics.map((v) => (
-                      <div
+          </DialogHeader>
+
+          <div className="pt-5 pb-4 space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Nach Name oder E-Mail suchen…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 h-10"
+              />
+            </div>
+            <ScrollArea className="h-[340px] rounded-lg border border-border/60 bg-muted/20">
+              {loadingVics ? (
+                <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Lädt Vics…
+                </div>
+              ) : availableVics.length === 0 && assignedVics.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-12">Keine Vics gefunden</p>
+              ) : (
+                <div className="p-2 space-y-1">
+                  {availableVics.map((v) => {
+                    const initials = `${v.first_name?.[0] ?? ""}${v.last_name?.[0] ?? ""}`.toUpperCase() || "?";
+                    return (
+                      <button
                         key={v.id}
-                        className="w-full text-left px-3 py-2.5 rounded-md text-sm opacity-50 cursor-default"
+                        className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-card hover:shadow-sm border border-transparent hover:border-border/60 transition-all flex items-center gap-3 group"
+                        onClick={() => setSelectedVic(v)}
                       >
-                        <span className="font-medium text-foreground">
-                          {v.first_name || ""} {v.last_name || ""}
-                        </span>
-                        {v.email && (
-                          <span className="text-muted-foreground ml-2 text-xs">{v.email}</span>
-                        )}
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-            )}
-          </ScrollArea>
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 text-primary flex items-center justify-center text-xs font-semibold">
+                          {initials}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {v.first_name || ""} {v.last_name || ""}
+                          </p>
+                          {v.email && <p className="text-xs text-muted-foreground truncate">{v.email}</p>}
+                        </div>
+                        <ChevronsUpDown className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                    );
+                  })}
+                  {assignedVics.length > 0 && (
+                    <>
+                      <Separator className="my-2" />
+                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground px-3 py-1 font-semibold">Bereits zugewiesen</p>
+                      {assignedVics.map((v) => (
+                        <div
+                          key={v.id}
+                          className="w-full text-left px-3 py-2.5 rounded-lg text-sm opacity-50 cursor-not-allowed flex items-center gap-3"
+                        >
+                          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground">
+                            {(v.first_name?.[0] ?? "?").toUpperCase()}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate">{v.first_name || ""} {v.last_name || ""}</p>
+                            {v.email && <p className="text-xs text-muted-foreground truncate">{v.email}</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+
+          <DialogFooterBar>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Abbrechen</Button>
+          </DialogFooterBar>
         </DialogContent>
       </Dialog>
     );
