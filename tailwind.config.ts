@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Space Grotesk", "sans-serif"],
+        sans: ["Manrope", "sans-serif"],
+        display: ["Sora", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
       colors: {
@@ -66,7 +67,7 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-        "2xl": "calc(var(--radius) + 8px)",
+        "2xl": "calc(var(--radius) + 4px)",
       },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
