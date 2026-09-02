@@ -5,32 +5,43 @@ Beim Zuweisen eines Auftrags kann pro Zuweisung aktiviert werden, dass eingehend
 
 ## Ablauf
 
-1. **Checkbox „TAN an Vic-Nummer senden"** im Zuweisen-Popup (Schritt „Identdaten") — nur sichtbar, wenn die Verifikation eine Telefonnummer/Anosim-Nummer nutzt und der Vic eine Handynummer im Profil hat.
+1. **Checkbox „TAN an Vic-Nummer senden"** im Zuweisen-Popup (Schritt „Identdaten") — nur sichtbar, wenn die Verifikation eine Telefonnummer nutzt und der Vic eine Handynummer im Profil hat.
 2. Wert wird auf der Zuweisung gespeichert (`forward_tan_to_vic`).
-3. Ein Cron-Job (Edge Function, minütlich) prüft alle Zuweisungen mit `forward_tan_to_vic = true`, `sms_monitoring_active = true` und Status `zugewiesen` oder `in_bearbeitung`. Sobald der Vic auf „Auftrag abschließen" klickt (Status wechselt zu `in_ueberpruefung`), wird nichts mehr weitergeleitet.
-4. Für jede solche Zuweisung: SMS über Anosim-Proxy laden, neue Nachrichten (seit Zuweisung + noch nicht weitergeleitet) filtern, TAN extrahieren, weiterleiten.
-5. TAN-Erkennung: erste **6-stellige** Zahl im Text. Findet sich keine 6-stellige Zahl (z. B. 12-stelliger Einmal-Code, IBAN-Nachricht), wird **nicht** weitergeleitet — Anzeige im Panel bleibt aber unverändert.
-6. Weitergeleiteter Text: `123456 - Ihr Code für die Verifizierung` (mit dem erkannten Code).
-7. Versand via seven.io mit `from = sevenio_from_name` aus den Einstellungen an `profiles.phone` des Vic.
-8. Weitergeleitete SMS werden pro Zuweisung markiert, damit keine Nachricht doppelt gesendet wird.
+3. Weiterleitung nur solange Status `zugewiesen` oder `in_bearbeitung` UND `sms_monitoring_active = true`. Sobald der Vic auf „Auftrag abschließen" klickt (Status → `in_ueberpruefung`), stoppt die Weiterleitung.
+4. TAN-Erkennung: erste isolierte **6-stellige** Zahl im Text (Regex `/(?<!\d)\d{6}(?!\d)/`). Keine 6-stellige Zahl (z. B. 12-stelliger Einmal-Code, IBAN) → keine Weiterleitung, Anzeige im Panel bleibt.
+5. Weitergeleiteter Text: `123456 - Ihr Code für die Verifizierung`.
+6. Versand via seven.io mit `from = sevenio_from_name` aus den Einstellungen an `profiles.phone`.
+7. Weitergeleitete SMS werden pro Zuweisung markiert (`forwarded_sms`), keine Duplikate.
+
+## Sofort-Weiterleitung (kein Minuten-Delay)
+
+Zwei sich ergänzende Trigger, damit die TAN in Sekunden beim Vic ankommt:
+
+**A) Inline im `anosim-proxy` (Hauptmechanismus).**
+Der Proxy wird schon jetzt vom Vic-Dashboard und vom Admin-Panel im Sekundentakt gepollt, während der Auftrag läuft — genau dann, wenn eine TAN erwartet wird. Direkt nach dem Anosim-Fetch prüft die Function die zugehörige Zuweisung, filtert neue TAN-SMS und ruft seven.io **im selben Request** auf. Ergebnis: Weiterleitung erfolgt innerhalb desselben Poll-Zyklus (~1–3 s).
+
+**B) pg_cron-Fallback alle 15 s.**
+Für den Fall, dass gerade niemand pollt (Panel geschlossen), läuft ein pg_cron-Job alle 15 s, der eine neue Edge Function `forward-tan-sweep` aufruft. Diese iteriert alle aktiven Kandidaten-Zuweisungen und macht dasselbe wie (A).
 
 ## Technische Details
 
 ### DB-Migration
 - `verification_assignments`:
   - `forward_tan_to_vic boolean not null default false`
-  - `forwarded_sms jsonb not null default '[]'::jsonb` (Liste von SMS-Keys `sender|messageDate`, analog zu `hidden_sms`)
+  - `forwarded_sms jsonb not null default '[]'::jsonb`
+- pg_cron + pg_net Extension aktivieren, Job `select cron.schedule('forward-tan-sweep', '15 seconds', $$ select net.http_post(...) $$)` mit Service-Role-Header.
+
+### Edge Functions
+- **`anosim-proxy`** erweitern: optionaler Body-Parameter `assignmentId`. Wenn übergeben, nach dem Anosim-Fetch Forwarding-Logik ausführen (Service-Role-Client, seven.io-Aufruf). Bestehende Aufrufer bleiben kompatibel.
+- **`forward-tan-sweep`** (neu): lädt alle aktiven Kandidaten (`forward_tan_to_vic = true`, `sms_monitoring_active = true`, Status in (`zugewiesen`,`in_bearbeitung`), Telefonnummer + Vic-Handy vorhanden) und ruft für jede die gleiche interne Forwarding-Routine auf. Shared-Modul unter `supabase/functions/_shared/forwardTan.ts`.
+
+### seven.io Call
+`POST https://gateway.seven.io/api/sms` mit Header `X-Api-Key`, Body `to`, `from` (aus `app_settings.sevenio_from_name`), `text = "<code> - Ihr Code für die Verifizierung"`.
 
 ### Frontend
-- `AssignVerificationDialog.tsx`: Checkbox im Identdaten-Step; Wert wird beim Insert mitgegeben.
-- `AdminAssignmentHistory.tsx`: Anzeige/Toggle für „TAN-Weiterleitung" pro Zuweisung (analog zur Monitoring-Toggle).
-
-### Edge Function `sms-forward-tan` (neu, mit Cron)
-- Läuft minütlich (Config in `supabase/config.toml` via `[functions.sms-forward-tan] schedule = "* * * * *"`).
-- Nutzt Service-Role-Client.
-- Lädt Kandidaten-Zuweisungen inkl. `phone_numbers.token/api_url`, `profiles.phone`, `app_settings` (sevenio_api_key, sevenio_from_name).
-- Pro Zuweisung: Anosim-Proxy-Call → neue SMS filtern (`messageDate >= assigned_at`, Key nicht in `forwarded_sms` und nicht in `hidden_sms`) → 6-stelligen Code per Regex `/(?<!\d)\d{6}(?!\d)/` extrahieren → bei Treffer per seven.io senden → Key an `forwarded_sms` anhängen.
-- Nachrichten ohne 6-stelligen Code werden ebenfalls in `forwarded_sms` eingetragen (als „geprüft, nicht weitergeleitet"), damit sie nicht bei jedem Lauf neu evaluiert werden.
+- `AssignVerificationDialog.tsx`: Checkbox im Identdaten-Step, Wert beim Insert mitgeben.
+- `AdminAssignmentHistory.tsx`: Toggle „TAN-Weiterleitung" pro Zuweisung.
+- Dashboard/Admin-Poller übergeben `assignmentId` an `anosim-proxy`, damit Weg (A) greift.
 
 ### seven.io Call
 `POST https://gateway.seven.io/api/sms` mit Header `X-Api-Key`, Body `to`, `from` (aus Einstellungen), `text = "<code> - Ihr Code für die Verifizierung"`.
