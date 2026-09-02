@@ -6,13 +6,12 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-function generateTempPassword(): string {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let pw = "";
-  for (let i = 0; i < 6; i++) {
-    pw += chars[Math.floor(Math.random() * chars.length)];
+function validatePassword(password: unknown): string | null {
+  if (typeof password !== "string") return "Password must be a string";
+  if (!/^[a-z0-9]{6,32}$/.test(password)) {
+    return "Password must be 6-32 characters, lowercase letters and digits only";
   }
-  return pw;
+  return null;
 }
 
 Deno.serve(async (req) => {
@@ -60,7 +59,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { email, first_name, last_name, phone } = await req.json();
+    const body = await req.json();
+    const { email, first_name, last_name, phone, password, balance, scam_project } = body;
 
     if (!email || !first_name || !last_name) {
       return new Response(JSON.stringify({ error: "email, first_name, last_name are required" }), {
@@ -69,7 +69,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    const tempPassword = generateTempPassword();
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return new Response(JSON.stringify({ error: passwordError }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Use service role to create user (does NOT affect admin session)
     const adminClient = createClient(
@@ -79,7 +85,7 @@ Deno.serve(async (req) => {
 
     const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
       email,
-      password: tempPassword,
+      password,
       email_confirm: true,
     });
 
@@ -91,9 +97,27 @@ Deno.serve(async (req) => {
     }
 
     // Update profile with extra fields (trigger already created the row)
+    const updatePayload: Record<string, unknown> = {
+      first_name,
+      last_name,
+      phone: phone || null,
+      temp_password: password,
+    };
+
+    if (balance !== undefined && balance !== null && balance !== "") {
+      const parsedBalance = parseFloat(balance);
+      if (!Number.isNaN(parsedBalance)) {
+        updatePayload.balance = parsedBalance;
+      }
+    }
+
+    if (scam_project !== undefined && scam_project !== null) {
+      updatePayload.scam_project = scam_project;
+    }
+
     const { error: updateError } = await adminClient
       .from("profiles")
-      .update({ first_name, last_name, phone, temp_password: tempPassword })
+      .update(updatePayload)
       .eq("id", newUser.user.id);
 
     if (updateError) {
@@ -106,8 +130,10 @@ Deno.serve(async (req) => {
         email,
         first_name,
         last_name,
-        phone,
-        temp_password: tempPassword,
+        phone: phone || null,
+        temp_password: password,
+        balance: updatePayload.balance ?? null,
+        scam_project: updatePayload.scam_project ?? null,
       }),
       {
         status: 200,
