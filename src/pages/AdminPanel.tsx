@@ -51,6 +51,7 @@ function pageTitle(pathname: string): string {
     "/admin/dokumente": "Dokumente",
     "/admin/telefonnummern": "Telefonnummern",
     "/admin/emails": "Email Vorlagen",
+    "/admin/telegram": "Telegram",
     "/admin/einstellungen": "Einstellungen",
   };
   return map[pathname] ?? "Admin";
