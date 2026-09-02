@@ -423,6 +423,8 @@ export type Database = {
           created_at: string
           created_by: string | null
           field_values: Json
+          forward_tan_to_vic: boolean
+          forwarded_sms: Json
           hidden_sms: Json
           id: string
           phone_number_id: string | null
@@ -435,6 +437,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           field_values?: Json
+          forward_tan_to_vic?: boolean
+          forwarded_sms?: Json
           hidden_sms?: Json
           id?: string
           phone_number_id?: string | null
@@ -447,6 +451,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           field_values?: Json
+          forward_tan_to_vic?: boolean
+          forwarded_sms?: Json
           hidden_sms?: Json
           id?: string
           phone_number_id?: string | null
