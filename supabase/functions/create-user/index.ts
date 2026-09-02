@@ -159,6 +159,10 @@ Deno.serve(async (req) => {
       updatePayload.scam_project = scam_project;
     }
 
+    if (typeof source_lead_id === "string" && source_lead_id) {
+      updatePayload.source_lead_id = source_lead_id;
+    }
+
     const { error: updateError } = await adminClient
       .from("profiles")
       .update(updatePayload)
