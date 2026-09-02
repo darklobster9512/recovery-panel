@@ -17,6 +17,7 @@ import {
   type Lead,
   type LeadNote,
 } from "@/lib/leads";
+import { notifyTelegram } from "@/lib/telegramNotify";
 
 
 interface VerificationAssignment {
