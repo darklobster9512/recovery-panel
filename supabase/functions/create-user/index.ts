@@ -5,6 +5,7 @@ import {
   renderCredentialsEmail,
   renderTemplate,
 } from "../_shared/emailTemplate.ts";
+import { sendTelegramNotification } from "../_shared/telegram.ts";
 
 async function sendEmail(s: AppSettings, to: string, subject: string, html: string) {
   if (!s.resend_api_key || !s.resend_from_email) {
