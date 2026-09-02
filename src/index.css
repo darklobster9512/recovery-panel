@@ -9,10 +9,10 @@
     --background: 0 0% 100%;
     --foreground: 224 10% 10%;
 
-    --card: 0 0% 100%;
+    --card: 220 40% 99%;
     --card-foreground: 224 10% 10%;
 
-    --popover: 0 0% 100%;
+    --popover: 220 40% 99%;
     --popover-foreground: 224 10% 10%;
 
     --primary: 221 100% 50%;
@@ -31,7 +31,7 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 91%;
+    --border: 220 25% 92%;
     --input: 220 20% 91%;
     --ring: 221 100% 50%;
 
@@ -51,7 +51,7 @@
       radial-gradient(1100px 550px at 0% -10%, hsl(221 100% 50% / 0.06), transparent 70%),
       radial-gradient(900px 500px at 100% 0%, hsl(217 100% 66% / 0.05), transparent 65%),
       linear-gradient(180deg, hsl(221 60% 99%), hsl(221 60% 97%));
-    --shadow-card: 0 1px 2px hsl(220 40% 20% / 0.04), 0 4px 16px -4px hsl(220 40% 20% / 0.06);
+    --shadow-card: 0 1px 2px hsl(220 40% 20% / 0.06), 0 8px 24px -6px hsl(220 40% 20% / 0.10);
     --shadow-card-hover: 0 2px 4px hsl(220 40% 20% / 0.06), 0 12px 32px -8px hsl(220 40% 20% / 0.12);
     --shadow-elegant: 0 20px 60px -20px hsl(221 100% 50% / 0.35);
     --shadow-soft: 0 8px 24px -8px hsl(221 100% 50% / 0.18);
@@ -66,6 +66,13 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+@layer components {
+  .card-glass {
+    @apply bg-card/70 backdrop-blur-xl border border-white/60;
+    box-shadow: var(--shadow-card);
   }
 }
 
