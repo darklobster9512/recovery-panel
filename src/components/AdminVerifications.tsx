@@ -215,7 +215,7 @@ export default function AdminVerifications() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {/* Create Card */}
         <Card
-          className="border-dashed border-2 border-gray-300 bg-white hover:border-[hsl(221,100%,50%)] hover:bg-[hsl(221,100%,97%)] cursor-pointer transition-colors flex items-center justify-center min-h-[180px]"
+          className="border-dashed border-2 border-border/60 bg-card/60 hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors flex items-center justify-center min-h-[180px]"
           onClick={openCreate}
         >
           <CardContent className="flex flex-col items-center justify-center p-6">
@@ -284,7 +284,7 @@ export default function AdminVerifications() {
             {/* Type */}
             <div>
               <Label>Typ</Label>
-              <div className="mt-1 inline-flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+              <div className="mt-1 inline-flex rounded-lg border border-border/60 p-1 bg-muted/60">
                 {(["videocall", "postident"] as VerificationType[]).map((t) => (
                   <button
                     key={t}
@@ -292,7 +292,7 @@ export default function AdminVerifications() {
                     onClick={() => setType(t)}
                     className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                       type === t
-                        ? "bg-white text-[hsl(221,100%,50%)] shadow-sm font-medium"
+                        ? "bg-card text-primary shadow-sm font-medium"
                         : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
