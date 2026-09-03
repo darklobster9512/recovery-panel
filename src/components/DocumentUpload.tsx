@@ -82,7 +82,7 @@ function validateIdFile(f: File): string | null {
   return null;
 }
 
-export default function DocumentUpload({ onBack }: { onBack: () => void }) {
+export default function DocumentUpload() {
   const { user } = useAuth();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [selectedAssignment, setSelectedAssignment] = useState<string>("");
