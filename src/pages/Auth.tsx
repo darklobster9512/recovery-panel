@@ -46,7 +46,7 @@ export default function Auth() {
         if (error) throw error;
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(translateAuthError(err));
     } finally {
       setLoading(false);
     }
