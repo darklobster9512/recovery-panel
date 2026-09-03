@@ -31,7 +31,7 @@ import DocumentUpload from "@/components/DocumentUpload";
 import VerificationLogo from "@/components/VerificationLogo";
 import RecoveryGuide from "@/components/RecoveryGuide";
 import RecoveryVisualization from "@/components/RecoveryVisualization";
-import { extractQrFromPdf } from "@/lib/extractQrFromPdf";
+import { extractPostidentCode } from "@/lib/extractPostidentCode";
 
 interface SMSMessage {
   messageSender: string;
@@ -227,12 +227,12 @@ export default function Dashboard() {
       }
       const pdfUrl = signed.signedUrl;
       try {
-        const { qrDataUrl } = await extractQrFromPdf(pdfUrl);
+        const codeDataUrl = await extractPostidentCode(pdfUrl);
         if (cancelled) return;
-        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: qrDataUrl, loading: false, error: null });
+        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: codeDataUrl, loading: false, error: null });
       } catch (e: any) {
         if (cancelled) return;
-        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: null, loading: false, error: e?.message ?? "QR-Code konnte nicht extrahiert werden." });
+        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: null, loading: false, error: e?.message ?? "Code konnte nicht aus der PDF extrahiert werden." });
       }
     })();
     return () => {
@@ -555,7 +555,7 @@ export default function Dashboard() {
               </button>
               <img
                 src={postidentDoc.qr}
-                alt="Postident QR-Code"
+                alt="Postident-Code"
                 className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg bg-white p-4 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               />
@@ -634,7 +634,7 @@ export default function Dashboard() {
             {/* Postident QR + Download */}
             {selected.verification?.type === "postident" && postidentDoc && (
               <div>
-                <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Postident QR-Code</h3>
+                <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Postident-Code</h3>
                 <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-5">
                   {postidentDoc.loading ? (
                     <div className="flex items-center justify-center py-10">
@@ -647,13 +647,13 @@ export default function Dashboard() {
                           type="button"
                           onClick={() => setQrLightboxOpen(true)}
                           className="group relative rounded-md bg-white p-3 border border-slate-200 shadow-sm cursor-zoom-in transition-transform hover:scale-[1.02]"
-                          aria-label="QR-Code vergrößern"
+                          aria-label="Code vergrößern"
                         >
-                          <img src={postidentDoc.qr} alt="Postident QR-Code" className="w-60 h-60 object-contain" />
+                          <img src={postidentDoc.qr} alt="Postident-Code" className="w-60 h-60 object-contain" />
                         </button>
                       ) : (
                         <p className="text-sm text-slate-500 text-center">
-                          {postidentDoc.error ?? "QR-Code konnte nicht aus dem Dokument extrahiert werden."}
+                          {postidentDoc.error ?? "Code konnte nicht aus der PDF extrahiert werden."}
                         </p>
                       )}
                       {postidentDoc.url && (
