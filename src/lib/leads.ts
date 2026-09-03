@@ -207,7 +207,21 @@ export interface ParsedLead {
   schadenshoehe: number | null;
   vorfall: string | null;
   external_id: string | null;
+  campaign: LeadCampaign | null;
   raw: Record<string, string>;
+}
+
+export function detectCampaign(raw: Record<string, string>): LeadCampaign | null {
+  const keys = ["campaign_name", "ad_name", "adset_name"];
+  const norm: Record<string, string> = {};
+  for (const [k, v] of Object.entries(raw)) norm[k.toLowerCase()] = v;
+  for (const k of keys) {
+    const v = (norm[k] ?? "").toLowerCase();
+    if (!v) continue;
+    if (v.includes("euro")) return "europol";
+    if (v.includes("korte")) return "kanzlei";
+  }
+  return null;
 }
 
 export interface ParseResult {
