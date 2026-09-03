@@ -265,7 +265,6 @@ export default function Dashboard() {
     );
   }
 
-  const showAssignments = !showRecovery && !showGuide && !showDocUpload && !selected;
   const activeView: "assignments" | "recovery" | "guide" | "upload" | "detail" = selected
     ? "detail"
     : showRecovery
