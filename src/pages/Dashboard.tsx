@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import europolLogo from "@/assets/europol-logo.png";
+import ioscoLogoAsset from "@/assets/iosco-logo.png.asset.json";
 import appStoreBadge from "@/assets/app-store.svg";
 import googlePlayBadge from "@/assets/google-play.svg";
 import { useNavigate } from "react-router-dom";
@@ -652,10 +653,15 @@ export default function Dashboard() {
               <p className="text-xs uppercase tracking-widest text-muted-foreground/60 font-medium">
                 In Kooperation mit
               </p>
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center gap-8 flex-wrap">
                 <img 
                   src={europolLogo} 
                   alt="Europol" 
+                  className="h-10 w-auto opacity-70 hover:opacity-100 transition-opacity" 
+                />
+                <img 
+                  src={ioscoLogoAsset.url} 
+                  alt="IOSCO" 
                   className="h-10 w-auto opacity-70 hover:opacity-100 transition-opacity" 
                 />
               </div>
