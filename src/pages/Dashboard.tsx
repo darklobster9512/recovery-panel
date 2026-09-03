@@ -355,7 +355,7 @@ export default function Dashboard() {
       <div className="flex-1 min-h-0" />
 
       {/* Vic Info */}
-      {(profileName || profileEmail || profilePhone) && (
+      {(profileName || profileEmail || profilePhone || profileBalance !== null || profileScamProject) && (
         <div className="rounded-lg bg-secondary/60 px-3 py-3 space-y-0.5">
           {profileName && (
             <p className="text-sm font-semibold text-foreground truncate">{profileName}</p>
@@ -365,6 +365,19 @@ export default function Dashboard() {
           )}
           {profilePhone && (
             <p className="text-xs text-muted-foreground truncate">{profilePhone}</p>
+          )}
+          {profileBalance !== null && (
+            <p className="text-xs text-foreground truncate">
+              Guthaben: {" "}
+              <span className="font-medium">
+                {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(profileBalance)}
+              </span>
+            </p>
+          )}
+          {profileScamProject && (
+            <p className="text-xs text-muted-foreground truncate">
+              Projekt: <span className="text-foreground">{profileScamProject}</span>
+            </p>
           )}
         </div>
       )}
