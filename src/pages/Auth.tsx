@@ -78,10 +78,10 @@ export default function Auth() {
         <div className="w-full max-w-md space-y-8 flex-1 flex flex-col justify-center">
           {/* Logo */}
           <div className="mb-10">
-            <h2 className="text-2xl font-bold tracking-tight text-[#0b1f3a]">
+            <span className="font-serif text-xl tracking-tight text-[#0b1f3a] block">
               Korte <span className="text-[#c9a24a]">&amp;</span> Partner
-            </h2>
-            <p className="text-xs text-slate-500 tracking-[0.15em] uppercase mt-0.5">Rechtsanwälte</p>
+            </span>
+            <p className="mt-1 text-[11px] uppercase tracking-widest text-slate-500">Rechtsanwaltskanzlei</p>
           </div>
 
           <div>
@@ -180,7 +180,7 @@ export default function Auth() {
           {/* Cooperation logos */}
           <div className="pt-8 mt-auto">
             <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 text-center mb-4">In Kooperation mit</p>
-            <div className="flex items-center justify-center gap-6">
+            <div className="flex flex-col items-center justify-center gap-3">
               <img
                 src={ioscoLogoAsset.url}
                 alt="IOSCO"
