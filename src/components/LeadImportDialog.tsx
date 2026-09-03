@@ -64,7 +64,57 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
   const handleImport = async () => {
     if (!result || result.leads.length === 0) return;
     setImporting(true);
-    const rows = result.leads.map((l) => ({
+
+    // 1. In-file dedup nach normalisierter E-Mail
+    const seen = new Set<string>();
+    let dupInFile = 0;
+    const uniqueLeads = result.leads.filter((l) => {
+      const key = l.email?.trim().toLowerCase();
+      if (!key) return true;
+      if (seen.has(key)) {
+        dupInFile++;
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+
+    // 2. Bereits vorhandene E-Mails in DB abfragen
+    const emails = Array.from(seen);
+    let existing = new Set<string>();
+    if (emails.length > 0) {
+      const { data: existingRows, error: selErr } = await supabase
+        .from("leads")
+        .select("email")
+        .in("email", emails);
+      if (selErr) {
+        setImporting(false);
+        toast({ title: "Duplikat-Prüfung fehlgeschlagen", description: selErr.message, variant: "destructive" });
+        return;
+      }
+      existing = new Set(
+        (existingRows ?? [])
+          .map((r) => r.email?.trim().toLowerCase())
+          .filter((e): e is string => !!e),
+      );
+    }
+
+    const toInsert = uniqueLeads.filter((l) => {
+      const key = l.email?.trim().toLowerCase();
+      return !key || !existing.has(key);
+    });
+    const dupInDb = uniqueLeads.length - toInsert.length;
+
+    if (toInsert.length === 0) {
+      setImporting(false);
+      toast({
+        title: "Keine neuen Leads",
+        description: `Alle ${result.leads.length} Einträge sind Duplikate (${dupInDb} bereits vorhanden, ${dupInFile} in der Datei).`,
+      });
+      return;
+    }
+
+    const rows = toInsert.map((l) => ({
       full_name: l.full_name,
       email: l.email,
       phone_number: l.phone_number,
@@ -88,11 +138,15 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
       return;
     }
     const inserted = data?.length ?? 0;
+    const skipped = dupInDb + dupInFile + (toInsert.length - inserted);
     toast({
       title: "Import abgeschlossen",
-      description: `${inserted} neue Leads importiert${
-        result.leads.length - inserted > 0 ? `, ${result.leads.length - inserted} Duplikate übersprungen` : ""
-      }.`,
+      description:
+        `${inserted} neue Leads importiert` +
+        (skipped > 0
+          ? `, ${skipped} Duplikate übersprungen (${dupInDb} per E-Mail, ${dupInFile} in der Datei)`
+          : "") +
+        ".",
     });
     reset();
     onOpenChange(false);
