@@ -94,12 +94,22 @@ export default function Dashboard() {
   const [showRecovery, setShowRecovery] = useState(false);
 
   const userIdRef = user?.id;
+  const hasAutoOpenedGuide = useRef(false);
+
   useEffect(() => {
     if (userIdRef) {
       loadAssignments();
       loadProfile();
     }
   }, [userIdRef]);
+
+  // Wenn keine Aufträge vorhanden sind, direkt die Anleitung anzeigen
+  useEffect(() => {
+    if (!loading && assignments.length === 0 && !hasAutoOpenedGuide.current && activeView === "assignments") {
+      setShowGuide(true);
+      hasAutoOpenedGuide.current = true;
+    }
+  }, [loading, assignments.length, activeView]);
 
   const loadProfile = async () => {
     const { data } = await supabase
