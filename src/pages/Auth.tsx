@@ -197,7 +197,7 @@ export default function Auth() {
       </div>
 
       {/* Right — Trust Animation */}
-      <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-gradient-to-br from-[hsl(221,100%,50%)] to-[hsl(221,100%,35%)]">
+      <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0b1f3a] to-[#174ea6]">
         {/* Dot grid pattern */}
         <div
           className="absolute inset-0 opacity-10"
