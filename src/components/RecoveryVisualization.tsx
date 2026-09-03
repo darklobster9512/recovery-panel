@@ -139,12 +139,12 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
   const current = PHASES[phase - 1];
 
   return (
-    <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 animate-in fade-in slide-in-from-right-4 duration-300">
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl sm:text-4xl tracking-tight text-[#0b1f3a] mb-2">
+    <main className="max-w-6xl mx-auto w-full px-3 sm:px-6 py-4 sm:py-8 animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="mb-5 sm:mb-8">
+        <h1 className="font-serif text-xl sm:text-3xl md:text-4xl tracking-tight text-[#0b1f3a] mb-2">
           Nachverfolgung Ihrer Kryptowerte
         </h1>
-        <p className="text-slate-600 max-w-2xl">
+        <p className="text-sm sm:text-base text-slate-600 max-w-2xl">
           So gehen wir vor: eine visuelle Darstellung des Weges Ihrer Coins –
           vom Vorfall bis zur Identifikation des Täters und der eingeleiteten Rückführung.
         </p>
@@ -283,7 +283,7 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
         </div>
 
         {/* Stepper */}
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 px-4 sm:px-6 py-4 border-t border-slate-200">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 px-3 sm:px-6 py-3 sm:py-4 border-t border-slate-200">
           {PHASES.map((p, i) => {
             const idx = i + 1;
             const active = phase === idx;
@@ -327,7 +327,7 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
       </div>
 
       {/* Info card */}
-      <div className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="mt-6 sm:mt-8 rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
         <h2 className="font-serif text-xl text-[#0b1f3a] mb-2">Wie wir Ihre Werte zurückholen</h2>
         <p className="text-sm text-slate-600 leading-relaxed">
           Jede Transaktion auf der Blockchain ist dauerhaft nachvollziehbar. In enger Zusammenarbeit

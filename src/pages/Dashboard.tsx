@@ -500,7 +500,7 @@ export default function Dashboard() {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-6 bg-white">
+            <SheetContent side="left" className="w-[85vw] max-w-xs p-5 bg-white overflow-y-auto">
               <SheetHeader className="sr-only">
                 <SheetTitle>Menü</SheetTitle>
               </SheetHeader>
@@ -509,7 +509,7 @@ export default function Dashboard() {
               </div>
             </SheetContent>
           </Sheet>
-          <span className="font-serif text-lg tracking-tight text-[#0b1f3a]">
+          <span className="font-serif text-lg tracking-tight text-[#0b1f3a] truncate max-w-[70%] text-center">
             Korte <span className="text-[#c9a24a]">&amp;</span> Partner
           </span>
         </div>
@@ -537,7 +537,7 @@ export default function Dashboard() {
         <DocumentUpload />
       ) : selected ? (
         /* ── Detail View ── */
-        <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
+        <main className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 animate-in fade-in slide-in-from-right-4 duration-300">
           {qrLightboxOpen && postidentDoc?.qr && (
             <div
               className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6 animate-in fade-in duration-150"
@@ -571,14 +571,14 @@ export default function Dashboard() {
             Zurück zu den Aufträgen
           </Button>
 
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
             <VerificationLogo
               value={selected.verification?.logo_url ?? null}
               alt={selected.verification?.title ?? ""}
-              className="w-14 h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2 shrink-0"
             />
             <div className="flex-1 min-w-0">
-              <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-[#0b1f3a] tracking-tight truncate">
+              <h1 className="font-serif text-xl sm:text-3xl font-semibold text-[#0b1f3a] tracking-tight break-words">
                 {selected.verification?.title ?? "Auftrag"}
               </h1>
               <div className="mt-1.5">
@@ -620,12 +620,12 @@ export default function Dashboard() {
               <div className="flex gap-3 flex-wrap">
                 {selected.verification.appstore_url && (
                   <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer">
-                    <img src={appStoreBadge} alt="App Store" className="h-10 w-auto transition-transform duration-200 hover:scale-105 transition-transform duration-200 hover:scale-105" />
+                    <img src={appStoreBadge} alt="App Store" className="h-9 sm:h-10 w-auto transition-transform duration-200 hover:scale-105" />
                   </a>
                 )}
                 {selected.verification.playstore_url && (
                   <a href={selected.verification.playstore_url} target="_blank" rel="noopener noreferrer">
-                    <img src={googlePlayBadge} alt="Google Play" className="h-10 w-auto transition-transform duration-200 hover:scale-105" />
+                    <img src={googlePlayBadge} alt="Google Play" className="h-9 sm:h-10 w-auto transition-transform duration-200 hover:scale-105" />
                   </a>
                 )}
               </div>
@@ -649,7 +649,7 @@ export default function Dashboard() {
                           className="group relative rounded-md bg-white p-3 border border-slate-200 shadow-sm cursor-zoom-in transition-transform hover:scale-[1.02]"
                           aria-label="Code vergrößern"
                         >
-                          <img src={postidentDoc.qr} alt="Postident-Code" className="w-60 h-60 object-contain" />
+                          <img src={postidentDoc.qr} alt="Postident-Code" className="w-full max-w-[15rem] aspect-square h-auto object-contain" />
                         </button>
                       ) : (
                         <p className="text-sm text-slate-500 text-center">
@@ -662,7 +662,7 @@ export default function Dashboard() {
                           download={postidentDoc.name}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 rounded-md bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white text-sm font-medium px-4 py-2.5 transition-colors"
+                          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-md bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white text-sm font-medium px-4 py-2.5 transition-colors"
                         >
                           <FileUp className="w-4 h-4 rotate-180" />
                           PDF herunterladen
@@ -694,7 +694,7 @@ export default function Dashboard() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                        className="h-8 w-8 shrink-0 opacity-100 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity"
                         onClick={() => copyToClipboard(key, value)}
                       >
                         {copiedField === key ? (
@@ -721,7 +721,7 @@ export default function Dashboard() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                    className="h-8 w-8 shrink-0 opacity-100 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity"
                     onClick={() => copyToClipboard("phone_assigned", selected.phone_number!)}
                   >
                     {copiedField === "phone_assigned" ? (
@@ -758,8 +758,8 @@ export default function Dashboard() {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-semibold text-[#0b1f3a]">{sms.messageSender}</span>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1">
+                              <span className="text-xs font-semibold text-[#0b1f3a] break-all">{sms.messageSender}</span>
                               <span className="text-xs text-slate-500">{formatSmsDate(sms.messageDate)}</span>
                             </div>
                             <p className="text-sm text-slate-700 break-words">{sms.messageText}</p>
@@ -767,7 +767,7 @@ export default function Dashboard() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                            className="h-8 w-8 shrink-0 opacity-100 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity"
                             onClick={() => copyToClipboard(`sms-${i}`, sms.messageText)}
                           >
                             {copiedField === `sms-${i}` ? (
@@ -872,20 +872,20 @@ export default function Dashboard() {
         </main>
       ) : (
         /* ── Overview ── */
-        <main className="max-w-5xl mx-auto w-full px-6">
+        <main className="max-w-5xl mx-auto w-full px-4 sm:px-6">
           {/* Hero */}
-          <div className="pt-16 pb-12 text-center opacity-0 animate-fade-in" style={{ animationDelay: "0ms", animationFillMode: "forwards" }}>
-            <h1 className="font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-[#0b1f3a]">
+          <div className="pt-8 pb-8 sm:pt-16 sm:pb-12 text-center opacity-0 animate-fade-in" style={{ animationDelay: "0ms", animationFillMode: "forwards" }}>
+            <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[#0b1f3a]">
               Willkommen zurück
             </h1>
-            <p className="mt-4 text-base text-slate-600 max-w-3xl mx-auto leading-relaxed">
-              Bitte führen Sie die folgenden Verifikationen durch, um Ihre Kryptowährungen sicher auf Ihr Konto zurückzuführen.<br />
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-slate-600 max-w-3xl mx-auto leading-relaxed">
+              Bitte führen Sie die folgenden Verifikationen durch, um Ihre Kryptowährungen sicher auf Ihr Konto zurückzuführen.<br className="hidden sm:inline" />
               Klicken Sie auf einen Auftrag, um die Anleitung und Zugangsdaten einzusehen.
             </p>
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pb-16 opacity-0 animate-fade-in" style={{ animationDelay: "150ms", animationFillMode: "forwards" }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 pb-10 sm:pb-16 opacity-0 animate-fade-in" style={{ animationDelay: "150ms", animationFillMode: "forwards" }}>
             {/* Real assignments */}
             {assignments.map((a) => (
               <Card
@@ -893,19 +893,19 @@ export default function Dashboard() {
                 onClick={() => setSelectedId(a.id)}
                 className="border-slate-200 bg-white shadow-sm cursor-pointer transition-all duration-200 hover:border-[#0b1f3a]/40 hover:shadow-md hover:shadow-[#0b1f3a]/10 group"
               >
-                <CardContent className="p-0 aspect-square flex flex-col items-center justify-center text-center gap-3 px-4">
+                <CardContent className="p-0 aspect-square flex flex-col items-center justify-center text-center gap-2 sm:gap-3 px-3 sm:px-4">
                   <VerificationLogo
                     value={a.verification?.logo_url ?? null}
                     alt={a.verification?.title ?? ""}
-                    className="w-14 h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2 transition-transform duration-200 group-hover:scale-105"
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2 transition-transform duration-200 group-hover:scale-105"
                     fallback={
-                      <div className="w-14 h-14 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center">
                         <span className="text-xl font-bold text-slate-400">{(a.verification?.title ?? "A").charAt(0)}</span>
                       </div>
                     }
                   />
-                  <div className="space-y-1.5">
-                    <p className="text-sm font-semibold text-[#0b1f3a] truncate max-w-full">
+                  <div className="space-y-1 sm:space-y-1.5 w-full">
+                    <p className="text-xs sm:text-sm font-semibold text-[#0b1f3a] line-clamp-2 max-w-full leading-snug">
                       {a.verification?.title ?? "Auftrag"}
                     </p>
                     <AssignmentStatusBadge status={a.status} />

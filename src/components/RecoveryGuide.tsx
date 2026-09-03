@@ -24,19 +24,19 @@ const STEPS = [
 
 export default function RecoveryGuide() {
   return (
-    <main className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 animate-in fade-in slide-in-from-right-4 duration-300">
+    <main className="max-w-5xl mx-auto w-full px-3 sm:px-6 py-4 sm:py-8 animate-in fade-in slide-in-from-right-4 duration-300">
       <div className="rounded-2xl overflow-hidden border border-border bg-white shadow-sm">
         {/* Header (Navy) */}
-        <div className="relative bg-[#0b1f3a] px-6 sm:px-12 pt-10 pb-8 text-center">
-          <p className="font-serif text-4xl sm:text-5xl tracking-wide text-white">
+        <div className="relative bg-[#0b1f3a] px-4 sm:px-12 pt-6 sm:pt-10 pb-5 sm:pb-8 text-center">
+          <p className="font-serif text-2xl sm:text-5xl tracking-wide text-white">
             Korte <span className="text-white/50">&amp;</span>{" "}
             <span className="text-white/80">Partner</span>
           </p>
-          <div className="mx-auto mt-6 h-px w-full bg-gradient-to-r from-transparent via-[#c9a24a]/70 to-transparent" />
+          <div className="mx-auto mt-4 sm:mt-6 h-px w-full bg-gradient-to-r from-transparent via-[#c9a24a]/70 to-transparent" />
         </div>
 
         {/* Body */}
-        <div className="px-6 sm:px-12 py-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="px-4 sm:px-12 py-6 sm:py-10 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
           {/* Left: Steps */}
           <div className="md:col-span-2 space-y-8">
             <div>
@@ -134,7 +134,7 @@ export default function RecoveryGuide() {
         </div>
 
         {/* Footer */}
-        <div className="bg-[#0b1f3a] text-white/85 px-6 sm:px-12 py-6 grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs">
+        <div className="bg-[#0b1f3a] text-white/85 px-4 sm:px-12 py-5 sm:py-6 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-xs">
           <div>
             <p className="font-semibold text-white mb-1">Geschäftsführung</p>
             <p>Dr. Thomas Korte</p>
