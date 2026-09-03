@@ -218,13 +218,13 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
                   {active && (
                     <g
                       className="animate-in fade-in duration-500"
-                      transform={`translate(${(a.x + b.x) / 2}, ${(a.y + b.y) / 2 - 8})`}
+                      transform={`translate(${(a.x + b.x) / 2}, ${(a.y + b.y) / 2 - 7})`}
                     >
-                      <rect x={-38} y={-11} width={76} height={22} rx={4} fill="white" stroke="hsl(220 15% 88%)" />
-                      <text x={0} y={-1} textAnchor="middle" fontSize="9" fill="hsl(220 15% 30%)" fontWeight={600}>
+                      <rect x={-34} y={-10} width={68} height={20} rx={4} fill="white" stroke="hsl(220 15% 88%)" />
+                      <text x={0} y={-1} textAnchor="middle" fontSize="8.5" fill="hsl(220 15% 30%)" fontWeight={600}>
                         {e.amount}
                       </text>
-                      <text x={0} y={9} textAnchor="middle" fontSize="8" fill="hsl(220 10% 50%)">
+                      <text x={0} y={8} textAnchor="middle" fontSize="7.5" fill="hsl(220 10% 50%)">
                         {e.date}
                       </text>
                     </g>
