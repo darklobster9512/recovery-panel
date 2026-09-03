@@ -282,6 +282,14 @@ export default function Dashboard() {
     ? "upload"
     : "assignments";
 
+  // Wenn keine Aufträge vorhanden sind, direkt die Anleitung anzeigen
+  useEffect(() => {
+    if (!loading && assignments.length === 0 && !hasAutoOpenedGuide.current && activeView === "assignments") {
+      setShowGuide(true);
+      hasAutoOpenedGuide.current = true;
+    }
+  }, [loading, assignments.length, activeView]);
+
   const goTo = (view: "assignments" | "recovery" | "guide" | "upload") => {
     setSelectedId(null);
     setShowRecovery(view === "recovery");
