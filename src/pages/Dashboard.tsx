@@ -264,14 +264,6 @@ export default function Dashboard() {
     return result;
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
-      </div>
-    );
-  }
-
   const activeView: "assignments" | "recovery" | "guide" | "upload" | "detail" = selected
     ? "detail"
     : showRecovery
@@ -289,6 +281,14 @@ export default function Dashboard() {
       hasAutoOpenedGuide.current = true;
     }
   }, [loading, assignments.length, activeView]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+      </div>
+    );
+  }
 
   const goTo = (view: "assignments" | "recovery" | "guide" | "upload") => {
     setSelectedId(null);
