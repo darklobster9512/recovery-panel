@@ -538,6 +538,29 @@ export default function Dashboard() {
       ) : selected ? (
         /* ── Detail View ── */
         <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
+          {qrLightboxOpen && postidentDoc?.qr && (
+            <div
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6 animate-in fade-in duration-150"
+              onClick={() => setQrLightboxOpen(false)}
+              role="dialog"
+              aria-modal="true"
+            >
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setQrLightboxOpen(false); }}
+                className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 text-white p-2 transition-colors"
+                aria-label="Schließen"
+              >
+                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+              <img
+                src={postidentDoc.qr}
+                alt="Postident QR-Code"
+                className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg bg-white p-4 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
           <Button
             variant="ghost"
             size="sm"
