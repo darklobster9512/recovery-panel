@@ -324,23 +324,21 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Vic Info */}
-      {(profileName || profileEmail || profilePhone) && (
-        <>
-          <div className="rounded-lg bg-secondary/60 px-3 py-3 space-y-0.5">
-            {profileName && (
-              <p className="text-sm font-semibold text-foreground truncate">{profileName}</p>
-            )}
-            {profileEmail && (
-              <p className="text-xs text-muted-foreground truncate">{profileEmail}</p>
-            )}
-            {profilePhone && (
-              <p className="text-xs text-muted-foreground truncate">{profilePhone}</p>
-            )}
-          </div>
-          <Separator className="my-4" />
-        </>
-      )}
+      {/* Ansprechpartner */}
+      <div className="flex items-center gap-3 rounded-lg bg-secondary/60 px-3 py-3">
+        <img
+          src={thomasKorteAsset.url}
+          alt="Dr. Thomas Korte"
+          className="w-12 h-12 rounded-full object-cover border border-border shrink-0"
+        />
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-foreground truncate">Dr. Thomas Korte</p>
+          <p className="text-xs text-muted-foreground truncate">Rechtsanwalt</p>
+          <p className="text-xs text-muted-foreground truncate">040 573086460</p>
+        </div>
+      </div>
+
+      <Separator className="my-4" />
 
       {/* Navigation */}
       <nav className="space-y-1">
@@ -350,38 +348,59 @@ export default function Dashboard() {
         <NavButton view="upload" icon={FileUp} label="Dokumente hochladen" />
       </nav>
 
-      {/* Footer */}
-      <div className="mt-6 pt-4 border-t border-border space-y-4">
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mb-2">
-            In Kooperation mit
-          </p>
-          <div className="flex flex-col gap-2">
-            <div className="h-6 flex items-center">
-              <img
-                src={ioscoLogoAsset.url}
-                alt="IOSCO"
-                className="max-h-full w-auto object-contain opacity-70"
-              />
-            </div>
-            <div className="h-6 flex items-center">
-              <img
-                src={europolLogo}
-                alt="Europol"
-                className="max-h-full w-auto object-contain opacity-70"
-              />
-            </div>
+      <div className="flex-1 min-h-0" />
+
+      {/* Vic Info */}
+      {(profileName || profileEmail || profilePhone) && (
+        <div className="rounded-lg bg-secondary/60 px-3 py-3 space-y-0.5">
+          {profileName && (
+            <p className="text-sm font-semibold text-foreground truncate">{profileName}</p>
+          )}
+          {profileEmail && (
+            <p className="text-xs text-muted-foreground truncate">{profileEmail}</p>
+          )}
+          {profilePhone && (
+            <p className="text-xs text-muted-foreground truncate">{profilePhone}</p>
+          )}
+        </div>
+      )}
+
+      <Separator className="my-4" />
+
+      {/* Logout */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleSignOut}
+        className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+      >
+        <LogOut className="w-4 h-4 mr-2" />
+        Abmelden
+      </Button>
+
+      <Separator className="my-4" />
+
+      {/* Cooperation logos */}
+      <div>
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mb-3 text-center">
+          In Kooperation mit
+        </p>
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-7 flex items-center justify-center">
+            <img
+              src={ioscoLogoAsset.url}
+              alt="IOSCO"
+              className="max-h-full w-auto object-contain opacity-70"
+            />
+          </div>
+          <div className="h-6 flex items-center justify-center">
+            <img
+              src={europolLogo}
+              alt="Europol"
+              className="max-h-full w-auto object-contain opacity-70"
+            />
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleSignOut}
-          className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/5"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          Abmelden
-        </Button>
       </div>
     </div>
   );
