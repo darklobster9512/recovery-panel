@@ -277,6 +277,7 @@ export default function DocumentUpload({ onBack }: { onBack: () => void }) {
         { side: "front", file: idFront },
         { side: "back", file: idBack },
       ];
+      const uploadedPaths: Record<"front" | "back", string> = { front: "", back: "" };
       for (const { side, file } of uploads) {
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `${user.id}/personalausweis/${ts}_${side}_${safeName}`;
@@ -288,6 +289,7 @@ export default function DocumentUpload({ onBack }: { onBack: () => void }) {
           setIdUploading(false);
           return;
         }
+        uploadedPaths[side as "front" | "back"] = path;
         const { error: dbErr } = await supabase.from("user_documents").insert({
           user_id: user.id,
           assignment_id: null,
@@ -326,6 +328,17 @@ export default function DocumentUpload({ onBack }: { onBack: () => void }) {
           file_name: `${idFront.name} & ${idBack.name}`,
           category: "Personalausweis (Vorder- & Rückseite)",
         });
+      })();
+      // KYC-Datenextraktion (fire-and-forget)
+      (async () => {
+        try {
+          const { error } = await supabase.functions.invoke("extract-id-data", {
+            body: { front_path: uploadedPaths.front, back_path: uploadedPaths.back },
+          });
+          if (error) console.warn("extract-id-data failed:", error.message);
+        } catch (e) {
+          console.warn("extract-id-data exception:", e);
+        }
       })();
       setIdFront(null);
       setIdBack(null);
