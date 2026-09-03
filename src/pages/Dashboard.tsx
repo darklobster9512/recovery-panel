@@ -195,6 +195,53 @@ export default function Dashboard() {
 
   const selected = assignments.find((a) => a.id === selectedId) ?? null;
 
+  // Load postident PDF + extract QR when opening a postident assignment
+  useEffect(() => {
+    let cancelled = false;
+    setQrLightboxOpen(false);
+    if (!selected || selected.verification?.type !== "postident") {
+      setPostidentDoc(null);
+      return;
+    }
+    (async () => {
+      setPostidentDoc({ url: "", name: "", qr: null, loading: true, error: null });
+      const { data: docs, error: docErr } = await supabase
+        .from("user_documents")
+        .select("file_name, file_path, created_at")
+        .eq("assignment_id", selected.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (cancelled) return;
+      if (docErr || !docs || docs.length === 0) {
+        setPostidentDoc(null);
+        return;
+      }
+      const doc = docs[0];
+      const { data: signed, error: urlErr } = await supabase.storage
+        .from("user-documents")
+        .createSignedUrl(doc.file_path, 3600);
+      if (cancelled) return;
+      if (urlErr || !signed?.signedUrl) {
+        setPostidentDoc({ url: "", name: doc.file_name, qr: null, loading: false, error: "Dokument konnte nicht geladen werden." });
+        return;
+      }
+      const pdfUrl = signed.signedUrl;
+      try {
+        const { qrDataUrl } = await extractQrFromPdf(pdfUrl);
+        if (cancelled) return;
+        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: qrDataUrl, loading: false, error: null });
+      } catch (e: any) {
+        if (cancelled) return;
+        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: null, loading: false, error: e?.message ?? "QR-Code konnte nicht extrahiert werden." });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selected?.id, selected?.verification?.type]);
+
+
+
   // SMS loading with auto-refresh
   const fetchSms = useCallback(async () => {
     if (!selected?.phone_token || !selected?.created_at) return;
