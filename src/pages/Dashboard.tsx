@@ -22,6 +22,7 @@ import {
 
 import europolLogo from "@/assets/europol-logo.png";
 import ioscoLogoAsset from "@/assets/iosco-logo.png.asset.json";
+import thomasKorteAsset from "@/assets/thomas-korte.png.asset.json";
 import appStoreBadge from "@/assets/app-store.svg";
 import googlePlayBadge from "@/assets/google-play.svg";
 import { useNavigate } from "react-router-dom";
