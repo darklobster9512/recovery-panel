@@ -303,7 +303,7 @@ export default function Dashboard() {
         onClick={() => goTo(view)}
         className={`relative flex items-center gap-3 w-full rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
           isActive
-            ? "bg-primary/10 text-primary"
+            ? "bg-[#0b1f3a]/10 text-[#0b1f3a]"
             : "text-foreground/70 hover:bg-secondary hover:text-foreground"
         }`}
       >
@@ -507,7 +507,7 @@ export default function Dashboard() {
                   <ol className="space-y-3">
                     {steps.map((step, i) => (
                       <li key={i} className="flex gap-3 items-start">
-                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center mt-0.5">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0b1f3a]/10 text-[#0b1f3a] text-xs font-semibold flex items-center justify-center mt-0.5">
                           {i + 1}
                         </span>
                         <span className="text-sm text-foreground/80 leading-relaxed">{step}</span>
@@ -615,7 +615,7 @@ export default function Dashboard() {
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-medium text-primary">{sms.messageSender}</span>
+                              <span className="text-xs font-medium text-[#0b1f3a]">{sms.messageSender}</span>
                               <span className="text-xs text-muted-foreground">{formatSmsDate(sms.messageDate)}</span>
                             </div>
                             <p className="text-sm text-foreground break-words">{sms.messageText}</p>
@@ -747,7 +747,7 @@ export default function Dashboard() {
               <Card
                 key={a.id}
                 onClick={() => setSelectedId(a.id)}
-                className="border-border bg-card shadow-none cursor-pointer transition-all duration-200 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 group"
+                className="border-border bg-card shadow-none cursor-pointer transition-all duration-200 hover:border-[#0b1f3a]/30 hover:shadow-lg hover:shadow-[#0b1f3a]/10 group"
               >
                 <CardContent className="p-0 aspect-square flex flex-col items-center justify-center text-center gap-3 px-4">
                   <VerificationLogo

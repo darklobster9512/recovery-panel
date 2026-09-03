@@ -373,8 +373,8 @@ export default function DocumentUpload() {
     <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
       {/* Security Header */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
-          <Shield className="w-8 h-8 text-primary" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#0b1f3a]/10 mb-4">
+          <Shield className="w-8 h-8 text-[#0b1f3a]" />
         </div>
         <h1 className="text-2xl font-bold text-foreground tracking-tight">
           Sichere Dokumentenübertragung
@@ -391,7 +391,7 @@ export default function DocumentUpload() {
             key={badge.label}
             className="flex flex-col items-center gap-2 rounded-xl border border-border bg-secondary/30 px-3 py-4 text-center"
           >
-            <badge.icon className="w-5 h-5 text-primary" />
+            <badge.icon className="w-5 h-5 text-[#0b1f3a]" />
             <span className="text-xs font-medium text-foreground">{badge.label}</span>
           </div>
         ))}
@@ -407,7 +407,7 @@ export default function DocumentUpload() {
           {showIdSection && (
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
-                <IdCard className="w-4 h-4 text-primary" />
+                <IdCard className="w-4 h-4 text-[#0b1f3a]" />
                 <label className="text-sm font-medium text-foreground">
                   Personalausweis hochladen
                 </label>
@@ -423,7 +423,7 @@ export default function DocumentUpload() {
                 ].map(({ label, file, ref, setter }) => (
                   <div
                     key={label}
-                    className="rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-colors px-4 py-6 text-center cursor-pointer"
+                    className="rounded-xl border-2 border-dashed border-border hover:border-[#0b1f3a]/50 transition-colors px-4 py-6 text-center cursor-pointer"
                     onClick={() => ref.current?.click()}
                   >
                     <input
@@ -446,7 +446,7 @@ export default function DocumentUpload() {
                     />
                     {file ? (
                       <>
-                        <FileCheck className="w-6 h-6 text-primary mx-auto mb-2" />
+                        <FileCheck className="w-6 h-6 text-[#0b1f3a] mx-auto mb-2" />
                         <p className="text-xs font-medium text-foreground truncate">{file.name}</p>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
                           {formatFileSize(file.size)}
@@ -529,8 +529,8 @@ export default function DocumentUpload() {
               <div
                 className={`relative rounded-xl border-2 border-dashed transition-colors px-6 py-10 text-center cursor-pointer mb-4 ${
                   dragOver
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
+                    ? "border-[#0b1f3a] bg-[#0b1f3a]/5"
+                    : "border-border hover:border-[#0b1f3a]/50"
                 }`}
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={(e) => {
@@ -616,7 +616,7 @@ export default function DocumentUpload() {
           {selectedAssignment && (
             <div className="mt-10">
               <h3 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-primary" />
+                <CheckCircle className="w-4 h-4 text-[#0b1f3a]" />
                 Hochgeladene Dokumente
               </h3>
 
@@ -683,7 +683,7 @@ export default function DocumentUpload() {
 
       {/* Bottom Security Note */}
       <div className="mt-10 rounded-xl border border-border bg-secondary/20 px-4 py-3 flex items-start gap-3">
-        <Lock className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+        <Lock className="w-4 h-4 text-[#0b1f3a] mt-0.5 shrink-0" />
         <p className="text-xs text-muted-foreground leading-relaxed">
           Alle Daten werden gemäß der Datenschutz-Grundverordnung (DSGVO) verarbeitet und auf zertifizierten Servern innerhalb der Europäischen Union gespeichert. Die Übertragung erfolgt über eine 256-Bit SSL-verschlüsselte Verbindung.
         </p>

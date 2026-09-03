@@ -293,7 +293,7 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
                 key={p.title}
                 className={`rounded-md border px-3 py-2 text-xs transition-colors ${
                   active
-                    ? "border-primary bg-primary/10 text-primary"
+                    ? "border-[#0b1f3a] bg-[#0b1f3a]/10 text-[#0b1f3a]"
                     : done
                     ? "border-border bg-muted text-foreground"
                     : "border-border bg-background text-muted-foreground"
