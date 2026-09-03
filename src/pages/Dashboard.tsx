@@ -330,11 +330,13 @@ export default function Dashboard() {
 
       {/* Ansprechpartner */}
       <div className="flex items-center gap-3 rounded-lg bg-secondary/60 px-3 py-3">
-        <img
-          src={thomasKorteAsset.url}
-          alt="Dr. Thomas Korte"
-          className="w-12 h-12 rounded-full object-cover object-[center_55%] border border-border shrink-0"
-        />
+        <div className="relative w-12 h-12 overflow-hidden rounded-full border border-border shrink-0">
+          <img
+            src={thomasKorteAsset.url}
+            alt="Dr. Thomas Korte"
+            className="absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"
+          />
+        </div>
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground truncate">Dr. Thomas Korte</p>
           <p className="text-xs text-muted-foreground truncate">Rechtsanwalt</p>
