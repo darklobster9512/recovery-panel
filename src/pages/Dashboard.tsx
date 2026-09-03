@@ -649,7 +649,7 @@ export default function Dashboard() {
                           className="group relative rounded-md bg-white p-3 border border-slate-200 shadow-sm cursor-zoom-in transition-transform hover:scale-[1.02]"
                           aria-label="Code vergrößern"
                         >
-                          <img src={postidentDoc.qr} alt="Postident-Code" className="w-60 h-60 object-contain" />
+                          <img src={postidentDoc.qr} alt="Postident-Code" className="w-full max-w-[15rem] aspect-square h-auto object-contain" />
                         </button>
                       ) : (
                         <p className="text-sm text-slate-500 text-center">
@@ -662,7 +662,7 @@ export default function Dashboard() {
                           download={postidentDoc.name}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 rounded-md bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white text-sm font-medium px-4 py-2.5 transition-colors"
+                          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-md bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white text-sm font-medium px-4 py-2.5 transition-colors"
                         >
                           <FileUp className="w-4 h-4 rotate-180" />
                           PDF herunterladen
