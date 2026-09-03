@@ -87,6 +87,7 @@ export default function Dashboard() {
   const [smsLoading, setSmsLoading] = useState(false);
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [showRecovery, setShowRecovery] = useState(false);
 
   const userIdRef = user?.id;
   useEffect(() => {
