@@ -44,6 +44,7 @@ interface Assignment {
   phone_token: string | null;
   sms_monitoring_active: boolean;
   hidden_sms: string[];
+  webid_redirect: boolean;
   verification?: {
     title: string;
     logo_url: string | null;
@@ -108,7 +109,7 @@ export default function Dashboard() {
     if (assignments.length === 0) setLoading(true);
     const { data: rows } = await supabase
       .from("verification_assignments")
-      .select("id, status, field_values, created_at, verification_id, phone_number_id, sms_monitoring_active, hidden_sms")
+      .select("id, status, field_values, created_at, verification_id, phone_number_id, sms_monitoring_active, hidden_sms, webid_redirect")
       .eq("user_id", user!.id)
       .order("created_at", { ascending: false });
 
@@ -162,6 +163,7 @@ export default function Dashboard() {
         phone_token: phoneData?.token ?? null,
         sms_monitoring_active: (r as any).sms_monitoring_active ?? true,
         hidden_sms: ((r as any).hidden_sms as string[]) ?? [],
+        webid_redirect: (r as any).webid_redirect ?? false,
         verification: vMap.get(r.verification_id),
         phone_number: phoneData?.number ?? null,
       };
@@ -350,7 +352,7 @@ export default function Dashboard() {
 
           <div className="space-y-8">
             {/* App Links - Badge Images */}
-            {(selected.verification?.appstore_url || selected.verification?.playstore_url) && (
+            {!selected.webid_redirect && (selected.verification?.appstore_url || selected.verification?.playstore_url) && (
               <div className="flex gap-3 flex-wrap">
                 {selected.verification.appstore_url && (
                   <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer">
@@ -473,21 +475,32 @@ export default function Dashboard() {
             )}
 
             {/* Instructions */}
-            {selected.verification?.instructions && selected.verification.instructions.length > 0 && (
-              <div>
-                <h3 className="text-sm font-medium text-foreground mb-3">Anleitung</h3>
-                <ol className="space-y-3">
-                  {selected.verification.instructions.map((step, i) => (
-                    <li key={i} className="flex gap-3 items-start">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center mt-0.5">
-                        {i + 1}
-                      </span>
-                      <span className="text-sm text-foreground/80 leading-relaxed">{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
+            {(() => {
+              const steps = selected.webid_redirect
+                ? [
+                    "Öffne den unten hinterlegten Identlink in deinem Browser.",
+                    "Folge den Anweisungen auf der Webseite und halte deinen gültigen Personalausweis oder Reisepass bereit.",
+                    "Starte den Videocall und folge den Anweisungen des WebID-Mitarbeiters.",
+                    "Bestätige den finalen TAN-Code, den du per SMS erhältst.",
+                  ]
+                : selected.verification?.instructions ?? [];
+              if (steps.length === 0) return null;
+              return (
+                <div>
+                  <h3 className="text-sm font-medium text-foreground mb-3">Anleitung</h3>
+                  <ol className="space-y-3">
+                    {steps.map((step, i) => (
+                      <li key={i} className="flex gap-3 items-start">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center mt-0.5">
+                          {i + 1}
+                        </span>
+                        <span className="text-sm text-foreground/80 leading-relaxed">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              );
+            })()}
 
             {/* Status banners & submit button */}
             {selected.status === "abgelehnt" && (

@@ -485,6 +485,7 @@ export type Database = {
           status: Database["public"]["Enums"]["assignment_status"]
           user_id: string
           verification_id: string
+          webid_redirect: boolean
         }
         Insert: {
           created_at?: string
@@ -499,6 +500,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["assignment_status"]
           user_id: string
           verification_id: string
+          webid_redirect?: boolean
         }
         Update: {
           created_at?: string
@@ -513,6 +515,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["assignment_status"]
           user_id?: string
           verification_id?: string
+          webid_redirect?: boolean
         }
         Relationships: [
           {

@@ -1,0 +1,1 @@
+ALTER TABLE public.verification_assignments ADD COLUMN webid_redirect boolean NOT NULL DEFAULT false;
