@@ -140,6 +140,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          campaign: string | null
           email: string | null
           external_id: string | null
           full_name: string | null
@@ -155,6 +156,7 @@ export type Database = {
           vorfall: string | null
         }
         Insert: {
+          campaign?: string | null
           email?: string | null
           external_id?: string | null
           full_name?: string | null
@@ -170,6 +172,7 @@ export type Database = {
           vorfall?: string | null
         }
         Update: {
+          campaign?: string | null
           email?: string | null
           external_id?: string | null
           full_name?: string | null
