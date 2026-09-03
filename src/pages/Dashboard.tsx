@@ -497,7 +497,7 @@ export default function Dashboard() {
       {/* Mobile Top Bar */}
       <header className="lg:hidden sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
         <div className="flex relative h-14 items-center justify-center px-4">
-          <Sheet>
+          <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0b1f3a] hover:bg-slate-100">
                 <Menu className="w-5 h-5" />
