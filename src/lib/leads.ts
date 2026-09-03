@@ -17,6 +17,13 @@ export function statusMeta(status: string) {
   return LEAD_STATUSES.find((s) => s.value === status) ?? LEAD_STATUSES[0];
 }
 
+export type LeadCampaign = "europol" | "kanzlei";
+
+export const CAMPAIGN_META: Record<LeadCampaign, { label: string; className: string }> = {
+  europol: { label: "Europol", className: "bg-blue-100 text-blue-700 hover:bg-blue-100" },
+  kanzlei: { label: "Kanzlei", className: "bg-amber-100 text-amber-800 hover:bg-amber-100" },
+};
+
 export interface Lead {
   id: string;
   full_name: string | null;
@@ -28,6 +35,7 @@ export interface Lead {
   source: string;
   external_id: string | null;
   raw: Record<string, string> | null;
+  campaign: LeadCampaign | null;
   imported_by: string | null;
   imported_at: string;
 }
@@ -199,7 +207,21 @@ export interface ParsedLead {
   schadenshoehe: number | null;
   vorfall: string | null;
   external_id: string | null;
+  campaign: LeadCampaign | null;
   raw: Record<string, string>;
+}
+
+export function detectCampaign(raw: Record<string, string>): LeadCampaign | null {
+  const keys = ["campaign_name", "ad_name", "adset_name"];
+  const norm: Record<string, string> = {};
+  for (const [k, v] of Object.entries(raw)) norm[k.toLowerCase()] = v;
+  for (const k of keys) {
+    const v = (norm[k] ?? "").toLowerCase();
+    if (!v) continue;
+    if (v.includes("euro")) return "europol";
+    if (v.includes("korte")) return "kanzlei";
+  }
+  return null;
 }
 
 export interface ParseResult {
@@ -253,6 +275,7 @@ export async function parseLeadsFile(file: File): Promise<ParseResult> {
       schadenshoehe: parseAmount(get("schadenshoehe")),
       vorfall: get("vorfall") || null,
       external_id: get("external_id") || null,
+      campaign: detectCampaign(raw),
       raw,
     };
   });
