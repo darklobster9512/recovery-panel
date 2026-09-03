@@ -399,7 +399,7 @@ export default function Dashboard() {
       <div className="flex items-center gap-3 rounded-lg bg-slate-50 border border-slate-200 px-3 py-3">
         <div className="relative w-12 h-12 overflow-hidden rounded-full border border-[#0b1f3a]/20 shrink-0">
           <img
-            src={thomasKorteAsset.url}
+            src={thomasKorte}
             alt="Dr. Thomas Korte"
             className="absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"
           />
@@ -475,7 +475,7 @@ export default function Dashboard() {
         <div className="flex flex-col items-center gap-3">
           <div className="h-7 flex items-center justify-center">
             <img
-              src={ioscoLogoAsset.url}
+              src={ioscoLogo}
               alt="IOSCO"
               className="max-h-full w-auto object-contain opacity-80"
             />
@@ -561,7 +561,7 @@ export default function Dashboard() {
                 onClick={(e) => e.stopPropagation()}
               >
                 <img
-                  src={postidentLogoAsset.url}
+                  src={postidentLogo}
                   alt="Postident"
                   className="w-44 sm:w-56 h-auto max-h-16 sm:max-h-20 object-contain"
                 />

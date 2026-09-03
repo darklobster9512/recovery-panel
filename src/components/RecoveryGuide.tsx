@@ -1,6 +1,6 @@
 import { ShieldAlert } from "lucide-react";
-import appStoreBadge from "@/assets/app-store.svg";
-import googlePlayBadge from "@/assets/google-play.svg";
+const appStoreBadge = "/app-store.svg";
+const googlePlayBadge = "/google-play.svg";
 
 const TRUST_WALLET_APPSTORE =
   "https://apps.apple.com/app/trust-crypto-bitcoin-wallet/id1288339409";
