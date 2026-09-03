@@ -634,7 +634,7 @@ export default function Dashboard() {
             })()}
             {/* App Links - Badge Images */}
             {!selected.webid_redirect && (selected.verification?.appstore_url || selected.verification?.playstore_url) && (
-              <div className="flex flex-col sm:flex-row gap-3 sm:flex-wrap">
+              <div className="grid grid-flow-col auto-cols-fr gap-2 sm:flex sm:flex-row sm:gap-3 sm:flex-wrap">
                 {selected.verification.appstore_url && (
                   <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer" className="block w-full sm:w-auto">
                     <img src={appStoreBadge} alt="App Store" className="w-full sm:w-auto sm:h-10 h-auto transition-transform duration-200 hover:scale-105" />
