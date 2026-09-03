@@ -386,7 +386,7 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-muted/30 flex flex-col">
+    <div className="min-h-screen bg-muted/30">
       {/* Mobile Top Bar */}
       <header className="lg:hidden sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur-sm">
         <div className="flex relative h-14 items-center justify-center px-4">
@@ -411,17 +411,17 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 lg:py-8 flex-1 flex flex-col">
-        <div className="lg:grid lg:grid-cols-4 lg:gap-8 flex-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        <div className="lg:grid lg:grid-cols-4 lg:gap-8">
           {/* Sidebar Card (desktop) */}
-          <aside className="hidden lg:flex lg:col-span-1 h-full">
-            <div className="rounded-xl border border-border bg-card shadow-sm p-6 h-full w-full flex flex-col">
+          <aside className="hidden lg:block lg:col-span-1">
+            <div className="sticky top-8 h-[calc(100vh-4rem)] rounded-xl border border-border bg-card shadow-sm p-6 flex flex-col overflow-y-auto">
               <SidebarInner />
             </div>
           </aside>
 
           {/* Content */}
-          <div className="lg:col-span-3 min-w-0 h-full overflow-y-auto">
+          <div className="lg:col-span-3 min-w-0">
 
 
 
