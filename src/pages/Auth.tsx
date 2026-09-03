@@ -85,17 +85,17 @@ export default function Auth() {
           </div>
 
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            <h1 className="text-3xl font-bold tracking-tight text-[#0b1f3a]">
               {mode === "login" ? "Willkommen zurück" : "Konto erstellen"}
             </h1>
-            <p className="mt-2 text-gray-500 text-sm">
+            <p className="mt-2 text-slate-500 text-sm">
               {mode === "login"
                 ? "Melde dich an, um auf dein Dashboard zuzugreifen."
                 : "Registriere dich mit E-Mail und Passwort."}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-1 p-1 bg-gray-100 rounded-lg">
+          <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-lg">
             {(["login", "register"] as const).map((m) => (
               <button
                 key={m}
@@ -107,8 +107,8 @@ export default function Auth() {
                 }}
                 className={`h-9 rounded-md text-sm font-medium transition-colors ${
                   mode === m
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "bg-white text-[#0b1f3a] shadow-sm"
+                    : "text-slate-500 hover:text-[#0b1f3a]"
                 }`}
               >
                 {m === "login" ? "Anmelden" : "Registrieren"}
@@ -120,7 +120,7 @@ export default function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="email" className="text-sm font-medium text-slate-700">
                 E-Mail
               </Label>
               <Input
@@ -130,7 +130,7 @@ export default function Auth() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-11 rounded-lg border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus-visible:ring-[hsl(221,100%,50%)] focus-visible:ring-offset-0"
+                className="h-11 rounded-lg border-slate-200 bg-white text-[#0b1f3a] placeholder:text-slate-400 focus-visible:ring-[#0b1f3a] focus-visible:ring-offset-0"
               />
             </div>
 
