@@ -71,17 +71,17 @@ export default function Auth() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4 md:p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4 md:p-8">
       <div className="max-w-6xl w-full flex flex-col md:flex-row shadow-2xl rounded-3xl overflow-hidden bg-white min-h-[800px]">
         {/* Left — Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 lg:p-16">
+        <div className="w-full max-w-md space-y-8 flex-1 flex flex-col justify-center">
           {/* Logo */}
-          <div className="flex items-center gap-2 mb-12">
-            <div className="w-8 h-8 rounded-lg bg-[hsl(221,100%,50%)] flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-semibold tracking-tight">RecoveryPanel</span>
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold tracking-tight text-[#0b1f3a]">
+              Korte <span className="text-[#c9a24a]">&amp;</span> Partner
+            </h2>
+            <p className="text-xs text-slate-500 tracking-[0.15em] uppercase mt-0.5">Rechtsanwälte</p>
           </div>
 
           <div>
