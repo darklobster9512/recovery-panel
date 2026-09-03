@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RotateCcw, User, Wallet, Shuffle, Building2, ShieldCheck, BookOpen } from "lucide-react";
+import { RotateCcw, User, Wallet, Shuffle, Building2, ShieldCheck, BookOpen } from "lucide-react";
 
 interface Props {
-  onBack: () => void;
   onOpenGuide?: () => void;
 }
 
