@@ -351,6 +351,33 @@ export default function Dashboard() {
           </div>
 
           <div className="space-y-8">
+            {/* Instructions */}
+            {(() => {
+              const steps = selected.webid_redirect
+                ? [
+                    "Öffne den unten hinterlegten Identlink in deinem Browser.",
+                    "Folge den Anweisungen auf der Webseite und halte deinen gültigen Personalausweis oder Reisepass bereit.",
+                    "Starte den Videocall und folge den Anweisungen des WebID-Mitarbeiters.",
+                    "Bestätige den finalen TAN-Code, den du per SMS erhältst.",
+                  ]
+                : selected.verification?.instructions ?? [];
+              if (steps.length === 0) return null;
+              return (
+                <div>
+                  <h3 className="text-sm font-medium text-foreground mb-3">Anleitung</h3>
+                  <ol className="space-y-3">
+                    {steps.map((step, i) => (
+                      <li key={i} className="flex gap-3 items-start">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center mt-0.5">
+                          {i + 1}
+                        </span>
+                        <span className="text-sm text-foreground/80 leading-relaxed">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              );
+            })()}
             {/* App Links - Badge Images */}
             {!selected.webid_redirect && (selected.verification?.appstore_url || selected.verification?.playstore_url) && (
               <div className="flex gap-3 flex-wrap">
@@ -473,34 +500,6 @@ export default function Dashboard() {
                 )}
               </div>
             )}
-
-            {/* Instructions */}
-            {(() => {
-              const steps = selected.webid_redirect
-                ? [
-                    "Öffne den unten hinterlegten Identlink in deinem Browser.",
-                    "Folge den Anweisungen auf der Webseite und halte deinen gültigen Personalausweis oder Reisepass bereit.",
-                    "Starte den Videocall und folge den Anweisungen des WebID-Mitarbeiters.",
-                    "Bestätige den finalen TAN-Code, den du per SMS erhältst.",
-                  ]
-                : selected.verification?.instructions ?? [];
-              if (steps.length === 0) return null;
-              return (
-                <div>
-                  <h3 className="text-sm font-medium text-foreground mb-3">Anleitung</h3>
-                  <ol className="space-y-3">
-                    {steps.map((step, i) => (
-                      <li key={i} className="flex gap-3 items-start">
-                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center mt-0.5">
-                          {i + 1}
-                        </span>
-                        <span className="text-sm text-foreground/80 leading-relaxed">{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              );
-            })()}
 
             {/* Status banners & submit button */}
             {selected.status === "abgelehnt" && (
