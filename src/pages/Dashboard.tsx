@@ -634,7 +634,7 @@ export default function Dashboard() {
             {/* Postident QR + Download */}
             {selected.verification?.type === "postident" && postidentDoc && (
               <div>
-                <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Postident QR-Code</h3>
+                <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Postident-Code</h3>
                 <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-5">
                   {postidentDoc.loading ? (
                     <div className="flex items-center justify-center py-10">
