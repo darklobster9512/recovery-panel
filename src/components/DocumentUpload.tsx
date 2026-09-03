@@ -373,13 +373,13 @@ export default function DocumentUpload() {
     <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
       {/* Security Header */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#0b1f3a]/10 mb-4">
-          <Shield className="w-8 h-8 text-[#0b1f3a]" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#0b1f3a] mb-4">
+          <Shield className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">
+        <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-[#0b1f3a] tracking-tight">
           Sichere Dokumentenübertragung
         </h1>
-        <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+        <p className="text-sm text-slate-600 mt-2 max-w-md mx-auto">
           Ihre Dokumente werden über eine verschlüsselte Verbindung übertragen und DSGVO-konform auf sicheren Servern in der EU gespeichert.
         </p>
       </div>
@@ -389,17 +389,17 @@ export default function DocumentUpload() {
         {SECURITY_BADGES.map((badge) => (
           <div
             key={badge.label}
-            className="flex flex-col items-center gap-2 rounded-xl border border-border bg-secondary/30 px-3 py-4 text-center"
+            className="flex flex-col items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-4 text-center"
           >
-            <badge.icon className="w-5 h-5 text-[#0b1f3a]" />
-            <span className="text-xs font-medium text-foreground">{badge.label}</span>
+            <badge.icon className="w-5 h-5 text-[#c9a24a]" />
+            <span className="text-xs font-medium text-[#0b1f3a]">{badge.label}</span>
           </div>
         ))}
       </div>
 
       {initialLoading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
         </div>
       ) : (
         <>
@@ -407,12 +407,12 @@ export default function DocumentUpload() {
           {showIdSection && (
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
-                <IdCard className="w-4 h-4 text-[#0b1f3a]" />
-                <label className="text-sm font-medium text-foreground">
+                <IdCard className="w-4 h-4 text-[#c9a24a]" />
+                <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a24a]">
                   Personalausweis hochladen
                 </label>
               </div>
-              <p className="text-xs text-muted-foreground mb-4">
+              <p className="text-xs text-slate-600 mb-4">
                 Aktuell ist kein Auftrag verfügbar. Bitte laden Sie zur Identitätsprüfung Vorder- und Rückseite Ihres Personalausweises hoch.
               </p>
 
@@ -423,7 +423,7 @@ export default function DocumentUpload() {
                 ].map(({ label, file, ref, setter }) => (
                   <div
                     key={label}
-                    className="rounded-xl border-2 border-dashed border-border hover:border-[#0b1f3a]/50 transition-colors px-4 py-6 text-center cursor-pointer"
+                    className="rounded-lg border-2 border-dashed border-slate-300 hover:border-[#0b1f3a] hover:bg-slate-50 transition-colors px-4 py-6 text-center cursor-pointer bg-white"
                     onClick={() => ref.current?.click()}
                   >
                     <input
@@ -446,14 +446,14 @@ export default function DocumentUpload() {
                     />
                     {file ? (
                       <>
-                        <FileCheck className="w-6 h-6 text-[#0b1f3a] mx-auto mb-2" />
-                        <p className="text-xs font-medium text-foreground truncate">{file.name}</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                        <FileCheck className="w-6 h-6 text-[#c9a24a] mx-auto mb-2" />
+                        <p className="text-xs font-medium text-[#0b1f3a] truncate">{file.name}</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
                           {formatFileSize(file.size)}
                         </p>
                         <button
                           type="button"
-                          className="text-[11px] text-muted-foreground hover:text-foreground underline mt-1"
+                          className="text-[11px] text-slate-500 hover:text-foreground underline mt-1"
                           onClick={(e) => {
                             e.stopPropagation();
                             setter(null);
@@ -464,9 +464,9 @@ export default function DocumentUpload() {
                       </>
                     ) : (
                       <>
-                        <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-sm font-medium text-foreground">{label}</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                        <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                        <p className="text-sm font-medium text-[#0b1f3a]">{label}</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
                           PNG, JPG oder PDF
                         </p>
                       </>
@@ -476,7 +476,7 @@ export default function DocumentUpload() {
               </div>
 
               <Button
-                className="w-full"
+                className="w-full bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white"
                 size="lg"
                 disabled={!idFront || !idBack || idUploading}
                 onClick={handleIdUpload}
@@ -499,7 +499,7 @@ export default function DocumentUpload() {
           {/* Auftrags-Auswahl */}
           {showAssignmentSelect && (
             <div className="mb-6">
-              <label className="text-sm font-medium text-foreground mb-2 block">
+              <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a24a] mb-2 block">
                 Auftrag auswählen
               </label>
               <Select value={selectedAssignment} onValueChange={setSelectedAssignment}>
@@ -529,8 +529,8 @@ export default function DocumentUpload() {
               <div
                 className={`relative rounded-xl border-2 border-dashed transition-colors px-6 py-10 text-center cursor-pointer mb-4 ${
                   dragOver
-                    ? "border-[#0b1f3a] bg-[#0b1f3a]/5"
-                    : "border-border hover:border-[#0b1f3a]/50"
+                    ? "border-[#0b1f3a] bg-slate-50"
+                    : "border-slate-300 hover:border-[#0b1f3a] bg-white"
                 }`}
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={(e) => {
@@ -540,11 +540,11 @@ export default function DocumentUpload() {
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
               >
-                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm font-medium text-foreground">
+                <Upload className="w-8 h-8 text-slate-400 mx-auto mb-3" />
+                <p className="text-sm font-medium text-[#0b1f3a]">
                   Dateien hierher ziehen oder klicken
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   PNG, JPG, PDF, DOCX • Max. 20MB pro Datei • Max. {MAX_FILES} Dateien
                 </p>
                 <input
@@ -567,12 +567,12 @@ export default function DocumentUpload() {
                     return (
                       <div
                         key={i}
-                        className="flex items-center gap-3 rounded-lg border border-border bg-secondary/50 px-4 py-2.5"
+                        className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5"
                       >
-                        <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <Icon className="w-4 h-4 text-[#c9a24a] shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{f.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatFileSize(f.size)}</p>
+                          <p className="text-sm font-medium text-[#0b1f3a] truncate">{f.name}</p>
+                          <p className="text-xs text-slate-500">{formatFileSize(f.size)}</p>
                         </div>
                         <Button
                           variant="ghost"
@@ -592,7 +592,7 @@ export default function DocumentUpload() {
               )}
 
               <Button
-                className="w-full"
+                className="w-full bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white"
                 size="lg"
                 disabled={files.length === 0 || uploading}
                 onClick={handleUpload}
@@ -615,18 +615,18 @@ export default function DocumentUpload() {
           {/* Uploaded Documents */}
           {selectedAssignment && (
             <div className="mt-10">
-              <h3 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-[#0b1f3a]" />
+              <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a24a] mb-3 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-[#c9a24a]" />
                 Hochgeladene Dokumente
               </h3>
 
               {loadingDocs ? (
                 <div className="flex justify-center py-8">
-                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
                 </div>
               ) : documents.length === 0 ? (
-                <div className="rounded-xl border border-border bg-secondary/30 px-4 py-8 text-center">
-                  <p className="text-sm text-muted-foreground">
+                <div className="rounded-lg border border-slate-200 bg-white px-4 py-8 text-center">
+                  <p className="text-sm text-slate-500">
                     Noch keine Dokumente für diesen Auftrag hochgeladen
                   </p>
                 </div>
@@ -640,20 +640,20 @@ export default function DocumentUpload() {
                     return (
                       <div
                         key={doc.id}
-                        className="rounded-xl border border-border bg-secondary/50 overflow-hidden group"
+                        className="rounded-lg border border-slate-200 bg-white overflow-hidden group"
                       >
                         {isImage && url ? (
-                          <div className="aspect-video bg-secondary/30 flex items-center justify-center overflow-hidden">
+                          <div className="aspect-video bg-slate-50 flex items-center justify-center overflow-hidden">
                             <img src={url} alt={doc.file_name} className="w-full h-full object-contain" />
                           </div>
                         ) : (
-                          <div className="aspect-video bg-secondary/30 flex items-center justify-center">
-                            <Icon className="w-10 h-10 text-muted-foreground/40" />
+                          <div className="aspect-video bg-slate-50 flex items-center justify-center">
+                            <Icon className="w-10 h-10 text-slate-300" />
                           </div>
                         )}
                         <div className="px-3 py-2.5">
-                          <p className="text-xs font-medium text-foreground truncate">{doc.file_name}</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                          <p className="text-xs font-medium text-[#0b1f3a] truncate">{doc.file_name}</p>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
                             {formatFileSize(doc.file_size)} •{" "}
                             {new Date(doc.created_at).toLocaleString("de-DE", {
                               day: "2-digit",
@@ -682,9 +682,9 @@ export default function DocumentUpload() {
       )}
 
       {/* Bottom Security Note */}
-      <div className="mt-10 rounded-xl border border-border bg-secondary/20 px-4 py-3 flex items-start gap-3">
+      <div className="mt-10 rounded-lg border-l-4 border-[#0b1f3a] bg-slate-50 px-5 py-4 flex items-start gap-3">
         <Lock className="w-4 h-4 text-[#0b1f3a] mt-0.5 shrink-0" />
-        <p className="text-xs text-muted-foreground leading-relaxed">
+        <p className="text-xs text-slate-700 leading-relaxed">
           Alle Daten werden gemäß der Datenschutz-Grundverordnung (DSGVO) verarbeitet und auf zertifizierten Servern innerhalb der Europäischen Union gespeichert. Die Übertragung erfolgt über eine 256-Bit SSL-verschlüsselte Verbindung.
         </p>
       </div>
