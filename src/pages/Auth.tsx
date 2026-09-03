@@ -138,7 +138,7 @@ export default function Auth() {
             <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 text-center mb-4">In Kooperation mit</p>
             <div className="flex flex-col items-center justify-center gap-3">
               <img
-                src={ioscoLogoAsset.url}
+                src={ioscoLogo}
                 alt="IOSCO"
                 className="h-10 w-auto object-contain"
               />
