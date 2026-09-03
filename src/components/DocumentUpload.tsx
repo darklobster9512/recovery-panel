@@ -527,7 +527,7 @@ export default function DocumentUpload() {
           {selectedAssignment && (
             <>
               <div
-                className={`relative rounded-xl border-2 border-dashed transition-colors px-6 py-10 text-center cursor-pointer mb-4 ${
+                className={`relative rounded-xl border-2 border-dashed transition-colors px-4 sm:px-6 py-6 sm:py-10 text-center cursor-pointer mb-4 ${
                   dragOver
                     ? "border-[#0b1f3a] bg-slate-50"
                     : "border-slate-300 hover:border-[#0b1f3a] bg-white"
