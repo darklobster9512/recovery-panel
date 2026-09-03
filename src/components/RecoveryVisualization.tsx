@@ -164,10 +164,10 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
         </div>
 
         {/* SVG canvas */}
-        <div className="overflow-x-auto bg-[radial-gradient(circle_at_1px_1px,hsl(220_15%_88%)_1px,transparent_0)] [background-size:22px_22px]">
+        <div className="overflow-x-hidden bg-[radial-gradient(circle_at_1px_1px,hsl(220_15%_88%)_1px,transparent_0)] [background-size:22px_22px]">
           <svg
-            viewBox="0 0 1120 520"
-            className="min-w-[900px] w-full h-[440px] sm:h-[500px]"
+            viewBox="0 0 920 440"
+            className="w-full h-auto max-h-[340px] sm:max-h-[400px]"
             role="img"
             aria-label="Visualisierung der Krypto-Rückverfolgung"
           >
