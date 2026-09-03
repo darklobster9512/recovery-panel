@@ -647,13 +647,13 @@ export default function Dashboard() {
                           type="button"
                           onClick={() => setQrLightboxOpen(true)}
                           className="group relative rounded-md bg-white p-3 border border-slate-200 shadow-sm cursor-zoom-in transition-transform hover:scale-[1.02]"
-                          aria-label="QR-Code vergrößern"
+                          aria-label="Code vergrößern"
                         >
-                          <img src={postidentDoc.qr} alt="Postident QR-Code" className="w-60 h-60 object-contain" />
+                          <img src={postidentDoc.qr} alt="Postident-Code" className="w-60 h-60 object-contain" />
                         </button>
                       ) : (
                         <p className="text-sm text-slate-500 text-center">
-                          {postidentDoc.error ?? "QR-Code konnte nicht aus dem Dokument extrahiert werden."}
+                          {postidentDoc.error ?? "Code konnte nicht aus der PDF extrahiert werden."}
                         </p>
                       )}
                       {postidentDoc.url && (
