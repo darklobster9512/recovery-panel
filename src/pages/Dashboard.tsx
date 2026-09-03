@@ -573,7 +573,7 @@ export default function Dashboard() {
                 <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Zugewiesene Telefonnummer</h3>
                 <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 group">
                   <div>
-                    <p className="text-xs text-muted-foreground">Telefonnummer</p>
+                    <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Telefonnummer</p>
                     <p className="text-sm font-mono font-semibold text-[#0b1f3a]">{selected.phone_number}</p>
                   </div>
                   <Button
@@ -596,14 +596,14 @@ export default function Dashboard() {
             {selected.phone_token && selected.sms_monitoring_active && (
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="text-sm font-medium text-foreground">SMS-Nachrichten</h3>
-                  {smsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />}
+                  <MessageSquare className="w-4 h-4 text-[#c9a24a]" />
+                  <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] uppercase">SMS-Nachrichten</h3>
+                  {smsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />}
                 </div>
                 
                 {smsMessages.length === 0 ? (
                   <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-center">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-slate-500">
                       {smsLoading ? "Lade SMS..." : "Noch keine SMS seit Zuweisung eingegangen"}
                     </p>
                   </div>
@@ -676,7 +676,7 @@ export default function Dashboard() {
             {(selected.status === "zugewiesen" || selected.status === "abgelehnt") && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button className="w-full" size="lg">
+                  <Button className="w-full bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white" size="lg">
                     <Send className="w-4 h-4 mr-2" />
                     Auftrag abschließen
                   </Button>
@@ -758,7 +758,7 @@ export default function Dashboard() {
                     className="w-14 h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2 transition-transform duration-200 group-hover:scale-105"
                     fallback={
                       <div className="w-14 h-14 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center">
-                        <span className="text-xl font-bold text-muted-foreground">{(a.verification?.title ?? "A").charAt(0)}</span>
+                        <span className="text-xl font-bold text-slate-400">{(a.verification?.title ?? "A").charAt(0)}</span>
                       </div>
                     }
                   />
