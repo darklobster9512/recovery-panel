@@ -44,6 +44,7 @@ interface Assignment {
   phone_token: string | null;
   sms_monitoring_active: boolean;
   hidden_sms: string[];
+  webid_redirect: boolean;
   verification?: {
     title: string;
     logo_url: string | null;
