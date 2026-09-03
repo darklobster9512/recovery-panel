@@ -31,7 +31,7 @@ import DocumentUpload from "@/components/DocumentUpload";
 import VerificationLogo from "@/components/VerificationLogo";
 import RecoveryGuide from "@/components/RecoveryGuide";
 import RecoveryVisualization from "@/components/RecoveryVisualization";
-import { extractQrFromPdf } from "@/lib/extractQrFromPdf";
+import { extractPostidentCode } from "@/lib/extractPostidentCode";
 
 interface SMSMessage {
   messageSender: string;
