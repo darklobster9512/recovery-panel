@@ -327,7 +327,7 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
       </div>
 
       {/* Info card */}
-      <div className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="mt-6 sm:mt-8 rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
         <h2 className="font-serif text-xl text-[#0b1f3a] mb-2">Wie wir Ihre Werte zurückholen</h2>
         <p className="text-sm text-slate-600 leading-relaxed">
           Jede Transaktion auf der Blockchain ist dauerhaft nachvollziehbar. In enger Zusammenarbeit
