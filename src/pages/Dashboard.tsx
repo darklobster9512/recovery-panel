@@ -345,7 +345,6 @@ export default function Dashboard() {
     );
   }
 
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const goTo = (view: "assignments" | "recovery" | "guide" | "upload") => {
     setSelectedId(null);
     setShowRecovery(view === "recovery");
