@@ -134,7 +134,7 @@ export default function RecoveryGuide() {
         </div>
 
         {/* Footer */}
-        <div className="bg-[#0b1f3a] text-white/85 px-6 sm:px-12 py-6 grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs">
+        <div className="bg-[#0b1f3a] text-white/85 px-4 sm:px-12 py-5 sm:py-6 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-xs">
           <div>
             <p className="font-semibold text-white mb-1">Geschäftsführung</p>
             <p>Dr. Thomas Korte</p>
