@@ -427,17 +427,17 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-slate-50">
       {/* Mobile Top Bar */}
-      <header className="lg:hidden sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur-sm">
+      <header className="lg:hidden sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
         <div className="flex relative h-14 items-center justify-center px-4">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="absolute left-3 top-1/2 -translate-y-1/2">
+              <Button variant="ghost" size="icon" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0b1f3a] hover:bg-slate-100">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-6">
+            <SheetContent side="left" className="w-72 p-6 bg-white">
               <SheetHeader className="sr-only">
                 <SheetTitle>Menü</SheetTitle>
               </SheetHeader>
@@ -446,8 +446,8 @@ export default function Dashboard() {
               </div>
             </SheetContent>
           </Sheet>
-          <span className="font-serif text-lg tracking-tight text-foreground">
-            Korte <span className="opacity-60">&amp;</span> Partner
+          <span className="font-serif text-lg tracking-tight text-[#0b1f3a]">
+            Korte <span className="text-[#c9a24a]">&amp;</span> Partner
           </span>
         </div>
       </header>
@@ -456,7 +456,7 @@ export default function Dashboard() {
         <div className="lg:grid lg:grid-cols-4 lg:gap-8">
           {/* Sidebar Card (desktop) */}
           <aside className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-8 h-[calc(100vh-4rem)] rounded-xl border border-border bg-card shadow-sm p-6 flex flex-col overflow-y-auto">
+            <div className="sticky top-8 h-[calc(100vh-4rem)] rounded-xl border border-slate-200 bg-white shadow-sm p-6 flex flex-col overflow-y-auto">
               <SidebarInner />
             </div>
           </aside>
