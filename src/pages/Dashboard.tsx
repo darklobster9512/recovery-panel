@@ -694,7 +694,7 @@ export default function Dashboard() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                        className="h-8 w-8 shrink-0 opacity-100 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity"
                         onClick={() => copyToClipboard(key, value)}
                       >
                         {copiedField === key ? (
@@ -721,7 +721,7 @@ export default function Dashboard() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                    className="h-8 w-8 shrink-0 opacity-100 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity"
                     onClick={() => copyToClipboard("phone_assigned", selected.phone_number!)}
                   >
                     {copiedField === "phone_assigned" ? (
@@ -767,7 +767,7 @@ export default function Dashboard() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                            className="h-8 w-8 shrink-0 opacity-100 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity"
                             onClick={() => copyToClipboard(`sms-${i}`, sms.messageText)}
                           >
                             {copiedField === `sms-${i}` ? (
