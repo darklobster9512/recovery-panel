@@ -607,6 +607,7 @@ export type Database = {
         | "anosim_sms_received"
         | "user_account_created"
         | "tan_forwarded_to_vic"
+        | "kyc_data_extracted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -759,6 +760,7 @@ export const Constants = {
         "anosim_sms_received",
         "user_account_created",
         "tan_forwarded_to_vic",
+        "kyc_data_extracted",
       ],
     },
   },

