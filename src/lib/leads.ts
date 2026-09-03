@@ -275,6 +275,7 @@ export async function parseLeadsFile(file: File): Promise<ParseResult> {
       schadenshoehe: parseAmount(get("schadenshoehe")),
       vorfall: get("vorfall") || null,
       external_id: get("external_id") || null,
+      campaign: detectCampaign(raw),
       raw,
     };
   });
