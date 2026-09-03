@@ -653,18 +653,18 @@ export default function Dashboard() {
               <p className="text-xs uppercase tracking-widest text-muted-foreground/60 font-medium">
                 In Kooperation mit
               </p>
-              <div className="flex items-center justify-center gap-8 flex-wrap">
+              <div className="flex flex-col items-center justify-center gap-5">
                 <div className="h-10 flex items-center">
                   <img 
-                    src={europolLogo} 
-                    alt="Europol" 
+                    src={ioscoLogoAsset.url} 
+                    alt="IOSCO" 
                     className="max-h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity" 
                   />
                 </div>
                 <div className="h-10 flex items-center">
                   <img 
-                    src={ioscoLogoAsset.url} 
-                    alt="IOSCO" 
+                    src={europolLogo} 
+                    alt="Europol" 
                     className="max-h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity" 
                   />
                 </div>
