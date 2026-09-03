@@ -434,16 +434,6 @@ export default function Dashboard() {
       ) : selected ? (
         /* ── Detail View ── */
         <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelectedId(null)}
-            className="mb-8 text-muted-foreground hover:text-foreground -ml-2"
-          >
-            <ArrowLeft className="w-4 h-4 mr-1.5" />
-            Zurück
-          </Button>
-
           <div className="flex items-center gap-4 mb-8">
             <VerificationLogo
               value={selected.verification?.logo_url ?? null}
