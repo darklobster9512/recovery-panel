@@ -82,18 +82,18 @@ const EDGES: GEdge[] = [
 const nodeById = (id: string) => NODES.find((n) => n.id === id)!;
 
 function nodeFill(kind: NodeKind, active: boolean) {
-  if (!active) return { fill: "hsl(220 15% 94%)", stroke: "hsl(220 12% 78%)", text: "hsl(220 10% 55%)" };
+  if (!active) return { fill: "#f1f5f9", stroke: "#cbd5e1", text: "#64748b" };
   switch (kind) {
     case "victim":
-      return { fill: "hsl(0 84% 96%)", stroke: "hsl(0 74% 55%)", text: "hsl(0 65% 40%)" };
+      return { fill: "#f8fafc", stroke: "#0b1f3a", text: "#0b1f3a" };
     case "wallet":
-      return { fill: "hsl(210 100% 97%)", stroke: "hsl(221 83% 53%)", text: "hsl(221 60% 35%)" };
+      return { fill: "#f8fafc", stroke: "#0b1f3a", text: "#0b1f3a" };
     case "mixer":
-      return { fill: "hsl(280 60% 97%)", stroke: "hsl(280 55% 55%)", text: "hsl(280 45% 35%)" };
+      return { fill: "#fdf7ea", stroke: "#c9a24a", text: "#8a6b1e" };
     case "exchange":
-      return { fill: "hsl(210 100% 96%)", stroke: "hsl(221 83% 45%)", text: "hsl(221 70% 30%)" };
+      return { fill: "#f8fafc", stroke: "#0b1f3a", text: "#0b1f3a" };
     case "culprit":
-      return { fill: "hsl(142 71% 94%)", stroke: "hsl(142 71% 40%)", text: "hsl(142 60% 25%)" };
+      return { fill: "#fdf7ea", stroke: "#c9a24a", text: "#8a6b1e" };
   }
 }
 
@@ -141,21 +141,21 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
   return (
     <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 animate-in fade-in slide-in-from-right-4 duration-300">
       <div className="mb-8">
-        <h1 className="font-serif text-3xl sm:text-4xl tracking-tight text-foreground mb-2">
+        <h1 className="font-serif text-3xl sm:text-4xl tracking-tight text-[#0b1f3a] mb-2">
           Nachverfolgung Ihrer Kryptowerte
         </h1>
-        <p className="text-muted-foreground max-w-2xl">
+        <p className="text-slate-600 max-w-2xl">
           So gehen wir vor: eine visuelle Darstellung des Weges Ihrer Coins –
           vom Vorfall bis zur Identifikation des Täters und der eingeleiteten Rückführung.
         </p>
       </div>
 
       {/* Visualization card */}
-      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-border bg-muted/30">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-slate-200 bg-slate-50">
           <div className="text-sm">
-            <span className="font-medium text-foreground">Phase {phase}/6 – {current.title}</span>
+            <span className="font-medium text-[#0b1f3a]">Phase {phase}/6 – {current.title}</span>
           </div>
           <Button variant="outline" size="sm" onClick={restart}>
             <RotateCcw className="w-4 h-4 mr-1.5" />
@@ -173,7 +173,7 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
           >
             <defs>
               <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0,0 L10,5 L0,10 z" fill="hsl(24 95% 55%)" />
+                <path d="M0,0 L10,5 L0,10 z" fill="#c9a24a" />
               </marker>
               <marker id="arrowDim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                 <path d="M0,0 L10,5 L0,10 z" fill="hsl(220 12% 75%)" />
@@ -184,9 +184,9 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
             {phase >= 4 && (
               <>
                 <rect x={180} y={80} width={400} height={280} rx={18}
-                  fill="none" stroke="hsl(221 83% 53% / 0.35)" strokeDasharray="6 6" strokeWidth={1.5}
+                  fill="none" stroke="#0b1f3a" strokeOpacity={0.35} strokeDasharray="6 6" strokeWidth={1.5}
                   className="animate-in fade-in duration-500" />
-                <text x={190} y={96} fontSize="10" fill="hsl(221 60% 40%)" fontWeight={600}>Cluster A – gleicher Akteur</text>
+                <text x={190} y={96} fontSize="10" fill="#0b1f3a" fontWeight={600}>Cluster A – gleicher Akteur</text>
               </>
             )}
 
@@ -195,7 +195,7 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
               const a = nodeById(e.from);
               const b = nodeById(e.to);
               const active = phase >= e.phase;
-              const stroke = active ? "hsl(24 95% 55%)" : "hsl(220 12% 82%)";
+              const stroke = active ? "#c9a24a" : "#cbd5e1";
               const drawing = phase === e.phase;
               return (
                 <g key={i}>
@@ -220,11 +220,11 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
                       className="animate-in fade-in duration-500"
                       transform={`translate(${(a.x + b.x) / 2}, ${(a.y + b.y) / 2 - 7})`}
                     >
-                      <rect x={-34} y={-10} width={68} height={20} rx={4} fill="white" stroke="hsl(220 15% 88%)" />
-                      <text x={0} y={-1} textAnchor="middle" fontSize="8.5" fill="hsl(220 15% 30%)" fontWeight={600}>
+                      <rect x={-34} y={-10} width={68} height={20} rx={4} fill="white" stroke="#e2e8f0" />
+                      <text x={0} y={-1} textAnchor="middle" fontSize="8.5" fill="#0b1f3a" fontWeight={600}>
                         {e.amount}
                       </text>
-                      <text x={0} y={8} textAnchor="middle" fontSize="7.5" fill="hsl(220 10% 50%)">
+                      <text x={0} y={8} textAnchor="middle" fontSize="7.5" fill="#64748b">
                         {e.date}
                       </text>
                     </g>
@@ -252,12 +252,12 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
                     </div>
                   </foreignObject>
                   {n.label && (
-                    <text x={0} y={r + 14} textAnchor="middle" fontSize="11" fontWeight={600} fill={active ? "hsl(220 15% 20%)" : "hsl(220 10% 55%)"}>
+                    <text x={0} y={r + 14} textAnchor="middle" fontSize="11" fontWeight={600} fill={active ? "#0b1f3a" : "#64748b"}>
                       {n.label}
                     </text>
                   )}
                   {n.sub && (
-                    <text x={0} y={r + (n.label ? 27 : 14)} textAnchor="middle" fontSize="9" fill={active ? "hsl(220 10% 45%)" : "hsl(220 10% 60%)"}>
+                    <text x={0} y={r + (n.label ? 27 : 14)} textAnchor="middle" fontSize="9" fill={active ? "#475569" : "#94a3b8"}>
                       {n.sub}
                     </text>
                   )}
@@ -275,15 +275,15 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
         </div>
 
         {/* Current phase description */}
-        <div className="px-4 sm:px-6 py-4 border-t border-border bg-background">
-          <p className="text-sm text-foreground">
+        <div className="px-4 sm:px-6 py-4 border-t border-slate-200 bg-white">
+          <p className="text-sm text-[#0b1f3a]">
             <span className="font-semibold">{current.title}. </span>
-            <span className="text-muted-foreground">{current.text}</span>
+            <span className="text-slate-600">{current.text}</span>
           </p>
         </div>
 
         {/* Stepper */}
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 px-4 sm:px-6 py-4 border-t border-border">
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 px-4 sm:px-6 py-4 border-t border-slate-200">
           {PHASES.map((p, i) => {
             const idx = i + 1;
             const active = phase === idx;
@@ -293,10 +293,10 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
                 key={p.title}
                 className={`rounded-md border px-3 py-2 text-xs transition-colors ${
                   active
-                    ? "border-primary bg-primary/10 text-primary"
+                    ? "border-[#0b1f3a] bg-[#0b1f3a]/10 text-[#0b1f3a]"
                     : done
-                    ? "border-border bg-muted text-foreground"
-                    : "border-border bg-background text-muted-foreground"
+                    ? "border-slate-200 bg-slate-100 text-[#0b1f3a]"
+                    : "border-slate-200 bg-white text-slate-600"
                 }`}
               >
                 <div className="font-semibold">Phase {idx}</div>
@@ -308,7 +308,7 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
       </div>
 
       {/* Legend */}
-      <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
+      <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-600">
         {[
           { kind: "victim" as const, label: "Opfer" },
           { kind: "wallet" as const, label: "Wallet" },
@@ -327,9 +327,9 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
       </div>
 
       {/* Info card */}
-      <div className="mt-8 rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="font-serif text-xl text-foreground mb-2">Wie wir Ihre Werte zurückholen</h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+      <div className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="font-serif text-xl text-[#0b1f3a] mb-2">Wie wir Ihre Werte zurückholen</h2>
+        <p className="text-sm text-slate-600 leading-relaxed">
           Jede Transaktion auf der Blockchain ist dauerhaft nachvollziehbar. In enger Zusammenarbeit
           mit spezialisierten Blockchain-Analysten, Europol und internationalen Partnerbehörden
           verfolgen wir den Weg Ihrer Coins über Mixer, Peel-Chains und Wallet-Cluster bis zu
