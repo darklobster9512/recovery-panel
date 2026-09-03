@@ -183,10 +183,10 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
             {/* Cluster halos (phase 4+) */}
             {phase >= 4 && (
               <>
-                <rect x={225} y={95} width={480} height={330} rx={18}
+                <rect x={180} y={80} width={400} height={280} rx={18}
                   fill="none" stroke="hsl(221 83% 53% / 0.35)" strokeDasharray="6 6" strokeWidth={1.5}
                   className="animate-in fade-in duration-500" />
-                <text x={235} y={112} fontSize="11" fill="hsl(221 60% 40%)" fontWeight={600}>Cluster A – gleicher Akteur</text>
+                <text x={190} y={96} fontSize="10" fill="hsl(221 60% 40%)" fontWeight={600}>Cluster A – gleicher Akteur</text>
               </>
             )}
 
