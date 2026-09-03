@@ -51,6 +51,7 @@ interface Assignment {
   webid_redirect: boolean;
   verification?: {
     title: string;
+    type: string;
     logo_url: string | null;
     instructions: string[];
     required_fields: string[];
