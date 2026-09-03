@@ -283,7 +283,7 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
         </div>
 
         {/* Stepper */}
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 px-4 sm:px-6 py-4 border-t border-slate-200">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 px-3 sm:px-6 py-3 sm:py-4 border-t border-slate-200">
           {PHASES.map((p, i) => {
             const idx = i + 1;
             const active = phase === idx;
