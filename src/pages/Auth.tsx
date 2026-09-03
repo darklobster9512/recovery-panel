@@ -135,7 +135,7 @@ export default function Auth() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="password" className="text-sm font-medium text-slate-700">
                 Passwort
               </Label>
               <div className="relative">
@@ -147,12 +147,12 @@ export default function Auth() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="h-11 rounded-lg border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus-visible:ring-[hsl(221,100%,50%)] focus-visible:ring-offset-0 pr-10"
+                  className="h-11 rounded-lg border-slate-200 bg-white text-[#0b1f3a] placeholder:text-slate-400 focus-visible:ring-[#0b1f3a] focus-visible:ring-offset-0 pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -170,12 +170,29 @@ export default function Auth() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-11 rounded-lg bg-[hsl(221,100%,50%)] hover:bg-[hsl(221,100%,45%)] text-white font-medium text-sm"
+              className="w-full h-11 rounded-lg bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white font-medium text-sm"
             >
               {loading ? "Laden..." : mode === "login" ? "Anmelden" : "Konto erstellen"}
             </Button>
 
           </form>
+
+          {/* Cooperation logos */}
+          <div className="pt-8 mt-auto">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 text-center mb-4">In Kooperation mit</p>
+            <div className="flex items-center justify-center gap-6">
+              <img
+                src={ioscoLogoAsset.url}
+                alt="IOSCO"
+                className="h-10 w-auto object-contain"
+              />
+              <img
+                src={europolLogo}
+                alt="Europol"
+                className="h-8 w-auto object-contain"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
