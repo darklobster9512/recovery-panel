@@ -537,7 +537,7 @@ export default function Dashboard() {
         <DocumentUpload />
       ) : selected ? (
         /* ── Detail View ── */
-        <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
+        <main className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 animate-in fade-in slide-in-from-right-4 duration-300">
           {qrLightboxOpen && postidentDoc?.qr && (
             <div
               className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6 animate-in fade-in duration-150"
