@@ -65,7 +65,14 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
     if (!result || result.leads.length === 0) return;
     setImporting(true);
     const rows = result.leads.map((l) => ({
-      ...l,
+      full_name: l.full_name,
+      email: l.email,
+      phone_number: l.phone_number,
+      schadenshoehe: l.schadenshoehe,
+      vorfall: l.vorfall,
+      external_id: l.external_id,
+      campaign: l.campaign,
+      raw: l.raw,
       source: "csv",
       imported_by: user?.id ?? null,
     }));
