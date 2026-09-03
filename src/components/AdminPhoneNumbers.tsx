@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
-import anosimLogo from "@/assets/anosim-logo.svg";
+const anosimLogo = "/anosim-logo.svg";
 
 interface SmsMessage {
   messageSender: string;

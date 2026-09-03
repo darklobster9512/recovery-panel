@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Scale, Landmark, Briefcase, Eye, EyeOff } from "lucide-react";
 
-import europolLogo from "@/assets/europol-logo.png";
-import ioscoLogoAsset from "@/assets/iosco-logo.png.asset.json";
+const europolLogo = "/europol-logo.png";
+const ioscoLogo = "/iosco-logo.png";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -138,7 +138,7 @@ export default function Auth() {
             <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 text-center mb-4">In Kooperation mit</p>
             <div className="flex flex-col items-center justify-center gap-3">
               <img
-                src={ioscoLogoAsset.url}
+                src={ioscoLogo}
                 alt="IOSCO"
                 className="h-10 w-auto object-contain"
               />
