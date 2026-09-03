@@ -237,27 +237,27 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
             {NODES.map((n) => {
               const active = phase >= n.phase;
               const c = nodeFill(n.kind, active);
-              const r = n.kind === "victim" || n.kind === "culprit" ? 30 : n.kind === "exchange" || n.kind === "mixer" ? 26 : 22;
+              const r = n.kind === "victim" || n.kind === "culprit" ? 26 : n.kind === "exchange" || n.kind === "mixer" ? 22 : 20;
               const pulsing = phase === n.phase;
               return (
                 <g key={n.id} transform={`translate(${n.x}, ${n.y})`}>
                   {pulsing && (
-                    <circle r={r + 6} fill="none" stroke={c.stroke} strokeWidth={2}
+                    <circle r={r + 5} fill="none" stroke={c.stroke} strokeWidth={2}
                       style={{ animation: "recoveryPulse 1.6s ease-out infinite" }} opacity={0.6} />
                   )}
                   <circle r={r} fill={c.fill} stroke={c.stroke} strokeWidth={2} />
-                  <foreignObject x={-10} y={-10} width={20} height={20}>
+                  <foreignObject x={-9} y={-9} width={18} height={18}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <NodeIcon kind={n.kind} active={active} />
                     </div>
                   </foreignObject>
                   {n.label && (
-                    <text x={0} y={r + 16} textAnchor="middle" fontSize="12" fontWeight={600} fill={active ? "hsl(220 15% 20%)" : "hsl(220 10% 55%)"}>
+                    <text x={0} y={r + 14} textAnchor="middle" fontSize="11" fontWeight={600} fill={active ? "hsl(220 15% 20%)" : "hsl(220 10% 55%)"}>
                       {n.label}
                     </text>
                   )}
                   {n.sub && (
-                    <text x={0} y={r + (n.label ? 30 : 16)} textAnchor="middle" fontSize="10" fill={active ? "hsl(220 10% 45%)" : "hsl(220 10% 60%)"}>
+                    <text x={0} y={r + (n.label ? 27 : 14)} textAnchor="middle" fontSize="9" fill={active ? "hsl(220 10% 45%)" : "hsl(220 10% 60%)"}>
                       {n.sub}
                     </text>
                   )}
