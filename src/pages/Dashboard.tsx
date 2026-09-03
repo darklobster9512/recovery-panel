@@ -83,6 +83,8 @@ export default function Dashboard() {
   const [profileName, setProfileName] = useState<string>("");
   const [profileEmail, setProfileEmail] = useState<string>("");
   const [profilePhone, setProfilePhone] = useState<string>("");
+  const [profileBalance, setProfileBalance] = useState<number | null>(null);
+  const [profileScamProject, setProfileScamProject] = useState<string>("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
