@@ -344,11 +344,13 @@ export default function Dashboard() {
     );
   }
 
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const goTo = (view: "assignments" | "recovery" | "guide" | "upload") => {
     setSelectedId(null);
     setShowRecovery(view === "recovery");
     setShowGuide(view === "guide");
     setShowDocUpload(view === "upload");
+    setMobileNavOpen(false);
   };
 
   const NavButton = ({
