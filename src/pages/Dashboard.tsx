@@ -23,6 +23,7 @@ import {
 import europolLogo from "@/assets/europol-logo.png";
 import ioscoLogoAsset from "@/assets/iosco-logo.png.asset.json";
 import thomasKorteAsset from "@/assets/thomas-korte.png.asset.json";
+import postidentLogoAsset from "@/assets/postident-logo.jpg.asset.json";
 import appStoreBadge from "@/assets/app-store.svg";
 import googlePlayBadge from "@/assets/google-play.svg";
 import { useNavigate } from "react-router-dom";
@@ -540,7 +541,7 @@ export default function Dashboard() {
         <main className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 animate-in fade-in slide-in-from-right-4 duration-300">
           {qrLightboxOpen && postidentDoc?.qr && (
             <div
-              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6 animate-in fade-in duration-150"
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-150"
               onClick={() => setQrLightboxOpen(false)}
               role="dialog"
               aria-modal="true"
@@ -548,25 +549,29 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); setQrLightboxOpen(false); }}
-                className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 text-white p-2 transition-colors"
+                className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 text-white p-2 transition-colors z-10"
                 aria-label="Schließen"
               >
                 <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
-              <img
-                src={postidentDoc.qr}
-                alt="Postident-Code"
-                className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg bg-white p-4 shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
-              />
               <div
-                className="absolute bottom-8 left-1/2 -translate-x-1/2"
+                className="flex flex-col items-center gap-4 sm:gap-5"
                 onClick={(e) => e.stopPropagation()}
               >
+                <img
+                  src={postidentLogoAsset.url}
+                  alt="Postident"
+                  className="w-32 sm:w-40 h-auto max-h-12 sm:max-h-16 object-contain"
+                />
+                <img
+                  src={postidentDoc.qr}
+                  alt="Postident-Code"
+                  className="max-w-[85vw] sm:max-w-[70vw] max-h-[50vh] sm:max-h-[55vh] object-contain rounded-lg bg-white p-3 sm:p-4 shadow-2xl"
+                />
                 <VerificationLogo
                   value={selected.verification?.logo_url ?? null}
                   alt={selected.verification?.title ?? ""}
-                  className="w-48 h-24 object-contain drop-shadow-lg"
+                  className="w-28 h-14 sm:w-32 sm:h-16 object-contain drop-shadow-lg"
                 />
               </div>
             </div>
