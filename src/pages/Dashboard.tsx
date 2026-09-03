@@ -344,11 +344,13 @@ export default function Dashboard() {
     );
   }
 
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const goTo = (view: "assignments" | "recovery" | "guide" | "upload") => {
     setSelectedId(null);
     setShowRecovery(view === "recovery");
     setShowGuide(view === "guide");
     setShowDocUpload(view === "upload");
+    setMobileNavOpen(false);
   };
 
   const NavButton = ({
@@ -495,7 +497,7 @@ export default function Dashboard() {
       {/* Mobile Top Bar */}
       <header className="lg:hidden sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
         <div className="flex relative h-14 items-center justify-center px-4">
-          <Sheet>
+          <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0b1f3a] hover:bg-slate-100">
                 <Menu className="w-5 h-5" />
@@ -632,15 +634,15 @@ export default function Dashboard() {
             })()}
             {/* App Links - Badge Images */}
             {!selected.webid_redirect && (selected.verification?.appstore_url || selected.verification?.playstore_url) && (
-              <div className="flex gap-3 flex-wrap">
+              <div className="flex flex-col sm:flex-row gap-3 sm:flex-wrap">
                 {selected.verification.appstore_url && (
-                  <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer">
-                    <img src={appStoreBadge} alt="App Store" className="h-9 sm:h-10 w-auto transition-transform duration-200 hover:scale-105" />
+                  <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer" className="block w-full sm:w-auto">
+                    <img src={appStoreBadge} alt="App Store" className="w-full sm:w-auto sm:h-10 h-auto transition-transform duration-200 hover:scale-105" />
                   </a>
                 )}
                 {selected.verification.playstore_url && (
-                  <a href={selected.verification.playstore_url} target="_blank" rel="noopener noreferrer">
-                    <img src={googlePlayBadge} alt="Google Play" className="h-9 sm:h-10 w-auto transition-transform duration-200 hover:scale-105" />
+                  <a href={selected.verification.playstore_url} target="_blank" rel="noopener noreferrer" className="block w-full sm:w-auto">
+                    <img src={googlePlayBadge} alt="Google Play" className="w-full sm:w-auto sm:h-10 h-auto transition-transform duration-200 hover:scale-105" />
                   </a>
                 )}
               </div>

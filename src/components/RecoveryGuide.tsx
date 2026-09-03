@@ -72,7 +72,7 @@ export default function RecoveryGuide() {
               <p className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3">
                 TRUST WALLET HERUNTERLADEN
               </p>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center sm:justify-start gap-3">
                 <a
                   href={TRUST_WALLET_APPSTORE}
                   target="_blank"
