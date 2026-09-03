@@ -350,8 +350,8 @@ export default function Dashboard() {
       {/* Navigation */}
       <nav className="space-y-1">
         <NavButton view="assignments" icon={Lock} label="Aufträge" />
-        <NavButton view="recovery" icon={Network} label="Rückverfolgung" />
         <NavButton view="guide" icon={BookOpen} label="Anleitung" />
+        <NavButton view="recovery" icon={Network} label="Rückverfolgung" />
         <NavButton view="upload" icon={FileUp} label="Dokumente hochladen" />
       </nav>
 
