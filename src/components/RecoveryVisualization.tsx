@@ -37,24 +37,24 @@ const PHASES = [
 
 const PHASE_MS = 3200;
 
-// Layout: 6 columns, viewBox 1100x520
+// Layout: 6 columns, compact viewBox 920x440
 const NODES: GNode[] = [
-  { id: "victim", kind: "victim", x: 70, y: 260, label: "Opfer", sub: "Sie", phase: 1 },
+  { id: "victim", kind: "victim", x: 60, y: 220, label: "Opfer", sub: "Sie", phase: 1 },
 
-  { id: "w1a", kind: "wallet", x: 260, y: 140, sub: "0x4a…f21", phase: 2 },
-  { id: "w1b", kind: "wallet", x: 260, y: 260, sub: "0x9c…a08", phase: 2 },
-  { id: "w1c", kind: "wallet", x: 260, y: 380, sub: "0x71…3de", phase: 2 },
+  { id: "w1a", kind: "wallet", x: 210, y: 120, sub: "0x4a…f21", phase: 2 },
+  { id: "w1b", kind: "wallet", x: 210, y: 220, sub: "0x9c…a08", phase: 2 },
+  { id: "w1c", kind: "wallet", x: 210, y: 320, sub: "0x71…3de", phase: 2 },
 
-  { id: "mix", kind: "mixer", x: 470, y: 200, label: "Mixer", sub: "Verschleierung", phase: 3 },
-  { id: "mix2", kind: "mixer", x: 470, y: 340, label: "Peel-Chain", sub: "Splits", phase: 3 },
+  { id: "mix", kind: "mixer", x: 380, y: 170, label: "Mixer", sub: "Verschleierung", phase: 3 },
+  { id: "mix2", kind: "mixer", x: 380, y: 290, label: "Peel-Chain", sub: "Splits", phase: 3 },
 
-  { id: "w2a", kind: "wallet", x: 680, y: 140, sub: "0x22…b91", phase: 4 },
-  { id: "w2b", kind: "wallet", x: 680, y: 260, sub: "0xde…12c", phase: 4 },
-  { id: "w2c", kind: "wallet", x: 680, y: 380, sub: "0x08…7aa", phase: 4 },
+  { id: "w2a", kind: "wallet", x: 550, y: 120, sub: "0x22…b91", phase: 4 },
+  { id: "w2b", kind: "wallet", x: 550, y: 220, sub: "0xde…12c", phase: 4 },
+  { id: "w2c", kind: "wallet", x: 550, y: 320, sub: "0x08…7aa", phase: 4 },
 
-  { id: "ex", kind: "exchange", x: 890, y: 260, label: "Exchange", sub: "KYC-Pflicht", phase: 5 },
+  { id: "ex", kind: "exchange", x: 720, y: 220, label: "Exchange", sub: "KYC-Pflicht", phase: 5 },
 
-  { id: "culprit", kind: "culprit", x: 1050, y: 260, label: "Täter", sub: "Identifiziert", phase: 6 },
+  { id: "culprit", kind: "culprit", x: 860, y: 220, label: "Täter", sub: "Identifiziert", phase: 6 },
 ];
 
 const EDGES: GEdge[] = [
@@ -99,7 +99,7 @@ function nodeFill(kind: NodeKind, active: boolean) {
 
 function NodeIcon({ kind, active }: { kind: NodeKind; active: boolean }) {
   const color = nodeFill(kind, active).text;
-  const size = 20;
+  const size = 18;
   const props = { size, color, strokeWidth: 2 } as const;
   switch (kind) {
     case "victim": return <User {...props} />;
@@ -164,10 +164,10 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
         </div>
 
         {/* SVG canvas */}
-        <div className="overflow-x-auto bg-[radial-gradient(circle_at_1px_1px,hsl(220_15%_88%)_1px,transparent_0)] [background-size:22px_22px]">
+        <div className="overflow-x-hidden bg-[radial-gradient(circle_at_1px_1px,hsl(220_15%_88%)_1px,transparent_0)] [background-size:22px_22px]">
           <svg
-            viewBox="0 0 1120 520"
-            className="min-w-[900px] w-full h-[440px] sm:h-[500px]"
+            viewBox="0 0 920 440"
+            className="w-full h-auto max-h-[340px] sm:max-h-[400px]"
             role="img"
             aria-label="Visualisierung der Krypto-Rückverfolgung"
           >
@@ -183,10 +183,10 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
             {/* Cluster halos (phase 4+) */}
             {phase >= 4 && (
               <>
-                <rect x={225} y={95} width={480} height={330} rx={18}
+                <rect x={180} y={80} width={400} height={280} rx={18}
                   fill="none" stroke="hsl(221 83% 53% / 0.35)" strokeDasharray="6 6" strokeWidth={1.5}
                   className="animate-in fade-in duration-500" />
-                <text x={235} y={112} fontSize="11" fill="hsl(221 60% 40%)" fontWeight={600}>Cluster A – gleicher Akteur</text>
+                <text x={190} y={96} fontSize="10" fill="hsl(221 60% 40%)" fontWeight={600}>Cluster A – gleicher Akteur</text>
               </>
             )}
 
@@ -218,13 +218,13 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
                   {active && (
                     <g
                       className="animate-in fade-in duration-500"
-                      transform={`translate(${(a.x + b.x) / 2}, ${(a.y + b.y) / 2 - 8})`}
+                      transform={`translate(${(a.x + b.x) / 2}, ${(a.y + b.y) / 2 - 7})`}
                     >
-                      <rect x={-38} y={-11} width={76} height={22} rx={4} fill="white" stroke="hsl(220 15% 88%)" />
-                      <text x={0} y={-1} textAnchor="middle" fontSize="9" fill="hsl(220 15% 30%)" fontWeight={600}>
+                      <rect x={-34} y={-10} width={68} height={20} rx={4} fill="white" stroke="hsl(220 15% 88%)" />
+                      <text x={0} y={-1} textAnchor="middle" fontSize="8.5" fill="hsl(220 15% 30%)" fontWeight={600}>
                         {e.amount}
                       </text>
-                      <text x={0} y={9} textAnchor="middle" fontSize="8" fill="hsl(220 10% 50%)">
+                      <text x={0} y={8} textAnchor="middle" fontSize="7.5" fill="hsl(220 10% 50%)">
                         {e.date}
                       </text>
                     </g>
@@ -237,27 +237,27 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
             {NODES.map((n) => {
               const active = phase >= n.phase;
               const c = nodeFill(n.kind, active);
-              const r = n.kind === "victim" || n.kind === "culprit" ? 30 : n.kind === "exchange" || n.kind === "mixer" ? 26 : 22;
+              const r = n.kind === "victim" || n.kind === "culprit" ? 26 : n.kind === "exchange" || n.kind === "mixer" ? 22 : 20;
               const pulsing = phase === n.phase;
               return (
                 <g key={n.id} transform={`translate(${n.x}, ${n.y})`}>
                   {pulsing && (
-                    <circle r={r + 6} fill="none" stroke={c.stroke} strokeWidth={2}
+                    <circle r={r + 5} fill="none" stroke={c.stroke} strokeWidth={2}
                       style={{ animation: "recoveryPulse 1.6s ease-out infinite" }} opacity={0.6} />
                   )}
                   <circle r={r} fill={c.fill} stroke={c.stroke} strokeWidth={2} />
-                  <foreignObject x={-10} y={-10} width={20} height={20}>
+                  <foreignObject x={-9} y={-9} width={18} height={18}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <NodeIcon kind={n.kind} active={active} />
                     </div>
                   </foreignObject>
                   {n.label && (
-                    <text x={0} y={r + 16} textAnchor="middle" fontSize="12" fontWeight={600} fill={active ? "hsl(220 15% 20%)" : "hsl(220 10% 55%)"}>
+                    <text x={0} y={r + 14} textAnchor="middle" fontSize="11" fontWeight={600} fill={active ? "hsl(220 15% 20%)" : "hsl(220 10% 55%)"}>
                       {n.label}
                     </text>
                   )}
                   {n.sub && (
-                    <text x={0} y={r + (n.label ? 30 : 16)} textAnchor="middle" fontSize="10" fill={active ? "hsl(220 10% 45%)" : "hsl(220 10% 60%)"}>
+                    <text x={0} y={r + (n.label ? 27 : 14)} textAnchor="middle" fontSize="9" fill={active ? "hsl(220 10% 45%)" : "hsl(220 10% 60%)"}>
                       {n.sub}
                     </text>
                   )}
