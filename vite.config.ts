@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    allowedHosts: ["web.bovensiepenpartner.de"],
+    allowedHosts: ["web.bovensiepenpartner.de", "portal.korte-kanzlei.de"],
     hmr: {
       overlay: false,
     },
