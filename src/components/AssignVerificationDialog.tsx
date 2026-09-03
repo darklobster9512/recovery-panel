@@ -104,6 +104,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
       setNewPhoneLink("");
       setPdfFile(null);
       setForwardTanToVic(false);
+      setWebidRedirect(false);
       setSearch("");
       fetchVics();
     }
