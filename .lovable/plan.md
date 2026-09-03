@@ -1,21 +1,44 @@
-# E-Mail-Vorschau: Betreff anzeigen
+# Alle Bilder nach `public/` verschieben
 
-Auf `/admin/emails` fehlt bei der Vorschau der Betreff, der beim tatsächlichen Versand verwendet wird. Aktuell steht der Betreff nur hartkodiert in der Edge Function `create-user`.
+Aktuell liegen Bilder gemischt in `src/assets/` (teils als Datei, teils als CDN-`.asset.json`-Pointer) und `public/`. Ziel: alle Bilder unter `public/` als echte Dateien, referenziert über absolute Pfade (`/dateiname`).
 
-## Änderungen
+## Zu verschiebende Dateien
 
-1. **`src/lib/emailTemplates.ts`** – neuen Helper exportieren:
-   ```ts
-   export function buildCredentialsSubject(settings: AppSettings): string {
-     return `Ihre Zugangsdaten – ${settings.company_name || "Mandantenportal"}`;
-   }
-   ```
-   Damit ist der Betreff eine einzige Source of Truth.
+Aus `src/assets/`:
+- `anosim-logo.svg`
+- `app-store.svg`
+- `europol-logo.png`
+- `google-play.svg`
+- `iosco-logo.png` (aktuell CDN-Pointer `iosco-logo.png.asset.json` → Datei von CDN-URL herunterladen und in `public/` speichern)
+- `postident-logo.jpg` (CDN-Pointer → runterladen)
+- `thomas-korte.png` (CDN-Pointer → runterladen)
 
-2. **`src/components/AdminEmailTemplates.tsx`** – Betreff berechnen und in der Vorschau-Card oberhalb des iframes anzeigen (Label „Betreff“, monospace/kräftig, mit Absender-Zeile falls sinnvoll: „Von: {from_name} <{from_email}>“ aus `settings`).
+Ziel: `public/anosim-logo.svg`, `public/app-store.svg`, `public/europol-logo.png`, `public/google-play.svg`, `public/iosco-logo.png`, `public/postident-logo.jpg`, `public/thomas-korte.png`.
 
-3. **`supabase/functions/create-user/index.ts`** – `buildCredentialsSubject(s)` statt des Inline-Strings verwenden, damit Vorschau und Versand identisch bleiben. (Import aus `_shared` oder Duplikat im Function-Ordner, je nach vorhandenem Setup.)
+## Code-Anpassungen
+
+Betroffene Dateien (bereits via rg gefunden):
+- `src/pages/Auth.tsx`
+- `src/pages/Dashboard.tsx`
+- `src/components/AdminPhoneNumbers.tsx`
+- `src/components/RecoveryGuide.tsx`
+
+In jeder Datei die `import xyz from "@/assets/..."`- bzw. `.asset.json`-Imports entfernen und durch String-Pfade ersetzen, z. B.:
+
+```tsx
+// vorher
+import europol from "@/assets/europol-logo.png";
+<img src={europol} />
+
+// nachher
+<img src="/europol-logo.png" />
+```
+
+## Aufräumen
+
+Nach der Umstellung `src/assets/` löschen (inklusive der drei `.asset.json`-Pointer). CDN-Assets werden nicht per `lovable-assets delete` entfernt, um alte Deploys nicht zu brechen.
 
 ## Nicht enthalten
-- Kein Versand, keine neuen Templates.
-- Keine Änderung am HTML-Body oder an SMS.
+
+- Keine Änderung an `favicon.*`, `placeholder.svg`, `wasm/`.
+- Keine visuellen/funktionalen Änderungen — nur Pfade.
