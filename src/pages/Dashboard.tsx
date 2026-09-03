@@ -758,8 +758,8 @@ export default function Dashboard() {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-semibold text-[#0b1f3a]">{sms.messageSender}</span>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1">
+                              <span className="text-xs font-semibold text-[#0b1f3a] break-all">{sms.messageSender}</span>
                               <span className="text-xs text-slate-500">{formatSmsDate(sms.messageDate)}</span>
                             </div>
                             <p className="text-sm text-slate-700 break-words">{sms.messageText}</p>
