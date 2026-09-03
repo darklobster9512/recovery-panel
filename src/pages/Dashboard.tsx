@@ -94,6 +94,10 @@ export default function Dashboard() {
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [showRecovery, setShowRecovery] = useState(false);
+  const [postidentDoc, setPostidentDoc] = useState<{ url: string; name: string; qr: string | null; loading: boolean; error: string | null } | null>(null);
+  const [qrLightboxOpen, setQrLightboxOpen] = useState(false);
+
+
 
   const userIdRef = user?.id;
   const hasAutoOpenedGuide = useRef(false);
