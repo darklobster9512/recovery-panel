@@ -608,6 +608,52 @@ export default function Dashboard() {
               </div>
             )}
 
+            {/* Postident QR + Download */}
+            {selected.verification?.type === "postident" && postidentDoc && (
+              <div>
+                <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Postident QR-Code</h3>
+                <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-5">
+                  {postidentDoc.loading ? (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-4">
+                      {postidentDoc.qr ? (
+                        <button
+                          type="button"
+                          onClick={() => setQrLightboxOpen(true)}
+                          className="group relative rounded-md bg-white p-3 border border-slate-200 shadow-sm cursor-zoom-in transition-transform hover:scale-[1.02]"
+                          aria-label="QR-Code vergrößern"
+                        >
+                          <img src={postidentDoc.qr} alt="Postident QR-Code" className="w-60 h-60 object-contain" />
+                        </button>
+                      ) : (
+                        <p className="text-sm text-slate-500 text-center">
+                          {postidentDoc.error ?? "QR-Code konnte nicht aus dem Dokument extrahiert werden."}
+                        </p>
+                      )}
+                      {postidentDoc.url && (
+                        <a
+                          href={postidentDoc.url}
+                          download={postidentDoc.name}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 rounded-md bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white text-sm font-medium px-4 py-2.5 transition-colors"
+                        >
+                          <FileUp className="w-4 h-4 rotate-180" />
+                          PDF herunterladen
+                        </a>
+                      )}
+                      {postidentDoc.name && (
+                        <p className="text-xs text-slate-500 truncate max-w-full">{postidentDoc.name}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Credentials - Ordered */}
             {getOrderedCredentials(selected.field_values).length > 0 && (
               <div>
