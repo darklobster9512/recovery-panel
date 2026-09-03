@@ -303,12 +303,12 @@ export default function Dashboard() {
         onClick={() => goTo(view)}
         className={`relative flex items-center gap-3 w-full rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
           isActive
-            ? "bg-[#0b1f3a]/10 text-[#0b1f3a]"
-            : "text-foreground/70 hover:bg-secondary hover:text-foreground"
+            ? "bg-[#0b1f3a] text-white"
+            : "text-slate-700 hover:bg-slate-100 hover:text-[#0b1f3a]"
         }`}
       >
         {isActive && (
-          <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-primary" />
+          <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-[#c9a24a]" />
         )}
         <Icon className="w-4 h-4 shrink-0" />
         <span className="truncate">{label}</span>
