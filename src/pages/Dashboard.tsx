@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
-import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp, BookOpen, Network } from "lucide-react";
+import { LogOut, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp, BookOpen, Network } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { notifyTelegram } from "@/lib/telegramNotify";
