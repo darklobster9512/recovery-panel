@@ -571,14 +571,14 @@ export default function Dashboard() {
             Zurück zu den Aufträgen
           </Button>
 
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
             <VerificationLogo
               value={selected.verification?.logo_url ?? null}
               alt={selected.verification?.title ?? ""}
-              className="w-14 h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 p-2 shrink-0"
             />
             <div className="flex-1 min-w-0">
-              <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-[#0b1f3a] tracking-tight truncate">
+              <h1 className="font-serif text-xl sm:text-3xl font-semibold text-[#0b1f3a] tracking-tight break-words">
                 {selected.verification?.title ?? "Auftrag"}
               </h1>
               <div className="mt-1.5">
