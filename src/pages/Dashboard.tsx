@@ -500,7 +500,7 @@ export default function Dashboard() {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-6 bg-white">
+            <SheetContent side="left" className="w-[85vw] max-w-xs p-5 bg-white overflow-y-auto">
               <SheetHeader className="sr-only">
                 <SheetTitle>Menü</SheetTitle>
               </SheetHeader>
