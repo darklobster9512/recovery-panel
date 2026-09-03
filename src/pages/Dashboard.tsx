@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -94,6 +94,8 @@ export default function Dashboard() {
   const [showRecovery, setShowRecovery] = useState(false);
 
   const userIdRef = user?.id;
+  const hasAutoOpenedGuide = useRef(false);
+
   useEffect(() => {
     if (userIdRef) {
       loadAssignments();
@@ -279,6 +281,14 @@ export default function Dashboard() {
     : showDocUpload
     ? "upload"
     : "assignments";
+
+  // Wenn keine Aufträge vorhanden sind, direkt die Anleitung anzeigen
+  useEffect(() => {
+    if (!loading && assignments.length === 0 && !hasAutoOpenedGuide.current && activeView === "assignments") {
+      setShowGuide(true);
+      hasAutoOpenedGuide.current = true;
+    }
+  }, [loading, assignments.length, activeView]);
 
   const goTo = (view: "assignments" | "recovery" | "guide" | "upload") => {
     setSelectedId(null);
