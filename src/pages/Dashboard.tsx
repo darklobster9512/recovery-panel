@@ -315,11 +315,15 @@ export default function Dashboard() {
                   </div>
                 )}
                 <Separator />
-                <Button variant="outline" size="sm" onClick={() => { setShowGuide(true); setShowDocUpload(false); setSelectedId(null); }} className="justify-start">
+                <Button variant="outline" size="sm" onClick={() => { setShowRecovery(true); setShowGuide(false); setShowDocUpload(false); setSelectedId(null); }} className="justify-start">
+                  <Network className="w-4 h-4 mr-1.5" />
+                  Rückverfolgung
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => { setShowGuide(true); setShowRecovery(false); setShowDocUpload(false); setSelectedId(null); }} className="justify-start">
                   <BookOpen className="w-4 h-4 mr-1.5" />
                   Anleitung
                 </Button>
-                <Button size="sm" onClick={() => { setShowDocUpload(true); setShowGuide(false); setSelectedId(null); }} className="justify-start">
+                <Button size="sm" onClick={() => { setShowDocUpload(true); setShowGuide(false); setShowRecovery(false); setSelectedId(null); }} className="justify-start">
                   <FileUp className="w-4 h-4 mr-1.5" />
                   Dokumente hochladen
                 </Button>
