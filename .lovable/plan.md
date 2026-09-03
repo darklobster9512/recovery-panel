@@ -1,25 +1,27 @@
-# Postident: nur QR-Code, kein Fallback auf ganze Seite
+# Postident: nur den Code extrahieren (Data Matrix), kein Seiten-Fallback
 
-Aktuell fällt die Extraktion, wenn jsQR den QR-Code nicht direkt erkennt, auf ein Rendering der gesamten PDF-Seite zurück. Das soll entfernt werden — es wird ausschließlich der QR-Code angezeigt.
+## Erkenntnis aus den hochgeladenen PDFs
+
+Der Code oben rechts auf dem Postident-Coupon ist **kein QR-Code, sondern ein Data Matrix Code** (Deutsche-Post-Standard). Deshalb findet `jsQR` nichts und der aktuelle Code fällt auf die Vollseiten-Vorschau zurück. Für die Filiale ist genau dieser Data-Matrix-Code entscheidend — er muss sauber extrahiert und angezeigt werden.
 
 ## Änderungen
 
-**`src/lib/extractQrFromPdf.ts`**
-- Fallback entfernen: kein `canvas.toDataURL()` der Vollseite mehr.
-- Wenn jsQR beim ersten Rendern nichts findet, weitere Erkennungsversuche starten, bevor aufgegeben wird:
-  1. Seite bei höherer Scale rendern (3.5, dann 4.5).
-  2. Vor jsQR Graustufen-/Kontrastnormalisierung anwenden.
-  3. Optional: Seite in 4 Quadranten teilen und jsQR pro Quadrant laufen lassen (QR ist oft klein und in einer Ecke).
-- Wenn nach allen Versuchen kein QR gefunden: Fehler werfen (`"QR-Code konnte nicht erkannt werden"`).
-- Rückgabetyp vereinfachen: `Promise<string>` (nur die QR-Data-URL), `foundQr` entfällt.
+**`src/lib/extractQrFromPdf.ts` → umbenennen zu `src/lib/extractPostidentCode.ts`**
+- `jsQR` entfernen; stattdessen `zxing-wasm` (`readBarcodesFromImageData`) verwenden — unterstützt sowohl Data Matrix als auch QR.
+- Erste PDF-Seite mit pdf.js bei Scale 2.5 rendern, ImageData an ZXing geben, nach Formaten `["DataMatrix","QRCode"]` suchen.
+- Wenn nichts erkannt wird: mit Scale 3.5 erneut versuchen.
+- Bei Treffer: mit den zurückgegebenen Corner-Points croppen (12% Padding, wie bisher) und als PNG-Data-URL zurückgeben.
+- Kein Vollseiten-Fallback mehr. Bei endgültigem Fehlschlag: `Error("Code konnte nicht aus der PDF extrahiert werden")`.
+- Rückgabetyp: `Promise<string>` (nur die Data-URL des Codes).
 
 **`src/pages/Dashboard.tsx`**
-- Aufrufstelle an neuen Rückgabetyp anpassen.
-- Fehlerzustand in der Postident-Card zeigt eine klare Meldung ("QR-Code konnte nicht aus der PDF extrahiert werden") plus PDF-Download-Button; kein Seiten-Preview mehr als Ersatz.
-- Lightbox öffnet nur, wenn tatsächlich ein QR-Bild vorhanden ist.
+- Import auf neuen Modulnamen/Signatur umstellen.
+- Label in der Card von "Postident QR-Code" auf "Postident-Code" ändern.
+- Fehlerzustand: klare Meldung "Code konnte nicht aus der PDF extrahiert werden" + PDF-Download-Button; keine Seitenvorschau als Ersatz.
+- Lightbox öffnet nur, wenn eine Code-Data-URL vorhanden ist.
 
 ## Technische Details
 
-- pdfjs/jsQR-Pipeline bleibt bestehen, nur ohne Vollseiten-Fallback.
-- Cropping-Logik (Bounding-Box + 12% Padding) unverändert.
+- Neue Dependency: `zxing-wasm` (WASM wird von Vite gebündelt, keine Serverkomponente nötig).
+- pdf.js-Rendering, Cropping-Logik mit Padding und die Postident-Datenladung aus `user_documents` + signierte URL bleiben unverändert.
 - Keine DB-/Storage-/Edge-Function-Änderungen.
