@@ -370,7 +370,7 @@ export default function DocumentUpload() {
   const showAssignmentSelect = !showIdSection;
 
   return (
-    <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
+    <main className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 animate-in fade-in slide-in-from-right-4 duration-300">
       {/* Security Header */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#0b1f3a] mb-4">
