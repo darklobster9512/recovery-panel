@@ -5,7 +5,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Scale, Landmark, Briefcase, Eye, EyeOff, Shield } from "lucide-react";
+import { Scale, Landmark, Briefcase, Eye, EyeOff } from "lucide-react";
+
+import europolLogo from "@/assets/europol-logo.png";
+import ioscoLogoAsset from "@/assets/iosco-logo.png.asset.json";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "register">("login");
