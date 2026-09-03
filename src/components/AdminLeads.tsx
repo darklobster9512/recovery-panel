@@ -34,6 +34,7 @@ import LeadImportDialog from "@/components/LeadImportDialog";
 import LeadNotesDialog from "@/components/LeadNotesDialog";
 import LeadActivityLog from "@/components/LeadActivityLog";
 import {
+  CAMPAIGN_META,
   formatDateTime,
   formatEur,
   LEAD_STATUSES,
@@ -175,7 +176,16 @@ export default function AdminLeads() {
                     <TableCell className="whitespace-nowrap text-muted-foreground tabular-nums">
                       {formatDateTime(lead.imported_at)}
                     </TableCell>
-                    <TableCell className="font-medium">{lead.full_name ?? "—"}</TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <span>{lead.full_name ?? "—"}</span>
+                        {lead.campaign && (
+                          <Badge variant="secondary" className={CAMPAIGN_META[lead.campaign].className}>
+                            {CAMPAIGN_META[lead.campaign].label}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="whitespace-nowrap">
                       {lead.phone_number ? (
                         <button

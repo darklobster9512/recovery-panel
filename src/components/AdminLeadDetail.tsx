@@ -16,6 +16,7 @@ import { ArrowLeft, Loader2, UserPlus } from "lucide-react";
 import LeadNotesPanel from "@/components/LeadNotesPanel";
 import LeadActivityLog from "@/components/LeadActivityLog";
 import {
+  CAMPAIGN_META,
   formatDateTime,
   formatEur,
   LEAD_STATUSES,
@@ -96,6 +97,11 @@ export default function AdminLeadDetail() {
           </Button>
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="font-display text-2xl font-semibold">{lead.full_name ?? "Lead ohne Namen"}</h2>
+            {lead.campaign && (
+              <Badge variant="secondary" className={CAMPAIGN_META[lead.campaign].className}>
+                {CAMPAIGN_META[lead.campaign].label}
+              </Badge>
+            )}
             <Badge variant="secondary" className={statusMeta(lead.status).className}>
               {statusMeta(lead.status).label}
             </Badge>
