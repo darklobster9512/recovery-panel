@@ -333,7 +333,7 @@ export default function Dashboard() {
         <img
           src={thomasKorteAsset.url}
           alt="Dr. Thomas Korte"
-          className="w-12 h-12 rounded-full object-cover border border-border shrink-0"
+          className="w-12 h-12 rounded-full object-cover object-[center_30%] border border-border shrink-0"
         />
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground truncate">Dr. Thomas Korte</p>
