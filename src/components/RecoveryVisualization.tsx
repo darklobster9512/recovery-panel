@@ -99,7 +99,7 @@ function nodeFill(kind: NodeKind, active: boolean) {
 
 function NodeIcon({ kind, active }: { kind: NodeKind; active: boolean }) {
   const color = nodeFill(kind, active).text;
-  const size = 20;
+  const size = 18;
   const props = { size, color, strokeWidth: 2 } as const;
   switch (kind) {
     case "victim": return <User {...props} />;
