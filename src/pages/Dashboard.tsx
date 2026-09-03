@@ -555,7 +555,7 @@ export default function Dashboard() {
               </button>
               <img
                 src={postidentDoc.qr}
-                alt="Postident QR-Code"
+                alt="Postident-Code"
                 className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg bg-white p-4 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               />
