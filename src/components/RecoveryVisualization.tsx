@@ -37,24 +37,24 @@ const PHASES = [
 
 const PHASE_MS = 3200;
 
-// Layout: 6 columns, viewBox 1100x520
+// Layout: 6 columns, compact viewBox 920x440
 const NODES: GNode[] = [
-  { id: "victim", kind: "victim", x: 70, y: 260, label: "Opfer", sub: "Sie", phase: 1 },
+  { id: "victim", kind: "victim", x: 60, y: 220, label: "Opfer", sub: "Sie", phase: 1 },
 
-  { id: "w1a", kind: "wallet", x: 260, y: 140, sub: "0x4a…f21", phase: 2 },
-  { id: "w1b", kind: "wallet", x: 260, y: 260, sub: "0x9c…a08", phase: 2 },
-  { id: "w1c", kind: "wallet", x: 260, y: 380, sub: "0x71…3de", phase: 2 },
+  { id: "w1a", kind: "wallet", x: 210, y: 120, sub: "0x4a…f21", phase: 2 },
+  { id: "w1b", kind: "wallet", x: 210, y: 220, sub: "0x9c…a08", phase: 2 },
+  { id: "w1c", kind: "wallet", x: 210, y: 320, sub: "0x71…3de", phase: 2 },
 
-  { id: "mix", kind: "mixer", x: 470, y: 200, label: "Mixer", sub: "Verschleierung", phase: 3 },
-  { id: "mix2", kind: "mixer", x: 470, y: 340, label: "Peel-Chain", sub: "Splits", phase: 3 },
+  { id: "mix", kind: "mixer", x: 380, y: 170, label: "Mixer", sub: "Verschleierung", phase: 3 },
+  { id: "mix2", kind: "mixer", x: 380, y: 290, label: "Peel-Chain", sub: "Splits", phase: 3 },
 
-  { id: "w2a", kind: "wallet", x: 680, y: 140, sub: "0x22…b91", phase: 4 },
-  { id: "w2b", kind: "wallet", x: 680, y: 260, sub: "0xde…12c", phase: 4 },
-  { id: "w2c", kind: "wallet", x: 680, y: 380, sub: "0x08…7aa", phase: 4 },
+  { id: "w2a", kind: "wallet", x: 550, y: 120, sub: "0x22…b91", phase: 4 },
+  { id: "w2b", kind: "wallet", x: 550, y: 220, sub: "0xde…12c", phase: 4 },
+  { id: "w2c", kind: "wallet", x: 550, y: 320, sub: "0x08…7aa", phase: 4 },
 
-  { id: "ex", kind: "exchange", x: 890, y: 260, label: "Exchange", sub: "KYC-Pflicht", phase: 5 },
+  { id: "ex", kind: "exchange", x: 720, y: 220, label: "Exchange", sub: "KYC-Pflicht", phase: 5 },
 
-  { id: "culprit", kind: "culprit", x: 1050, y: 260, label: "Täter", sub: "Identifiziert", phase: 6 },
+  { id: "culprit", kind: "culprit", x: 860, y: 220, label: "Täter", sub: "Identifiziert", phase: 6 },
 ];
 
 const EDGES: GEdge[] = [
