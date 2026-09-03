@@ -1,1 +1,4 @@
 project_id = "ssxqmhnpnxnwaqquswwv"
+
+[functions.webid-redirect-watch]
+verify_jwt = false

@@ -611,6 +611,7 @@ export type Database = {
         | "user_account_created"
         | "tan_forwarded_to_vic"
         | "kyc_data_extracted"
+        | "webid_redirect_intercepted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -764,6 +765,7 @@ export const Constants = {
         "user_account_created",
         "tan_forwarded_to_vic",
         "kyc_data_extracted",
+        "webid_redirect_intercepted",
       ],
     },
   },
