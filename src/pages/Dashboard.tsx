@@ -227,12 +227,12 @@ export default function Dashboard() {
       }
       const pdfUrl = signed.signedUrl;
       try {
-        const { qrDataUrl } = await extractQrFromPdf(pdfUrl);
+        const codeDataUrl = await extractPostidentCode(pdfUrl);
         if (cancelled) return;
-        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: qrDataUrl, loading: false, error: null });
+        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: codeDataUrl, loading: false, error: null });
       } catch (e: any) {
         if (cancelled) return;
-        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: null, loading: false, error: e?.message ?? "QR-Code konnte nicht extrahiert werden." });
+        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: null, loading: false, error: e?.message ?? "Code konnte nicht aus der PDF extrahiert werden." });
       }
     })();
     return () => {
