@@ -103,14 +103,6 @@ export default function Dashboard() {
     }
   }, [userIdRef]);
 
-  // Wenn keine Aufträge vorhanden sind, direkt die Anleitung anzeigen
-  useEffect(() => {
-    if (!loading && assignments.length === 0 && !hasAutoOpenedGuide.current && activeView === "assignments") {
-      setShowGuide(true);
-      hasAutoOpenedGuide.current = true;
-    }
-  }, [loading, assignments.length, activeView]);
-
   const loadProfile = async () => {
     const { data } = await supabase
       .from("profiles")
