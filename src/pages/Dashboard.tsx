@@ -101,13 +101,14 @@ export default function Dashboard() {
   const loadProfile = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("first_name, last_name, email")
+      .select("first_name, last_name, email, phone")
       .eq("id", user!.id)
       .maybeSingle();
     if (data) {
       const name = [data.first_name, data.last_name].filter(Boolean).join(" ");
       setProfileName(name);
       setProfileEmail(data.email ?? "");
+      setProfilePhone((data as any).phone ?? "");
     }
   };
 
