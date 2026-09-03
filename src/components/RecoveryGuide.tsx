@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, ShieldAlert } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 import appStoreBadge from "@/assets/app-store.svg";
 import googlePlayBadge from "@/assets/google-play.svg";
 
@@ -23,23 +22,9 @@ const STEPS = [
   },
 ];
 
-interface Props {
-  onBack: () => void;
-}
-
-export default function RecoveryGuide({ onBack }: Props) {
+export default function RecoveryGuide() {
   return (
     <main className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 animate-in fade-in slide-in-from-right-4 duration-300">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onBack}
-        className="mb-6 text-muted-foreground hover:text-foreground -ml-2"
-      >
-        <ArrowLeft className="w-4 h-4 mr-1.5" />
-        Zurück
-      </Button>
-
       <div className="rounded-2xl overflow-hidden border border-border bg-white shadow-sm">
         {/* Header (Navy) */}
         <div className="relative bg-[#0b1f3a] px-6 sm:px-12 pt-10 pb-8 text-center">

@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  ArrowLeft,
   Shield,
   Lock,
   Server,
@@ -82,7 +81,7 @@ function validateIdFile(f: File): string | null {
   return null;
 }
 
-export default function DocumentUpload({ onBack }: { onBack: () => void }) {
+export default function DocumentUpload() {
   const { user } = useAuth();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [selectedAssignment, setSelectedAssignment] = useState<string>("");
@@ -372,16 +371,6 @@ export default function DocumentUpload({ onBack }: { onBack: () => void }) {
 
   return (
     <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onBack}
-        className="mb-8 text-muted-foreground hover:text-foreground -ml-2"
-      >
-        <ArrowLeft className="w-4 h-4 mr-1.5" />
-        Zurück
-      </Button>
-
       {/* Security Header */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">

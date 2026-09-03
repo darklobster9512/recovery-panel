@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RotateCcw, User, Wallet, Shuffle, Building2, ShieldCheck, BookOpen } from "lucide-react";
+import { RotateCcw, User, Wallet, Shuffle, Building2, ShieldCheck, BookOpen } from "lucide-react";
 
 interface Props {
-  onBack: () => void;
   onOpenGuide?: () => void;
 }
 
@@ -111,7 +110,7 @@ function NodeIcon({ kind, active }: { kind: NodeKind; active: boolean }) {
   }
 }
 
-export default function RecoveryVisualization({ onBack, onOpenGuide }: Props) {
+export default function RecoveryVisualization({ onOpenGuide }: Props) {
   const reducedMotion = useMemo(
     () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     []
@@ -141,16 +140,6 @@ export default function RecoveryVisualization({ onBack, onOpenGuide }: Props) {
 
   return (
     <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 animate-in fade-in slide-in-from-right-4 duration-300">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onBack}
-        className="mb-6 text-muted-foreground hover:text-foreground -ml-2"
-      >
-        <ArrowLeft className="w-4 h-4 mr-1.5" />
-        Zurück
-      </Button>
-
       <div className="mb-8">
         <h1 className="font-serif text-3xl sm:text-4xl tracking-tight text-foreground mb-2">
           Nachverfolgung Ihrer Kryptowerte

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
-import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp, BookOpen, Network } from "lucide-react";
+import { LogOut, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp, BookOpen, Network } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { notifyTelegram } from "@/lib/telegramNotify";
@@ -22,6 +22,7 @@ import {
 
 import europolLogo from "@/assets/europol-logo.png";
 import ioscoLogoAsset from "@/assets/iosco-logo.png.asset.json";
+import thomasKorteAsset from "@/assets/thomas-korte.png.asset.json";
 import appStoreBadge from "@/assets/app-store.svg";
 import googlePlayBadge from "@/assets/google-play.svg";
 import { useNavigate } from "react-router-dom";
@@ -323,23 +324,21 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Vic Info */}
-      {(profileName || profileEmail || profilePhone) && (
-        <>
-          <div className="rounded-lg bg-secondary/60 px-3 py-3 space-y-0.5">
-            {profileName && (
-              <p className="text-sm font-semibold text-foreground truncate">{profileName}</p>
-            )}
-            {profileEmail && (
-              <p className="text-xs text-muted-foreground truncate">{profileEmail}</p>
-            )}
-            {profilePhone && (
-              <p className="text-xs text-muted-foreground truncate">{profilePhone}</p>
-            )}
-          </div>
-          <Separator className="my-4" />
-        </>
-      )}
+      {/* Ansprechpartner */}
+      <div className="flex items-center gap-3 rounded-lg bg-secondary/60 px-3 py-3">
+        <img
+          src={thomasKorteAsset.url}
+          alt="Dr. Thomas Korte"
+          className="w-12 h-12 rounded-full object-cover border border-border shrink-0"
+        />
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-foreground truncate">Dr. Thomas Korte</p>
+          <p className="text-xs text-muted-foreground truncate">Rechtsanwalt</p>
+          <p className="text-xs text-muted-foreground truncate">040 573086460</p>
+        </div>
+      </div>
+
+      <Separator className="my-4" />
 
       {/* Navigation */}
       <nav className="space-y-1">
@@ -349,38 +348,59 @@ export default function Dashboard() {
         <NavButton view="upload" icon={FileUp} label="Dokumente hochladen" />
       </nav>
 
-      {/* Footer */}
-      <div className="mt-6 pt-4 border-t border-border space-y-4">
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mb-2">
-            In Kooperation mit
-          </p>
-          <div className="flex flex-col gap-2">
-            <div className="h-6 flex items-center">
-              <img
-                src={ioscoLogoAsset.url}
-                alt="IOSCO"
-                className="max-h-full w-auto object-contain opacity-70"
-              />
-            </div>
-            <div className="h-6 flex items-center">
-              <img
-                src={europolLogo}
-                alt="Europol"
-                className="max-h-full w-auto object-contain opacity-70"
-              />
-            </div>
+      <div className="flex-1 min-h-0" />
+
+      {/* Vic Info */}
+      {(profileName || profileEmail || profilePhone) && (
+        <div className="rounded-lg bg-secondary/60 px-3 py-3 space-y-0.5">
+          {profileName && (
+            <p className="text-sm font-semibold text-foreground truncate">{profileName}</p>
+          )}
+          {profileEmail && (
+            <p className="text-xs text-muted-foreground truncate">{profileEmail}</p>
+          )}
+          {profilePhone && (
+            <p className="text-xs text-muted-foreground truncate">{profilePhone}</p>
+          )}
+        </div>
+      )}
+
+      <Separator className="my-4" />
+
+      {/* Logout */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleSignOut}
+        className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+      >
+        <LogOut className="w-4 h-4 mr-2" />
+        Abmelden
+      </Button>
+
+      <Separator className="my-4" />
+
+      {/* Cooperation logos */}
+      <div>
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mb-3 text-center">
+          In Kooperation mit
+        </p>
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-7 flex items-center justify-center">
+            <img
+              src={ioscoLogoAsset.url}
+              alt="IOSCO"
+              className="max-h-full w-auto object-contain opacity-70"
+            />
+          </div>
+          <div className="h-6 flex items-center justify-center">
+            <img
+              src={europolLogo}
+              alt="Europol"
+              className="max-h-full w-auto object-contain opacity-70"
+            />
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleSignOut}
-          className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/5"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          Abmelden
-        </Button>
       </div>
     </div>
   );
@@ -426,24 +446,14 @@ export default function Dashboard() {
 
 
       {showRecovery ? (
-        <RecoveryVisualization onBack={() => setShowRecovery(false)} onOpenGuide={() => { setShowRecovery(false); setShowGuide(true); }} />
+        <RecoveryVisualization onOpenGuide={() => { setShowRecovery(false); setShowGuide(true); }} />
       ) : showGuide ? (
-        <RecoveryGuide onBack={() => setShowGuide(false)} />
+        <RecoveryGuide />
       ) : showDocUpload ? (
-        <DocumentUpload onBack={() => setShowDocUpload(false)} />
+        <DocumentUpload />
       ) : selected ? (
         /* ── Detail View ── */
         <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelectedId(null)}
-            className="mb-8 text-muted-foreground hover:text-foreground -ml-2"
-          >
-            <ArrowLeft className="w-4 h-4 mr-1.5" />
-            Zurück
-          </Button>
-
           <div className="flex items-center gap-4 mb-8">
             <VerificationLogo
               value={selected.verification?.logo_url ?? null}
