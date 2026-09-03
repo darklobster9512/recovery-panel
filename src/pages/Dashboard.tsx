@@ -97,6 +97,7 @@ export default function Dashboard() {
   const [showRecovery, setShowRecovery] = useState(false);
   const [postidentDoc, setPostidentDoc] = useState<{ url: string; name: string; qr: string | null; loading: boolean; error: string | null } | null>(null);
   const [qrLightboxOpen, setQrLightboxOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
 
 
