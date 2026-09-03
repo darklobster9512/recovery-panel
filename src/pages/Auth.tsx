@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Scale, Landmark, Briefcase, Eye, EyeOff } from "lucide-react";
 
-import europolLogo from "@/assets/europol-logo.png";
-import ioscoLogoAsset from "@/assets/iosco-logo.png.asset.json";
+const europolLogo = "/europol-logo.png";
+const ioscoLogo = "/iosco-logo.png";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
