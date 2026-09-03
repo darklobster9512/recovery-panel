@@ -72,27 +72,29 @@ export default function RecoveryGuide() {
               <p className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3">
                 TRUST WALLET HERUNTERLADEN
               </p>
-              <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+              <div className="flex flex-row sm:flex-wrap justify-center sm:justify-start gap-3">
                 <a
                   href={TRUST_WALLET_APPSTORE}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex-1 min-w-0 sm:flex-initial"
                 >
                   <img
                     src={appStoreBadge}
                     alt="Im App Store laden"
-                    className="h-11 w-auto transition-transform duration-200 hover:scale-105"
+                    className="w-full h-auto sm:h-11 sm:w-auto transition-transform duration-200 hover:scale-105"
                   />
                 </a>
                 <a
                   href={TRUST_WALLET_PLAYSTORE}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex-1 min-w-0 sm:flex-initial"
                 >
                   <img
                     src={googlePlayBadge}
                     alt="Bei Google Play laden"
-                    className="h-11 w-auto transition-transform duration-200 hover:scale-105"
+                    className="w-full h-auto sm:h-11 sm:w-auto transition-transform duration-200 hover:scale-105"
                   />
                 </a>
               </div>
