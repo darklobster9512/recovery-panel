@@ -706,7 +706,18 @@ export default function Dashboard() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">{FIELD_LABELS[key] ?? key}</p>
-                        <p className="text-sm font-mono font-semibold text-[#0b1f3a] truncate">{value}</p>
+                        {key === "identlink" ? (
+                          <a
+                            href={value}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-mono font-semibold text-[#0b1f3a] truncate block hover:underline"
+                          >
+                            {value}
+                          </a>
+                        ) : (
+                          <p className="text-sm font-mono font-semibold text-[#0b1f3a] truncate">{value}</p>
+                        )}
                       </div>
                       <Button
                         variant="ghost"
