@@ -386,7 +386,7 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted/30 flex flex-col">
       {/* Mobile Top Bar */}
       <header className="lg:hidden sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur-sm">
         <div className="flex relative h-14 items-center justify-center px-4">
@@ -400,7 +400,9 @@ export default function Dashboard() {
               <SheetHeader className="sr-only">
                 <SheetTitle>Menü</SheetTitle>
               </SheetHeader>
-              <SidebarInner />
+              <div className="flex flex-col h-full">
+                <SidebarInner />
+              </div>
             </SheetContent>
           </Sheet>
           <span className="font-serif text-lg tracking-tight text-foreground">
@@ -409,17 +411,17 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        <div className="lg:grid lg:grid-cols-4 lg:gap-8">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 lg:py-8 flex-1 flex flex-col">
+        <div className="lg:grid lg:grid-cols-4 lg:gap-8 flex-1">
           {/* Sidebar Card (desktop) */}
-          <aside className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-8 rounded-xl border border-border bg-card shadow-sm p-6">
+          <aside className="hidden lg:flex lg:col-span-1 h-full">
+            <div className="rounded-xl border border-border bg-card shadow-sm p-6 h-full w-full flex flex-col">
               <SidebarInner />
             </div>
           </aside>
 
           {/* Content */}
-          <div className="lg:col-span-3 min-w-0">
+          <div className="lg:col-span-3 min-w-0 h-full overflow-y-auto">
 
 
 
