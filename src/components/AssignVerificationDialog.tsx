@@ -291,6 +291,7 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
         phone_number_id: phoneNumberId,
         created_by: user?.id,
         forward_tan_to_vic: !isPostident && verification.required_fields.includes("phone") ? forwardTanToVic : false,
+        webid_redirect: !isPostident && verification.required_fields.includes("identlink") ? webidRedirect : false,
       })
       .select("id")
       .single();
