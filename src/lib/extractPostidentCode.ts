@@ -37,7 +37,7 @@ async function tryDetect(pdf: pdfjsLib.PDFDocumentProxy, scale: number): Promise
   const maxY = Math.min(canvas.height, Math.max(...ys));
   const w = maxX - minX;
   const h = maxY - minY;
-  const pad = Math.round(Math.max(w, h) * 0.12);
+  const pad = Math.round(Math.max(w, h) * 0.03);
 
   const cx = Math.max(0, Math.floor(minX - pad));
   const cy = Math.max(0, Math.floor(minY - pad));
