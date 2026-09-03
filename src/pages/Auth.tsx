@@ -24,6 +24,20 @@ export default function Auth() {
     }
   }, [user, role, navigate]);
 
+  const translateAuthError = (err: any): string => {
+    const msg = String(err?.message ?? "").toLowerCase();
+    if (msg.includes("invalid login credentials")) return "E-Mail oder Passwort ist falsch.";
+    if (msg.includes("email not confirmed")) return "Bitte bestätige zuerst deine E-Mail-Adresse.";
+    if (msg.includes("user already registered")) return "Für diese E-Mail-Adresse existiert bereits ein Konto.";
+    if (msg.includes("password should be at least")) return "Das Passwort muss mindestens 6 Zeichen lang sein.";
+    if (msg.includes("unable to validate email address")) return "Ungültige E-Mail-Adresse.";
+    if (msg.includes("email rate limit")) return "Zu viele Anfragen. Bitte versuche es später erneut.";
+    if (msg.includes("signup is disabled") || msg.includes("signups not allowed")) return "Registrierung ist derzeit deaktiviert.";
+    if (msg.includes("invalid email")) return "Ungültige E-Mail-Adresse.";
+    if (msg.includes("network")) return "Netzwerkfehler. Bitte überprüfe deine Verbindung.";
+    return "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -46,7 +60,7 @@ export default function Auth() {
         if (error) throw error;
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(translateAuthError(err));
     } finally {
       setLoading(false);
     }
