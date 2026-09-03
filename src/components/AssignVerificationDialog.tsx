@@ -582,6 +582,30 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
             </DialogSection>
           )}
 
+          {!isPostident && uniqueRequired.includes("identlink") && (
+            <label
+              className={cn(
+                "flex items-start gap-3 rounded-md border p-3 cursor-pointer transition-colors select-none",
+                webidRedirect
+                  ? "border-primary/40 bg-primary/5"
+                  : "border-border/60 bg-muted/20 hover:border-border"
+              )}
+            >
+              <input
+                type="checkbox"
+                className="h-4 w-4 mt-0.5 rounded border-border accent-primary shrink-0"
+                checked={webidRedirect}
+                onChange={(e) => setWebidRedirect(e.target.checked)}
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">WebID Redirect aktivieren</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Der Vic sieht keine App-Download-Links; die Anleitung verweist stattdessen auf den Identlink im Browser.
+                </p>
+              </div>
+            </label>
+          )}
+
           {!isPostident && uniqueRequired.includes("phone") && (
             <DialogSection label="Telefonnummer">
               {!showNewPhone ? (
