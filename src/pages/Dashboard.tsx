@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
-import { LogOut, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp, BookOpen, Network } from "lucide-react";
+import { LogOut, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp, BookOpen, Network, ArrowLeft } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { notifyTelegram } from "@/lib/telegramNotify";
@@ -485,6 +485,16 @@ export default function Dashboard() {
       ) : selected ? (
         /* ── Detail View ── */
         <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedId(null)}
+            className="mb-4 -ml-2 text-slate-600 hover:text-[#0b1f3a] hover:bg-slate-100"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Zurück zu den Aufträgen
+          </Button>
+
           <div className="flex items-center gap-4 mb-8">
             <VerificationLogo
               value={selected.verification?.logo_url ?? null}
