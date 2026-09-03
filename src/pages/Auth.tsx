@@ -5,7 +5,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Scale, Landmark, Briefcase, Eye, EyeOff, Shield } from "lucide-react";
+import { Scale, Landmark, Briefcase, Eye, EyeOff } from "lucide-react";
+
+import europolLogo from "@/assets/europol-logo.png";
+import ioscoLogoAsset from "@/assets/iosco-logo.png.asset.json";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -68,31 +71,31 @@ export default function Auth() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4 md:p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4 md:p-8">
       <div className="max-w-6xl w-full flex flex-col md:flex-row shadow-2xl rounded-3xl overflow-hidden bg-white min-h-[800px]">
         {/* Left — Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 lg:p-16">
+        <div className="w-full max-w-md space-y-8 flex-1 flex flex-col justify-center">
           {/* Logo */}
-          <div className="flex items-center gap-2 mb-12">
-            <div className="w-8 h-8 rounded-lg bg-[hsl(221,100%,50%)] flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-semibold tracking-tight">RecoveryPanel</span>
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold tracking-tight text-[#0b1f3a]">
+              Korte <span className="text-[#c9a24a]">&amp;</span> Partner
+            </h2>
+            <p className="text-xs text-slate-500 tracking-[0.15em] uppercase mt-0.5">Rechtsanwälte</p>
           </div>
 
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            <h1 className="text-3xl font-bold tracking-tight text-[#0b1f3a]">
               {mode === "login" ? "Willkommen zurück" : "Konto erstellen"}
             </h1>
-            <p className="mt-2 text-gray-500 text-sm">
+            <p className="mt-2 text-slate-500 text-sm">
               {mode === "login"
                 ? "Melde dich an, um auf dein Dashboard zuzugreifen."
                 : "Registriere dich mit E-Mail und Passwort."}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-1 p-1 bg-gray-100 rounded-lg">
+          <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-lg">
             {(["login", "register"] as const).map((m) => (
               <button
                 key={m}
@@ -104,8 +107,8 @@ export default function Auth() {
                 }}
                 className={`h-9 rounded-md text-sm font-medium transition-colors ${
                   mode === m
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "bg-white text-[#0b1f3a] shadow-sm"
+                    : "text-slate-500 hover:text-[#0b1f3a]"
                 }`}
               >
                 {m === "login" ? "Anmelden" : "Registrieren"}
@@ -117,7 +120,7 @@ export default function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="email" className="text-sm font-medium text-slate-700">
                 E-Mail
               </Label>
               <Input
@@ -127,12 +130,12 @@ export default function Auth() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-11 rounded-lg border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus-visible:ring-[hsl(221,100%,50%)] focus-visible:ring-offset-0"
+                className="h-11 rounded-lg border-slate-200 bg-white text-[#0b1f3a] placeholder:text-slate-400 focus-visible:ring-[#0b1f3a] focus-visible:ring-offset-0"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="password" className="text-sm font-medium text-slate-700">
                 Passwort
               </Label>
               <div className="relative">
@@ -144,12 +147,12 @@ export default function Auth() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="h-11 rounded-lg border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus-visible:ring-[hsl(221,100%,50%)] focus-visible:ring-offset-0 pr-10"
+                  className="h-11 rounded-lg border-slate-200 bg-white text-[#0b1f3a] placeholder:text-slate-400 focus-visible:ring-[#0b1f3a] focus-visible:ring-offset-0 pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -167,17 +170,34 @@ export default function Auth() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-11 rounded-lg bg-[hsl(221,100%,50%)] hover:bg-[hsl(221,100%,45%)] text-white font-medium text-sm"
+              className="w-full h-11 rounded-lg bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white font-medium text-sm"
             >
               {loading ? "Laden..." : mode === "login" ? "Anmelden" : "Konto erstellen"}
             </Button>
 
           </form>
+
+          {/* Cooperation logos */}
+          <div className="pt-8 mt-auto">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 text-center mb-4">In Kooperation mit</p>
+            <div className="flex items-center justify-center gap-6">
+              <img
+                src={ioscoLogoAsset.url}
+                alt="IOSCO"
+                className="h-10 w-auto object-contain"
+              />
+              <img
+                src={europolLogo}
+                alt="Europol"
+                className="h-8 w-auto object-contain"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Right — Trust Animation */}
-      <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-gradient-to-br from-[hsl(221,100%,50%)] to-[hsl(221,100%,35%)]">
+      <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0b1f3a] to-[#174ea6]">
         {/* Dot grid pattern */}
         <div
           className="absolute inset-0 opacity-10"
