@@ -163,6 +163,7 @@ export default function Dashboard() {
         phone_token: phoneData?.token ?? null,
         sms_monitoring_active: (r as any).sms_monitoring_active ?? true,
         hidden_sms: ((r as any).hidden_sms as string[]) ?? [],
+        webid_redirect: (r as any).webid_redirect ?? false,
         verification: vMap.get(r.verification_id),
         phone_number: phoneData?.number ?? null,
       };
