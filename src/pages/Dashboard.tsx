@@ -540,7 +540,7 @@ export default function Dashboard() {
         <main className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 animate-in fade-in slide-in-from-right-4 duration-300">
           {qrLightboxOpen && postidentDoc?.qr && (
             <div
-              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6 animate-in fade-in duration-150"
+              className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center gap-6 p-6 animate-in fade-in duration-150"
               onClick={() => setQrLightboxOpen(false)}
               role="dialog"
               aria-modal="true"
@@ -556,9 +556,16 @@ export default function Dashboard() {
               <img
                 src={postidentDoc.qr}
                 alt="Postident-Code"
-                className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg bg-white p-4 shadow-2xl"
+                className="max-w-[90vw] max-h-[70vh] object-contain rounded-lg bg-white p-4 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               />
+              <div onClick={(e) => e.stopPropagation()}>
+                <VerificationLogo
+                  value={selected.verification?.logo_url ?? null}
+                  alt={selected.verification?.title ?? ""}
+                  className="w-32 h-16 object-contain bg-white rounded-xl p-3 shadow-xl"
+                />
+              </div>
             </div>
           )}
           <Button
