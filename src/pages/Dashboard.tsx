@@ -104,7 +104,7 @@ export default function Dashboard() {
   const loadProfile = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("first_name, last_name, email, phone")
+      .select("first_name, last_name, email, phone, balance, scam_project")
       .eq("id", user!.id)
       .maybeSingle();
     if (data) {
@@ -112,6 +112,8 @@ export default function Dashboard() {
       setProfileName(name);
       setProfileEmail(data.email ?? "");
       setProfilePhone((data as any).phone ?? "");
+      setProfileBalance(data.balance ?? null);
+      setProfileScamProject(data.scam_project ?? "");
     }
   };
 
