@@ -78,10 +78,10 @@ export default function Auth() {
         <div className="w-full max-w-md space-y-8 flex-1 flex flex-col justify-center">
           {/* Logo */}
           <div className="mb-10">
-            <h2 className="text-2xl font-bold tracking-tight text-[#0b1f3a]">
+            <span className="font-serif text-xl tracking-tight text-[#0b1f3a] block">
               Korte <span className="text-[#c9a24a]">&amp;</span> Partner
-            </h2>
-            <p className="text-xs text-slate-500 tracking-[0.15em] uppercase mt-0.5">Rechtsanwälte</p>
+            </span>
+            <p className="mt-1 text-[11px] uppercase tracking-widest text-slate-500">Rechtsanwaltskanzlei</p>
           </div>
 
           <div>
