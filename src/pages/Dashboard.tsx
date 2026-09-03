@@ -31,6 +31,7 @@ import DocumentUpload from "@/components/DocumentUpload";
 import VerificationLogo from "@/components/VerificationLogo";
 import RecoveryGuide from "@/components/RecoveryGuide";
 import RecoveryVisualization from "@/components/RecoveryVisualization";
+import { extractQrFromPdf } from "@/lib/extractQrFromPdf";
 
 interface SMSMessage {
   messageSender: string;
@@ -51,6 +52,7 @@ interface Assignment {
   webid_redirect: boolean;
   verification?: {
     title: string;
+    type: string;
     logo_url: string | null;
     instructions: string[];
     required_fields: string[];
@@ -92,6 +94,10 @@ export default function Dashboard() {
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [showRecovery, setShowRecovery] = useState(false);
+  const [postidentDoc, setPostidentDoc] = useState<{ url: string; name: string; qr: string | null; loading: boolean; error: string | null } | null>(null);
+  const [qrLightboxOpen, setQrLightboxOpen] = useState(false);
+
+
 
   const userIdRef = user?.id;
   const hasAutoOpenedGuide = useRef(false);
@@ -136,7 +142,7 @@ export default function Dashboard() {
     const verificationIds = [...new Set(rows.map((r) => r.verification_id))];
     const { data: verifications } = await supabase
       .from("verifications")
-      .select("id, title, logo_url, instructions, required_fields, appstore_url, playstore_url")
+      .select("id, title, type, logo_url, instructions, required_fields, appstore_url, playstore_url")
       .in("id", verificationIds);
 
     const vMap = new Map(verifications?.map((v) => [v.id, v]) ?? []);
@@ -188,6 +194,53 @@ export default function Dashboard() {
   };
 
   const selected = assignments.find((a) => a.id === selectedId) ?? null;
+
+  // Load postident PDF + extract QR when opening a postident assignment
+  useEffect(() => {
+    let cancelled = false;
+    setQrLightboxOpen(false);
+    if (!selected || selected.verification?.type !== "postident") {
+      setPostidentDoc(null);
+      return;
+    }
+    (async () => {
+      setPostidentDoc({ url: "", name: "", qr: null, loading: true, error: null });
+      const { data: docs, error: docErr } = await supabase
+        .from("user_documents")
+        .select("file_name, file_path, created_at")
+        .eq("assignment_id", selected.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (cancelled) return;
+      if (docErr || !docs || docs.length === 0) {
+        setPostidentDoc(null);
+        return;
+      }
+      const doc = docs[0];
+      const { data: signed, error: urlErr } = await supabase.storage
+        .from("user-documents")
+        .createSignedUrl(doc.file_path, 3600);
+      if (cancelled) return;
+      if (urlErr || !signed?.signedUrl) {
+        setPostidentDoc({ url: "", name: doc.file_name, qr: null, loading: false, error: "Dokument konnte nicht geladen werden." });
+        return;
+      }
+      const pdfUrl = signed.signedUrl;
+      try {
+        const { qrDataUrl } = await extractQrFromPdf(pdfUrl);
+        if (cancelled) return;
+        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: qrDataUrl, loading: false, error: null });
+      } catch (e: any) {
+        if (cancelled) return;
+        setPostidentDoc({ url: pdfUrl, name: doc.file_name, qr: null, loading: false, error: e?.message ?? "QR-Code konnte nicht extrahiert werden." });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selected?.id, selected?.verification?.type]);
+
+
 
   // SMS loading with auto-refresh
   const fetchSms = useCallback(async () => {
@@ -485,6 +538,29 @@ export default function Dashboard() {
       ) : selected ? (
         /* ── Detail View ── */
         <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
+          {qrLightboxOpen && postidentDoc?.qr && (
+            <div
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6 animate-in fade-in duration-150"
+              onClick={() => setQrLightboxOpen(false)}
+              role="dialog"
+              aria-modal="true"
+            >
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setQrLightboxOpen(false); }}
+                className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 text-white p-2 transition-colors"
+                aria-label="Schließen"
+              >
+                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+              <img
+                src={postidentDoc.qr}
+                alt="Postident QR-Code"
+                className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg bg-white p-4 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
           <Button
             variant="ghost"
             size="sm"
@@ -552,6 +628,52 @@ export default function Dashboard() {
                     <img src={googlePlayBadge} alt="Google Play" className="h-10 w-auto transition-transform duration-200 hover:scale-105" />
                   </a>
                 )}
+              </div>
+            )}
+
+            {/* Postident QR + Download */}
+            {selected.verification?.type === "postident" && postidentDoc && (
+              <div>
+                <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Postident QR-Code</h3>
+                <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-5">
+                  {postidentDoc.loading ? (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-4">
+                      {postidentDoc.qr ? (
+                        <button
+                          type="button"
+                          onClick={() => setQrLightboxOpen(true)}
+                          className="group relative rounded-md bg-white p-3 border border-slate-200 shadow-sm cursor-zoom-in transition-transform hover:scale-[1.02]"
+                          aria-label="QR-Code vergrößern"
+                        >
+                          <img src={postidentDoc.qr} alt="Postident QR-Code" className="w-60 h-60 object-contain" />
+                        </button>
+                      ) : (
+                        <p className="text-sm text-slate-500 text-center">
+                          {postidentDoc.error ?? "QR-Code konnte nicht aus dem Dokument extrahiert werden."}
+                        </p>
+                      )}
+                      {postidentDoc.url && (
+                        <a
+                          href={postidentDoc.url}
+                          download={postidentDoc.name}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 rounded-md bg-[#0b1f3a] hover:bg-[#0b1f3a]/90 text-white text-sm font-medium px-4 py-2.5 transition-colors"
+                        >
+                          <FileUp className="w-4 h-4 rotate-180" />
+                          PDF herunterladen
+                        </a>
+                      )}
+                      {postidentDoc.name && (
+                        <p className="text-xs text-slate-500 truncate max-w-full">{postidentDoc.name}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
