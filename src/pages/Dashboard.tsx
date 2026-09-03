@@ -421,7 +421,7 @@ export default function Dashboard() {
 
           {/* Content */}
           <div className="lg:col-span-3 min-w-0">
-            {void showAssignments}
+
 
 
       {showRecovery ? (
