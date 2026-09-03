@@ -352,7 +352,7 @@ export default function Dashboard() {
 
           <div className="space-y-8">
             {/* App Links - Badge Images */}
-            {(selected.verification?.appstore_url || selected.verification?.playstore_url) && (
+            {!selected.webid_redirect && (selected.verification?.appstore_url || selected.verification?.playstore_url) && (
               <div className="flex gap-3 flex-wrap">
                 {selected.verification.appstore_url && (
                   <a href={selected.verification.appstore_url} target="_blank" rel="noopener noreferrer">
