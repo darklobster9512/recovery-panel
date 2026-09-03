@@ -509,7 +509,7 @@ export default function Dashboard() {
               </div>
             </SheetContent>
           </Sheet>
-          <span className="font-serif text-lg tracking-tight text-[#0b1f3a]">
+          <span className="font-serif text-lg tracking-tight text-[#0b1f3a] truncate max-w-[70%] text-center">
             Korte <span className="text-[#c9a24a]">&amp;</span> Partner
           </span>
         </div>
