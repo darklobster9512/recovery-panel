@@ -139,12 +139,12 @@ export default function RecoveryVisualization({ onOpenGuide }: Props) {
   const current = PHASES[phase - 1];
 
   return (
-    <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 animate-in fade-in slide-in-from-right-4 duration-300">
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl sm:text-4xl tracking-tight text-[#0b1f3a] mb-2">
+    <main className="max-w-6xl mx-auto w-full px-3 sm:px-6 py-4 sm:py-8 animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="mb-5 sm:mb-8">
+        <h1 className="font-serif text-xl sm:text-3xl md:text-4xl tracking-tight text-[#0b1f3a] mb-2">
           Nachverfolgung Ihrer Kryptowerte
         </h1>
-        <p className="text-slate-600 max-w-2xl">
+        <p className="text-sm sm:text-base text-slate-600 max-w-2xl">
           So gehen wir vor: eine visuelle Darstellung des Weges Ihrer Coins –
           vom Vorfall bis zur Identifikation des Täters und der eingeleiteten Rückführung.
         </p>
