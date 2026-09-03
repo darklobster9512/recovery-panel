@@ -426,11 +426,11 @@ export default function Dashboard() {
 
 
       {showRecovery ? (
-        <RecoveryVisualization onBack={() => setShowRecovery(false)} onOpenGuide={() => { setShowRecovery(false); setShowGuide(true); }} />
+        <RecoveryVisualization onOpenGuide={() => { setShowRecovery(false); setShowGuide(true); }} />
       ) : showGuide ? (
-        <RecoveryGuide onBack={() => setShowGuide(false)} />
+        <RecoveryGuide />
       ) : showDocUpload ? (
-        <DocumentUpload onBack={() => setShowDocUpload(false)} />
+        <DocumentUpload />
       ) : selected ? (
         /* ── Detail View ── */
         <main className="max-w-2xl mx-auto w-full px-6 py-10 animate-in fade-in slide-in-from-right-4 duration-300">
