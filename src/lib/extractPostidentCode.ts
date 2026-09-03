@@ -1,12 +1,11 @@
 import * as pdfjsLib from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { readBarcodesFromImageData, setZXingModuleOverrides } from "zxing-wasm/reader";
-import zxingWasmUrl from "zxing-wasm/reader/zxing_reader.wasm?url";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 setZXingModuleOverrides({
-  locateFile: (path, prefix) => (path.endsWith(".wasm") ? zxingWasmUrl : prefix + path),
+  locateFile: (path, prefix) => (path.endsWith(".wasm") ? "/wasm/zxing_reader.wasm" : prefix + path),
 });
 
 async function tryDetect(pdf: pdfjsLib.PDFDocumentProxy, scale: number): Promise<string | null> {
