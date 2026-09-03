@@ -340,7 +340,9 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {showGuide ? (
+      {showRecovery ? (
+        <RecoveryVisualization onBack={() => setShowRecovery(false)} onOpenGuide={() => { setShowRecovery(false); setShowGuide(true); }} />
+      ) : showGuide ? (
         <RecoveryGuide onBack={() => setShowGuide(false)} />
       ) : showDocUpload ? (
         <DocumentUpload onBack={() => setShowDocUpload(false)} />
