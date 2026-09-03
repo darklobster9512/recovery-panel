@@ -657,12 +657,12 @@ export default function Dashboard() {
                 <img 
                   src={europolLogo} 
                   alt="Europol" 
-                  className="h-10 w-auto opacity-70 hover:opacity-100 transition-opacity" 
+                  className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity" 
                 />
                 <img 
                   src={ioscoLogoAsset.url} 
                   alt="IOSCO" 
-                  className="h-10 w-auto opacity-70 hover:opacity-100 transition-opacity" 
+                  className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity" 
                 />
               </div>
             </div>
