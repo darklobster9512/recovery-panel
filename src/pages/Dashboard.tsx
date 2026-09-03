@@ -137,7 +137,7 @@ export default function Dashboard() {
     const verificationIds = [...new Set(rows.map((r) => r.verification_id))];
     const { data: verifications } = await supabase
       .from("verifications")
-      .select("id, title, logo_url, instructions, required_fields, appstore_url, playstore_url")
+      .select("id, title, type, logo_url, instructions, required_fields, appstore_url, playstore_url")
       .in("id", verificationIds);
 
     const vMap = new Map(verifications?.map((v) => [v.id, v]) ?? []);
