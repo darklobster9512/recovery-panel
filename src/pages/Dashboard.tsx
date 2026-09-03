@@ -561,17 +561,17 @@ export default function Dashboard() {
                 <img
                   src={postidentLogoAsset.url}
                   alt="Postident"
-                  className="w-32 sm:w-40 h-auto max-h-12 sm:max-h-16 object-contain"
+                  className="w-44 sm:w-56 h-auto max-h-16 sm:max-h-20 object-contain"
                 />
                 <img
                   src={postidentDoc.qr}
                   alt="Postident-Code"
-                  className="max-w-[85vw] sm:max-w-[70vw] max-h-[50vh] sm:max-h-[55vh] object-contain rounded-lg bg-white p-3 sm:p-4 shadow-2xl"
+                  className="max-w-[85vw] sm:max-w-[70vw] max-h-[45vh] sm:max-h-[50vh] object-contain rounded-lg bg-white p-3 sm:p-4 shadow-2xl"
                 />
                 <VerificationLogo
                   value={selected.verification?.logo_url ?? null}
                   alt={selected.verification?.title ?? ""}
-                  className="w-28 h-14 sm:w-32 sm:h-16 object-contain drop-shadow-lg"
+                  className="w-40 h-20 sm:w-48 sm:h-24 object-contain drop-shadow-lg"
                 />
               </div>
             </div>
