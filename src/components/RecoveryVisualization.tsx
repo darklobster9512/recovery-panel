@@ -82,18 +82,18 @@ const EDGES: GEdge[] = [
 const nodeById = (id: string) => NODES.find((n) => n.id === id)!;
 
 function nodeFill(kind: NodeKind, active: boolean) {
-  if (!active) return { fill: "hsl(220 15% 94%)", stroke: "hsl(220 12% 78%)", text: "hsl(220 10% 55%)" };
+  if (!active) return { fill: "#f1f5f9", stroke: "#cbd5e1", text: "#64748b" };
   switch (kind) {
     case "victim":
-      return { fill: "hsl(0 84% 96%)", stroke: "hsl(0 74% 55%)", text: "hsl(0 65% 40%)" };
+      return { fill: "#f8fafc", stroke: "#0b1f3a", text: "#0b1f3a" };
     case "wallet":
-      return { fill: "hsl(210 100% 97%)", stroke: "hsl(221 83% 53%)", text: "hsl(221 60% 35%)" };
+      return { fill: "#f8fafc", stroke: "#0b1f3a", text: "#0b1f3a" };
     case "mixer":
-      return { fill: "hsl(280 60% 97%)", stroke: "hsl(280 55% 55%)", text: "hsl(280 45% 35%)" };
+      return { fill: "#fdf7ea", stroke: "#c9a24a", text: "#8a6b1e" };
     case "exchange":
-      return { fill: "hsl(210 100% 96%)", stroke: "hsl(221 83% 45%)", text: "hsl(221 70% 30%)" };
+      return { fill: "#f8fafc", stroke: "#0b1f3a", text: "#0b1f3a" };
     case "culprit":
-      return { fill: "hsl(142 71% 94%)", stroke: "hsl(142 71% 40%)", text: "hsl(142 60% 25%)" };
+      return { fill: "#fdf7ea", stroke: "#c9a24a", text: "#8a6b1e" };
   }
 }
 
