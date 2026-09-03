@@ -17,6 +17,13 @@ export function statusMeta(status: string) {
   return LEAD_STATUSES.find((s) => s.value === status) ?? LEAD_STATUSES[0];
 }
 
+export type LeadCampaign = "europol" | "kanzlei";
+
+export const CAMPAIGN_META: Record<LeadCampaign, { label: string; className: string }> = {
+  europol: { label: "Europol", className: "bg-blue-100 text-blue-700 hover:bg-blue-100" },
+  kanzlei: { label: "Kanzlei", className: "bg-amber-100 text-amber-800 hover:bg-amber-100" },
+};
+
 export interface Lead {
   id: string;
   full_name: string | null;
@@ -28,6 +35,7 @@ export interface Lead {
   source: string;
   external_id: string | null;
   raw: Record<string, string> | null;
+  campaign: LeadCampaign | null;
   imported_by: string | null;
   imported_at: string;
 }
