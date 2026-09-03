@@ -319,18 +319,19 @@ export default function Dashboard() {
   const SidebarInner = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="px-1 pb-5">
-        <span className="font-serif text-xl tracking-tight text-foreground block">
-          Korte <span className="opacity-60">&amp;</span> Partner
+      <div className="px-1 pb-4">
+        <span className="font-serif text-xl tracking-tight text-[#0b1f3a] block">
+          Korte <span className="text-[#c9a24a]">&amp;</span> Partner
         </span>
-        <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground/70">
+        <p className="mt-1 text-[11px] uppercase tracking-widest text-slate-500">
           Rechtsanwaltskanzlei
         </p>
+        <div className="mt-3 h-px w-full bg-[#c9a24a]/60" />
       </div>
 
       {/* Ansprechpartner */}
-      <div className="flex items-center gap-3 rounded-lg bg-secondary/60 px-3 py-3">
-        <div className="relative w-12 h-12 overflow-hidden rounded-full border border-border shrink-0">
+      <div className="flex items-center gap-3 rounded-lg bg-slate-50 border border-slate-200 px-3 py-3">
+        <div className="relative w-12 h-12 overflow-hidden rounded-full border border-[#0b1f3a]/20 shrink-0">
           <img
             src={thomasKorteAsset.url}
             alt="Dr. Thomas Korte"
@@ -338,13 +339,13 @@ export default function Dashboard() {
           />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-foreground truncate">Dr. Thomas Korte</p>
-          <p className="text-xs text-muted-foreground truncate">Rechtsanwalt</p>
-          <p className="text-xs text-muted-foreground truncate">040 573086460</p>
+          <p className="text-sm font-semibold text-[#0b1f3a] truncate">Dr. Thomas Korte</p>
+          <p className="text-xs text-slate-600 truncate">Rechtsanwalt</p>
+          <p className="text-xs text-slate-600 truncate">040 573086460</p>
         </div>
       </div>
 
-      <Separator className="my-4" />
+      <Separator className="my-4 bg-slate-200" />
 
       {/* Navigation */}
       <nav className="space-y-1">
@@ -358,50 +359,51 @@ export default function Dashboard() {
 
       {/* Vic Info */}
       {(profileName || profileEmail || profilePhone || profileBalance !== null || profileScamProject) && (
-        <div className="rounded-lg bg-secondary/60 px-3 py-3 space-y-0.5">
+        <div className="rounded-lg bg-slate-50 border border-slate-200 px-3 py-3 space-y-0.5">
           {profileName && (
-            <p className="text-sm font-semibold text-foreground truncate">{profileName}</p>
+            <p className="text-sm font-semibold text-[#0b1f3a] truncate">{profileName}</p>
           )}
           {profileEmail && (
-            <p className="text-xs text-muted-foreground truncate">{profileEmail}</p>
+            <p className="text-xs text-slate-600 truncate">{profileEmail}</p>
           )}
           {profilePhone && (
-            <p className="text-xs text-muted-foreground truncate">{profilePhone}</p>
+            <p className="text-xs text-slate-600 truncate">{profilePhone}</p>
           )}
           {profileBalance !== null && (
-            <p className="text-xs text-foreground truncate">
-              Guthaben: {" "}
-              <span className="font-medium">
+            <p className="text-xs text-slate-700 truncate">
+              <span className="text-[#c9a24a] font-semibold tracking-wide">Guthaben:</span>{" "}
+              <span className="font-semibold text-[#0b1f3a]">
                 {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(profileBalance)}
               </span>
             </p>
           )}
           {profileScamProject && (
-            <p className="text-xs text-muted-foreground truncate">
-              Projekt: <span className="text-foreground">{profileScamProject}</span>
+            <p className="text-xs text-slate-600 truncate">
+              <span className="text-[#c9a24a] font-semibold tracking-wide">Projekt:</span>{" "}
+              <span className="text-[#0b1f3a]">{profileScamProject}</span>
             </p>
           )}
         </div>
       )}
 
-      <Separator className="my-4" />
+      <Separator className="my-4 bg-slate-200" />
 
       {/* Logout */}
       <Button
         variant="ghost"
         size="sm"
         onClick={handleSignOut}
-        className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+        className="w-full justify-start text-slate-600 hover:text-[#0b1f3a] hover:bg-slate-100"
       >
         <LogOut className="w-4 h-4 mr-2" />
         Abmelden
       </Button>
 
-      <Separator className="my-4" />
+      <div className="my-4 h-px w-full bg-gradient-to-r from-transparent via-[#c9a24a]/60 to-transparent" />
 
       {/* Cooperation logos */}
       <div>
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mb-3 text-center">
+        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-medium mb-3 text-center">
           In Kooperation mit
         </p>
         <div className="flex flex-col items-center gap-3">
@@ -409,14 +411,14 @@ export default function Dashboard() {
             <img
               src={ioscoLogoAsset.url}
               alt="IOSCO"
-              className="max-h-full w-auto object-contain opacity-70"
+              className="max-h-full w-auto object-contain opacity-80"
             />
           </div>
           <div className="h-6 flex items-center justify-center">
             <img
               src={europolLogo}
               alt="Europol"
-              className="max-h-full w-auto object-contain opacity-70"
+              className="max-h-full w-auto object-contain opacity-80"
             />
           </div>
         </div>
