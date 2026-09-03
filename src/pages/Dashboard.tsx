@@ -81,6 +81,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState<string>("");
   const [profileEmail, setProfileEmail] = useState<string>("");
+  const [profilePhone, setProfilePhone] = useState<string>("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
@@ -100,13 +101,14 @@ export default function Dashboard() {
   const loadProfile = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("first_name, last_name, email")
+      .select("first_name, last_name, email, phone")
       .eq("id", user!.id)
       .maybeSingle();
     if (data) {
       const name = [data.first_name, data.last_name].filter(Boolean).join(" ");
       setProfileName(name);
       setProfileEmail(data.email ?? "");
+      setProfilePhone((data as any).phone ?? "");
     }
   };
 
@@ -263,75 +265,142 @@ export default function Dashboard() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
-        {/* Desktop Header */}
-        <div className="hidden md:flex max-w-5xl mx-auto px-6 h-14 items-center justify-between">
-          <span className="font-serif text-xl tracking-tight text-foreground">
-            Korte <span className="opacity-60">&amp;</span> Partner
-          </span>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" onClick={() => { setShowRecovery(true); setShowGuide(false); setShowDocUpload(false); setSelectedId(null); }}>
-              <Network className="w-4 h-4 mr-1.5" />
-              Rückverfolgung
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => { setShowGuide(true); setShowRecovery(false); setShowDocUpload(false); setSelectedId(null); }}>
-              <BookOpen className="w-4 h-4 mr-1.5" />
-              Anleitung
-            </Button>
-            <Button size="sm" onClick={() => { setShowDocUpload(true); setShowGuide(false); setShowRecovery(false); setSelectedId(null); }}>
-              <FileUp className="w-4 h-4 mr-1.5" />
-              Dokumente hochladen
-            </Button>
+  const activeView: "assignments" | "recovery" | "guide" | "upload" | "detail" = selected
+    ? "detail"
+    : showRecovery
+    ? "recovery"
+    : showGuide
+    ? "guide"
+    : showDocUpload
+    ? "upload"
+    : "assignments";
+
+  const goTo = (view: "assignments" | "recovery" | "guide" | "upload") => {
+    setSelectedId(null);
+    setShowRecovery(view === "recovery");
+    setShowGuide(view === "guide");
+    setShowDocUpload(view === "upload");
+  };
+
+  const NavButton = ({
+    view,
+    icon: Icon,
+    label,
+  }: {
+    view: "assignments" | "recovery" | "guide" | "upload";
+    icon: typeof Network;
+    label: string;
+  }) => {
+    const isActive = activeView === view;
+    return (
+      <button
+        type="button"
+        onClick={() => goTo(view)}
+        className={`relative flex items-center gap-3 w-full rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+          isActive
+            ? "bg-primary/10 text-primary"
+            : "text-foreground/70 hover:bg-secondary hover:text-foreground"
+        }`}
+      >
+        {isActive && (
+          <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-primary" />
+        )}
+        <Icon className="w-4 h-4 shrink-0" />
+        <span className="truncate">{label}</span>
+      </button>
+    );
+  };
+
+  const SidebarInner = () => (
+    <div className="flex flex-col h-full">
+      {/* Logo */}
+      <div className="px-1 pb-5">
+        <span className="font-serif text-xl tracking-tight text-foreground block">
+          Korte <span className="opacity-60">&amp;</span> Partner
+        </span>
+        <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground/70">
+          Rechtsanwaltskanzlei
+        </p>
+      </div>
+
+      {/* Vic Info */}
+      {(profileName || profileEmail || profilePhone) && (
+        <>
+          <div className="rounded-lg bg-secondary/60 px-3 py-3 space-y-0.5">
             {profileName && (
-              <span className="text-sm font-medium text-foreground">{profileName}</span>
+              <p className="text-sm font-semibold text-foreground truncate">{profileName}</p>
             )}
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-destructive">
-              <LogOut className="w-4 h-4 mr-1.5" />
-              Abmelden
-            </Button>
+            {profileEmail && (
+              <p className="text-xs text-muted-foreground truncate">{profileEmail}</p>
+            )}
+            {profilePhone && (
+              <p className="text-xs text-muted-foreground truncate">{profilePhone}</p>
+            )}
+          </div>
+          <Separator className="my-4" />
+        </>
+      )}
+
+      {/* Navigation */}
+      <nav className="space-y-1">
+        <NavButton view="assignments" icon={Lock} label="Aufträge" />
+        <NavButton view="recovery" icon={Network} label="Rückverfolgung" />
+        <NavButton view="guide" icon={BookOpen} label="Anleitung" />
+        <NavButton view="upload" icon={FileUp} label="Dokumente hochladen" />
+      </nav>
+
+      {/* Footer */}
+      <div className="mt-6 pt-4 border-t border-border space-y-4">
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mb-2">
+            In Kooperation mit
+          </p>
+          <div className="flex flex-col gap-2">
+            <div className="h-6 flex items-center">
+              <img
+                src={ioscoLogoAsset.url}
+                alt="IOSCO"
+                className="max-h-full w-auto object-contain opacity-70"
+              />
+            </div>
+            <div className="h-6 flex items-center">
+              <img
+                src={europolLogo}
+                alt="Europol"
+                className="max-h-full w-auto object-contain opacity-70"
+              />
+            </div>
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSignOut}
+          className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Abmelden
+        </Button>
+      </div>
+    </div>
+  );
 
-        {/* Mobile/Tablet Header */}
-        <div className="flex md:hidden relative h-14 items-center justify-center px-4">
+  return (
+    <div className="min-h-screen bg-muted/30">
+      {/* Mobile Top Bar */}
+      <header className="lg:hidden sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur-sm">
+        <div className="flex relative h-14 items-center justify-center px-4">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="absolute left-4 top-1/2 -translate-y-1/2">
+              <Button variant="ghost" size="icon" className="absolute left-3 top-1/2 -translate-y-1/2">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-64">
-              <SheetHeader>
-                <SheetTitle className="text-left">Menü</SheetTitle>
+            <SheetContent side="left" className="w-72 p-6">
+              <SheetHeader className="sr-only">
+                <SheetTitle>Menü</SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-4 mt-6">
-                {(profileName || profileEmail) && (
-                  <div className="px-1">
-                    {profileName && <span className="text-sm font-medium text-foreground block">{profileName}</span>}
-                    {profileEmail && <span className="text-xs text-muted-foreground block">{profileEmail}</span>}
-                  </div>
-                )}
-                <Separator />
-                <Button variant="outline" size="sm" onClick={() => { setShowRecovery(true); setShowGuide(false); setShowDocUpload(false); setSelectedId(null); }} className="justify-start">
-                  <Network className="w-4 h-4 mr-1.5" />
-                  Rückverfolgung
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => { setShowGuide(true); setShowRecovery(false); setShowDocUpload(false); setSelectedId(null); }} className="justify-start">
-                  <BookOpen className="w-4 h-4 mr-1.5" />
-                  Anleitung
-                </Button>
-                <Button size="sm" onClick={() => { setShowDocUpload(true); setShowGuide(false); setShowRecovery(false); setSelectedId(null); }} className="justify-start">
-                  <FileUp className="w-4 h-4 mr-1.5" />
-                  Dokumente hochladen
-                </Button>
-                <Button variant="ghost" size="sm" onClick={handleSignOut} className="justify-start text-muted-foreground hover:text-destructive">
-                  <LogOut className="w-4 h-4 mr-1.5" />
-                  Abmelden
-                </Button>
-              </div>
+              <SidebarInner />
             </SheetContent>
           </Sheet>
           <span className="font-serif text-lg tracking-tight text-foreground">
@@ -339,6 +408,20 @@ export default function Dashboard() {
           </span>
         </div>
       </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        <div className="lg:grid lg:grid-cols-4 lg:gap-8">
+          {/* Sidebar Card (desktop) */}
+          <aside className="hidden lg:block lg:col-span-1">
+            <div className="sticky top-8 rounded-xl border border-border bg-card shadow-sm p-6">
+              <SidebarInner />
+            </div>
+          </aside>
+
+          {/* Content */}
+          <div className="lg:col-span-3 min-w-0">
+
+
 
       {showRecovery ? (
         <RecoveryVisualization onBack={() => setShowRecovery(false)} onOpenGuide={() => { setShowRecovery(false); setShowGuide(true); }} />
@@ -670,33 +753,11 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Partner Section */}
-          <div className="mt-16 pb-12 opacity-0 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "forwards" }}>
-            <Separator className="mb-8" />
-            <div className="text-center space-y-6">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground/60 font-medium">
-                In Kooperation mit
-              </p>
-              <div className="flex flex-col items-center justify-center gap-5">
-                <div className="h-10 flex items-center">
-                  <img 
-                    src={ioscoLogoAsset.url} 
-                    alt="IOSCO" 
-                    className="max-h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity" 
-                  />
-                </div>
-                <div className="h-10 flex items-center">
-                  <img 
-                    src={europolLogo} 
-                    alt="Europol" 
-                    className="max-h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity" 
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
         </main>
       )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
