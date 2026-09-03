@@ -753,31 +753,6 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Partner Section */}
-          <div className="mt-16 pb-12 opacity-0 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "forwards" }}>
-            <Separator className="mb-8" />
-            <div className="text-center space-y-6">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground/60 font-medium">
-                In Kooperation mit
-              </p>
-              <div className="flex flex-col items-center justify-center gap-5">
-                <div className="h-10 flex items-center">
-                  <img 
-                    src={ioscoLogoAsset.url} 
-                    alt="IOSCO" 
-                    className="max-h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity" 
-                  />
-                </div>
-                <div className="h-10 flex items-center">
-                  <img 
-                    src={europolLogo} 
-                    alt="Europol" 
-                    className="max-h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity" 
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
         </main>
       )}
           </div>
