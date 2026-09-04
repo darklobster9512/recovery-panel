@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck, Inbox, ExternalLink } from "lucide-react";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 import VerificationLogo from "@/components/VerificationLogo";
+import AssignCallerSelect from "@/components/AssignCallerSelect";
 import {
   formatDateTime,
   formatEur,
@@ -51,6 +52,8 @@ interface VicProfile {
   temp_password: string | null;
   created_at: string;
   source_lead_id: string | null;
+  assigned_caller_id: string | null;
+  member_status: string | null;
 }
 
 

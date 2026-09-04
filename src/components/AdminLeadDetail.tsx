@@ -15,6 +15,8 @@ import {
 import { ArrowLeft, Loader2, UserPlus } from "lucide-react";
 import LeadNotesPanel from "@/components/LeadNotesPanel";
 import LeadActivityLog from "@/components/LeadActivityLog";
+import AssignCallerSelect from "@/components/AssignCallerSelect";
+import { useAuth } from "@/hooks/useAuth";
 import {
   CAMPAIGN_META,
   formatDateTime,
@@ -32,6 +34,12 @@ function Row({ label, value }: { label: string; value: string }) {
       <span className="text-sm font-medium text-right break-all">{value}</span>
     </div>
   );
+}
+
+function AdminOnlyCallerSelect({ leadId, value, onChange }: { leadId: string; value: string | null; onChange: (v: string | null) => void }) {
+  const { role } = useAuth();
+  if (role !== "admin") return null;
+  return <AssignCallerSelect target="lead" targetId={leadId} value={value} onChange={onChange} />;
 }
 
 export default function AdminLeadDetail() {
@@ -127,6 +135,7 @@ export default function AdminLeadDetail() {
               </SelectContent>
             </Select>
           </div>
+          <AdminOnlyCallerSelect leadId={lead.id} value={(lead as any).assigned_caller_id ?? null} onChange={(v) => setLead({ ...lead, ...(v !== undefined ? { assigned_caller_id: v } : {}) } as any)} />
         </div>
       </div>
 
