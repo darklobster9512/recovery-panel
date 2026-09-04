@@ -48,9 +48,9 @@ const navItems: NavItem[] = [
   { label: "In Überprüfung", icon: ClipboardCheck, path: "/admin/ueberpruefung", group: "Betrieb" },
   { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente", group: "Betrieb" },
   { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern", group: "Betrieb" },
-  { label: "Email Vorlagen", icon: Mail, path: "/admin/emails", group: "System" },
-  { label: "Telegram", icon: Send, path: "/admin/telegram", group: "System" },
-  { label: "Einstellungen", icon: Settings, path: "/admin/einstellungen", group: "System" },
+  { label: "Email Vorlagen", icon: Mail, path: "/admin/emails", group: "System", adminOnly: true },
+  { label: "Telegram", icon: Send, path: "/admin/telegram", group: "System", adminOnly: true },
+  { label: "Einstellungen", icon: Settings, path: "/admin/einstellungen", group: "System", adminOnly: true },
 ];
 
 function pageTitle(pathname: string): string {
