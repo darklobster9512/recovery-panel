@@ -1046,7 +1046,7 @@ export default function Dashboard() {
           first_name: assignedCaller.first_name,
           last_name: assignedCaller.last_name,
           avatar_url: assignedCaller.avatar_url,
-        } : { first_name: "Dr. Thomas", last_name: "Korte", avatar_url: "/thomaskorte.png" }}
+        } : { first_name: "Dr. Thomas", last_name: "Korte", avatar_url: thomasKorte }}
         fallbackName="Dr. Thomas Korte"
         contactSubtitle={assignedCaller ? "Ihr Ansprechpartner" : "Kanzlei Korte & Partner"}
         vicName={profileName}
