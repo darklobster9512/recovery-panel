@@ -103,7 +103,10 @@ export default function AdminLivechat() {
       }
     }
 
-    const list: Conv[] = (profiles ?? []).map((p: any) => {
+    const filteredProfiles = isAdmin
+      ? (profiles ?? [])
+      : (profiles ?? []).filter((p: any) => p.assigned_caller_id === user?.id);
+    const list: Conv[] = filteredProfiles.map((p: any) => {
       const agg = byVic.get(p.id);
       return {
         vic_id: p.id,
