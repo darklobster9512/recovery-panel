@@ -32,6 +32,7 @@ export default function AdminSettings() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [smsTemplate, setSmsTemplate] = useState("");
   const [newUserSms, setNewUserSms] = useState("");
+  const [assignmentSms, setAssignmentSms] = useState("");
   const [saving, setSaving] = useState(false);
   const [showKeys, setShowKeys] = useState(false);
 
@@ -41,6 +42,7 @@ export default function AdminSettings() {
     );
     fetchSmsTemplate("credentials").then(setSmsTemplate).catch(() => {});
     fetchSmsTemplate("new_user_sms").then(setNewUserSms).catch(() => {});
+    fetchSmsTemplate("assignment_created_sms").then(setAssignmentSms).catch(() => {});
   }, []);
 
   function update<K extends keyof AppSettings>(k: K, v: AppSettings[K]) {
@@ -84,6 +86,7 @@ export default function AdminSettings() {
     try {
       await saveSmsTemplate("credentials", smsTemplate);
       await saveSmsTemplate("new_user_sms", newUserSms);
+      await saveSmsTemplate("assignment_created_sms", assignmentSms);
       toast({ title: "SMS-Vorlagen gespeichert" });
     } catch (e: any) {
       toast({ title: "Fehler beim Speichern", description: e.message, variant: "destructive" });
@@ -203,6 +206,21 @@ export default function AdminSettings() {
           </CardContent>
         </Card>
         <Card>
+          <CardHeader className="border-b border-border px-5 py-4"><CardTitle className="text-base">SMS-Vorlage: Auftragszuweisung</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>Nachrichtentext</Label>
+              <Textarea rows={5} value={assignmentSms} onChange={(e) => setAssignmentSms(e.target.value)} />
+              <p className="text-xs text-muted-foreground">
+                Wird an den Vic gesendet, sobald ihm ein Auftrag zugewiesen wird. Verfügbare Variablen:{" "}
+                <code>{"{{first_name}}"}</code>, <code>{"{{last_name}}"}</code>,{" "}
+                <code>{"{{verification_title}}"}</code>, <code>{"{{company_name}}"}</code>,{" "}
+                <code>{"{{login_url}}"}</code>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
           <CardHeader className="border-b border-border px-5 py-4"><CardTitle className="text-base">SMS-Vorlage: Zugangsdaten (Legacy)</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
@@ -210,7 +228,7 @@ export default function AdminSettings() {
               <Textarea rows={5} value={smsTemplate} onChange={(e) => setSmsTemplate(e.target.value)} />
             </div>
             <Button onClick={handleSaveSms} disabled={saving} className="gap-2">
-              <Save className="w-4 h-4" /> Beide speichern
+              <Save className="w-4 h-4" /> Alle speichern
             </Button>
           </CardContent>
         </Card>
