@@ -440,8 +440,9 @@ export default function AdminTodos() {
                           <div className="font-medium">{t.title}</div>
                           {t.description && <div className="text-xs text-muted-foreground max-w-xs truncate" title={t.description}>{t.description}</div>}
                         </td>
-                        <td className="py-3 pr-4">{callerName(caller)}</td>
+                        {isAdmin && <td className="py-3 pr-4">{callerName(caller)}</td>}
                         <td className="py-3 pr-4">
+
                           <span className={cn(
                             "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold",
                             t.priority === "dringend"
