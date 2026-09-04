@@ -244,6 +244,7 @@ export default function AdminTodos() {
       notifyTelegram("todo_completed", {
         title: todo.title,
         caller_name: callerName(callers.find((c) => c.id === todo.assigned_caller_id)),
+        priority: todo.priority,
       });
     }
     toast({ title: next === "abgeschlossen" ? "To Do abgeschlossen" : "To Do wieder geöffnet" });
