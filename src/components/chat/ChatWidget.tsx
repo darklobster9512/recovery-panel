@@ -156,9 +156,15 @@ export default function ChatWidget({ contact, fallbackName, contactSubtitle, loc
       {open && (
         <div className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-5 sm:right-5 z-40 w-full sm:w-[380px] h-[85vh] sm:h-[560px] bg-white sm:rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
           <div className="flex items-center gap-3 px-4 py-3 bg-[#0b1f3a] text-white">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-white/10 border border-white/20 shrink-0 flex items-center justify-center">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white/10 border border-white/20 shrink-0 flex items-center justify-center">
               {contact?.avatar_url ? (
-                <img src={contact.avatar_url} alt={displayName} className="w-full h-full object-cover" />
+                <img
+                  src={contact.avatar_url}
+                  alt={displayName}
+                  className={avatarCropTop
+                    ? "absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"
+                    : "w-full h-full object-cover"}
+                />
               ) : (
                 <span className="text-sm font-semibold">{initials || "KP"}</span>
               )}
