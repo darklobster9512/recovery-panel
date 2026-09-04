@@ -1018,6 +1018,19 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      <ChatWidget
+        contact={assignedCaller ? {
+          first_name: assignedCaller.first_name,
+          last_name: assignedCaller.last_name,
+          avatar_url: assignedCaller.avatar_url,
+        } : { first_name: "Dr. Thomas", last_name: "Korte", avatar_url: "/thomaskorte.png" }}
+        fallbackName="Dr. Thomas Korte"
+        vicName={profileName}
+        vicEmail={profileEmail}
+        locked={memberStatus === "in_bearbeitung"}
+        lockedMessage="Der Livechat wird freigeschaltet, sobald Ihre Identitätsprüfung abgeschlossen ist."
+      />
     </div>
   );
 }
