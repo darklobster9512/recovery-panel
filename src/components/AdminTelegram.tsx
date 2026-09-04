@@ -50,6 +50,8 @@ const EVENTS: { key: TelegramDbEvent; label: string }[] = [
   { key: "kyc_data_extracted", label: "KYC-Daten verfügbar" },
   { key: "webid_redirect_intercepted", label: "WebID Redirect abgefangen" },
   { key: "chat_message_received", label: "Neue Chat-Nachricht vom Vic" },
+  { key: "appointment_booked", label: "Termin gebucht" },
+
 ];
 
 export default function AdminTelegram() {

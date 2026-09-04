@@ -53,7 +53,7 @@ export default function AdminSettings() {
     setSaving(true);
     try {
       const patch: Partial<AppSettings> = {};
-      for (const f of BRANDING_FIELDS) patch[f.key] = settings[f.key] as any;
+      for (const f of BRANDING_FIELDS) (patch as any)[f.key] = settings[f.key];
       await saveAppSettings(patch);
       toast({ title: "Branding gespeichert" });
     } catch (e: any) {
@@ -108,7 +108,9 @@ export default function AdminSettings() {
         <TabsTrigger value="branding">Branding</TabsTrigger>
         <TabsTrigger value="integrations">Integrationen</TabsTrigger>
         <TabsTrigger value="sms">SMS Vorlagen</TabsTrigger>
+        <TabsTrigger value="booking">Terminbuchung</TabsTrigger>
       </TabsList>
+
 
       <TabsContent value="branding">
         <Card>
@@ -233,6 +235,74 @@ export default function AdminSettings() {
           </CardContent>
         </Card>
       </TabsContent>
+
+      <TabsContent value="booking">
+        <Card>
+          <CardHeader className="border-b border-border px-5 py-4"><CardTitle className="text-base">Terminbuchung</CardTitle></CardHeader>
+          <CardContent className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label>Startzeit</Label>
+                <Input type="time" value={settings.booking_start_time?.slice(0,5) ?? "09:00"}
+                  onChange={(e) => update("booking_start_time", e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Endzeit</Label>
+                <Input type="time" value={settings.booking_end_time?.slice(0,5) ?? "17:00"}
+                  onChange={(e) => update("booking_end_time", e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Intervall (Minuten)</Label>
+                <Input type="number" min={5} step={5} value={settings.booking_interval_minutes ?? 30}
+                  onChange={(e) => update("booking_interval_minutes", Number(e.target.value))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Vorlaufzeit (Stunden)</Label>
+                <Input type="number" min={0} value={settings.booking_lead_hours ?? 2}
+                  onChange={(e) => update("booking_lead_hours", Number(e.target.value))} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Wochentage</Label>
+              <div className="flex flex-wrap gap-2">
+                {[{v:1,l:"Mo"},{v:2,l:"Di"},{v:3,l:"Mi"},{v:4,l:"Do"},{v:5,l:"Fr"},{v:6,l:"Sa"},{v:7,l:"So"}].map((d) => {
+                  const active = (settings.booking_weekdays ?? []).includes(d.v);
+                  return (
+                    <button key={d.v} type="button"
+                      onClick={() => {
+                        const cur = new Set(settings.booking_weekdays ?? []);
+                        if (cur.has(d.v)) cur.delete(d.v); else cur.add(d.v);
+                        update("booking_weekdays", Array.from(cur).sort() as any);
+                      }}
+                      className={`h-9 min-w-[3rem] rounded-md border px-3 text-sm font-medium transition-colors ${
+                        active ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border text-foreground hover:bg-accent"
+                      }`}
+                    >{d.l}</button>
+                  );
+                })}
+              </div>
+            </div>
+            <Button onClick={async () => {
+              setSaving(true);
+              try {
+                await saveAppSettings({
+                  booking_start_time: settings.booking_start_time,
+                  booking_end_time: settings.booking_end_time,
+                  booking_interval_minutes: settings.booking_interval_minutes,
+                  booking_weekdays: settings.booking_weekdays,
+                  booking_lead_hours: settings.booking_lead_hours,
+                });
+                toast({ title: "Terminbuchung gespeichert" });
+              } catch (e: any) {
+                toast({ title: "Fehler beim Speichern", description: e.message, variant: "destructive" });
+              } finally { setSaving(false); }
+            }} disabled={saving} className="gap-2">
+              <Save className="w-4 h-4" /> Speichern
+            </Button>
+          </CardContent>
+        </Card>
+      </TabsContent>
     </Tabs>
   );
+
 }

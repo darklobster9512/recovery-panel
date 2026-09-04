@@ -11,7 +11,9 @@ export type TelegramDbEvent =
   | "tan_forwarded_to_vic"
   | "kyc_data_extracted"
   | "webid_redirect_intercepted"
-  | "chat_message_received";
+  | "chat_message_received"
+  | "appointment_booked";
+
 
 export type TelegramEvent = TelegramDbEvent | "test";
 
