@@ -309,12 +309,17 @@ export default function AdminVicDetail() {
               {profile.member_status === "aktiv" ? "Aktiv" : "In Bearbeitung"}
             </Badge>
           </div>
-          <AssignCallerSelect
-            target="profile"
-            targetId={profile.id}
-            value={profile.assigned_caller_id}
-            onChange={(v) => setProfile((p) => (p ? { ...p, assigned_caller_id: v } : p))}
-          />
+          <div className="flex items-center gap-2">
+            <AssignCallerSelect
+              target="profile"
+              targetId={profile.id}
+              value={profile.assigned_caller_id}
+              onChange={(v) => setProfile((p) => (p ? { ...p, assigned_caller_id: v } : p))}
+            />
+            <Button variant="outline" size="sm" onClick={openEdit} className="gap-2">
+              <Pencil className="w-3.5 h-3.5" /> Bearbeiten
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
