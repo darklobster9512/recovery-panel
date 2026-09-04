@@ -102,9 +102,11 @@ export default function Dashboard() {
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [showRecovery, setShowRecovery] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
   const [postidentDoc, setPostidentDoc] = useState<{ url: string; name: string; qr: string | null; loading: boolean; error: string | null } | null>(null);
   const [qrLightboxOpen, setQrLightboxOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
 
 
 
@@ -352,15 +354,18 @@ export default function Dashboard() {
     return result;
   };
 
-  const activeView: "assignments" | "recovery" | "guide" | "upload" | "detail" = selected
+  const activeView: "assignments" | "recovery" | "guide" | "upload" | "booking" | "detail" = selected
     ? "detail"
     : showRecovery
     ? "recovery"
     : showGuide
     ? "guide"
+    : showBooking
+    ? "booking"
     : showDocUpload
     ? "upload"
     : "assignments";
+
 
   // Wenn keine Aufträge vorhanden sind, direkt die Anleitung anzeigen
   useEffect(() => {
