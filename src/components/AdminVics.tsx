@@ -79,6 +79,12 @@ export default function AdminVics() {
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string>("");
   const [leadPopoverOpen, setLeadPopoverOpen] = useState(false);
+  const [callers, setCallers] = useState<CallerOption[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkCaller, setBulkCaller] = useState<string>(NO_CALLER);
+  const [assigning, setAssigning] = useState(false);
+  const [singleVic, setSingleVic] = useState<VicUser | null>(null);
+  const [singleCaller, setSingleCaller] = useState<string>(NO_CALLER);
   const { toast } = useToast();
   const navigate = useNavigate();
 
