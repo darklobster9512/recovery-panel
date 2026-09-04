@@ -407,6 +407,7 @@ export default function AdminVics() {
                   <TableHead>Telefon</TableHead>
                   <TableHead>Temp. Passwort</TableHead>
                   <TableHead>Caller</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Erstellt am</TableHead>
                   <TableHead className="w-20"></TableHead>
                 </TableRow>
