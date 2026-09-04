@@ -162,11 +162,15 @@ export default function Auth() {
               <img
                 src={ioscoLogo}
                 alt="IOSCO"
+                loading="eager"
+                decoding="sync"
                 className="h-10 w-auto object-contain"
               />
               <img
                 src={europolLogo}
                 alt="Europol"
+                loading="eager"
+                decoding="sync"
                 className="h-8 w-auto object-contain"
               />
             </div>
