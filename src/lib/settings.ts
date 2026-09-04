@@ -53,10 +53,15 @@ export async function saveAppSettings(patch: Partial<AppSettings>): Promise<void
 }
 
 export function buildLoginUrl(s: Pick<AppSettings, "panel_subprefix" | "website">): string {
-  const website = s.website.trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "");
-  const prefix = s.panel_subprefix.trim().replace(/\.+$/, "");
+  const website = (s.website || "").trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "");
+  const prefix = (s.panel_subprefix || "").trim().replace(/\.+$/, "");
   const host = prefix ? `${prefix}.${website}` : website;
   return `https://${host}/auth`;
+}
+
+export function buildWebsiteUrl(s: Pick<AppSettings, "website">): string {
+  const website = (s.website || "").trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "");
+  return `https://${website}`;
 }
 
 export interface SmsTemplate {

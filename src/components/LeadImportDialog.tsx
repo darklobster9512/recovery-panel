@@ -130,23 +130,71 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
     const { data, error } = await supabase
       .from("leads")
       .upsert(rows, { onConflict: "external_id", ignoreDuplicates: true })
-      .select("id");
+      .select("id, full_name, email, phone_number, vorfall");
 
-    setImporting(false);
     if (error) {
+      setImporting(false);
       toast({ title: "Import fehlgeschlagen", description: error.message, variant: "destructive" });
       return;
     }
-    const inserted = data?.length ?? 0;
+    const insertedRows = data ?? [];
+    const inserted = insertedRows.length;
     const skipped = dupInDb + dupInFile + (toInsert.length - inserted);
+
+    // Auto-create Vic accounts for each newly imported lead
+    const CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
+    const genPw = () => {
+      const buf = new Uint32Array(8);
+      crypto.getRandomValues(buf);
+      let out = "";
+      for (let i = 0; i < 8; i++) out += CHARS[buf[i] % CHARS.length];
+      return out;
+    };
+
+    let accountsCreated = 0;
+    const failedAccounts: string[] = [];
+    for (const row of insertedRows as any[]) {
+      if (!row.email) {
+        failedAccounts.push(`${row.full_name ?? "?"} (keine E-Mail)`);
+        continue;
+      }
+      const fullName = (row.full_name || "").trim();
+      const parts = fullName.split(/\s+/);
+      const firstName = parts.slice(0, -1).join(" ") || fullName || "Vic";
+      const lastName = parts.length > 1 ? parts[parts.length - 1] : "";
+      try {
+        const res = await supabase.functions.invoke("create-user", {
+          body: {
+            email: row.email,
+            first_name: firstName,
+            last_name: lastName || "—",
+            phone: row.phone_number || null,
+            password: genPw(),
+            scam_project: row.vorfall || null,
+            source_lead_id: row.id,
+            role: "user",
+          },
+        });
+        const result: any = res.data;
+        if (res.error || result?.error) {
+          failedAccounts.push(`${row.email} (${res.error?.message ?? result?.error})`);
+        } else {
+          accountsCreated++;
+        }
+      } catch (e: any) {
+        failedAccounts.push(`${row.email} (${e.message ?? String(e)})`);
+      }
+    }
+
+    setImporting(false);
     toast({
       title: "Import abgeschlossen",
       description:
-        `${inserted} neue Leads importiert` +
-        (skipped > 0
-          ? `, ${skipped} Duplikate übersprungen (${dupInDb} per E-Mail, ${dupInFile} in der Datei)`
-          : "") +
+        `${inserted} neue Leads importiert, ${accountsCreated} Nutzerkonten erstellt` +
+        (skipped > 0 ? `, ${skipped} Duplikate übersprungen` : "") +
+        (failedAccounts.length > 0 ? `. Konto-Fehler: ${failedAccounts.slice(0, 3).join("; ")}${failedAccounts.length > 3 ? " …" : ""}` : "") +
         ".",
+      variant: failedAccounts.length > 0 ? "destructive" : undefined,
     });
     reset();
     onOpenChange(false);

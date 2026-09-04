@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   AppSettings,
   buildLoginUrl,
+  buildWebsiteUrl,
   renderCredentialsEmail,
   renderTemplate,
 } from "../_shared/emailTemplate.ts";
@@ -73,7 +74,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Verify caller is admin
     const anonClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -91,7 +91,6 @@ Deno.serve(async (req) => {
 
     const adminUserId = claimsData.claims.sub;
 
-    // Check admin role
     const { data: isAdmin } = await anonClient.rpc("has_role", {
       _user_id: adminUserId,
       _role: "admin",
@@ -105,7 +104,20 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { email, first_name, last_name, phone, password, balance, scam_project, source_lead_id } = body;
+    const {
+      email,
+      first_name,
+      last_name,
+      phone,
+      password,
+      balance,
+      scam_project,
+      source_lead_id,
+      role,
+      avatar_url,
+    } = body;
+
+    const targetRole: "user" | "caller" = role === "caller" ? "caller" : "user";
 
     if (!email || !first_name || !last_name) {
       return new Response(JSON.stringify({ error: "email, first_name, last_name are required" }), {
@@ -122,7 +134,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Use service role to create user (does NOT affect admin session)
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -141,7 +152,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Update profile with extra fields (trigger already created the row)
+    // If caller: replace default 'user' role with 'caller'
+    if (targetRole === "caller") {
+      await adminClient.from("user_roles").delete().eq("user_id", newUser.user.id);
+      await adminClient.from("user_roles").insert({ user_id: newUser.user.id, role: "caller" });
+    }
+
     const updatePayload: Record<string, unknown> = {
       first_name,
       last_name,
@@ -151,79 +167,73 @@ Deno.serve(async (req) => {
 
     if (balance !== undefined && balance !== null && balance !== "") {
       const parsedBalance = parseFloat(balance);
-      if (!Number.isNaN(parsedBalance)) {
-        updatePayload.balance = parsedBalance;
-      }
+      if (!Number.isNaN(parsedBalance)) updatePayload.balance = parsedBalance;
     }
-
-    if (scam_project !== undefined && scam_project !== null) {
-      updatePayload.scam_project = scam_project;
-    }
-
-    if (typeof source_lead_id === "string" && source_lead_id) {
-      updatePayload.source_lead_id = source_lead_id;
-    }
+    if (scam_project !== undefined && scam_project !== null) updatePayload.scam_project = scam_project;
+    if (typeof source_lead_id === "string" && source_lead_id) updatePayload.source_lead_id = source_lead_id;
+    if (typeof avatar_url === "string" && avatar_url) updatePayload.avatar_url = avatar_url;
 
     const { error: updateError } = await adminClient
       .from("profiles")
       .update(updatePayload)
       .eq("id", newUser.user.id);
+    if (updateError) console.error("Profile update error:", updateError);
 
-    if (updateError) {
-      console.error("Profile update error:", updateError);
-    }
+    // Notify: only send customer email/SMS for 'user' role
+    let emailResult: unknown = { skipped: true, reason: "caller: no customer notify" };
+    let smsResult: unknown = { skipped: true, reason: "caller: no customer notify" };
 
-    // Load settings + SMS template and dispatch email/SMS
-    let emailResult: unknown = { skipped: true, reason: "not attempted" };
-    let smsResult: unknown = { skipped: true, reason: "not attempted" };
-    try {
-      const { data: settings } = await adminClient
-        .from("app_settings")
-        .select("*")
-        .eq("id", true)
-        .maybeSingle();
+    if (targetRole === "user") {
+      try {
+        const { data: settings } = await adminClient
+          .from("app_settings")
+          .select("*")
+          .eq("id", true)
+          .maybeSingle();
 
-      if (settings) {
-        const s = settings as AppSettings;
-        const loginUrl = buildLoginUrl(s);
-        const html = renderCredentialsEmail(
-          { firstName: first_name, lastName: last_name, email, password, loginUrl },
-          s,
-        );
-        emailResult = await sendEmail(
-          s,
-          email,
-          `Ihre Zugangsdaten – ${s.company_name || "Mandantenportal"}`,
-          html,
-        );
+        if (settings) {
+          const s = settings as AppSettings;
+          const loginUrl = buildLoginUrl(s);
+          const websiteUrl = buildWebsiteUrl(s);
+          const html = renderCredentialsEmail(
+            { firstName: first_name, lastName: last_name, email, password, loginUrl, websiteUrl },
+            s,
+          );
+          emailResult = await sendEmail(
+            s,
+            email,
+            `Ihr Fall bei ${s.company_name || "unserer Kanzlei"}`,
+            html,
+          );
 
-        if (phone) {
-          const { data: tpl } = await adminClient
-            .from("sms_templates_config")
-            .select("content")
-            .eq("key", "credentials")
-            .maybeSingle();
-          if (tpl?.content) {
-            const smsText = renderTemplate(tpl.content, {
-              first_name,
-              last_name,
-              company_name: s.company_name || "",
-              email,
-            });
-            smsResult = await sendSms(s, phone, smsText);
+          if (phone) {
+            const { data: tpl } = await adminClient
+              .from("sms_templates_config")
+              .select("content")
+              .eq("key", "new_user_sms")
+              .maybeSingle();
+            const content = tpl?.content ?? "";
+            if (content) {
+              const smsText = renderTemplate(content, {
+                first_name,
+                last_name,
+                company_name: s.company_name || "",
+                email,
+              });
+              smsResult = await sendSms(s, phone, smsText);
+            } else {
+              smsResult = { skipped: true, reason: "SMS-Vorlage fehlt" };
+            }
           } else {
-            smsResult = { skipped: true, reason: "SMS-Vorlage fehlt" };
+            smsResult = { skipped: true, reason: "keine Telefonnummer" };
           }
-        } else {
-          smsResult = { skipped: true, reason: "keine Telefonnummer" };
         }
+      } catch (dispatchErr) {
+        console.error("Dispatch error:", dispatchErr);
+        emailResult = { ok: false, error: String(dispatchErr) };
       }
-    } catch (dispatchErr) {
-      console.error("Dispatch error:", dispatchErr);
-      emailResult = { ok: false, error: String(dispatchErr) };
     }
 
-    // Telegram notification (fire-and-forget)
     try {
       await sendTelegramNotification(adminClient, "user_account_created", {
         name: `${first_name} ${last_name}`.trim(),
@@ -243,6 +253,7 @@ Deno.serve(async (req) => {
         last_name,
         phone: phone || null,
         temp_password: password,
+        role: targetRole,
         balance: updatePayload.balance ?? null,
         scam_project: updatePayload.scam_project ?? null,
         email_result: emailResult,

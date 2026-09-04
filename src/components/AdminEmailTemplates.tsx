@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Copy, Mail } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { renderCredentialsEmail } from "@/lib/emailTemplates";
-import { AppSettings, DEFAULT_SETTINGS, buildLoginUrl, fetchAppSettings } from "@/lib/settings";
+import { AppSettings, DEFAULT_SETTINGS, buildLoginUrl, buildWebsiteUrl, fetchAppSettings } from "@/lib/settings";
 
 const TEMPLATES = [
-  { id: "credentials", label: "Zugangsdaten – neues Benutzerkonto" },
+  { id: "credentials", label: "Kontoerstellung – Blockchain-Forensik" },
 ] as const;
 
 export default function AdminEmailTemplates() {
@@ -19,7 +19,7 @@ export default function AdminEmailTemplates() {
     firstName: "Max",
     lastName: "Mustermann",
     email: "max.mustermann@example.com",
-    password: "a1b2c3",
+    password: "a1b2c3d4",
   });
 
   useEffect(() => {
@@ -27,9 +27,11 @@ export default function AdminEmailTemplates() {
   }, []);
 
   const loginUrl = useMemo(() => buildLoginUrl(settings), [settings]);
+  const websiteUrl = useMemo(() => buildWebsiteUrl(settings), [settings]);
+  const subject = useMemo(() => `Ihr Fall bei ${settings.company_name || "unserer Kanzlei"}`, [settings]);
   const html = useMemo(
-    () => renderCredentialsEmail({ ...form, loginUrl }, settings),
-    [form, settings, loginUrl],
+    () => renderCredentialsEmail({ ...form, loginUrl, websiteUrl }, settings),
+    [form, settings, loginUrl, websiteUrl],
   );
 
   async function copyHtml() {
@@ -93,9 +95,17 @@ export default function AdminEmailTemplates() {
               <Input id="preview_password" value={form.password}
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
             </div>
-            <div className="space-y-1.5 sm:col-span-2">
-              <Label>Login-Link (aus Einstellungen)</Label>
+            <div className="space-y-1.5">
+              <Label>Portal-Login-Link</Label>
               <Input value={loginUrl} readOnly className="bg-muted/60" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Website-Link</Label>
+              <Input value={websiteUrl} readOnly className="bg-muted/60" />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Betreff</Label>
+              <Input value={subject} readOnly className="bg-muted/60" />
             </div>
           </div>
 

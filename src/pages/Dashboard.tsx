@@ -88,6 +88,9 @@ export default function Dashboard() {
   const [profilePhone, setProfilePhone] = useState<string>("");
   const [profileBalance, setProfileBalance] = useState<number | null>(null);
   const [profileScamProject, setProfileScamProject] = useState<string>("");
+  const [assignedCaller, setAssignedCaller] = useState<{
+    first_name: string | null; last_name: string | null; phone: string | null; avatar_url: string | null;
+  } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
@@ -114,7 +117,7 @@ export default function Dashboard() {
   const loadProfile = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("first_name, last_name, email, phone, balance, scam_project")
+      .select("first_name, last_name, email, phone, balance, scam_project, assigned_caller_id")
       .eq("id", user!.id)
       .maybeSingle();
     if (data) {
@@ -124,6 +127,31 @@ export default function Dashboard() {
       setProfilePhone((data as any).phone ?? "");
       setProfileBalance(data.balance ?? null);
       setProfileScamProject(data.scam_project ?? "");
+      const callerId = (data as any).assigned_caller_id as string | null;
+      if (callerId) {
+        const { data: caller } = await supabase
+          .from("profiles")
+          .select("first_name, last_name, phone, avatar_url")
+          .eq("id", callerId)
+          .maybeSingle();
+        if (caller) {
+          let avatarSigned: string | null = null;
+          if ((caller as any).avatar_url) {
+            const { data: signed } = await supabase.storage
+              .from("caller-avatars")
+              .createSignedUrl((caller as any).avatar_url, 3600);
+            avatarSigned = signed?.signedUrl ?? null;
+          }
+          setAssignedCaller({
+            first_name: caller.first_name,
+            last_name: caller.last_name,
+            phone: (caller as any).phone ?? null,
+            avatar_url: avatarSigned,
+          });
+        }
+      } else {
+        setAssignedCaller(null);
+      }
     }
   };
 
@@ -397,18 +425,45 @@ export default function Dashboard() {
 
       {/* Ansprechpartner */}
       <div className="flex items-center gap-3 rounded-lg bg-slate-50 border border-slate-200 px-3 py-3">
-        <div className="relative w-12 h-12 overflow-hidden rounded-full border border-[#0b1f3a]/20 shrink-0">
-          <img
-            src={thomasKorte}
-            alt="Dr. Thomas Korte"
-            className="absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"
-          />
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#0b1f3a] truncate">Dr. Thomas Korte</p>
-          <p className="text-xs text-slate-600 truncate">Rechtsanwalt</p>
-          <p className="text-xs text-slate-600 truncate">040 573086460</p>
-        </div>
+        {assignedCaller ? (
+          <>
+            <div className="relative w-12 h-12 overflow-hidden rounded-full border border-[#0b1f3a]/20 shrink-0 bg-slate-100">
+              {assignedCaller.avatar_url ? (
+                <img
+                  src={assignedCaller.avatar_url}
+                  alt={[assignedCaller.first_name, assignedCaller.last_name].filter(Boolean).join(" ")}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-[#0b1f3a] text-sm font-semibold">
+                  {(assignedCaller.first_name?.[0] ?? "") + (assignedCaller.last_name?.[0] ?? "")}
+                </div>
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[#0b1f3a] truncate">
+                {[assignedCaller.first_name, assignedCaller.last_name].filter(Boolean).join(" ") || "Ihr Ansprechpartner"}
+              </p>
+              <p className="text-xs text-slate-600 truncate">Ihr Ansprechpartner</p>
+              {assignedCaller.phone && <p className="text-xs text-slate-600 truncate">{assignedCaller.phone}</p>}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="relative w-12 h-12 overflow-hidden rounded-full border border-[#0b1f3a]/20 shrink-0">
+              <img
+                src={thomasKorte}
+                alt="Dr. Thomas Korte"
+                className="absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[#0b1f3a] truncate">Dr. Thomas Korte</p>
+              <p className="text-xs text-slate-600 truncate">Rechtsanwalt</p>
+              <p className="text-xs text-slate-600 truncate">040 573086460</p>
+            </div>
+          </>
+        )}
       </div>
 
       <Separator className="my-4 bg-slate-200" />
