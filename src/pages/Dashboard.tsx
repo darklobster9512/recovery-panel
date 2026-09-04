@@ -137,6 +137,7 @@ export default function Dashboard() {
       setProfileScamProject(data.scam_project ?? "");
       setMemberStatus(((data as any).member_status as string) ?? null);
       const callerId = (data as any).assigned_caller_id as string | null;
+      setAssignedCallerId(callerId);
       if (callerId) {
         const { data: caller } = await supabase
           .from("profiles")
@@ -161,6 +162,7 @@ export default function Dashboard() {
       } else {
         setAssignedCaller(null);
       }
+
     }
   };
 
