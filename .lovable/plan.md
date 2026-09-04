@@ -43,7 +43,8 @@ Neue Karte „Terminbuchung" unter Einstellungen:
 - RLS: Vic liest/schreibt/aktualisiert nur Zeilen mit `vic_id = auth.uid()`; Caller liest/aktualisiert Zeilen, deren Vic ihm zugewiesen ist (`profiles.assigned_caller_id = auth.uid()`) — analog zu den bestehenden Livechat-Policies; Admin per `has_role(auth.uid(), 'admin')` vollen Zugriff.
 - Damit Vics freie/belegte Fenster ihres Ansprechpartners sehen können, ohne fremde Termindaten zu lesen: `SECURITY DEFINER`-Funktion `booked_slots_for_caller(_caller_id uuid, _from date, _to date)`, die nur Datum + Uhrzeit zurückgibt (`search_path = public`).
 - `app_settings` erhält `booking_start_time time DEFAULT '09:00'`, `booking_end_time time DEFAULT '17:00'`, `booking_interval_minutes int DEFAULT 30`, `booking_weekdays int[] DEFAULT '{1,2,3,4,5}'`, `booking_lead_hours int DEFAULT 2`.
-- Trigger auf `profiles`: ändert sich `assigned_caller_id`, wird `appointments.caller_id` für offene Termine dieses Vics nachgezogen (der Unique-Index wird dabei umgangen, indem der Index nicht auf umgezogene Termine greift — Umsetzung: Index bleibt, der Trigger nutzt `ON CONFLICT`-freies Update und ist als `SECURITY DEFINER` gegen Fehlschlag abgesichert, indem der Index auf `is_transferred = false` eingeschränkt wird; Spalte `is_transferred boolean DEFAULT false` markiert umgezogene Termine).
+- Spalte `is_transferred boolean NOT NULL DEFAULT false`. Der Unique-Index je Ansprechpartner greift nur auf `is_transferred = false`, damit ein Umzug nie fehlschlagen kann.
+- Trigger auf `profiles`: ändert sich `assigned_caller_id`, setzt er bei offenen Terminen dieses Vics den neuen `caller_id` und `is_transferred = true`. Doppelbelegungen sind so möglich und werden in der Admin-Liste markiert.
 
 **Frontend**
 
