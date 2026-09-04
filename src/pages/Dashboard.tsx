@@ -383,13 +383,15 @@ export default function Dashboard() {
     );
   }
 
-  const goTo = (view: "assignments" | "recovery" | "guide" | "upload") => {
+  const goTo = (view: "assignments" | "recovery" | "guide" | "upload" | "booking") => {
     setSelectedId(null);
     setShowRecovery(view === "recovery");
     setShowGuide(view === "guide");
     setShowDocUpload(view === "upload");
+    setShowBooking(view === "booking");
     setMobileNavOpen(false);
   };
+
 
   const NavButton = ({
     view,
