@@ -95,6 +95,7 @@ export type Database = {
           created_by: string | null
           id: string
           is_transferred: boolean
+          reason: string | null
           status: string
           updated_at: string
           vic_id: string
@@ -107,6 +108,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_transferred?: boolean
+          reason?: string | null
           status?: string
           updated_at?: string
           vic_id: string
@@ -119,6 +121,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_transferred?: boolean
+          reason?: string | null
           status?: string
           updated_at?: string
           vic_id?: string
