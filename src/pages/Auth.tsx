@@ -16,8 +16,26 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [assetsReady, setAssetsReady] = useState(false);
   const navigate = useNavigate();
   const { user, role } = useAuth();
+
+  useEffect(() => {
+    let cancelled = false;
+    const preload = (src: string) =>
+      new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = src;
+      });
+    Promise.all([preload(ioscoLogo), preload(europolLogo)]).then(() => {
+      if (!cancelled) setAssetsReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (user && role) {
