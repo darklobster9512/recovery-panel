@@ -412,6 +412,13 @@ export default function AdminVics() {
               <TableBody>
                 {filtered.map((u) => (
                   <TableRow key={u.id} className="hover:bg-muted/50">
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedIds.includes(u.id)}
+                        onCheckedChange={(c) => toggleOne(u.id, c === true)}
+                        aria-label="Vic auswählen"
+                      />
+                    </TableCell>
                     <TableCell
                       className="cursor-pointer"
                       onClick={() => navigate(`/admin/vics/${u.id}`)}
