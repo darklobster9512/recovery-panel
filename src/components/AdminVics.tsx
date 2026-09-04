@@ -8,9 +8,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, Loader2, Copy, Search, Eye, RefreshCw, Check, ChevronsUpDown, KeyRound, User, Wallet } from "lucide-react";
+import { UserPlus, Loader2, Copy, Search, Eye, RefreshCw, Check, ChevronsUpDown, KeyRound, User, Wallet, UserCog } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 
@@ -22,6 +24,20 @@ interface VicUser {
   phone: string | null;
   temp_password: string | null;
   created_at: string;
+  assigned_caller_id: string | null;
+}
+
+interface CallerOption {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+}
+
+const NO_CALLER = "__none__";
+
+function callerLabel(c: CallerOption): string {
+  return [c.first_name, c.last_name].filter(Boolean).join(" ") || c.email || c.id;
 }
 
 interface LeadOption {
@@ -63,6 +79,12 @@ export default function AdminVics() {
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string>("");
   const [leadPopoverOpen, setLeadPopoverOpen] = useState(false);
+  const [callers, setCallers] = useState<CallerOption[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkCaller, setBulkCaller] = useState<string>(NO_CALLER);
+  const [assigning, setAssigning] = useState(false);
+  const [singleVic, setSingleVic] = useState<VicUser | null>(null);
+  const [singleCaller, setSingleCaller] = useState<string>(NO_CALLER);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -83,7 +105,7 @@ export default function AdminVics() {
 
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, email, first_name, last_name, phone, temp_password, created_at")
+      .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id")
       .in("id", userIds)
       .order("created_at", { ascending: false });
 
@@ -91,9 +113,47 @@ export default function AdminVics() {
     setLoading(false);
   };
 
+  const fetchCallers = async () => {
+    const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "caller");
+    const ids = (roles ?? []).map((r) => r.user_id);
+    if (ids.length === 0) {
+      setCallers([]);
+      return;
+    }
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id, first_name, last_name, email")
+      .in("id", ids);
+    setCallers((profs as CallerOption[]) ?? []);
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchCallers();
   }, []);
+
+  const callerNames = new Map(callers.map((c) => [c.id, callerLabel(c)]));
+
+  const assignCaller = async (ids: string[], callerId: string | null) => {
+    if (ids.length === 0) return;
+    setAssigning(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ assigned_caller_id: callerId })
+      .in("id", ids);
+    setAssigning(false);
+    if (error) {
+      toast({ title: "Zuweisung fehlgeschlagen", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: callerId ? "Caller zugewiesen" : "Zuweisung entfernt",
+      description: `${ids.length} ${ids.length === 1 ? "Vic" : "Vics"} aktualisiert.`,
+    });
+    setSelectedIds([]);
+    setSingleVic(null);
+    fetchUsers();
+  };
 
   const [searchParams, setSearchParams] = useSearchParams();
   const newFromLead = searchParams.get("newFromLead");
@@ -248,6 +308,14 @@ export default function AdminVics() {
       .some((v) => v!.toLowerCase().includes(q))
   );
 
+  const allSelected = filtered.length > 0 && filtered.every((u) => selectedIds.includes(u.id));
+  const toggleAll = (checked: boolean) => {
+    setSelectedIds(checked ? filtered.map((u) => u.id) : []);
+  };
+  const toggleOne = (id: string, checked: boolean) => {
+    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)));
+  };
+
   const selectedLeadLabel = selectedLeadId
     ? leads.find((l) => l.id === selectedLeadId)?.full_name || "Lead ausgewählt"
     : "Lead suchen…";
@@ -276,6 +344,40 @@ export default function AdminVics() {
         />
       </div>
 
+      {selectedIds.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-md border border-border bg-muted/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-medium">
+            {selectedIds.length} {selectedIds.length === 1 ? "Vic" : "Vics"} ausgewählt
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Select value={bulkCaller} onValueChange={setBulkCaller}>
+              <SelectTrigger className="w-full sm:w-64 bg-card">
+                <SelectValue placeholder="Caller wählen" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_CALLER}>Nicht zugewiesen</SelectItem>
+                {callers.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {callerLabel(c)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={() => assignCaller(selectedIds, bulkCaller === NO_CALLER ? null : bulkCaller)}
+              disabled={assigning}
+              className="gap-2"
+            >
+              {assigning ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCog className="w-4 h-4" />}
+              Zuweisen
+            </Button>
+            <Button variant="ghost" onClick={() => setSelectedIds([])} disabled={assigning}>
+              Auswahl löschen
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Card>
         <CardContent className="p-0">
           {loading ? (
@@ -290,18 +392,33 @@ export default function AdminVics() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10">
+                    <Checkbox
+                      checked={allSelected}
+                      onCheckedChange={(c) => toggleAll(c === true)}
+                      aria-label="Alle auswählen"
+                    />
+                  </TableHead>
                   <TableHead>Vorname</TableHead>
                   <TableHead>Nachname</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Telefon</TableHead>
                   <TableHead>Temp. Passwort</TableHead>
+                  <TableHead>Caller</TableHead>
                   <TableHead>Erstellt am</TableHead>
-                  <TableHead className="w-10"></TableHead>
+                  <TableHead className="w-20"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((u) => (
                   <TableRow key={u.id} className="hover:bg-muted/50">
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedIds.includes(u.id)}
+                        onCheckedChange={(c) => toggleOne(u.id, c === true)}
+                        aria-label="Vic auswählen"
+                      />
+                    </TableCell>
                     <TableCell
                       className="cursor-pointer"
                       onClick={() => navigate(`/admin/vics/${u.id}`)}
@@ -352,6 +469,9 @@ export default function AdminVics() {
                         "–"
                       )}
                     </TableCell>
+                    <TableCell className="text-sm">
+                      {u.assigned_caller_id ? (callerNames.get(u.assigned_caller_id) ?? "–") : "–"}
+                    </TableCell>
                     <TableCell className="text-muted-foreground text-xs">
                       {new Date(u.created_at).toLocaleDateString("de-DE", {
                         day: "2-digit",
@@ -361,13 +481,26 @@ export default function AdminVics() {
                         minute: "2-digit",
                       })}
                     </TableCell>
-                    <TableCell>
-                      <button
-                        onClick={() => navigate(`/admin/vics/${u.id}`)}
-                        className="text-muted-foreground hover:text-foreground transition-colors p-1"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => navigate(`/admin/vics/${u.id}`)}
+                          className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                          title="Details ansehen"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSingleVic(u);
+                            setSingleCaller(u.assigned_caller_id ?? NO_CALLER);
+                          }}
+                          className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                          title="Caller zuweisen"
+                        >
+                          <UserCog className="w-4 h-4" />
+                        </button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -554,6 +687,48 @@ export default function AdminVics() {
               {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Erstellt…</> : <><UserPlus className="w-4 h-4" /> Nutzer erstellen</>}
             </Button>
           </DialogFooterBar>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!singleVic} onOpenChange={(o) => !o && setSingleVic(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Caller zuweisen</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              {[singleVic?.first_name, singleVic?.last_name].filter(Boolean).join(" ") || singleVic?.email || "Vic"}
+            </p>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-bold uppercase text-muted-foreground">Zugewiesener Caller</Label>
+              <Select value={singleCaller} onValueChange={setSingleCaller}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Caller wählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_CALLER}>Nicht zugewiesen</SelectItem>
+                  {callers.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {callerLabel(c)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSingleVic(null)} disabled={assigning}>
+              Abbrechen
+            </Button>
+            <Button
+              onClick={() => singleVic && assignCaller([singleVic.id], singleCaller === NO_CALLER ? null : singleCaller)}
+              disabled={assigning}
+              className="gap-2"
+            >
+              {assigning ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCog className="w-4 h-4" />}
+              Speichern
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
