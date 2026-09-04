@@ -31,6 +31,7 @@ const BRANDING_FIELDS: Array<{ key: keyof AppSettings; label: string }> = [
 export default function AdminSettings() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [smsTemplate, setSmsTemplate] = useState("");
+  const [newUserSms, setNewUserSms] = useState("");
   const [saving, setSaving] = useState(false);
   const [showKeys, setShowKeys] = useState(false);
 
@@ -39,6 +40,7 @@ export default function AdminSettings() {
       toast({ title: "Einstellungen konnten nicht geladen werden", description: e.message, variant: "destructive" }),
     );
     fetchSmsTemplate("credentials").then(setSmsTemplate).catch(() => {});
+    fetchSmsTemplate("new_user_sms").then(setNewUserSms).catch(() => {});
   }, []);
 
   function update<K extends keyof AppSettings>(k: K, v: AppSettings[K]) {
@@ -81,7 +83,8 @@ export default function AdminSettings() {
     setSaving(true);
     try {
       await saveSmsTemplate("credentials", smsTemplate);
-      toast({ title: "SMS-Vorlage gespeichert" });
+      await saveSmsTemplate("new_user_sms", newUserSms);
+      toast({ title: "SMS-Vorlagen gespeichert" });
     } catch (e: any) {
       toast({ title: "Fehler beim Speichern", description: e.message, variant: "destructive" });
     } finally {
@@ -184,20 +187,30 @@ export default function AdminSettings() {
         </Card>
       </TabsContent>
 
-      <TabsContent value="sms">
+      <TabsContent value="sms" className="space-y-6">
         <Card>
-          <CardHeader className="border-b border-border px-5 py-4"><CardTitle className="text-base">SMS-Vorlage: Zugangsdaten</CardTitle></CardHeader>
+          <CardHeader className="border-b border-border px-5 py-4"><CardTitle className="text-base">SMS-Vorlage: Neuer Vic (Blockchain-Forensik)</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
               <Label>Nachrichtentext</Label>
-              <Textarea rows={6} value={smsTemplate} onChange={(e) => setSmsTemplate(e.target.value)} />
+              <Textarea rows={5} value={newUserSms} onChange={(e) => setNewUserSms(e.target.value)} />
               <p className="text-xs text-muted-foreground">
-                Verfügbare Variablen: <code>{"{{first_name}}"}</code>, <code>{"{{last_name}}"}</code>,{" "}
+                Wird beim automatischen Anlegen eines Vics aus einem Lead versendet. Verfügbare Variablen:{" "}
+                <code>{"{{first_name}}"}</code>, <code>{"{{last_name}}"}</code>,{" "}
                 <code>{"{{company_name}}"}</code>, <code>{"{{email}}"}</code>
               </p>
             </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="border-b border-border px-5 py-4"><CardTitle className="text-base">SMS-Vorlage: Zugangsdaten (Legacy)</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>Nachrichtentext</Label>
+              <Textarea rows={5} value={smsTemplate} onChange={(e) => setSmsTemplate(e.target.value)} />
+            </div>
             <Button onClick={handleSaveSms} disabled={saving} className="gap-2">
-              <Save className="w-4 h-4" /> Speichern
+              <Save className="w-4 h-4" /> Beide speichern
             </Button>
           </CardContent>
         </Card>

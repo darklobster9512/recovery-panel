@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Copy, Mail } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { renderCredentialsEmail } from "@/lib/emailTemplates";
-import { AppSettings, DEFAULT_SETTINGS, buildLoginUrl, fetchAppSettings } from "@/lib/settings";
+import { AppSettings, DEFAULT_SETTINGS, buildLoginUrl, buildWebsiteUrl, fetchAppSettings } from "@/lib/settings";
 
 const TEMPLATES = [
-  { id: "credentials", label: "Zugangsdaten – neues Benutzerkonto" },
+  { id: "credentials", label: "Kontoerstellung – Blockchain-Forensik" },
 ] as const;
 
 export default function AdminEmailTemplates() {
@@ -19,7 +19,7 @@ export default function AdminEmailTemplates() {
     firstName: "Max",
     lastName: "Mustermann",
     email: "max.mustermann@example.com",
-    password: "a1b2c3",
+    password: "a1b2c3d4",
   });
 
   useEffect(() => {
@@ -27,9 +27,11 @@ export default function AdminEmailTemplates() {
   }, []);
 
   const loginUrl = useMemo(() => buildLoginUrl(settings), [settings]);
+  const websiteUrl = useMemo(() => buildWebsiteUrl(settings), [settings]);
+  const subject = useMemo(() => `Ihr Fall bei ${settings.company_name || "unserer Kanzlei"}`, [settings]);
   const html = useMemo(
-    () => renderCredentialsEmail({ ...form, loginUrl }, settings),
-    [form, settings, loginUrl],
+    () => renderCredentialsEmail({ ...form, loginUrl, websiteUrl }, settings),
+    [form, settings, loginUrl, websiteUrl],
   );
 
   async function copyHtml() {
