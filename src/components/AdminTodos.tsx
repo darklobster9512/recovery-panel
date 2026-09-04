@@ -416,12 +416,13 @@ export default function AdminTodos() {
                   <tr className="text-left text-xs uppercase text-muted-foreground border-b border-border">
                     <th className="py-2 pr-4 w-10"></th>
                     <th className="py-2 pr-4">Titel</th>
-                    <th className="py-2 pr-4">Caller</th>
+                    {isAdmin && <th className="py-2 pr-4">Caller</th>}
                     <th className="py-2 pr-4">Priorität</th>
                     <th className="py-2 pr-4">Fällig</th>
                     <th className="py-2 pr-4">Status</th>
                     {isAdmin && <th className="py-2 pr-4"></th>}
                   </tr>
+
                 </thead>
                 <tbody>
                   {filtered.map((t) => {
