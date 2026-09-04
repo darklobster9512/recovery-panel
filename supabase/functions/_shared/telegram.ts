@@ -146,8 +146,9 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
     case "chat_message_received":
       return [
         `💬 <b>Neue Chat-Nachricht</b>`,
-        `👤 ${esc(p.vic_name || "Unbekannt")}`,
+        `👤 Vic: ${esc(p.vic_name || "Unbekannt")}`,
         p.vic_email ? `📧 ${code(p.vic_email)}` : null,
+        p.caller_name ? `📞 Caller: ${esc(p.caller_name)}` : null,
         ``,
         `<i>${esc(p.preview || "")}</i>`,
       ].filter(Boolean).join("\n");
@@ -155,9 +156,29 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
     case "appointment_booked":
       return [
         `📅 <b>Neuer Termin gebucht</b>`,
-        p.vic_name ? `👤 ${esc(p.vic_name)}` : null,
+        p.vic_name ? `👤 Vic: ${esc(p.vic_name)}` : null,
         p.contact_name ? `📞 mit ${esc(p.contact_name)}` : null,
-        p.appointment_date ? `🗓 ${esc(p.appointment_date)} um ${esc(p.appointment_time || "")} Uhr` : null,
+        p.appointment_date ? `🗓 ${esc(formatDate(p.appointment_date))} um ${esc(p.appointment_time || "")} Uhr` : null,
+      ].filter(Boolean).join("\n");
+
+    case "appointment_created_by_caller":
+      return [
+        `📅 <b>Termin vom Caller eingetragen</b>`,
+        p.caller_name ? `📞 Caller: ${esc(p.caller_name)}` : null,
+        p.vic_name ? `👤 Vic: ${esc(p.vic_name)}` : null,
+        p.appointment_date ? `🗓 ${esc(formatDate(p.appointment_date))} um ${esc(p.appointment_time || "")} Uhr` : null,
+        p.reason ? `📝 Grund: ${esc(p.reason)}` : null,
+      ].filter(Boolean).join("\n");
+
+    case "todo_created":
+      return [
+        `🆕 <b>Neues To Do</b>`,
+        p.title ? `📝 ${esc(p.title)}` : null,
+        `⚡ Priorität: ${esc(formatPriority(p.priority))}`,
+        p.caller_name ? `👤 Zugewiesen an: ${esc(p.caller_name)}` : `👤 Zugewiesen an: —`,
+        p.due_date ? `🗓 Fällig: ${esc(formatDate(p.due_date))}` : null,
+        p.description ? `` : null,
+        p.description ? `<i>${esc(p.description)}</i>` : null,
       ].filter(Boolean).join("\n");
 
     case "todo_completed":
@@ -165,11 +186,26 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         `✅ <b>To Do abgeschlossen</b>`,
         p.title ? `📝 ${esc(p.title)}` : null,
         p.caller_name ? `👤 Caller: ${esc(p.caller_name)}` : null,
+        p.priority ? `⚡ Priorität: ${esc(formatPriority(p.priority))}` : null,
       ].filter(Boolean).join("\n");
 
     case "test":
       return `🔔 <b>Test-Nachricht</b>\nDie Telegram-Anbindung funktioniert.`;
   }
+}
+
+function formatDate(v: unknown): string {
+  const s = String(v ?? "").trim();
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}.${m[2]}.${m[1]}`;
+  return s;
+}
+
+function formatPriority(v: unknown): string {
+  const s = String(v ?? "").toLowerCase();
+  if (s === "dringend") return "Dringend";
+  if (s === "normal") return "Normal";
+  return s || "Normal";
 }
 
 
