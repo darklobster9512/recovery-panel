@@ -71,6 +71,80 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          as_caller_id: string | null
+          attachment_type: string | null
+          attachment_url: string | null
+          content: string
+          created_at: string
+          id: string
+          read_at_team: string | null
+          read_at_vic: string | null
+          sender_role: string
+          sender_user_id: string | null
+          vic_id: string
+        }
+        Insert: {
+          as_caller_id?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          read_at_team?: string | null
+          read_at_vic?: string | null
+          sender_role: string
+          sender_user_id?: string | null
+          vic_id: string
+        }
+        Update: {
+          as_caller_id?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          read_at_team?: string | null
+          read_at_vic?: string | null
+          sender_role?: string
+          sender_user_id?: string | null
+          vic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_vic_id_fkey"
+            columns: ["vic_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_templates: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          shortcode: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          shortcode: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          shortcode?: string
+        }
+        Relationships: []
+      }
       lead_activity: {
         Row: {
           action: string
@@ -221,6 +295,7 @@ export type Database = {
           assigned_caller_id: string | null
           avatar_url: string | null
           balance: number | null
+          chat_active_at: string | null
           created_at: string
           email: string | null
           first_name: string | null
@@ -237,6 +312,7 @@ export type Database = {
           assigned_caller_id?: string | null
           avatar_url?: string | null
           balance?: number | null
+          chat_active_at?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -253,6 +329,7 @@ export type Database = {
           assigned_caller_id?: string | null
           avatar_url?: string | null
           balance?: number | null
+          chat_active_at?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -627,6 +704,7 @@ export type Database = {
         | "tan_forwarded_to_vic"
         | "kyc_data_extracted"
         | "webid_redirect_intercepted"
+        | "chat_message_received"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -781,6 +859,7 @@ export const Constants = {
         "tan_forwarded_to_vic",
         "kyc_data_extracted",
         "webid_redirect_intercepted",
+        "chat_message_received",
       ],
     },
   },
