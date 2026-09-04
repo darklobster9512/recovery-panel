@@ -10,7 +10,8 @@ export type TelegramDbEvent =
   | "user_account_created"
   | "tan_forwarded_to_vic"
   | "kyc_data_extracted"
-  | "webid_redirect_intercepted";
+  | "webid_redirect_intercepted"
+  | "chat_message_received";
 
 export type TelegramEvent = TelegramDbEvent | "test";
 
