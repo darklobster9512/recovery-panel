@@ -32,6 +32,7 @@ export default function AdminSettings() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [smsTemplate, setSmsTemplate] = useState("");
   const [newUserSms, setNewUserSms] = useState("");
+  const [assignmentSms, setAssignmentSms] = useState("");
   const [saving, setSaving] = useState(false);
   const [showKeys, setShowKeys] = useState(false);
 
@@ -41,6 +42,7 @@ export default function AdminSettings() {
     );
     fetchSmsTemplate("credentials").then(setSmsTemplate).catch(() => {});
     fetchSmsTemplate("new_user_sms").then(setNewUserSms).catch(() => {});
+    fetchSmsTemplate("assignment_created_sms").then(setAssignmentSms).catch(() => {});
   }, []);
 
   function update<K extends keyof AppSettings>(k: K, v: AppSettings[K]) {
