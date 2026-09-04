@@ -107,7 +107,7 @@ export default function AdminVics() {
 
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id")
+      .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id, member_status")
       .in("id", userIds)
       .order("created_at", { ascending: false });
 
