@@ -525,6 +525,50 @@ export default function AdminVicDetail() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Vic bearbeiten</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Vorname</Label>
+              <Input value={editForm.first_name} onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Nachname</Label>
+              <Input value={editForm.last_name} onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })} />
+            </div>
+            <div className="space-y-1 sm:col-span-2">
+              <Label>Email</Label>
+              <Input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Telefon</Label>
+              <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Guthaben (€)</Label>
+              <Input inputMode="decimal" value={editForm.balance} onChange={(e) => setEditForm({ ...editForm, balance: e.target.value })} placeholder="z.B. 100000" />
+            </div>
+            <div className="space-y-1 sm:col-span-2">
+              <Label>Scam Projekt</Label>
+              <Input value={editForm.scam_project} onChange={(e) => setEditForm({ ...editForm, scam_project: e.target.value })} />
+            </div>
+            <div className="space-y-1 sm:col-span-2">
+              <Label>Temp. Passwort</Label>
+              <Input value={editForm.temp_password} onChange={(e) => setEditForm({ ...editForm, temp_password: e.target.value })} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditOpen(false)} disabled={savingEdit}>Abbrechen</Button>
+            <Button onClick={handleSaveEdit} disabled={savingEdit}>
+              {savingEdit ? <Loader2 className="w-4 h-4 animate-spin" /> : "Speichern"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
