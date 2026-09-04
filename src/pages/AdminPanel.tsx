@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Shield, Users, FileText, LogOut, Phone, LayoutDashboard,
-  ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones,
+  ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones, MessageCircle,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -24,6 +24,7 @@ import AdminLeadDetail from "@/components/AdminLeadDetail";
 import AdminSettings from "@/components/AdminSettings";
 import AdminTelegram from "@/components/AdminTelegram";
 import AdminCallers from "@/components/AdminCallers";
+import AdminLivechat from "@/components/AdminLivechat";
 
 type NavItem = { label: string; icon: typeof LayoutDashboard; path: string; exact?: boolean; group?: string; adminOnly?: boolean };
 
@@ -32,6 +33,7 @@ const navItems: NavItem[] = [
   { label: "Leads", icon: Inbox, path: "/admin/leads", group: "Vertrieb" },
   { label: "Vics", icon: Users, path: "/admin/vics", group: "Vertrieb" },
   { label: "Caller", icon: Headphones, path: "/admin/caller", group: "Vertrieb", adminOnly: true },
+  { label: "Livechat", icon: MessageCircle, path: "/admin/livechat", group: "Vertrieb" },
   { label: "Verifikationen", icon: FileText, path: "/admin/verifikationen", group: "Betrieb" },
   { label: "In Überprüfung", icon: ClipboardCheck, path: "/admin/ueberpruefung", group: "Betrieb" },
   { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente", group: "Betrieb" },
@@ -49,6 +51,7 @@ function pageTitle(pathname: string): string {
     "/admin/vics": "Vics",
     "/admin/leads": "Leads",
     "/admin/caller": "Caller",
+    "/admin/livechat": "Livechat",
     "/admin/verifikationen": "Verifikationen",
     "/admin/ueberpruefung": "In Überprüfung",
     "/admin/dokumente": "Dokumente",
@@ -67,6 +70,7 @@ function renderRoute(pathname: string) {
     case "/admin/vics": return <AdminVics />;
     case "/admin/leads": return <AdminLeads />;
     case "/admin/caller": return <AdminCallers />;
+    case "/admin/livechat": return <AdminLivechat />;
     case "/admin/verifikationen": return <AdminVerifications />;
     case "/admin/ueberpruefung": return <AdminReview />;
     case "/admin/dokumente": return <AdminDocuments />;
