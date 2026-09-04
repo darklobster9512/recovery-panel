@@ -73,6 +73,10 @@ export default function Auth() {
   };
 
 
+  if (!assetsReady) {
+    return <div className="min-h-screen bg-[#f8fafc]" />;
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4 md:p-8">
       <div className="max-w-6xl w-full flex flex-col md:flex-row shadow-2xl rounded-3xl overflow-hidden bg-white min-h-[800px]">
