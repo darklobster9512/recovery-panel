@@ -689,6 +689,48 @@ export default function AdminVics() {
           </DialogFooterBar>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!singleVic} onOpenChange={(o) => !o && setSingleVic(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Caller zuweisen</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              {[singleVic?.first_name, singleVic?.last_name].filter(Boolean).join(" ") || singleVic?.email || "Vic"}
+            </p>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-bold uppercase text-muted-foreground">Zugewiesener Caller</Label>
+              <Select value={singleCaller} onValueChange={setSingleCaller}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Caller wählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_CALLER}>Nicht zugewiesen</SelectItem>
+                  {callers.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {callerLabel(c)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSingleVic(null)} disabled={assigning}>
+              Abbrechen
+            </Button>
+            <Button
+              onClick={() => singleVic && assignCaller([singleVic.id], singleCaller === NO_CALLER ? null : singleCaller)}
+              disabled={assigning}
+              className="gap-2"
+            >
+              {assigning ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCog className="w-4 h-4" />}
+              Speichern
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
