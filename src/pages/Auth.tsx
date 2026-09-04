@@ -16,8 +16,26 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [assetsReady, setAssetsReady] = useState(false);
   const navigate = useNavigate();
   const { user, role } = useAuth();
+
+  useEffect(() => {
+    let cancelled = false;
+    const preload = (src: string) =>
+      new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = src;
+      });
+    Promise.all([preload(ioscoLogo), preload(europolLogo)]).then(() => {
+      if (!cancelled) setAssetsReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (user && role) {
@@ -54,6 +72,10 @@ export default function Auth() {
     }
   };
 
+
+  if (!assetsReady) {
+    return <div className="min-h-screen bg-[#f8fafc]" />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4 md:p-8">
@@ -140,11 +162,15 @@ export default function Auth() {
               <img
                 src={ioscoLogo}
                 alt="IOSCO"
+                loading="eager"
+                decoding="sync"
                 className="h-10 w-auto object-contain"
               />
               <img
                 src={europolLogo}
                 alt="Europol"
+                loading="eager"
+                decoding="sync"
                 className="h-8 w-auto object-contain"
               />
             </div>
