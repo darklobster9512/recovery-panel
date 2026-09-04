@@ -95,9 +95,17 @@ export default function AdminEmailTemplates() {
               <Input id="preview_password" value={form.password}
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
             </div>
-            <div className="space-y-1.5 sm:col-span-2">
-              <Label>Login-Link (aus Einstellungen)</Label>
+            <div className="space-y-1.5">
+              <Label>Portal-Login-Link</Label>
               <Input value={loginUrl} readOnly className="bg-muted/60" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Website-Link</Label>
+              <Input value={websiteUrl} readOnly className="bg-muted/60" />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Betreff</Label>
+              <Input value={subject} readOnly className="bg-muted/60" />
             </div>
           </div>
 
