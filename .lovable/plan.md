@@ -8,7 +8,7 @@ Caller sollen in ihrem Terminkalender (`/admin/termine`) selbst Termine eintrage
 - Dialog mit:
   - Vic-Auswahl mit Suche — für Caller nur die ihm zugewiesenen Vics, für Admin alle Vics.
   - Datum (Kalender) und Uhrzeit (Zeitraster aus den Einstellungen: Von/Bis, Takt, Wochentage).
-  - Freitextfeld **Grund für Termin** (Pflichtfeld).
+  - Freitextfeld **Grund für Termin** (optional).
   - Belegte Zeiten des jeweiligen Callers werden ausgegraut, damit ein Zeitfenster pro Caller nur einmal belegt wird.
 - Neue Spalte **Grund** in der Terminliste; bei Vic-Buchungen bleibt sie leer.
 - Selbst angelegte Termine erscheinen sofort in der Liste und – wie bisher – als Telegram-Meldung „Termin gebucht".
