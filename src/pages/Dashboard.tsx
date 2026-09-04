@@ -1048,7 +1048,7 @@ export default function Dashboard() {
           avatar_url: assignedCaller.avatar_url,
         } : { first_name: "Dr. Thomas", last_name: "Korte", avatar_url: thomasKorte }}
         fallbackName="Dr. Thomas Korte"
-        avatarCropTop={!assignedCaller}
+        avatarCropTop
         contactSubtitle={assignedCaller ? "Ihr Ansprechpartner" : "Kanzlei Korte & Partner"}
         vicName={profileName}
         vicEmail={profileEmail}
