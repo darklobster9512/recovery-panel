@@ -448,7 +448,7 @@ export default function Dashboard() {
                 <img
                   src={assignedCaller.avatar_url}
                   alt={[assignedCaller.first_name, assignedCaller.last_name].filter(Boolean).join(" ")}
-                  className="w-full h-full object-cover"
+                  className="absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-[#0b1f3a] text-sm font-semibold">
@@ -1048,7 +1048,7 @@ export default function Dashboard() {
           avatar_url: assignedCaller.avatar_url,
         } : { first_name: "Dr. Thomas", last_name: "Korte", avatar_url: thomasKorte }}
         fallbackName="Dr. Thomas Korte"
-        avatarCropTop={!assignedCaller}
+        avatarCropTop
         contactSubtitle={assignedCaller ? "Ihr Ansprechpartner" : "Kanzlei Korte & Partner"}
         vicName={profileName}
         vicEmail={profileEmail}

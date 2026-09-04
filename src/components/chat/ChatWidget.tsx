@@ -161,9 +161,9 @@ export default function ChatWidget({ contact, fallbackName, contactSubtitle, loc
                 <img
                   src={contact.avatar_url}
                   alt={displayName}
-                  className={avatarCropTop
-                    ? "absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"
-                    : "w-full h-full object-cover"}
+                  className={avatarCropTop === false
+                    ? "w-full h-full object-cover"
+                    : "absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"}
                 />
               ) : (
                 <span className="text-sm font-semibold">{initials || "KP"}</span>

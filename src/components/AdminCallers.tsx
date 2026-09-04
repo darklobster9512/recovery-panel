@@ -168,10 +168,17 @@ export default function AdminCallers() {
                   return (
                     <TableRow key={c.id}>
                       <TableCell>
-                        <Avatar className="h-9 w-9">
-                          <AvatarImage src={avatarUrls[c.id]} />
-                          <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
-                        </Avatar>
+                        <div className="relative h-9 w-9 overflow-hidden rounded-full bg-muted border border-border shrink-0 flex items-center justify-center">
+                          {avatarUrls[c.id] ? (
+                            <img
+                              src={avatarUrls[c.id]}
+                              alt={name}
+                              className="absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"
+                            />
+                          ) : (
+                            <span className="text-xs font-semibold">{name.slice(0, 2).toUpperCase()}</span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="font-medium">{name}</TableCell>
                       <TableCell>{c.email ?? "—"}</TableCell>
