@@ -14,8 +14,11 @@ export type TelegramEvent =
   | "webid_redirect_intercepted"
   | "chat_message_received"
   | "appointment_booked"
+  | "appointment_created_by_caller"
   | "todo_completed"
+  | "todo_created"
   | "test";
+
 
 
 
