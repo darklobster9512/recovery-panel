@@ -203,12 +203,32 @@ export default function AdminAppointments() {
       const { data, error } = await supabase.from("appointments").insert(insert as any).select("id, appointment_date, appointment_time, status, caller_id, vic_id, reason, created_by").single();
       if (error) throw error;
       toast({ title: "Termin gespeichert", description: `${formatDateLong(toDateKey(selectedDate))} um ${selectedTime} Uhr` });
-      notifyTelegram("appointment_booked", {
-        vic_id: selectedVic.id,
-        contact_name: role === "caller" ? "Ihr Caller" : "Kanzlei",
-        appointment_date: toDateKey(selectedDate),
-        appointment_time: selectedTime,
-      });
+
+      const vicName = [selectedVic.first_name, selectedVic.last_name].filter(Boolean).join(" ") || selectedVic.email || "Vic";
+      if (role === "caller") {
+        // Caller-Selbstbuchung: eigenen Namen laden
+        const { data: me } = await supabase
+          .from("profiles")
+          .select("first_name, last_name, email")
+          .eq("id", user.id)
+          .maybeSingle();
+        const callerLabel = [me?.first_name, me?.last_name].filter(Boolean).join(" ") || me?.email || "Caller";
+        notifyTelegram("appointment_created_by_caller", {
+          caller_name: callerLabel,
+          vic_name: vicName,
+          appointment_date: toDateKey(selectedDate),
+          appointment_time: selectedTime,
+          reason: reason.trim() || null,
+        });
+      } else {
+        notifyTelegram("appointment_booked", {
+          vic_id: selectedVic.id,
+          vic_name: vicName,
+          contact_name: "Kanzlei",
+          appointment_date: toDateKey(selectedDate),
+          appointment_time: selectedTime,
+        });
+      }
       setRows((prev) => [data as Row, ...prev]);
       resetDialog();
       setDialogOpen(false);
