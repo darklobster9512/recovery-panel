@@ -27,13 +27,14 @@ interface Msg {
 interface Props {
   contact: Contact | null;
   fallbackName: string;
+  contactSubtitle?: string;
   locked?: boolean;
   lockedMessage?: string;
   vicName?: string;
   vicEmail?: string;
 }
 
-export default function ChatWidget({ contact, fallbackName, locked, lockedMessage, vicName, vicEmail }: Props) {
+export default function ChatWidget({ contact, fallbackName, contactSubtitle, locked, lockedMessage, vicName, vicEmail }: Props) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -163,7 +164,7 @@ export default function ChatWidget({ contact, fallbackName, locked, lockedMessag
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{displayName}</p>
-              <p className="text-[11px] text-white/70">Ihr Ansprechpartner</p>
+              <p className="text-[11px] text-white/70">{contactSubtitle ?? "Ihr Ansprechpartner"}</p>
             </div>
             <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white p-1" aria-label="Schließen">
               <X className="w-5 h-5" />
