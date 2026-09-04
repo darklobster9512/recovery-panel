@@ -26,6 +26,7 @@ interface VicUser {
   temp_password: string | null;
   created_at: string;
   assigned_caller_id: string | null;
+  member_status: string;
 }
 
 interface CallerOption {
