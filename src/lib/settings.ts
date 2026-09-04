@@ -15,6 +15,11 @@ export interface AppSettings {
   resend_from_email: string;
   sevenio_api_key: string;
   sevenio_from_name: string;
+  booking_start_time: string;
+  booking_end_time: string;
+  booking_interval_minutes: number;
+  booking_weekdays: number[];
+  booking_lead_hours: number;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -32,7 +37,13 @@ export const DEFAULT_SETTINGS: AppSettings = {
   resend_from_email: "",
   sevenio_api_key: "",
   sevenio_from_name: "",
+  booking_start_time: "09:00",
+  booking_end_time: "17:00",
+  booking_interval_minutes: 30,
+  booking_weekdays: [1, 2, 3, 4, 5],
+  booking_lead_hours: 2,
 };
+
 
 export async function fetchAppSettings(): Promise<AppSettings> {
   const { data, error } = await (supabase as any)

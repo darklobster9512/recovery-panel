@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
-import { LogOut, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp, BookOpen, Network, ArrowLeft } from "lucide-react";
+import { LogOut, Copy, CheckCircle, Loader2, Lock, MessageSquare, Menu, AlertTriangle, Clock, Send, FileUp, BookOpen, Network, ArrowLeft, CalendarDays } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { notifyTelegram } from "@/lib/telegramNotify";
@@ -32,6 +32,8 @@ import DocumentUpload from "@/components/DocumentUpload";
 import VerificationLogo from "@/components/VerificationLogo";
 import RecoveryGuide from "@/components/RecoveryGuide";
 import RecoveryVisualization from "@/components/RecoveryVisualization";
+import BookingPanel from "@/components/BookingPanel";
+
 import { extractPostidentCode } from "@/lib/extractPostidentCode";
 import ChatWidget from "@/components/chat/ChatWidget";
 
@@ -92,6 +94,8 @@ export default function Dashboard() {
   const [assignedCaller, setAssignedCaller] = useState<{
     first_name: string | null; last_name: string | null; phone: string | null; avatar_url: string | null;
   } | null>(null);
+  const [assignedCallerId, setAssignedCallerId] = useState<string | null>(null);
+
   const [memberStatus, setMemberStatus] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -100,9 +104,11 @@ export default function Dashboard() {
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [showRecovery, setShowRecovery] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
   const [postidentDoc, setPostidentDoc] = useState<{ url: string; name: string; qr: string | null; loading: boolean; error: string | null } | null>(null);
   const [qrLightboxOpen, setQrLightboxOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
 
 
 
@@ -131,6 +137,7 @@ export default function Dashboard() {
       setProfileScamProject(data.scam_project ?? "");
       setMemberStatus(((data as any).member_status as string) ?? null);
       const callerId = (data as any).assigned_caller_id as string | null;
+      setAssignedCallerId(callerId);
       if (callerId) {
         const { data: caller } = await supabase
           .from("profiles")
@@ -155,6 +162,7 @@ export default function Dashboard() {
       } else {
         setAssignedCaller(null);
       }
+
     }
   };
 
@@ -350,15 +358,18 @@ export default function Dashboard() {
     return result;
   };
 
-  const activeView: "assignments" | "recovery" | "guide" | "upload" | "detail" = selected
+  const activeView: "assignments" | "recovery" | "guide" | "upload" | "booking" | "detail" = selected
     ? "detail"
     : showRecovery
     ? "recovery"
     : showGuide
     ? "guide"
+    : showBooking
+    ? "booking"
     : showDocUpload
     ? "upload"
     : "assignments";
+
 
   // Wenn keine Aufträge vorhanden sind, direkt die Anleitung anzeigen
   useEffect(() => {
@@ -376,20 +387,22 @@ export default function Dashboard() {
     );
   }
 
-  const goTo = (view: "assignments" | "recovery" | "guide" | "upload") => {
+  const goTo = (view: "assignments" | "recovery" | "guide" | "upload" | "booking") => {
     setSelectedId(null);
     setShowRecovery(view === "recovery");
     setShowGuide(view === "guide");
     setShowDocUpload(view === "upload");
+    setShowBooking(view === "booking");
     setMobileNavOpen(false);
   };
+
 
   const NavButton = ({
     view,
     icon: Icon,
     label,
   }: {
-    view: "assignments" | "recovery" | "guide" | "upload";
+    view: "assignments" | "recovery" | "guide" | "upload" | "booking";
     icon: typeof Network;
     label: string;
   }) => {
@@ -475,8 +488,10 @@ export default function Dashboard() {
       <nav className="space-y-1">
         <NavButton view="assignments" icon={Lock} label="Aufträge" />
         <NavButton view="guide" icon={BookOpen} label="Anleitung" />
+        <NavButton view="booking" icon={CalendarDays} label="Termin buchen" />
         <NavButton view="recovery" icon={Network} label="Rückverfolgung" />
         <NavButton view="upload" icon={FileUp} label="Dokumente hochladen" />
+
       </nav>
 
       <div className="flex-1 min-h-0" />
@@ -594,8 +609,14 @@ export default function Dashboard() {
         <RecoveryVisualization onOpenGuide={() => { setShowRecovery(false); setShowGuide(true); }} />
       ) : showGuide ? (
         <RecoveryGuide />
+      ) : showBooking ? (
+        <BookingPanel
+          callerId={assignedCallerId}
+          callerInfo={assignedCaller ? { first_name: assignedCaller.first_name, last_name: assignedCaller.last_name } : null}
+        />
       ) : showDocUpload ? (
         <DocumentUpload />
+
       ) : selected ? (
         /* ── Detail View ── */
         <main className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 animate-in fade-in slide-in-from-right-4 duration-300">
