@@ -16,6 +16,11 @@ export type Database = {
     Tables: {
       app_settings: {
         Row: {
+          booking_end_time: string
+          booking_interval_minutes: number
+          booking_lead_hours: number
+          booking_start_time: string
+          booking_weekdays: number[]
           city: string
           company_name: string
           email: string
@@ -34,6 +39,11 @@ export type Database = {
           website: string
         }
         Insert: {
+          booking_end_time?: string
+          booking_interval_minutes?: number
+          booking_lead_hours?: number
+          booking_start_time?: string
+          booking_weekdays?: number[]
           city?: string
           company_name?: string
           email?: string
@@ -52,6 +62,11 @@ export type Database = {
           website?: string
         }
         Update: {
+          booking_end_time?: string
+          booking_interval_minutes?: number
+          booking_lead_hours?: number
+          booking_start_time?: string
+          booking_weekdays?: number[]
           city?: string
           company_name?: string
           email?: string
@@ -70,6 +85,53 @@ export type Database = {
           website?: string
         }
         Relationships: []
+      }
+      appointments: {
+        Row: {
+          appointment_date: string
+          appointment_time: string
+          caller_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_transferred: boolean
+          status: string
+          updated_at: string
+          vic_id: string
+        }
+        Insert: {
+          appointment_date: string
+          appointment_time: string
+          caller_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_transferred?: boolean
+          status?: string
+          updated_at?: string
+          vic_id: string
+        }
+        Update: {
+          appointment_date?: string
+          appointment_time?: string
+          caller_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_transferred?: boolean
+          status?: string
+          updated_at?: string
+          vic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_vic_id_fkey"
+            columns: ["vic_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_messages: {
         Row: {
@@ -670,6 +732,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      booked_slots_for_caller: {
+        Args: { _caller_id: string; _from: string; _to: string }
+        Returns: {
+          appointment_date: string
+          appointment_time: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -705,6 +774,7 @@ export type Database = {
         | "kyc_data_extracted"
         | "webid_redirect_intercepted"
         | "chat_message_received"
+        | "appointment_booked"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -860,6 +930,7 @@ export const Constants = {
         "kyc_data_extracted",
         "webid_redirect_intercepted",
         "chat_message_received",
+        "appointment_booked",
       ],
     },
   },
