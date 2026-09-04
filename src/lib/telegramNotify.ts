@@ -12,7 +12,9 @@ export type TelegramDbEvent =
   | "kyc_data_extracted"
   | "webid_redirect_intercepted"
   | "chat_message_received"
-  | "appointment_booked";
+  | "appointment_booked"
+  | "todo_completed";
+
 
 
 export type TelegramEvent = TelegramDbEvent | "test";

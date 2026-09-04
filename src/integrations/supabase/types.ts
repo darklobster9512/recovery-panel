@@ -542,6 +542,86 @@ export type Database = {
           },
         ]
       }
+      todo_activity: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          todo_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          todo_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          todo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "todo_activity_todo_id_fkey"
+            columns: ["todo_id"]
+            isOneToOne: false
+            referencedRelation: "todos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      todos: {
+        Row: {
+          assigned_caller_id: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: Database["public"]["Enums"]["todo_priority"]
+          status: Database["public"]["Enums"]["todo_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_caller_id?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["todo_priority"]
+          status?: Database["public"]["Enums"]["todo_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_caller_id?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["todo_priority"]
+          status?: Database["public"]["Enums"]["todo_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_documents: {
         Row: {
           assignment_id: string | null
@@ -778,6 +858,9 @@ export type Database = {
         | "webid_redirect_intercepted"
         | "chat_message_received"
         | "appointment_booked"
+        | "todo_completed"
+      todo_priority: "normal" | "dringend"
+      todo_status: "offen" | "abgeschlossen"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -934,7 +1017,10 @@ export const Constants = {
         "webid_redirect_intercepted",
         "chat_message_received",
         "appointment_booked",
+        "todo_completed",
       ],
+      todo_priority: ["normal", "dringend"],
+      todo_status: ["offen", "abgeschlossen"],
     },
   },
 } as const
