@@ -404,8 +404,9 @@ export default function AdminVics() {
                   <TableHead>Email</TableHead>
                   <TableHead>Telefon</TableHead>
                   <TableHead>Temp. Passwort</TableHead>
+                  <TableHead>Caller</TableHead>
                   <TableHead>Erstellt am</TableHead>
-                  <TableHead className="w-10"></TableHead>
+                  <TableHead className="w-20"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
