@@ -128,8 +128,15 @@ export default function BookingPanel({
       if (error) throw error;
       setActive(data as any);
       toast({ title: "Termin gebucht", description: `${formatDateLong(toDateKey(selectedDate))} um ${selectedTime} Uhr` });
+      const { data: me } = await supabase
+        .from("profiles")
+        .select("first_name, last_name, email")
+        .eq("id", user.id)
+        .maybeSingle();
+      const vicName = [me?.first_name, me?.last_name].filter(Boolean).join(" ") || me?.email || "Vic";
       notifyTelegram("appointment_booked" as any, {
         vic_id: user.id,
+        vic_name: vicName,
         contact_name: contactName,
         appointment_date: toDateKey(selectedDate),
         appointment_time: selectedTime,

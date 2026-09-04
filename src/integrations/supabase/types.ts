@@ -859,6 +859,8 @@ export type Database = {
         | "chat_message_received"
         | "appointment_booked"
         | "todo_completed"
+        | "todo_created"
+        | "appointment_created_by_caller"
       todo_priority: "normal" | "dringend"
       todo_status: "offen" | "abgeschlossen"
     }
@@ -1018,6 +1020,8 @@ export const Constants = {
         "chat_message_received",
         "appointment_booked",
         "todo_completed",
+        "todo_created",
+        "appointment_created_by_caller",
       ],
       todo_priority: ["normal", "dringend"],
       todo_status: ["offen", "abgeschlossen"],

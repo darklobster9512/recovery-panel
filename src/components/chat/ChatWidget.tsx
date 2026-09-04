@@ -127,6 +127,7 @@ export default function ChatWidget({ contact, fallbackName, contactSubtitle, loc
       void notifyTelegram("chat_message_received", {
         vic_name: vicName || vicEmail || "Unbekannt",
         vic_email: vicEmail,
+        caller_name: contact ? displayName : "Kanzlei (Dr. Thomas Korte)",
         preview: text || (attachment_url ? "[Datei]" : ""),
       });
     } catch (e) {

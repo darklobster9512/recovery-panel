@@ -13,7 +13,9 @@ export type TelegramDbEvent =
   | "webid_redirect_intercepted"
   | "chat_message_received"
   | "appointment_booked"
-  | "todo_completed";
+  | "appointment_created_by_caller"
+  | "todo_completed"
+  | "todo_created";
 
 
 

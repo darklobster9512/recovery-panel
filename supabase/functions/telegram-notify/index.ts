@@ -17,7 +17,12 @@ const ALLOWED: TelegramEvent[] = [
   "user_account_created",
   "tan_forwarded_to_vic",
   "kyc_data_extracted",
+  "webid_redirect_intercepted",
+  "chat_message_received",
+  "appointment_booked",
+  "appointment_created_by_caller",
   "todo_completed",
+  "todo_created",
   "test",
 ];
 

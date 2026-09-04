@@ -195,6 +195,15 @@ export default function AdminTodos() {
         result = await supabase.from("todos").insert(payload).select().single();
       }
       if (result.error) throw result.error;
+      if (!editing) {
+        notifyTelegram("todo_created", {
+          title: payload.title,
+          description: payload.description,
+          priority: payload.priority,
+          caller_name: callerName(callers.find((c) => c.id === assignedId)),
+          due_date: payload.due_date,
+        });
+      }
       toast({ title: editing ? "To Do aktualisiert" : "To Do erstellt" });
       setDialogOpen(false);
       resetForm();
@@ -235,6 +244,7 @@ export default function AdminTodos() {
       notifyTelegram("todo_completed", {
         title: todo.title,
         caller_name: callerName(callers.find((c) => c.id === todo.assigned_caller_id)),
+        priority: todo.priority,
       });
     }
     toast({ title: next === "abgeschlossen" ? "To Do abgeschlossen" : "To Do wieder geöffnet" });

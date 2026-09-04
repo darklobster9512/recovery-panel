@@ -50,7 +50,11 @@ const EVENTS: { key: TelegramDbEvent; label: string }[] = [
   { key: "kyc_data_extracted", label: "KYC-Daten verfügbar" },
   { key: "webid_redirect_intercepted", label: "WebID Redirect abgefangen" },
   { key: "chat_message_received", label: "Neue Chat-Nachricht vom Vic" },
-  { key: "appointment_booked", label: "Termin gebucht" },
+  { key: "appointment_booked", label: "Termin gebucht (vom Vic)" },
+  { key: "appointment_created_by_caller", label: "Termin vom Caller eingetragen" },
+  { key: "todo_created", label: "Neues To Do erstellt" },
+  { key: "todo_completed", label: "To Do abgeschlossen" },
+
 
 ];
 
