@@ -28,9 +28,11 @@ interface Props {
   fallbackName: string;
   locked?: boolean;
   lockedMessage?: string;
+  vicName?: string;
+  vicEmail?: string;
 }
 
-export default function ChatWidget({ contact, fallbackName, locked, lockedMessage }: Props) {
+export default function ChatWidget({ contact, fallbackName, locked, lockedMessage, vicName, vicEmail }: Props) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -107,17 +109,23 @@ export default function ChatWidget({ contact, fallbackName, locked, lockedMessag
         attachment_url = up.path;
         attachment_type = up.type;
       }
+      const text = input.trim();
       const { error } = await supabase.from("chat_messages").insert({
         vic_id: user.id,
         sender_role: "vic",
         sender_user_id: user.id,
-        content: input.trim(),
+        content: text,
         attachment_url,
         attachment_type,
       });
       if (error) throw error;
       setInput("");
       if (fileRef.current) fileRef.current.value = "";
+      void notifyTelegram("chat_message_received", {
+        vic_name: vicName || vicEmail || "Unbekannt",
+        vic_email: vicEmail,
+        preview: text || (attachment_url ? "[Datei]" : ""),
+      });
     } catch (e) {
       console.error(e);
     } finally {
