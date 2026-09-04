@@ -287,6 +287,8 @@ export default function AdminVicDetail() {
     { label: "Nachname", value: profile.last_name },
     { label: "Email", value: profile.email },
     { label: "Telefon", value: profile.phone },
+    { label: "Guthaben", value: profile.balance != null ? formatEur(profile.balance) : null },
+    { label: "Scam Projekt", value: profile.scam_project },
     { label: "Erstellt am", value: new Date(profile.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) },
   ];
 
