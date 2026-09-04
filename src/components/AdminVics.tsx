@@ -475,6 +475,15 @@ export default function AdminVics() {
                     <TableCell className="text-sm">
                       {u.assigned_caller_id ? (callerNames.get(u.assigned_caller_id) ?? "–") : "–"}
                     </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      {u.member_status === "aktiv" ? (
+                        <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Aktiv</Badge>
+                      ) : u.member_status === "in_bearbeitung" ? (
+                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">In Bearbeitung</Badge>
+                      ) : (
+                        "–"
+                      )}
+                    </TableCell>
                     <TableCell className="text-muted-foreground text-xs">
                       {new Date(u.created_at).toLocaleDateString("de-DE", {
                         day: "2-digit",
