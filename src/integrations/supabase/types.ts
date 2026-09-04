@@ -140,6 +140,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          assigned_caller_id: string | null
           campaign: string | null
           email: string | null
           external_id: string | null
@@ -156,6 +157,7 @@ export type Database = {
           vorfall: string | null
         }
         Insert: {
+          assigned_caller_id?: string | null
           campaign?: string | null
           email?: string | null
           external_id?: string | null
@@ -172,6 +174,7 @@ export type Database = {
           vorfall?: string | null
         }
         Update: {
+          assigned_caller_id?: string | null
           campaign?: string | null
           email?: string | null
           external_id?: string | null
@@ -215,6 +218,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          assigned_caller_id: string | null
+          avatar_url: string | null
           balance: number | null
           created_at: string
           email: string | null
@@ -222,12 +227,15 @@ export type Database = {
           id: string
           id_document_submitted_at: string | null
           last_name: string | null
+          member_status: string
           phone: string | null
           scam_project: string | null
           source_lead_id: string | null
           temp_password: string | null
         }
         Insert: {
+          assigned_caller_id?: string | null
+          avatar_url?: string | null
           balance?: number | null
           created_at?: string
           email?: string | null
@@ -235,12 +243,15 @@ export type Database = {
           id: string
           id_document_submitted_at?: string | null
           last_name?: string | null
+          member_status?: string
           phone?: string | null
           scam_project?: string | null
           source_lead_id?: string | null
           temp_password?: string | null
         }
         Update: {
+          assigned_caller_id?: string | null
+          avatar_url?: string | null
           balance?: number | null
           created_at?: string
           email?: string | null
@@ -248,6 +259,7 @@ export type Database = {
           id?: string
           id_document_submitted_at?: string | null
           last_name?: string | null
+          member_status?: string
           phone?: string | null
           scam_project?: string | null
           source_lead_id?: string | null
@@ -590,7 +602,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "caller"
       assignment_status:
         | "zugewiesen"
         | "in_bearbeitung"
@@ -742,7 +754,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "caller"],
       assignment_status: [
         "zugewiesen",
         "in_bearbeitung",
