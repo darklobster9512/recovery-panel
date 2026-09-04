@@ -90,6 +90,62 @@ export default function AdminVicDetail() {
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    balance: "",
+    scam_project: "",
+    temp_password: "",
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEdit = () => {
+    if (!profile) return;
+    setEditForm({
+      first_name: profile.first_name ?? "",
+      last_name: profile.last_name ?? "",
+      email: profile.email ?? "",
+      phone: profile.phone ?? "",
+      balance: profile.balance != null ? String(profile.balance) : "",
+      scam_project: profile.scam_project ?? "",
+      temp_password: profile.temp_password ?? "",
+    });
+    setEditOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!profile) return;
+    setSavingEdit(true);
+    const balanceNum = editForm.balance.trim() === "" ? null : Number(editForm.balance.replace(",", "."));
+    if (balanceNum != null && Number.isNaN(balanceNum)) {
+      toast({ title: "Ungültiges Guthaben", variant: "destructive" });
+      setSavingEdit(false);
+      return;
+    }
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        first_name: editForm.first_name.trim() || null,
+        last_name: editForm.last_name.trim() || null,
+        email: editForm.email.trim() || null,
+        phone: editForm.phone.trim() || null,
+        balance: balanceNum,
+        scam_project: editForm.scam_project.trim() || null,
+        temp_password: editForm.temp_password.trim() || null,
+      })
+      .eq("id", profile.id);
+    setSavingEdit(false);
+    if (error) {
+      toast({ title: "Fehler", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Gespeichert", description: "Vic-Profil aktualisiert." });
+    setEditOpen(false);
+    fetchData();
+  };
 
 
   const fetchData = async () => {
