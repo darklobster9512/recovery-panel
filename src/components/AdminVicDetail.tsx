@@ -57,6 +57,8 @@ interface VicProfile {
   source_lead_id: string | null;
   assigned_caller_id: string | null;
   member_status: string | null;
+  balance: number | null;
+  scam_project: string | null;
 }
 
 
