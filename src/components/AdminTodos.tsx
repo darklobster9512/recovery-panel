@@ -302,12 +302,12 @@ export default function AdminTodos() {
                   </div>
                   <div className="space-y-1.5">
                     <Label>Caller zuweisen</Label>
-                    <Select value={form.assigned_caller_id} onValueChange={(v) => setForm((f) => ({ ...f, assigned_caller_id: v }))}>
+                    <Select value={form.assigned_caller_id || "__none__"} onValueChange={(v) => setForm((f) => ({ ...f, assigned_caller_id: v === "__none__" ? "" : v }))}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Caller auswählen" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Nicht zugewiesen</SelectItem>
+                        <SelectItem value="__none__">Nicht zugewiesen</SelectItem>
                         {callers.map((c) => (
                           <SelectItem key={c.id} value={c.id}>{callerName(c)}</SelectItem>
                         ))}
