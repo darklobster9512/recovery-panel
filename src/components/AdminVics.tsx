@@ -392,6 +392,13 @@ export default function AdminVics() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10">
+                    <Checkbox
+                      checked={allSelected}
+                      onCheckedChange={(c) => toggleAll(c === true)}
+                      aria-label="Alle auswählen"
+                    />
+                  </TableHead>
                   <TableHead>Vorname</TableHead>
                   <TableHead>Nachname</TableHead>
                   <TableHead>Email</TableHead>
