@@ -32,9 +32,10 @@ interface Props {
   lockedMessage?: string;
   vicName?: string;
   vicEmail?: string;
+  avatarCropTop?: boolean;
 }
 
-export default function ChatWidget({ contact, fallbackName, contactSubtitle, locked, lockedMessage, vicName, vicEmail }: Props) {
+export default function ChatWidget({ contact, fallbackName, contactSubtitle, locked, lockedMessage, vicName, vicEmail, avatarCropTop }: Props) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
