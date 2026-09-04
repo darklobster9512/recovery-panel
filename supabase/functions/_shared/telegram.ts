@@ -14,7 +14,9 @@ export type TelegramEvent =
   | "webid_redirect_intercepted"
   | "chat_message_received"
   | "appointment_booked"
+  | "todo_completed"
   | "test";
+
 
 
 interface Payload {
@@ -153,6 +155,13 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         p.vic_name ? `👤 ${esc(p.vic_name)}` : null,
         p.contact_name ? `📞 mit ${esc(p.contact_name)}` : null,
         p.appointment_date ? `🗓 ${esc(p.appointment_date)} um ${esc(p.appointment_time || "")} Uhr` : null,
+      ].filter(Boolean).join("\n");
+
+    case "todo_completed":
+      return [
+        `✅ <b>To Do abgeschlossen</b>`,
+        p.title ? `📝 ${esc(p.title)}` : null,
+        p.caller_name ? `👤 Caller: ${esc(p.caller_name)}` : null,
       ].filter(Boolean).join("\n");
 
     case "test":
