@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { uploadChatAttachment, signChatAttachment } from "./uploadChatAttachment";
+import { notifyTelegram } from "@/lib/telegramNotify";
 
 interface Contact {
   first_name: string | null;
