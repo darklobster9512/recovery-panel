@@ -105,7 +105,7 @@ export default function AdminVics() {
 
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, email, first_name, last_name, phone, temp_password, created_at")
+      .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id")
       .in("id", userIds)
       .order("created_at", { ascending: false });
 
@@ -113,9 +113,47 @@ export default function AdminVics() {
     setLoading(false);
   };
 
+  const fetchCallers = async () => {
+    const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "caller");
+    const ids = (roles ?? []).map((r) => r.user_id);
+    if (ids.length === 0) {
+      setCallers([]);
+      return;
+    }
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id, first_name, last_name, email")
+      .in("id", ids);
+    setCallers((profs as CallerOption[]) ?? []);
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchCallers();
   }, []);
+
+  const callerNames = new Map(callers.map((c) => [c.id, callerLabel(c)]));
+
+  const assignCaller = async (ids: string[], callerId: string | null) => {
+    if (ids.length === 0) return;
+    setAssigning(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ assigned_caller_id: callerId })
+      .in("id", ids);
+    setAssigning(false);
+    if (error) {
+      toast({ title: "Zuweisung fehlgeschlagen", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: callerId ? "Caller zugewiesen" : "Zuweisung entfernt",
+      description: `${ids.length} ${ids.length === 1 ? "Vic" : "Vics"} aktualisiert.`,
+    });
+    setSelectedIds([]);
+    setSingleVic(null);
+    fetchUsers();
+  };
 
   const [searchParams, setSearchParams] = useSearchParams();
   const newFromLead = searchParams.get("newFromLead");
