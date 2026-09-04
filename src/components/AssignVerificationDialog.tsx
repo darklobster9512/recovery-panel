@@ -339,6 +339,8 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
       verification_title: verification.title,
       verification_type: isPostident ? "Postident" : "Videocall",
     });
+    supabase.functions.invoke("send-assignment-sms", { body: { assignment_id: assignment.id } })
+      .catch((e) => console.error("send-assignment-sms failed", e));
     onAssigned?.();
     onOpenChange(false);
 
