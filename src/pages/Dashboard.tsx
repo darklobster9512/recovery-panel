@@ -32,6 +32,8 @@ import DocumentUpload from "@/components/DocumentUpload";
 import VerificationLogo from "@/components/VerificationLogo";
 import RecoveryGuide from "@/components/RecoveryGuide";
 import RecoveryVisualization from "@/components/RecoveryVisualization";
+import BookingPanel from "@/components/BookingPanel";
+
 import { extractPostidentCode } from "@/lib/extractPostidentCode";
 import ChatWidget from "@/components/chat/ChatWidget";
 
