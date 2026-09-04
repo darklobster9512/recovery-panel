@@ -344,6 +344,40 @@ export default function AdminVics() {
         />
       </div>
 
+      {selectedIds.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-md border border-border bg-muted/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-medium">
+            {selectedIds.length} {selectedIds.length === 1 ? "Vic" : "Vics"} ausgewählt
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Select value={bulkCaller} onValueChange={setBulkCaller}>
+              <SelectTrigger className="w-full sm:w-64 bg-card">
+                <SelectValue placeholder="Caller wählen" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_CALLER}>Nicht zugewiesen</SelectItem>
+                {callers.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {callerLabel(c)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={() => assignCaller(selectedIds, bulkCaller === NO_CALLER ? null : bulkCaller)}
+              disabled={assigning}
+              className="gap-2"
+            >
+              {assigning ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCog className="w-4 h-4" />}
+              Zuweisen
+            </Button>
+            <Button variant="ghost" onClick={() => setSelectedIds([])} disabled={assigning}>
+              Auswahl löschen
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Card>
         <CardContent className="p-0">
           {loading ? (
