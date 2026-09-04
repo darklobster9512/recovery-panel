@@ -7,7 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck, Inbox, ExternalLink } from "lucide-react";
+import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck, Inbox, ExternalLink, Pencil } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 import VerificationLogo from "@/components/VerificationLogo";
 import AssignCallerSelect from "@/components/AssignCallerSelect";
@@ -54,6 +57,8 @@ interface VicProfile {
   source_lead_id: string | null;
   assigned_caller_id: string | null;
   member_status: string | null;
+  balance: number | null;
+  scam_project: string | null;
 }
 
 
@@ -85,6 +90,62 @@ export default function AdminVicDetail() {
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    balance: "",
+    scam_project: "",
+    temp_password: "",
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEdit = () => {
+    if (!profile) return;
+    setEditForm({
+      first_name: profile.first_name ?? "",
+      last_name: profile.last_name ?? "",
+      email: profile.email ?? "",
+      phone: profile.phone ?? "",
+      balance: profile.balance != null ? String(profile.balance) : "",
+      scam_project: profile.scam_project ?? "",
+      temp_password: profile.temp_password ?? "",
+    });
+    setEditOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!profile) return;
+    setSavingEdit(true);
+    const balanceNum = editForm.balance.trim() === "" ? null : Number(editForm.balance.replace(",", "."));
+    if (balanceNum != null && Number.isNaN(balanceNum)) {
+      toast({ title: "Ungültiges Guthaben", variant: "destructive" });
+      setSavingEdit(false);
+      return;
+    }
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        first_name: editForm.first_name.trim() || null,
+        last_name: editForm.last_name.trim() || null,
+        email: editForm.email.trim() || null,
+        phone: editForm.phone.trim() || null,
+        balance: balanceNum,
+        scam_project: editForm.scam_project.trim() || null,
+        temp_password: editForm.temp_password.trim() || null,
+      })
+      .eq("id", profile.id);
+    setSavingEdit(false);
+    if (error) {
+      toast({ title: "Fehler", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Gespeichert", description: "Vic-Profil aktualisiert." });
+    setEditOpen(false);
+    fetchData();
+  };
 
 
   const fetchData = async () => {
@@ -226,6 +287,8 @@ export default function AdminVicDetail() {
     { label: "Nachname", value: profile.last_name },
     { label: "Email", value: profile.email },
     { label: "Telefon", value: profile.phone },
+    { label: "Guthaben", value: profile.balance != null ? formatEur(profile.balance) : null },
+    { label: "Scam Projekt", value: profile.scam_project },
     { label: "Erstellt am", value: new Date(profile.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) },
   ];
 
@@ -246,12 +309,17 @@ export default function AdminVicDetail() {
               {profile.member_status === "aktiv" ? "Aktiv" : "In Bearbeitung"}
             </Badge>
           </div>
-          <AssignCallerSelect
-            target="profile"
-            targetId={profile.id}
-            value={profile.assigned_caller_id}
-            onChange={(v) => setProfile((p) => (p ? { ...p, assigned_caller_id: v } : p))}
-          />
+          <div className="flex items-center gap-2">
+            <AssignCallerSelect
+              target="profile"
+              targetId={profile.id}
+              value={profile.assigned_caller_id}
+              onChange={(v) => setProfile((p) => (p ? { ...p, assigned_caller_id: v } : p))}
+            />
+            <Button variant="outline" size="sm" onClick={openEdit} className="gap-2">
+              <Pencil className="w-3.5 h-3.5" /> Bearbeiten
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -457,6 +525,50 @@ export default function AdminVicDetail() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Vic bearbeiten</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Vorname</Label>
+              <Input value={editForm.first_name} onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Nachname</Label>
+              <Input value={editForm.last_name} onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })} />
+            </div>
+            <div className="space-y-1 sm:col-span-2">
+              <Label>Email</Label>
+              <Input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Telefon</Label>
+              <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Guthaben (€)</Label>
+              <Input inputMode="decimal" value={editForm.balance} onChange={(e) => setEditForm({ ...editForm, balance: e.target.value })} placeholder="z.B. 100000" />
+            </div>
+            <div className="space-y-1 sm:col-span-2">
+              <Label>Scam Projekt</Label>
+              <Input value={editForm.scam_project} onChange={(e) => setEditForm({ ...editForm, scam_project: e.target.value })} />
+            </div>
+            <div className="space-y-1 sm:col-span-2">
+              <Label>Temp. Passwort</Label>
+              <Input value={editForm.temp_password} onChange={(e) => setEditForm({ ...editForm, temp_password: e.target.value })} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditOpen(false)} disabled={savingEdit}>Abbrechen</Button>
+            <Button onClick={handleSaveEdit} disabled={savingEdit}>
+              {savingEdit ? <Loader2 className="w-4 h-4 animate-spin" /> : "Speichern"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
