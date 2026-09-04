@@ -94,6 +94,8 @@ export default function Dashboard() {
   const [assignedCaller, setAssignedCaller] = useState<{
     first_name: string | null; last_name: string | null; phone: string | null; avatar_url: string | null;
   } | null>(null);
+  const [assignedCallerId, setAssignedCallerId] = useState<string | null>(null);
+
   const [memberStatus, setMemberStatus] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
