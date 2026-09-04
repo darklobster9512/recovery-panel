@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Shield, Users, FileText, LogOut, Phone, LayoutDashboard,
-  ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send,
+  ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -23,13 +23,15 @@ import AdminLeads from "@/components/AdminLeads";
 import AdminLeadDetail from "@/components/AdminLeadDetail";
 import AdminSettings from "@/components/AdminSettings";
 import AdminTelegram from "@/components/AdminTelegram";
+import AdminCallers from "@/components/AdminCallers";
 
-type NavItem = { label: string; icon: typeof LayoutDashboard; path: string; exact?: boolean; group?: string };
+type NavItem = { label: string; icon: typeof LayoutDashboard; path: string; exact?: boolean; group?: string; adminOnly?: boolean };
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/admin", exact: true },
   { label: "Leads", icon: Inbox, path: "/admin/leads", group: "Vertrieb" },
   { label: "Vics", icon: Users, path: "/admin/vics", group: "Vertrieb" },
+  { label: "Caller", icon: Headphones, path: "/admin/caller", group: "Vertrieb", adminOnly: true },
   { label: "Verifikationen", icon: FileText, path: "/admin/verifikationen", group: "Betrieb" },
   { label: "In Überprüfung", icon: ClipboardCheck, path: "/admin/ueberpruefung", group: "Betrieb" },
   { label: "Dokumente", icon: FolderOpen, path: "/admin/dokumente", group: "Betrieb" },
@@ -46,6 +48,7 @@ function pageTitle(pathname: string): string {
     "/admin": "Admin Dashboard",
     "/admin/vics": "Vics",
     "/admin/leads": "Leads",
+    "/admin/caller": "Caller",
     "/admin/verifikationen": "Verifikationen",
     "/admin/ueberpruefung": "In Überprüfung",
     "/admin/dokumente": "Dokumente",
@@ -63,6 +66,7 @@ function renderRoute(pathname: string) {
   switch (pathname) {
     case "/admin/vics": return <AdminVics />;
     case "/admin/leads": return <AdminLeads />;
+    case "/admin/caller": return <AdminCallers />;
     case "/admin/verifikationen": return <AdminVerifications />;
     case "/admin/ueberpruefung": return <AdminReview />;
     case "/admin/dokumente": return <AdminDocuments />;
@@ -75,7 +79,7 @@ function renderRoute(pathname: string) {
 }
 
 export default function AdminPanel() {
-  const { user, signOut } = useAuth();
+  const { user, role, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -87,9 +91,11 @@ export default function AdminPanel() {
   const initials = (user?.email ?? "A").slice(0, 2).toUpperCase();
   const title = pageTitle(location.pathname);
 
+  const visibleNav = navItems.filter((n) => !n.adminOnly || role === "admin");
+
   // group nav items preserving order
   const groups: { label: string | null; items: NavItem[] }[] = [];
-  for (const it of navItems) {
+  for (const it of visibleNav) {
     const label = it.group ?? null;
     const last = groups[groups.length - 1];
     if (last && last.label === label) last.items.push(it);
