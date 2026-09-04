@@ -398,7 +398,7 @@ export default function Dashboard() {
     icon: Icon,
     label,
   }: {
-    view: "assignments" | "recovery" | "guide" | "upload";
+    view: "assignments" | "recovery" | "guide" | "upload" | "booking";
     icon: typeof Network;
     label: string;
   }) => {
@@ -484,8 +484,10 @@ export default function Dashboard() {
       <nav className="space-y-1">
         <NavButton view="assignments" icon={Lock} label="Aufträge" />
         <NavButton view="guide" icon={BookOpen} label="Anleitung" />
+        <NavButton view="booking" icon={CalendarDays} label="Termin buchen" />
         <NavButton view="recovery" icon={Network} label="Rückverfolgung" />
         <NavButton view="upload" icon={FileUp} label="Dokumente hochladen" />
+
       </nav>
 
       <div className="flex-1 min-h-0" />
@@ -603,8 +605,14 @@ export default function Dashboard() {
         <RecoveryVisualization onOpenGuide={() => { setShowRecovery(false); setShowGuide(true); }} />
       ) : showGuide ? (
         <RecoveryGuide />
+      ) : showBooking ? (
+        <BookingPanel
+          callerId={(assignedCaller ? (user?.id ? null : null) : null) as any || null}
+          callerInfo={assignedCaller ? { first_name: assignedCaller.first_name, last_name: assignedCaller.last_name } : null}
+        />
       ) : showDocUpload ? (
         <DocumentUpload />
+
       ) : selected ? (
         /* ── Detail View ── */
         <main className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 animate-in fade-in slide-in-from-right-4 duration-300">
