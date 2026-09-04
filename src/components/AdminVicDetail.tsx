@@ -237,10 +237,21 @@ export default function AdminVicDetail() {
 
       {/* Profile Card */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">
-            {profile.first_name} {profile.last_name}
-          </CardTitle>
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <CardTitle className="text-lg">
+              {profile.first_name} {profile.last_name}
+            </CardTitle>
+            <Badge variant="secondary" className={profile.member_status === "aktiv" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}>
+              {profile.member_status === "aktiv" ? "Aktiv" : "In Bearbeitung"}
+            </Badge>
+          </div>
+          <AssignCallerSelect
+            target="profile"
+            targetId={profile.id}
+            value={profile.assigned_caller_id}
+            onChange={(v) => setProfile((p) => (p ? { ...p, assigned_caller_id: v } : p))}
+          />
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
