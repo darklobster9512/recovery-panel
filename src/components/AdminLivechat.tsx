@@ -103,7 +103,10 @@ export default function AdminLivechat() {
       }
     }
 
-    const list: Conv[] = (profiles ?? []).map((p: any) => {
+    const filteredProfiles = isAdmin
+      ? (profiles ?? [])
+      : (profiles ?? []).filter((p: any) => p.assigned_caller_id === user?.id);
+    const list: Conv[] = filteredProfiles.map((p: any) => {
       const agg = byVic.get(p.id);
       return {
         vic_id: p.id,
@@ -123,7 +126,7 @@ export default function AdminLivechat() {
     });
     setConvs(list);
     setLoading(false);
-  }, []);
+  }, [isAdmin, user?.id]);
 
   const loadCallers = useCallback(async () => {
     const { data: roleRows } = await supabase.from("user_roles").select("user_id").eq("role", "caller");
@@ -296,7 +299,7 @@ export default function AdminLivechat() {
               <p className="text-xs text-muted-foreground truncate">{c.lastText || c.email}</p>
               {isAdmin && (
                 <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                  {callerName(c.assigned_caller_id) ?? "Kein Caller zugewiesen"}
+                  {callerName(c.assigned_caller_id) ?? "Dr. Thomas Korte (Kanzlei)"}
                 </p>
               )}
             </button>
@@ -326,7 +329,7 @@ export default function AdminLivechat() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="self">Kanzlei (Admin)</SelectItem>
+                      <SelectItem value="self">Dr. Thomas Korte (Kanzlei)</SelectItem>
                       {callers.map((c) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
