@@ -86,6 +86,7 @@ export default function AdminSettings() {
     try {
       await saveSmsTemplate("credentials", smsTemplate);
       await saveSmsTemplate("new_user_sms", newUserSms);
+      await saveSmsTemplate("assignment_created_sms", assignmentSms);
       toast({ title: "SMS-Vorlagen gespeichert" });
     } catch (e: any) {
       toast({ title: "Fehler beim Speichern", description: e.message, variant: "destructive" });
