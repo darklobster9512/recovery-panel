@@ -308,6 +308,14 @@ export default function AdminVics() {
       .some((v) => v!.toLowerCase().includes(q))
   );
 
+  const allSelected = filtered.length > 0 && filtered.every((u) => selectedIds.includes(u.id));
+  const toggleAll = (checked: boolean) => {
+    setSelectedIds(checked ? filtered.map((u) => u.id) : []);
+  };
+  const toggleOne = (id: string, checked: boolean) => {
+    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)));
+  };
+
   const selectedLeadLabel = selectedLeadId
     ? leads.find((l) => l.id === selectedLeadId)?.full_name || "Lead ausgewählt"
     : "Lead suchen…";
