@@ -611,7 +611,7 @@ export default function Dashboard() {
         <RecoveryGuide />
       ) : showBooking ? (
         <BookingPanel
-          callerId={(assignedCaller ? (user?.id ? null : null) : null) as any || null}
+          callerId={assignedCallerId}
           callerInfo={assignedCaller ? { first_name: assignedCaller.first_name, last_name: assignedCaller.last_name } : null}
         />
       ) : showDocUpload ? (
