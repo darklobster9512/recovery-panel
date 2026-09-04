@@ -469,6 +469,9 @@ export default function AdminVics() {
                         "–"
                       )}
                     </TableCell>
+                    <TableCell className="text-sm">
+                      {u.assigned_caller_id ? (callerNames.get(u.assigned_caller_id) ?? "–") : "–"}
+                    </TableCell>
                     <TableCell className="text-muted-foreground text-xs">
                       {new Date(u.created_at).toLocaleDateString("de-DE", {
                         day: "2-digit",
@@ -478,13 +481,26 @@ export default function AdminVics() {
                         minute: "2-digit",
                       })}
                     </TableCell>
-                    <TableCell>
-                      <button
-                        onClick={() => navigate(`/admin/vics/${u.id}`)}
-                        className="text-muted-foreground hover:text-foreground transition-colors p-1"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => navigate(`/admin/vics/${u.id}`)}
+                          className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                          title="Details ansehen"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSingleVic(u);
+                            setSingleCaller(u.assigned_caller_id ?? NO_CALLER);
+                          }}
+                          className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                          title="Caller zuweisen"
+                        >
+                          <UserCog className="w-4 h-4" />
+                        </button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
