@@ -204,6 +204,7 @@ export default function BookingPanel({
       )}
 
       <Card className="overflow-hidden border border-slate-200 shadow-sm rounded-xl">
+        <div className="h-1.5 bg-gradient-to-r from-[#0b1f3a] to-[#c9a24a]" />
         <CardHeader className="border-b border-slate-200/60 bg-white">
           <CardTitle className="font-serif text-xl text-[#0b1f3a]">
             {isRebooking ? "Termin umbuchen" : "Termin buchen"}
