@@ -8,9 +8,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, Loader2, Copy, Search, Eye, RefreshCw, Check, ChevronsUpDown, KeyRound, User, Wallet } from "lucide-react";
+import { UserPlus, Loader2, Copy, Search, Eye, RefreshCw, Check, ChevronsUpDown, KeyRound, User, Wallet, UserCog } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 
@@ -22,6 +24,20 @@ interface VicUser {
   phone: string | null;
   temp_password: string | null;
   created_at: string;
+  assigned_caller_id: string | null;
+}
+
+interface CallerOption {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+}
+
+const NO_CALLER = "__none__";
+
+function callerLabel(c: CallerOption): string {
+  return [c.first_name, c.last_name].filter(Boolean).join(" ") || c.email || c.id;
 }
 
 interface LeadOption {
