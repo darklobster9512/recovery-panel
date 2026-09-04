@@ -14,6 +14,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 
 interface VicUser {
@@ -25,6 +26,7 @@ interface VicUser {
   temp_password: string | null;
   created_at: string;
   assigned_caller_id: string | null;
+  member_status: string;
 }
 
 interface CallerOption {
@@ -105,7 +107,7 @@ export default function AdminVics() {
 
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id")
+      .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id, member_status")
       .in("id", userIds)
       .order("created_at", { ascending: false });
 
@@ -405,6 +407,7 @@ export default function AdminVics() {
                   <TableHead>Telefon</TableHead>
                   <TableHead>Temp. Passwort</TableHead>
                   <TableHead>Caller</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Erstellt am</TableHead>
                   <TableHead className="w-20"></TableHead>
                 </TableRow>
@@ -471,6 +474,15 @@ export default function AdminVics() {
                     </TableCell>
                     <TableCell className="text-sm">
                       {u.assigned_caller_id ? (callerNames.get(u.assigned_caller_id) ?? "–") : "–"}
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      {u.member_status === "aktiv" ? (
+                        <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Aktiv</Badge>
+                      ) : u.member_status === "in_bearbeitung" ? (
+                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">In Bearbeitung</Badge>
+                      ) : (
+                        "–"
+                      )}
                     </TableCell>
                     <TableCell className="text-muted-foreground text-xs">
                       {new Date(u.created_at).toLocaleDateString("de-DE", {
