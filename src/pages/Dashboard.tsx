@@ -33,6 +33,7 @@ import VerificationLogo from "@/components/VerificationLogo";
 import RecoveryGuide from "@/components/RecoveryGuide";
 import RecoveryVisualization from "@/components/RecoveryVisualization";
 import { extractPostidentCode } from "@/lib/extractPostidentCode";
+import ChatWidget from "@/components/chat/ChatWidget";
 
 interface SMSMessage {
   messageSender: string;
@@ -91,6 +92,7 @@ export default function Dashboard() {
   const [assignedCaller, setAssignedCaller] = useState<{
     first_name: string | null; last_name: string | null; phone: string | null; avatar_url: string | null;
   } | null>(null);
+  const [memberStatus, setMemberStatus] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
@@ -117,7 +119,7 @@ export default function Dashboard() {
   const loadProfile = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("first_name, last_name, email, phone, balance, scam_project, assigned_caller_id")
+      .select("first_name, last_name, email, phone, balance, scam_project, assigned_caller_id, member_status")
       .eq("id", user!.id)
       .maybeSingle();
     if (data) {
@@ -127,6 +129,7 @@ export default function Dashboard() {
       setProfilePhone((data as any).phone ?? "");
       setProfileBalance(data.balance ?? null);
       setProfileScamProject(data.scam_project ?? "");
+      setMemberStatus(((data as any).member_status as string) ?? null);
       const callerId = (data as any).assigned_caller_id as string | null;
       if (callerId) {
         const { data: caller } = await supabase
@@ -1016,6 +1019,19 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      <ChatWidget
+        contact={assignedCaller ? {
+          first_name: assignedCaller.first_name,
+          last_name: assignedCaller.last_name,
+          avatar_url: assignedCaller.avatar_url,
+        } : { first_name: "Dr. Thomas", last_name: "Korte", avatar_url: "/thomaskorte.png" }}
+        fallbackName="Dr. Thomas Korte"
+        vicName={profileName}
+        vicEmail={profileEmail}
+        locked={memberStatus === "in_bearbeitung"}
+        lockedMessage="Der Livechat wird freigeschaltet, sobald Ihre Identitätsprüfung abgeschlossen ist."
+      />
     </div>
   );
 }
