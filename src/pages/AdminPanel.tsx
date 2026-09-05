@@ -36,7 +36,7 @@ type NavItem = { label: string; icon: typeof LayoutDashboard; path: string; exac
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/admin", exact: true },
-  { label: "Leads", icon: Inbox, path: "/admin/leads", group: "Vertrieb" },
+  { label: "Leads", icon: Inbox, path: "/admin/leads", group: "Vertrieb", adminOnly: true },
   { label: "Vics", icon: Users, path: "/admin/vics", group: "Vertrieb" },
   { label: "Caller", icon: Headphones, path: "/admin/caller", group: "Vertrieb", adminOnly: true },
   { label: "Livechat", icon: MessageCircle, path: "/admin/livechat", group: "Vertrieb" },
