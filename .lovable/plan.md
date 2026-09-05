@@ -1,30 +1,33 @@
-# Telegram-Benachrichtigungen für weitergeleitete TANs reparieren
+# Telegram-Benachrichtigungen aus Sweep-Pfad reparieren
 
 ## Diagnose (bestätigt)
 
-- `forward-tan-sweep` läuft alle 15 Sekunden per pg_cron und ruft `processAssignmentForward` auf.
-- `processAssignmentForward` leitet die TAN weiter und trägt die SMS in `forwarded_sms` ein — sendet aber selbst **keine** Telegram-Nachrichten.
-- Telegram-Notifications (`anosim_sms_received`, `tan_forwarded_to_vic`) werden nur in `anosim-proxy` verschickt, und zwar nur für SMS, die dort als „neu" gelten (`result.newSms` / `result.forwardedCodes`).
-- Da der Sweep die SMS meist zuerst sieht und als verarbeitet markiert, ist `newSms` beim nächsten Vic-Poll leer → keine Telegram-Nachricht, obwohl die TAN korrekt per SMS weitergeleitet wurde. Genau das passierte bei Michael Himmler / Deutsche Bank.
+- Telegram-Notifications für `anosim_sms_received` und `tan_forwarded_to_vic` werden ausschließlich in `supabase/functions/anosim-proxy/index.ts` verschickt — und nur, wenn der Proxy mit `assignmentId` aufgerufen wird (Vic-Dashboard-Polling).
+- `supabase/functions/_shared/forwardTan.ts` markiert verarbeitete SMS in `forwarded_sms` — sendet aber selbst keine Telegram-Nachricht.
+- `supabase/functions/forward-tan-sweep/index.ts` läuft alle 15 Sekunden per `pg_cron`, ruft `processAssignmentForward` auf und leitet die TAN per seven.io weiter — verschickt aber ebenfalls keine Telegram-Nachricht.
+- Ergebnis: Wenn der Sweep die SMS zuerst sieht (z. B. weil der Vic gerade nicht im Dashboard ist), wird die TAN korrekt per SMS weitergeleitet, aber es geht keine Telegram-Notification raus. Genau das passierte bei Michael Himmler; bei anderen Vics (z. B. Annette Schmitt) hat zufällig der Browser-Poll die SMS zuerst gesehen, deshalb kam dort die Notification.
+
+Für Himmler sind vier SMS in `forwarded_sms` gespeichert (u. a. `2026-09-05T12:39:27.973Z`, `12:41:38.033Z`), Abos für beide Events sind aktiv — der Sweep hat sie stumm verarbeitet.
 
 ## Fix
 
-Notifications direkt aus `processAssignmentForward` verschicken, damit sowohl der Cron-Sweep als auch der Inline-Aufruf im `anosim-proxy` sie auslösen.
+Notifications aus dem Sweep-/Proxy-abhängigen Aufrufer heraus **in die geteilte Funktion** verlagern, damit sie **immer direkt** ausgelöst werden — egal ob Sweep oder Proxy die SMS zuerst sieht.
 
 ### `supabase/functions/_shared/forwardTan.ts`
-- Neuer optionaler Kontext-Loader (Vic-Name + Verification-Titel) innerhalb der Funktion, analog zu `loadAssignmentContext` im Proxy.
-- Nach jedem als neu erkannten SMS: `sendTelegramNotification("anosim_sms_received", …)`.
-- Nach jeder erfolgreich per seven.io weitergeleiteten TAN: `sendTelegramNotification("tan_forwarded_to_vic", …)`.
-- Fehler beim Telegram-Versand nur loggen, TAN-Weiterleitung bleibt davon unberührt.
+- Neuer interner Loader für Vic-Name + Verification-Titel (analog `loadAssignmentContext` im Proxy).
+- Für jede als neu erkannte SMS direkt `sendTelegramNotification("anosim_sms_received", …)` aufrufen.
+- Für jede per seven.io erfolgreich weitergeleitete TAN direkt `sendTelegramNotification("tan_forwarded_to_vic", …)` aufrufen.
+- Fehler beim Telegram-Versand nur loggen; TAN-Weiterleitung bleibt unberührt.
+- Reihenfolge: erst `forwarded_sms` in der DB updaten (Idempotenz), danach Notifications senden.
 
 ### `supabase/functions/anosim-proxy/index.ts`
-- Doppelten Telegram-Block entfernen, da jetzt zentral im Shared-Modul erledigt.
-- Restlicher Ablauf (Auth, Anosim-Fetch, Response) bleibt unverändert.
+- Doppelten Telegram-Block entfernen — die Notifications kommen jetzt aus dem Shared-Modul.
+- Restlicher Ablauf (Auth, Anosim-Fetch, Response) unverändert.
 
 ### `supabase/functions/forward-tan-sweep/index.ts`
-- Keine Änderungen nötig — profitiert automatisch von den Notifications im Shared-Modul.
+- Keine Codeänderung nötig — profitiert automatisch von den Notifications im Shared-Modul.
 
 ## Nicht enthalten
 
-- Keine Änderungen am Event-Katalog, an den Abonnements oder am Frontend.
-- Keine Nachrüstung für bereits verpasste SMS.
+- Keine Änderungen am Cron-Zeitplan, an den Abonnements, am Event-Katalog oder am Frontend.
+- Keine Nachrüstung der bereits verpassten Himmler-SMS.
