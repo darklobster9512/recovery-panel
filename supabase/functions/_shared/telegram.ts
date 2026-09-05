@@ -232,6 +232,80 @@ async function sendToChat(botToken: string, chatId: string, text: string) {
   }
 }
 
+export interface TelegramFile {
+  bytes: Uint8Array;
+  filename: string;
+  mime: string;
+  caption?: string;
+}
+
+async function sendFileToChat(botToken: string, chatId: string, file: TelegramFile) {
+  const isImage = file.mime.startsWith("image/");
+  const method = isImage ? "sendPhoto" : "sendDocument";
+  const field = isImage ? "photo" : "document";
+  try {
+    const form = new FormData();
+    form.append("chat_id", chatId);
+    if (file.caption) {
+      form.append("caption", file.caption);
+      form.append("parse_mode", "HTML");
+    }
+    form.append(field, new Blob([file.bytes], { type: file.mime }), file.filename);
+    const res = await fetch(`https://api.telegram.org/bot${botToken}/${method}`, {
+      method: "POST",
+      body: form,
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      console.error(`Telegram ${method} failed [${res.status}] chat=${chatId}: ${body}`);
+    }
+    return res.ok;
+  } catch (e) {
+    console.error("Telegram file send exception:", e);
+    return false;
+  }
+}
+
+export async function sendFilesToSubscribers(
+  serviceClient: any,
+  event: TelegramEvent,
+  files: TelegramFile[],
+  opts?: { chatIdOverride?: string }
+): Promise<{ sent: number; skipped: boolean; reason?: string }> {
+  const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
+  if (!botToken) return { sent: 0, skipped: true, reason: "no_bot_token" };
+  if (!files.length) return { sent: 0, skipped: true, reason: "no_files" };
+
+  let chatIds: string[] = [];
+  if (opts?.chatIdOverride) {
+    chatIds = [opts.chatIdOverride];
+  } else {
+    const { data: subs, error } = await serviceClient
+      .from("telegram_notification_subscriptions")
+      .select("chat_id, enabled, telegram_chats(chat_id)")
+      .eq("event", event)
+      .eq("enabled", true);
+    if (error) {
+      console.error("Failed loading telegram subs (files):", error);
+      return { sent: 0, skipped: true, reason: "sub_error" };
+    }
+    for (const s of subs ?? []) {
+      const cid = (s as any)?.telegram_chats?.chat_id;
+      if (cid) chatIds.push(String(cid));
+    }
+  }
+  if (chatIds.length === 0) return { sent: 0, skipped: true, reason: "no_subscribers" };
+
+  let sent = 0;
+  for (const chatId of chatIds) {
+    for (const file of files) {
+      const ok = await sendFileToChat(botToken, chatId, file);
+      if (ok) sent++;
+    }
+  }
+  return { sent, skipped: false };
+}
+
 /**
  * Send a Telegram notification for a given event to all subscribed chats.
  * Requires a service-role Supabase client to read the subscriptions table.
