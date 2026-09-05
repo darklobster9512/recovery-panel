@@ -1,5 +1,10 @@
 // Shared TAN forwarding logic used by anosim-proxy (inline) and forward-tan-sweep (cron).
 // Idempotent: uses `forwarded_sms` to avoid duplicates.
+// Sends Telegram notifications for every new SMS and every forwarded TAN so both
+// callers (browser poll via proxy AND cron sweep) trigger the same alerts.
+
+import { sendTelegramNotification } from "./telegram.ts";
+
 
 interface AnyRecord {
   [k: string]: any;
