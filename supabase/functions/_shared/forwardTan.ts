@@ -84,7 +84,7 @@ export async function processAssignmentForward(
   // Load assignment
   const { data: a } = await serviceClient
     .from("verification_assignments")
-    .select("id, user_id, status, phone_number_id, created_at, sms_monitoring_active, forward_tan_to_vic, forwarded_sms, hidden_sms")
+    .select("id, user_id, verification_id, status, phone_number_id, created_at, sms_monitoring_active, forward_tan_to_vic, forwarded_sms, hidden_sms")
     .eq("id", assignmentId)
     .maybeSingle();
 
