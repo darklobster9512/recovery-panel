@@ -226,7 +226,7 @@ export default function AdminPanel() {
           </header>
           <main className="flex-1 bg-background" style={{ minHeight: "calc(100vh - 5rem)" }}>
             <div className="mx-auto w-full max-w-[1600px] p-5 lg:p-8 xl:p-10">
-              {renderRoute(location.pathname)}
+              {renderRoute(location.pathname, role)}
             </div>
           </main>
         </SidebarInset>
