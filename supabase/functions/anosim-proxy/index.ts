@@ -58,10 +58,16 @@ Deno.serve(async (req) => {
   }
 
   const userId = claimsData.claims.sub;
-  const { data: isAdmin } = await supabase.rpc("has_role", {
-    _user_id: userId,
-    _role: "admin",
-  });
+  const [{ data: isAdmin }, { data: isCaller }] = await Promise.all([
+    supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    }),
+    supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "caller",
+    }),
+  ]);
 
   try {
     const { token: apiToken, assignmentId } = await req.json();
@@ -77,7 +83,8 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // If not admin, verify the user has an assignment linked to this phone number token
+    // Callers may read every stored phone number. Vics may only read phone numbers
+    // linked to one of their own assignments.
     if (!isAdmin) {
       const { data: phoneRow } = await serviceClient
         .from("phone_numbers")
@@ -92,19 +99,21 @@ Deno.serve(async (req) => {
         });
       }
 
-      const { data: assignment } = await serviceClient
-        .from("verification_assignments")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("phone_number_id", phoneRow.id)
-        .limit(1)
-        .maybeSingle();
+      if (!isCaller) {
+        const { data: assignment } = await serviceClient
+          .from("verification_assignments")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("phone_number_id", phoneRow.id)
+          .limit(1)
+          .maybeSingle();
 
-      if (!assignment) {
-        return new Response(JSON.stringify({ error: "Forbidden" }), {
-          status: 403,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        if (!assignment) {
+          return new Response(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
       }
     }
 

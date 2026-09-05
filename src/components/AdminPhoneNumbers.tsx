@@ -37,7 +37,7 @@ interface PhoneEntry {
 }
 
 export default function AdminPhoneNumbers() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const { toast } = useToast();
   const [entries, setEntries] = useState<PhoneEntry[]>([]);
   const [linkInput, setLinkInput] = useState("");
@@ -201,29 +201,31 @@ export default function AdminPhoneNumbers() {
         <h2 className="font-display text-2xl font-semibold">Telefonnummern</h2>
         <p className="mt-2 text-sm text-muted-foreground">Anosim-Verbindungen, Laufzeiten und eingehende SMS überwachen.</p>
       </div>
-      {/* Add phone number */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
-          <CardTitle className="text-base">Verbindung hinzufügen</CardTitle>
-          <a href="https://anosim.net" target="_blank" rel="noopener noreferrer">
-            <img src={anosimLogo} alt="Anosim" className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
-          </a>
-        </CardHeader>
-        <CardContent className="p-5">
-          <div className="flex gap-2">
-            <Input
-              value={linkInput}
-              onChange={(e) => setLinkInput(e.target.value)}
-              placeholder="https://anosim.net/api/v1/orderbookingshare?token=..."
-              className="flex-1"
-            />
-            <Button onClick={handleAdd} disabled={adding || !linkInput.trim()} className="gap-2">
-              {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-              Hinzufügen
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Only admins may manage phone number connections. */}
+      {role === "admin" && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
+            <CardTitle className="text-base">Verbindung hinzufügen</CardTitle>
+            <a href="https://anosim.net" target="_blank" rel="noopener noreferrer">
+              <img src={anosimLogo} alt="Anosim" className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
+            </a>
+          </CardHeader>
+          <CardContent className="p-5">
+            <div className="flex gap-2">
+              <Input
+                value={linkInput}
+                onChange={(e) => setLinkInput(e.target.value)}
+                placeholder="https://anosim.net/api/v1/orderbookingshare?token=..."
+                className="flex-1"
+              />
+              <Button onClick={handleAdd} disabled={adding || !linkInput.trim()} className="gap-2">
+                {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                Hinzufügen
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Table */}
       {loadingEntries ? (
@@ -246,7 +248,7 @@ export default function AdminPhoneNumbers() {
                   <TableHead>Start</TableHead>
                   <TableHead>Ende</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-10"></TableHead>
+                  {role === "admin" && <TableHead className="w-10"></TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -283,20 +285,22 @@ export default function AdminPhoneNumbers() {
                       ) : (
                         <TableCell colSpan={7} className="text-muted-foreground text-sm">Keine Daten</TableCell>
                       )}
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
+                      {role === "admin" && (
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
+                      )}
                     </TableRow>
                     {expandedId === entry.id && entry.data?.sms && (
                       <TableRow key={`${entry.id}-sms`}>
-                        <TableCell colSpan={9} className="bg-muted/30 p-4">
+                        <TableCell colSpan={role === "admin" ? 9 : 8} className="bg-muted/30 p-4">
                           <p className="text-xs font-medium text-muted-foreground mb-2">Letzte SMS</p>
                           {entry.data.sms.length === 0 ? (
                             <p className="text-sm text-muted-foreground">Keine SMS empfangen.</p>
