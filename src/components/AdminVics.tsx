@@ -146,7 +146,8 @@ export default function AdminVics() {
   useEffect(() => {
     fetchUsers();
     fetchCallers();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role, user?.id]);
 
   const callerNames = new Map(callers.map((c) => [c.id, callerLabel(c)]));
 
