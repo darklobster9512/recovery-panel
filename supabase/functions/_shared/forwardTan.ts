@@ -84,7 +84,7 @@ export async function processAssignmentForward(
   // Load assignment
   const { data: a } = await serviceClient
     .from("verification_assignments")
-    .select("id, user_id, status, phone_number_id, created_at, sms_monitoring_active, forward_tan_to_vic, forwarded_sms, hidden_sms")
+    .select("id, user_id, verification_id, status, phone_number_id, created_at, sms_monitoring_active, forward_tan_to_vic, forwarded_sms, hidden_sms")
     .eq("id", assignmentId)
     .maybeSingle();
 
@@ -170,30 +170,15 @@ export async function processAssignmentForward(
     try {
       const [{ data: prof }, { data: ver }] = await Promise.all([
         serviceClient.from("profiles").select("first_name, last_name, email").eq("id", a.user_id).maybeSingle(),
-        serviceClient.from("verifications").select("title").eq("id", (a as any).verification_id ?? "").maybeSingle(),
+        a.verification_id
+          ? serviceClient.from("verifications").select("title").eq("id", a.verification_id).maybeSingle()
+          : Promise.resolve({ data: null }),
       ]);
-      // verification_id wasn't selected above; fetch it separately if missing
-      let verificationTitle = ver?.title;
-      if (!verificationTitle) {
-        const { data: a2 } = await serviceClient
-          .from("verification_assignments")
-          .select("verification_id")
-          .eq("id", assignmentId)
-          .maybeSingle();
-        if (a2?.verification_id) {
-          const { data: ver2 } = await serviceClient
-            .from("verifications")
-            .select("title")
-            .eq("id", a2.verification_id)
-            .maybeSingle();
-          verificationTitle = ver2?.title;
-        }
-      }
       const vicName =
         `${prof?.first_name ?? ""} ${prof?.last_name ?? ""}`.trim() ||
         prof?.email ||
         "Unbekannt";
-      const title = verificationTitle ?? "Auftrag";
+      const title = ver?.title ?? "Auftrag";
 
       for (const sms of newSms) {
         try {
