@@ -70,7 +70,7 @@ interface Props {
 
 export default function AssignVerificationDialog({ open, onOpenChange, verification, onAssigned }: Props) {
 
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const { toast } = useToast();
 
   const [vics, setVics] = useState<VicUser[]>([]);
