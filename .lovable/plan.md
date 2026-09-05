@@ -10,11 +10,10 @@
 
 1. Beim automatischen Anlegen der Vic-Konten während des Lead-Imports werden Guthaben und Scam-Projekt nicht mehr mitgeschickt. Beide Felder bleiben leer und müssen manuell gesetzt werden.
 2. Bereinigung der bestehenden Konten: bei allen Vic-Konten, deren Scam-Projekt exakt dem Vorfall-Text des zugehörigen Leads entspricht, wird das Feld geleert. Manuell eingetragene Texte bleiben unberührt.
-3. Guthaben leeren: bei allen aus Leads angelegten Vic-Konten wird das Guthaben-Feld geleert. Betrifft aktuell 4 Konten (w-garbe@gmx.de, viktor_sun@web.de, emmanuel.david796@yahoo.com, irma.fischer@mail.de); die 14 heute angelegten Konten haben ohnehin kein Guthaben.
+3. Guthaben: nur die heute angelegten Vics werden geprüft – dort ist das Guthaben bereits überall leer, es wird also nichts geändert. Die 4 Konten von gestern mit gesetztem Guthaben bleiben unangetastet.
 
 ## Technisch
 
 - `src/components/LeadImportDialog.tsx`: `scam_project` aus dem `create-user`-Aufruf entfernen.
-- Datenbereinigung per SQL:
-  - `UPDATE profiles p SET scam_project = NULL FROM leads l WHERE l.id = p.source_lead_id AND p.scam_project = l.vorfall;`
-  - `UPDATE profiles SET balance = NULL WHERE source_lead_id IS NOT NULL AND balance IS NOT NULL;`
+- Datenbereinigung per SQL (nur heutige Konten):
+  - `UPDATE profiles p SET scam_project = NULL FROM leads l WHERE l.id = p.source_lead_id AND p.scam_project = l.vorfall AND p.created_at::date = current_date;`
