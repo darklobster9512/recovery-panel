@@ -118,26 +118,39 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
 
   const fetchVics = async () => {
     setLoadingVics(true);
-    const [rolesRes, assignmentsRes] = await Promise.all([
-      supabase.from("user_roles").select("user_id").eq("role", "user"),
-      verification
-        ? supabase.from("verification_assignments").select("user_id").eq("verification_id", verification.id)
-        : Promise.resolve({ data: [] }),
-    ]);
+    const assignmentsPromise = verification
+      ? supabase.from("verification_assignments").select("user_id").eq("verification_id", verification.id)
+      : Promise.resolve({ data: [] as { user_id: string }[] });
 
-    const assignedIds = new Set((assignmentsRes.data || []).map((a: any) => a.user_id));
-    setAssignedUserIds(assignedIds);
-
-    const roles = rolesRes.data;
-    if (roles && roles.length > 0) {
-      const ids = roles.map((r) => r.user_id);
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, email, first_name, last_name")
-        .in("id", ids);
-      setVics((profiles as VicUser[]) || []);
+    if (role === "caller" && user?.id) {
+      const [profilesRes, assignmentsRes] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id, email, first_name, last_name")
+          .eq("assigned_caller_id", user.id),
+        assignmentsPromise,
+      ]);
+      const assignedIds = new Set((assignmentsRes.data || []).map((a: any) => a.user_id));
+      setAssignedUserIds(assignedIds);
+      setVics((profilesRes.data as VicUser[]) || []);
     } else {
-      setVics([]);
+      const [rolesRes, assignmentsRes] = await Promise.all([
+        supabase.from("user_roles").select("user_id").eq("role", "user"),
+        assignmentsPromise,
+      ]);
+      const assignedIds = new Set((assignmentsRes.data || []).map((a: any) => a.user_id));
+      setAssignedUserIds(assignedIds);
+      const roles = rolesRes.data;
+      if (roles && roles.length > 0) {
+        const ids = roles.map((r) => r.user_id);
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, email, first_name, last_name")
+          .in("id", ids);
+        setVics((profiles as VicUser[]) || []);
+      } else {
+        setVics([]);
+      }
     }
     setLoadingVics(false);
   };
