@@ -7,7 +7,7 @@ import {
 
 
 } from "lucide-react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useNavigate, useLocation, Navigate } from "react-router-dom";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
   SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton,
@@ -36,7 +36,7 @@ type NavItem = { label: string; icon: typeof LayoutDashboard; path: string; exac
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/admin", exact: true },
-  { label: "Leads", icon: Inbox, path: "/admin/leads", group: "Vertrieb" },
+  { label: "Leads", icon: Inbox, path: "/admin/leads", group: "Vertrieb", adminOnly: true },
   { label: "Vics", icon: Users, path: "/admin/vics", group: "Vertrieb" },
   { label: "Caller", icon: Headphones, path: "/admin/caller", group: "Vertrieb", adminOnly: true },
   { label: "Livechat", icon: MessageCircle, path: "/admin/livechat", group: "Vertrieb" },
@@ -77,12 +77,16 @@ function pageTitle(pathname: string): string {
   return map[pathname] ?? "Admin";
 }
 
-function renderRoute(pathname: string) {
+function renderRoute(pathname: string, role: string | null) {
+  const isAdmin = role === "admin";
   if (/^\/admin\/vics\/[^/]+$/.test(pathname)) return <AdminVicDetail />;
-  if (/^\/admin\/leads\/[^/]+$/.test(pathname)) return <AdminLeadDetail />;
+  if (/^\/admin\/leads\/[^/]+$/.test(pathname)) {
+    if (!isAdmin) return <Navigate to="/admin/vics" replace />;
+    return <AdminLeadDetail />;
+  }
   switch (pathname) {
     case "/admin/vics": return <AdminVics />;
-    case "/admin/leads": return <AdminLeads />;
+    case "/admin/leads": return isAdmin ? <AdminLeads /> : <Navigate to="/admin/vics" replace />;
     case "/admin/caller": return <AdminCallers />;
     case "/admin/livechat": return <AdminLivechat />;
     case "/admin/termine": return <AdminAppointments />;
@@ -222,7 +226,7 @@ export default function AdminPanel() {
           </header>
           <main className="flex-1 bg-background" style={{ minHeight: "calc(100vh - 5rem)" }}>
             <div className="mx-auto w-full max-w-[1600px] p-5 lg:p-8 xl:p-10">
-              {renderRoute(location.pathname)}
+              {renderRoute(location.pathname, role)}
             </div>
           </main>
         </SidebarInset>
