@@ -52,22 +52,33 @@ function toBase64(buf: ArrayBuffer) {
   return btoa(binary);
 }
 
-async function buildBlock(url: string, label: string) {
+async function loadFile(url: string, label: string): Promise<{ bytes: Uint8Array; mime: string; isPdf: boolean }> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Datei konnte nicht geladen werden (${label}): ${res.status}`);
   const type = (res.headers.get("content-type") || "").split(";")[0].trim();
   const buf = await res.arrayBuffer();
   if (!buf.byteLength) throw new Error(`Datei ist leer (${label})`);
   const isPdf = type === "application/pdf" || url.toLowerCase().split("?")[0].endsWith(".pdf");
-  const b64 = toBase64(buf);
-  if (isPdf) {
+  const mime = isPdf ? "application/pdf" : (type.startsWith("image/") ? type : "image/jpeg");
+  return { bytes: new Uint8Array(buf), mime, isPdf };
+}
+
+function buildAiBlock(file: { bytes: Uint8Array; mime: string; isPdf: boolean }, label: string) {
+  const b64 = toBase64(file.bytes.buffer.slice(file.bytes.byteOffset, file.bytes.byteOffset + file.bytes.byteLength) as ArrayBuffer);
+  if (file.isPdf) {
     return {
       type: "file",
       file: { filename: `${label}.pdf`, file_data: `data:application/pdf;base64,${b64}` },
     };
   }
-  const mime = type.startsWith("image/") ? type : "image/jpeg";
-  return { type: "image_url", image_url: { url: `data:${mime};base64,${b64}` } };
+  return { type: "image_url", image_url: { url: `data:${file.mime};base64,${b64}` } };
+}
+
+function extForMime(mime: string): string {
+  if (mime === "application/pdf") return "pdf";
+  if (mime === "image/png") return "png";
+  if (mime === "image/webp") return "webp";
+  return "jpg";
 }
 
 Deno.serve(async (req) => {
