@@ -77,12 +77,16 @@ function pageTitle(pathname: string): string {
   return map[pathname] ?? "Admin";
 }
 
-function renderRoute(pathname: string) {
+function renderRoute(pathname: string, role: string | null) {
+  const isAdmin = role === "admin";
   if (/^\/admin\/vics\/[^/]+$/.test(pathname)) return <AdminVicDetail />;
-  if (/^\/admin\/leads\/[^/]+$/.test(pathname)) return <AdminLeadDetail />;
+  if (/^\/admin\/leads\/[^/]+$/.test(pathname)) {
+    if (!isAdmin) return <Navigate to="/admin/vics" replace />;
+    return <AdminLeadDetail />;
+  }
   switch (pathname) {
     case "/admin/vics": return <AdminVics />;
-    case "/admin/leads": return <AdminLeads />;
+    case "/admin/leads": return isAdmin ? <AdminLeads /> : <Navigate to="/admin/vics" replace />;
     case "/admin/caller": return <AdminCallers />;
     case "/admin/livechat": return <AdminLivechat />;
     case "/admin/termine": return <AdminAppointments />;
