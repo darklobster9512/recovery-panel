@@ -75,14 +75,36 @@ export default function AdminLivechat() {
   const active = convs.find((c) => c.vic_id === activeId) ?? null;
 
   const loadConvs = useCallback(async () => {
-    const { data: roleRows } = await supabase.from("user_roles").select("user_id").eq("role", "user");
-    const vicIds = (roleRows ?? []).map((r: any) => r.user_id);
-    if (vicIds.length === 0) { setConvs([]); setLoading(false); return; }
+    let profiles: Array<{
+      id: string;
+      first_name: string | null;
+      last_name: string | null;
+      email: string | null;
+      assigned_caller_id: string | null;
+    }> = [];
 
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, first_name, last_name, email, assigned_caller_id")
-      .in("id", vicIds);
+    if (!isAdmin) {
+      if (!user?.id) {
+        setConvs([]);
+        setLoading(false);
+        return;
+      }
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, email, assigned_caller_id")
+        .eq("assigned_caller_id", user.id);
+      profiles = data ?? [];
+    } else {
+      const { data: roleRows } = await supabase.from("user_roles").select("user_id").eq("role", "user");
+      const vicIds = (roleRows ?? []).map((r) => r.user_id);
+      if (vicIds.length > 0) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("id, first_name, last_name, email, assigned_caller_id")
+          .in("id", vicIds);
+        profiles = data ?? [];
+      }
+    }
 
     const { data: msgs } = await supabase
       .from("chat_messages")
@@ -103,10 +125,7 @@ export default function AdminLivechat() {
       }
     }
 
-    const filteredProfiles = isAdmin
-      ? (profiles ?? [])
-      : (profiles ?? []).filter((p: any) => p.assigned_caller_id === user?.id);
-    const list: Conv[] = filteredProfiles.map((p: any) => {
+    const list: Conv[] = profiles.map((p) => {
       const agg = byVic.get(p.id);
       return {
         vic_id: p.id,
