@@ -170,7 +170,7 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
             last_name: lastName || "—",
             phone: row.phone_number || null,
             password: genPw(),
-            scam_project: row.vorfall || null,
+            source_lead_id: row.id,
             source_lead_id: row.id,
             role: "user",
           },
