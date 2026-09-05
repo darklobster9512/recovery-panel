@@ -92,6 +92,18 @@ export default function AdminVics() {
 
   const fetchUsers = async () => {
     setLoading(true);
+
+    if (role === "caller" && user) {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id, member_status")
+        .eq("assigned_caller_id", user.id)
+        .order("created_at", { ascending: false });
+      setUsers((profiles as VicUser[]) ?? []);
+      setLoading(false);
+      return;
+    }
+
     const { data: roles } = await supabase
       .from("user_roles")
       .select("user_id")
