@@ -89,6 +89,7 @@ export default function AdminVics() {
   const [singleCaller, setSingleCaller] = useState<string>(NO_CALLER);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { role, user } = useAuth();
 
   const fetchUsers = async () => {
     setLoading(true);
