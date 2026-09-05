@@ -76,7 +76,7 @@ interface AuthorMap {
 export default function AdminVicDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const { toast } = useToast();
 
   const [profile, setProfile] = useState<VicProfile | null>(null);
@@ -310,12 +310,14 @@ export default function AdminVicDetail() {
             </Badge>
           </div>
           <div className="flex items-center gap-2">
-            <AssignCallerSelect
-              target="profile"
-              targetId={profile.id}
-              value={profile.assigned_caller_id}
-              onChange={(v) => setProfile((p) => (p ? { ...p, assigned_caller_id: v } : p))}
-            />
+            {role === "admin" && (
+              <AssignCallerSelect
+                target="profile"
+                targetId={profile.id}
+                value={profile.assigned_caller_id}
+                onChange={(v) => setProfile((p) => (p ? { ...p, assigned_caller_id: v } : p))}
+              />
+            )}
             <Button variant="outline" size="sm" onClick={openEdit} className="gap-2">
               <Pencil className="w-3.5 h-3.5" /> Bearbeiten
             </Button>
