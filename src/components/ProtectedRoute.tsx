@@ -24,6 +24,8 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
     if (!role || !allowed.includes(role)) {
       return <Navigate to={role === "caller" || role === "admin" ? "/admin" : "/dashboard"} replace />;
     }
+  } else if (role === "caller") {
+    return <Navigate to="/admin" replace />;
   }
 
   return <>{children}</>;

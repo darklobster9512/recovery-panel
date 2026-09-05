@@ -39,7 +39,7 @@ export default function Auth() {
 
   useEffect(() => {
     if (user && role) {
-      navigate(role === "admin" ? "/admin" : "/dashboard", { replace: true });
+      navigate(role === "admin" || role === "caller" ? "/admin" : "/dashboard", { replace: true });
     }
   }, [user, role, navigate]);
 
