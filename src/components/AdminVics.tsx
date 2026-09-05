@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { UserPlus, Loader2, Copy, Search, Eye, RefreshCw, Check, ChevronsUpDown, KeyRound, User, Wallet, UserCog } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -89,9 +90,22 @@ export default function AdminVics() {
   const [singleCaller, setSingleCaller] = useState<string>(NO_CALLER);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { role, user } = useAuth();
 
   const fetchUsers = async () => {
     setLoading(true);
+
+    if (role === "caller" && user) {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id, member_status")
+        .eq("assigned_caller_id", user.id)
+        .order("created_at", { ascending: false });
+      setUsers((profiles as VicUser[]) ?? []);
+      setLoading(false);
+      return;
+    }
+
     const { data: roles } = await supabase
       .from("user_roles")
       .select("user_id")
@@ -132,7 +146,8 @@ export default function AdminVics() {
   useEffect(() => {
     fetchUsers();
     fetchCallers();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role, user?.id]);
 
   const callerNames = new Map(callers.map((c) => [c.id, callerLabel(c)]));
 
