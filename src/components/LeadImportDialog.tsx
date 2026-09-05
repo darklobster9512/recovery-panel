@@ -171,7 +171,6 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
             phone: row.phone_number || null,
             password: genPw(),
             source_lead_id: row.id,
-            source_lead_id: row.id,
             role: "user",
           },
         });
