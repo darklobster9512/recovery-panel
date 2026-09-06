@@ -524,6 +524,31 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
                     ))}
                   </SelectContent>
                 </Select>
+                {!["in_ueberpruefung", "genehmigt", "abgelehnt", "abgeschlossen"].includes(editedStatus) && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800"
+                    onClick={async () => {
+                      if (!selected) return;
+                      const { error } = await supabase
+                        .from("verification_assignments")
+                        .update({ status: "in_ueberpruefung" })
+                        .eq("id", selected.id);
+                      if (error) {
+                        toast({ title: "Fehler", description: error.message, variant: "destructive" });
+                        return;
+                      }
+                      setEditedStatus("in_ueberpruefung");
+                      setSelected({ ...selected, status: "in_ueberpruefung" });
+                      setAssignments((prev) => prev.map((a) => a.id === selected.id ? { ...a, status: "in_ueberpruefung" } : a));
+                      toast({ title: "Ident als abgeschlossen markiert" });
+                    }}
+                  >
+                    <CheckCircle2 className="w-4 h-4 mr-1" /> Ident abgeschlossen
+                  </Button>
+                )}
               </div>
 
               {/* Phone number */}
