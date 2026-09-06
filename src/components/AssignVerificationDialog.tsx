@@ -590,7 +590,10 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                         readOnly={isCode && !!fieldValues.identlink}
                         className={isCode && !!fieldValues.identlink ? "font-mono bg-muted/50" : ""}
                         onChange={(e) => {
-                          const val = e.target.value;
+                          let val = e.target.value;
+                          if (isLink && webidRedirect) {
+                            val = rewriteWebidHost(val);
+                          }
                           setFieldValues((prev) => {
                             const next = { ...prev, [field]: val };
                             if (field === "identlink" && uniqueRequired.includes("identcode")) {
