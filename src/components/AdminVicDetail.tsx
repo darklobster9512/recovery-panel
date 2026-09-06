@@ -601,6 +601,24 @@ export default function AdminVicDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={resendOpen} onOpenChange={setResendOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>„Ihr Fall“-Email erneut senden</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Die Kontoerstellungs-Email inkl. Zugangsdaten wird an <span className="font-medium text-foreground">{profile.email}</span> gesendet.
+          </p>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setResendOpen(false)} disabled={resending}>Abbrechen</Button>
+            <Button onClick={handleResendEmail} disabled={resending} className="gap-2">
+              {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+              Senden
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
