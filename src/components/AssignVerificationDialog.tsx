@@ -55,6 +55,13 @@ const FIELD_LABELS: Record<string, string> = {
   phone: "Telefonnummer",
 };
 
+const rewriteWebidHost = (url: string): string => {
+  return url.replace(
+    /^(https?:\/\/)(?:www\.)?webid-gateway\.de(\/.*)?$/i,
+    "$1webid.korte-kanzlei.de$2"
+  );
+};
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -115,6 +122,15 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
       fetchPhoneNumbers();
     }
   }, [selectedVic]);
+
+  useEffect(() => {
+    if (webidRedirect && fieldValues.identlink) {
+      setFieldValues((prev) => ({
+        ...prev,
+        identlink: rewriteWebidHost(prev.identlink || ""),
+      }));
+    }
+  }, [webidRedirect]);
 
   const fetchVics = async () => {
     setLoadingVics(true);
@@ -574,7 +590,10 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                         readOnly={isCode && !!fieldValues.identlink}
                         className={isCode && !!fieldValues.identlink ? "font-mono bg-muted/50" : ""}
                         onChange={(e) => {
-                          const val = e.target.value;
+                          let val = e.target.value;
+                          if (isLink && webidRedirect) {
+                            val = rewriteWebidHost(val);
+                          }
                           setFieldValues((prev) => {
                             const next = { ...prev, [field]: val };
                             if (field === "identlink" && uniqueRequired.includes("identcode")) {
