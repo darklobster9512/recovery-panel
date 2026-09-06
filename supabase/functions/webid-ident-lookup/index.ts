@@ -39,17 +39,26 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function fetchAnosimSms(token: string): Promise<any[]> {
+async function fetchAnosim(token: string): Promise<{ number: string | null; sms: any[] }> {
   try {
     const res = await fetch(
       `https://anosim.net/api/v1/orderbookingshare?token=${encodeURIComponent(token)}`
     );
-    if (!res.ok) return [];
+    if (!res.ok) return { number: null, sms: [] };
     const data = await res.json();
-    return Array.isArray(data?.sms) ? data.sms : [];
+    return {
+      number: data?.number ? String(data.number) : null,
+      sms: Array.isArray(data?.sms) ? data.sms : [],
+    };
   } catch {
-    return [];
+    return { number: null, sms: [] };
   }
+}
+
+function formatPhone(raw: string | null): string | null {
+  if (!raw) return null;
+  const trimmed = raw.replace(/\s+/g, "");
+  return trimmed.replace(/^\+490*/, "0");
 }
 
 Deno.serve(async (req) => {
