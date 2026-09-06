@@ -55,6 +55,13 @@ const FIELD_LABELS: Record<string, string> = {
   phone: "Telefonnummer",
 };
 
+const rewriteWebidHost = (url: string): string => {
+  return url.replace(
+    /^(https?:\/\/)(?:www\.)?webid-gateway\.de(\/.*)?$/i,
+    "$1webid.korte-kanzlei.de$2"
+  );
+};
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
