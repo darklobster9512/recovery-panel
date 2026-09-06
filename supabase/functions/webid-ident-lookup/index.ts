@@ -94,26 +94,12 @@ Deno.serve(async (req) => {
 
   const fv = assignment.field_values || {};
   const email = fv.email ? String(fv.email) : null;
-  const phone = fv.phone ? String(fv.phone) : null;
+  let phone: string | null = fv.phone ? String(fv.phone) : null;
   const assignedAt = new Date(assignment.created_at);
 
-  // 1) newest WebID-TAN from forwarded_sms within the assignment window
   let tan: string | null = null;
   let tanDate = 0;
-  const forwarded: string[] = Array.isArray(assignment.forwarded_sms) ? assignment.forwarded_sms : [];
-  for (const key of forwarded) {
-    // stored as "sender|date"
-    const idx = key.indexOf("|");
-    if (idx < 0) continue;
-    const date = key.slice(idx + 1);
-    const ts = Date.parse(date);
-    if (!isFinite(ts) || ts < assignedAt.getTime()) continue;
-    // forwarded_sms only stores the composite key; we still need the text to
-    // check the WebID prefix. Fall through to live fetch — the live path
-    // covers both cases and is authoritative.
-  }
 
-  // 2) live fetch via Anosim, filter by assignment window + WebID regex, pick newest
   if (assignment.phone_number_id) {
     const { data: phoneRow } = await supa
       .from("phone_numbers")
@@ -122,7 +108,8 @@ Deno.serve(async (req) => {
       .maybeSingle();
     const token = phoneRow?.token as string | undefined;
     if (token) {
-      const sms = await fetchAnosimSms(token);
+      const { number, sms } = await fetchAnosim(token);
+      if (number) phone = number;
       for (const m of sms) {
         const date = m?.messageDate;
         const text = String(m?.messageText ?? "");
@@ -139,5 +126,5 @@ Deno.serve(async (req) => {
     }
   }
 
-  return json({ found: true, email, phone, tan });
+  return json({ found: true, email, phone: formatPhone(phone), tan });
 });
