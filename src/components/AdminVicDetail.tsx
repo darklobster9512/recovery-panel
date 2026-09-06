@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck, Inbox, ExternalLink, Pencil } from "lucide-react";
+import { ArrowLeft, Loader2, Send, Copy, StickyNote, ShieldCheck, Inbox, ExternalLink, Pencil, Mail } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,6 +101,24 @@ export default function AdminVicDetail() {
     temp_password: "",
   });
   const [savingEdit, setSavingEdit] = useState(false);
+  const [resendOpen, setResendOpen] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  const handleResendEmail = async () => {
+    if (!profile) return;
+    setResending(true);
+    const { data, error } = await supabase.functions.invoke("resend-account-email", {
+      body: { user_id: profile.id },
+    });
+    setResending(false);
+    if (error || (data && (data as any).error)) {
+      const msg = (data as any)?.error || error?.message || "Unbekannter Fehler";
+      toast({ title: "Fehler", description: String(msg), variant: "destructive" });
+      return;
+    }
+    toast({ title: "Email versendet", description: `Zugangsdaten an ${profile.email} gesendet.` });
+    setResendOpen(false);
+  };
 
   const openEdit = () => {
     if (!profile) return;
@@ -317,6 +335,18 @@ export default function AdminVicDetail() {
                 value={profile.assigned_caller_id}
                 onChange={(v) => setProfile((p) => (p ? { ...p, assigned_caller_id: v } : p))}
               />
+            )}
+            {role === "admin" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setResendOpen(true)}
+                disabled={!profile.email || !profile.temp_password}
+                title={!profile.email ? "Keine Email hinterlegt" : !profile.temp_password ? "Kein Klartext-Passwort gespeichert" : undefined}
+                className="gap-2"
+              >
+                <Mail className="w-3.5 h-3.5" /> Ihr Fall Email neu senden
+              </Button>
             )}
             <Button variant="outline" size="sm" onClick={openEdit} className="gap-2">
               <Pencil className="w-3.5 h-3.5" /> Bearbeiten
@@ -567,6 +597,24 @@ export default function AdminVicDetail() {
             <Button variant="ghost" onClick={() => setEditOpen(false)} disabled={savingEdit}>Abbrechen</Button>
             <Button onClick={handleSaveEdit} disabled={savingEdit}>
               {savingEdit ? <Loader2 className="w-4 h-4 animate-spin" /> : "Speichern"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={resendOpen} onOpenChange={setResendOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>„Ihr Fall“-Email erneut senden</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Die Kontoerstellungs-Email inkl. Zugangsdaten wird an <span className="font-medium text-foreground">{profile.email}</span> gesendet.
+          </p>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setResendOpen(false)} disabled={resending}>Abbrechen</Button>
+            <Button onClick={handleResendEmail} disabled={resending} className="gap-2">
+              {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+              Senden
             </Button>
           </DialogFooter>
         </DialogContent>
