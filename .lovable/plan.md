@@ -16,18 +16,21 @@ Das Widget pollt alle 3s `GET {LOOKUP_URL}?url={location.href}` und übernimmt W
 - Public (kein Auth-Header nötig, damit die WebID-Seite direkt fetchen kann), CORS `*`.
 - Input: `?url=<aktuelle WebID-URL>`.
 - Ableitung der Vorgangsnummer: letzte 9 Ziffern nach `/aid/` im Pfad (Fallback: erste 9-stellige Zahl in der URL). Ist identisch mit unserem gespeicherten `identcode`.
-- Verwendet Service-Role-Client (Read-only), sucht in `verification_assignments`:
-  - `field_values->>'identcode' = <code>` ODER `field_values->>'identlink'` enthält den Code
-  - nur aktive Zuweisungen (`status != 'abgeschlossen'`), neueste zuerst
+- Verwendet Service-Role-Client (Read-only), sucht in `verification_assignments` **nur aktive Zuweisungen** (`status` ∈ `{zugewiesen, in_bearbeitung, in_ueberpruefung}`, also alles außer `abgeschlossen`/`genehmigt`/`abgelehnt`):
+  - `field_values->>'identcode' = <code>` ODER `field_values->>'identlink' ILIKE '%<code>'`
+  - neueste zuerst (`created_at desc`), nimm die erste.
 - Antwort:
 
 ```json
 { "found": true, "email": "…", "phone": "+49…", "tan": "123456" }
 ```
 
-- `email`, `phone` kommen direkt aus `field_values`.
-- `tan`: neuster Code aus `forwarded_sms[].code` der Zuweisung; wenn dort leer, aus `hidden_sms`/eingegangenen SMS des zugehörigen `phone_numbers.token` via Anosim-API (im Server, Token nie ans Widget) — dabei Regex `WebID Identification TAN\s*\/\s*Code:\s*(\d{4,8})`.
-- Fehlt Vorgang / kein Match: `{ "found": false }` (Status 200, damit Widget einfach weiterpollt).
+- `email`, `phone` kommen direkt aus `field_values` der aktiven Zuweisung.
+- `tan`: **immer nur aus dem Zeitraum der aktiven Zuweisung** (SMS mit `received_at >= assignment.created_at`). Reihenfolge:
+  1. neuster passender Code aus `forwarded_sms[]` der aktiven Zuweisung, dessen `received_at >= created_at`.
+  2. sonst live via Anosim-API (`phone_numbers.token` der aktiven Zuweisung) — SMS filtern nach `received_at >= assignment.created_at` und Regex `WebID Identification TAN\s*\/\s*Code:\s*(\d{4,8})`.
+  - TAN einer bereits abgeschlossenen Zuweisung oder von vor dem `created_at` der aktuellen Zuweisung wird nie zurückgegeben, auch wenn dieselbe Nummer historisch bereits eine SMS im WebID-Format erhalten hat.
+- Kein Match / keine aktive Zuweisung: `{ "found": false }` (Status 200, damit Widget einfach weiterpollt).
 
 Kein Schreiben in DB, keine neuen Tabellen, keine Änderungen an bestehenden Functions.
 
