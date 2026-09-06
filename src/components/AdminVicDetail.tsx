@@ -336,6 +336,18 @@ export default function AdminVicDetail() {
                 onChange={(v) => setProfile((p) => (p ? { ...p, assigned_caller_id: v } : p))}
               />
             )}
+            {role === "admin" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setResendOpen(true)}
+                disabled={!profile.email || !profile.temp_password}
+                title={!profile.email ? "Keine Email hinterlegt" : !profile.temp_password ? "Kein Klartext-Passwort gespeichert" : undefined}
+                className="gap-2"
+              >
+                <Mail className="w-3.5 h-3.5" /> Ihr Fall Email neu senden
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={openEdit} className="gap-2">
               <Pencil className="w-3.5 h-3.5" /> Bearbeiten
             </Button>
