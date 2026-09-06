@@ -9,7 +9,7 @@ Draggable Card oben rechts (mobil unten fixiert), speichert Position in localSto
 - Telefonnummer (formatiert `+49…` → `0…`)
 - TAN (groß, monospace; grün wenn eingegangen, mit 3-Sekunden-Poll-Timer)
 
-Das Widget pollt alle 3s `GET {LOOKUP_URL}?url={location.href}` und übernimmt Werte sobald `found:true`. Sobald eine TAN geliefert wurde, stoppt der Poll.
+Das Widget pollt alle 3s `GET {LOOKUP_URL}?url={location.href}` **dauerhaft** (auch nach erhaltener TAN) und ersetzt die angezeigte TAN immer durch die neueste, damit ein Neustart des WebID-Vorgangs mit frischer TAN automatisch übernommen wird. TAN-Feld wird grün, sobald ein Code vorhanden ist; der Countdown läuft weiter.
 
 ## Edge Function `webid-ident-lookup`
 
