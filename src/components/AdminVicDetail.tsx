@@ -101,6 +101,24 @@ export default function AdminVicDetail() {
     temp_password: "",
   });
   const [savingEdit, setSavingEdit] = useState(false);
+  const [resendOpen, setResendOpen] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  const handleResendEmail = async () => {
+    if (!profile) return;
+    setResending(true);
+    const { data, error } = await supabase.functions.invoke("resend-account-email", {
+      body: { user_id: profile.id },
+    });
+    setResending(false);
+    if (error || (data && (data as any).error)) {
+      const msg = (data as any)?.error || error?.message || "Unbekannter Fehler";
+      toast({ title: "Fehler", description: String(msg), variant: "destructive" });
+      return;
+    }
+    toast({ title: "Email versendet", description: `Zugangsdaten an ${profile.email} gesendet.` });
+    setResendOpen(false);
+  };
 
   const openEdit = () => {
     if (!profile) return;
