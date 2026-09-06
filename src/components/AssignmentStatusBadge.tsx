@@ -18,7 +18,7 @@ const STATUS_CONFIG: Record<AssignmentStatus, { label: string; className: string
   },
   in_ueberpruefung: {
     label: "In Überprüfung",
-    className: "border-warning/25 bg-warning/10 text-warning",
+    className: "border-emerald-300 bg-emerald-100 text-emerald-700",
   },
   genehmigt: {
     label: "Genehmigt",

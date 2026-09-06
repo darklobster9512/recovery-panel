@@ -39,7 +39,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, Clock, Eye, EyeOff, MessageSquare, Loader2 } from "lucide-react";
+import { Plus, Trash2, Clock, Eye, EyeOff, MessageSquare, Loader2, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { AssignmentStatusBadge, ASSIGNMENT_STATUSES, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
@@ -524,6 +524,31 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
                     ))}
                   </SelectContent>
                 </Select>
+                {!["in_ueberpruefung", "genehmigt", "abgelehnt", "abgeschlossen"].includes(editedStatus) && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800"
+                    onClick={async () => {
+                      if (!selected) return;
+                      const { error } = await supabase
+                        .from("verification_assignments")
+                        .update({ status: "in_ueberpruefung" })
+                        .eq("id", selected.id);
+                      if (error) {
+                        toast({ title: "Fehler", description: error.message, variant: "destructive" });
+                        return;
+                      }
+                      setEditedStatus("in_ueberpruefung");
+                      setSelected({ ...selected, status: "in_ueberpruefung" });
+                      setAssignments((prev) => prev.map((a) => a.id === selected.id ? { ...a, status: "in_ueberpruefung" } : a));
+                      toast({ title: "Ident als abgeschlossen markiert" });
+                    }}
+                  >
+                    <CheckCircle2 className="w-4 h-4 mr-1" /> Ident abgeschlossen
+                  </Button>
+                )}
               </div>
 
               {/* Phone number */}
