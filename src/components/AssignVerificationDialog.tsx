@@ -123,6 +123,15 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
     }
   }, [selectedVic]);
 
+  useEffect(() => {
+    if (webidRedirect && fieldValues.identlink) {
+      setFieldValues((prev) => ({
+        ...prev,
+        identlink: rewriteWebidHost(prev.identlink || ""),
+      }));
+    }
+  }, [webidRedirect]);
+
   const fetchVics = async () => {
     setLoadingVics(true);
     const assignmentsPromise = verification
