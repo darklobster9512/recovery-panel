@@ -60,6 +60,7 @@ function pageTitle(pathname: string): string {
   const map: Record<string, string> = {
     "/admin": "Admin Dashboard",
     "/admin/vics": "Vics",
+    "/admin/anfragen": "Anfragen",
     "/admin/leads": "Leads",
     "/admin/caller": "Caller",
     "/admin/livechat": "Livechat",
