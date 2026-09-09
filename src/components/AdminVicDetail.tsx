@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 import VerificationLogo from "@/components/VerificationLogo";
 import AssignCallerSelect from "@/components/AssignCallerSelect";
+import VicStatusSelect from "@/components/VicStatusSelect";
 import {
   formatDateTime,
   formatEur,
