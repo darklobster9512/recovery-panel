@@ -54,6 +54,7 @@ const EVENTS: { key: TelegramDbEvent; label: string }[] = [
   { key: "appointment_created_by_caller", label: "Termin vom Caller eingetragen" },
   { key: "todo_created", label: "Neues To Do erstellt" },
   { key: "todo_completed", label: "To Do abgeschlossen" },
+  { key: "contact_request_received", label: "Neue Kontaktanfrage" },
 
 
 ];
