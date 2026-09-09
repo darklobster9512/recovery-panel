@@ -48,6 +48,7 @@ const App = () => (
           <Route path="/admin/livechat" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/termine" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/todos" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
+          <Route path="/admin/anfragen" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
