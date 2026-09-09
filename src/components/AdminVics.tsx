@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
+import VicStatusSelect from "@/components/VicStatusSelect";
 
 interface VicUser {
   id: string;
@@ -491,13 +492,13 @@ export default function AdminVics() {
                       {u.assigned_caller_id ? (callerNames.get(u.assigned_caller_id) ?? "–") : "–"}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
-                      {u.member_status === "aktiv" ? (
-                        <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Aktiv</Badge>
-                      ) : u.member_status === "in_bearbeitung" ? (
-                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">In Bearbeitung</Badge>
-                      ) : (
-                        "–"
-                      )}
+                      <VicStatusSelect
+                        vicId={u.id}
+                        value={u.member_status}
+                        onChange={(v) =>
+                          setUsers((prev) => prev.map((x) => (x.id === u.id ? { ...x, member_status: v } : x)))
+                        }
+                      />
                     </TableCell>
                     <TableCell className="text-muted-foreground text-xs">
                       {new Date(u.created_at).toLocaleDateString("de-DE", {

@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 import VerificationLogo from "@/components/VerificationLogo";
 import AssignCallerSelect from "@/components/AssignCallerSelect";
+import VicStatusSelect from "@/components/VicStatusSelect";
 import {
   formatDateTime,
   formatEur,
@@ -323,9 +324,12 @@ export default function AdminVicDetail() {
             <CardTitle className="text-lg">
               {profile.first_name} {profile.last_name}
             </CardTitle>
-            <Badge variant="secondary" className={profile.member_status === "aktiv" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}>
-              {profile.member_status === "aktiv" ? "Aktiv" : "In Bearbeitung"}
-            </Badge>
+            <VicStatusSelect
+              vicId={profile.id}
+              value={profile.member_status}
+              size="md"
+              onChange={(v) => setProfile((p) => (p ? { ...p, member_status: v } : p))}
+            />
           </div>
           <div className="flex items-center gap-2">
             {role === "admin" && (
