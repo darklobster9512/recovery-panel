@@ -190,6 +190,18 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         p.priority ? `⚡ Priorität: ${esc(formatPriority(p.priority))}` : null,
       ].filter(Boolean).join("\n");
 
+    case "contact_request_received":
+      return [
+        `📨 <b>Neue Kontaktanfrage</b>`,
+        `👤 ${esc(p.name || "")}`,
+        p.email ? `📧 ${code(p.email)}` : null,
+        p.phone ? `📱 ${code(p.phone)}` : null,
+        p.topic ? `📂 Anliegen: ${esc(p.topic)}` : null,
+        p.damage_amount ? `💶 Schadenshöhe: ${esc(p.damage_amount)} €` : null,
+        ``,
+        `<i>${esc(p.message || "")}</i>`,
+      ].filter(Boolean).join("\n");
+
     case "test":
       return `🔔 <b>Test-Nachricht</b>\nDie Telegram-Anbindung funktioniert.`;
   }
