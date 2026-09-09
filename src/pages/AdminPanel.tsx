@@ -4,8 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Shield, Users, FileText, LogOut, Phone, LayoutDashboard,
   ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones, MessageCircle, CalendarDays, ListChecks,
-
-
+  MessageSquare,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation, Navigate } from "react-router-dom";
 import {
