@@ -88,6 +88,7 @@ function renderRoute(pathname: string, role: string | null) {
   }
   switch (pathname) {
     case "/admin/vics": return <AdminVics />;
+    case "/admin/anfragen": return <AdminContactRequests />;
     case "/admin/leads": return isAdmin ? <AdminLeads /> : <Navigate to="/admin/vics" replace />;
     case "/admin/caller": return <AdminCallers />;
     case "/admin/livechat": return <AdminLivechat />;
