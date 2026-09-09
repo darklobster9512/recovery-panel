@@ -17,6 +17,7 @@ export type TelegramEvent =
   | "appointment_created_by_caller"
   | "todo_completed"
   | "todo_created"
+  | "contact_request_received"
   | "test";
 
 
