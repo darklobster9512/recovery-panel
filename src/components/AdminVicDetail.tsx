@@ -330,10 +330,6 @@ export default function AdminVicDetail() {
               onChange={(v) => setProfile((p) => (p ? { ...p, member_status: v } : p))}
             />
           </div>
-        </CardHeader>
-        {/* placeholder-close-div-below-was-original */}
-        <div className="hidden">
-          </div>
           <div className="flex items-center gap-2">
             {role === "admin" && (
               <AssignCallerSelect
