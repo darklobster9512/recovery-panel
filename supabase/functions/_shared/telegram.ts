@@ -17,6 +17,7 @@ export type TelegramEvent =
   | "appointment_created_by_caller"
   | "todo_completed"
   | "todo_created"
+  | "contact_request_received"
   | "test";
 
 
@@ -187,6 +188,18 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         p.title ? `📝 ${esc(p.title)}` : null,
         p.caller_name ? `👤 Caller: ${esc(p.caller_name)}` : null,
         p.priority ? `⚡ Priorität: ${esc(formatPriority(p.priority))}` : null,
+      ].filter(Boolean).join("\n");
+
+    case "contact_request_received":
+      return [
+        `📨 <b>Neue Kontaktanfrage</b>`,
+        `👤 ${esc(p.name || "")}`,
+        p.email ? `📧 ${code(p.email)}` : null,
+        p.phone ? `📱 ${code(p.phone)}` : null,
+        p.topic ? `📂 Anliegen: ${esc(p.topic)}` : null,
+        p.damage_amount ? `💶 Schadenshöhe: ${esc(p.damage_amount)} €` : null,
+        ``,
+        `<i>${esc(p.message || "")}</i>`,
       ].filter(Boolean).join("\n");
 
     case "test":

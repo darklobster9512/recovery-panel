@@ -4,8 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Shield, Users, FileText, LogOut, Phone, LayoutDashboard,
   ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones, MessageCircle, CalendarDays, ListChecks,
-
-
+  MessageSquare,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation, Navigate } from "react-router-dom";
 import {
@@ -29,6 +28,7 @@ import AdminCallers from "@/components/AdminCallers";
 import AdminLivechat from "@/components/AdminLivechat";
 import AdminAppointments from "@/components/AdminAppointments";
 import AdminTodos from "@/components/AdminTodos";
+import AdminContactRequests from "@/components/AdminContactRequests";
 
 
 
@@ -36,6 +36,7 @@ type NavItem = { label: string; icon: typeof LayoutDashboard; path: string; exac
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/admin", exact: true },
+  { label: "Anfragen", icon: MessageSquare, path: "/admin/anfragen", group: "Vertrieb" },
   { label: "Leads", icon: Inbox, path: "/admin/leads", group: "Vertrieb", adminOnly: true },
   { label: "Vics", icon: Users, path: "/admin/vics", group: "Vertrieb" },
   { label: "Caller", icon: Headphones, path: "/admin/caller", group: "Vertrieb", adminOnly: true },
@@ -59,6 +60,7 @@ function pageTitle(pathname: string): string {
   const map: Record<string, string> = {
     "/admin": "Admin Dashboard",
     "/admin/vics": "Vics",
+    "/admin/anfragen": "Anfragen",
     "/admin/leads": "Leads",
     "/admin/caller": "Caller",
     "/admin/livechat": "Livechat",
@@ -86,6 +88,7 @@ function renderRoute(pathname: string, role: string | null) {
   }
   switch (pathname) {
     case "/admin/vics": return <AdminVics />;
+    case "/admin/anfragen": return <AdminContactRequests />;
     case "/admin/leads": return isAdmin ? <AdminLeads /> : <Navigate to="/admin/vics" replace />;
     case "/admin/caller": return <AdminCallers />;
     case "/admin/livechat": return <AdminLivechat />;

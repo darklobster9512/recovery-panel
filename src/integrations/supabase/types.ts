@@ -210,6 +210,51 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_requests: {
+        Row: {
+          created_at: string
+          damage_amount: number | null
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          message: string
+          phone: string | null
+          source: string | null
+          status: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          damage_amount?: number | null
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          message: string
+          phone?: string | null
+          source?: string | null
+          status?: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          damage_amount?: number | null
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          message?: string
+          phone?: string | null
+          source?: string | null
+          status?: string
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lead_activity: {
         Row: {
           action: string
@@ -861,6 +906,7 @@ export type Database = {
         | "todo_completed"
         | "todo_created"
         | "appointment_created_by_caller"
+        | "contact_request_received"
       todo_priority: "normal" | "dringend"
       todo_status: "offen" | "abgeschlossen"
     }
@@ -1022,6 +1068,7 @@ export const Constants = {
         "todo_completed",
         "todo_created",
         "appointment_created_by_caller",
+        "contact_request_received",
       ],
       todo_priority: ["normal", "dringend"],
       todo_status: ["offen", "abgeschlossen"],

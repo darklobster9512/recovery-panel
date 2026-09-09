@@ -15,7 +15,8 @@ export type TelegramDbEvent =
   | "appointment_booked"
   | "appointment_created_by_caller"
   | "todo_completed"
-  | "todo_created";
+  | "todo_created"
+  | "contact_request_received";
 
 
 
