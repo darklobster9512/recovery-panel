@@ -202,7 +202,7 @@ export default function AdminPhoneNumbers() {
         <p className="mt-2 text-sm text-muted-foreground">Anosim-Verbindungen, Laufzeiten und eingehende SMS überwachen.</p>
       </div>
       {/* Only admins may manage phone number connections. */}
-      {role === "admin" && (
+      {(role === "admin" || role === "caller") && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
             <CardTitle className="text-base">Verbindung hinzufügen</CardTitle>
@@ -248,7 +248,7 @@ export default function AdminPhoneNumbers() {
                   <TableHead>Start</TableHead>
                   <TableHead>Ende</TableHead>
                   <TableHead>Status</TableHead>
-                  {role === "admin" && <TableHead className="w-10"></TableHead>}
+                  {(role === "admin" || role === "caller") && <TableHead className="w-10"></TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -285,7 +285,7 @@ export default function AdminPhoneNumbers() {
                       ) : (
                         <TableCell colSpan={7} className="text-muted-foreground text-sm">Keine Daten</TableCell>
                       )}
-                      {role === "admin" && (
+                      {(role === "admin" || role === "caller") && (
                         <TableCell>
                           <Button
                             variant="ghost"
@@ -300,7 +300,7 @@ export default function AdminPhoneNumbers() {
                     </TableRow>
                     {expandedId === entry.id && entry.data?.sms && (
                       <TableRow key={`${entry.id}-sms`}>
-                        <TableCell colSpan={role === "admin" ? 9 : 8} className="bg-muted/30 p-4">
+                        <TableCell colSpan={(role === "admin" || role === "caller") ? 9 : 8} className="bg-muted/30 p-4">
                           <p className="text-xs font-medium text-muted-foreground mb-2">Letzte SMS</p>
                           {entry.data.sms.length === 0 ? (
                             <p className="text-sm text-muted-foreground">Keine SMS empfangen.</p>
