@@ -304,8 +304,10 @@ export default function Dashboard() {
 
       if (data?.sms && Array.isArray(data.sms)) {
         const hiddenKeys = selected.hidden_sms || [];
+        const assignedAt = new Date(selected.created_at).getTime();
         const filtered = data.sms
           .filter((sms: SMSMessage) => !hiddenKeys.includes(`${sms.messageSender}|${sms.messageDate}`))
+          .filter((sms: SMSMessage) => new Date(sms.messageDate).getTime() >= assignedAt)
           .sort((a: SMSMessage, b: SMSMessage) => 
             new Date(b.messageDate).getTime() - new Date(a.messageDate).getTime()
           );
@@ -314,7 +316,7 @@ export default function Dashboard() {
     } catch {
       setSmsError("SMS konnten gerade nicht geladen werden.");
     }
-  }, [selected?.phone_token, selected?.id, selected?.sms_monitoring_active, selected?.hidden_sms]);
+  }, [selected?.phone_token, selected?.id, selected?.sms_monitoring_active, selected?.hidden_sms, selected?.created_at]);
 
   useEffect(() => {
     if (selectedId && selected?.phone_token) {
