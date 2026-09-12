@@ -585,10 +585,15 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                     <div key={field} className={isLink ? "sm:col-span-2 space-y-1.5" : "space-y-1.5"}>
                       <Label className="text-sm font-medium">{FIELD_LABELS[field] || field}</Label>
                       <Input
-                        placeholder={isLink ? "https://webid-gateway.de/..." : FIELD_LABELS[field] || field}
+                        placeholder={
+                          isLink
+                            ? "https://webid-gateway.de/..."
+                            : isCode
+                            ? "z.B. JAR-FJCST"
+                            : FIELD_LABELS[field] || field
+                        }
                         value={fieldValues[field] || ""}
-                        readOnly={isCode && !!fieldValues.identlink}
-                        className={isCode && !!fieldValues.identlink ? "font-mono bg-muted/50" : ""}
+                        className={isCode ? "font-mono" : ""}
                         onChange={(e) => {
                           let val = e.target.value;
                           if (isLink && webidRedirect) {
@@ -598,7 +603,9 @@ export default function AssignVerificationDialog({ open, onOpenChange, verificat
                             const next = { ...prev, [field]: val };
                             if (field === "identlink" && uniqueRequired.includes("identcode")) {
                               const code = extractIdentcode(val);
-                              if (code) next.identcode = code;
+                              if (code && (!prev.identcode || /^\d{9}$/.test(prev.identcode))) {
+                                next.identcode = code;
+                              }
                             }
                             return next;
                           });
