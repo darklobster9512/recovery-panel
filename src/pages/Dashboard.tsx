@@ -96,7 +96,7 @@ export default function Dashboard() {
   } | null>(null);
   const [assignedCallerId, setAssignedCallerId] = useState<string | null>(null);
 
-  const [memberStatus, setMemberStatus] = useState<string | null>(null);
+  
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
@@ -126,7 +126,7 @@ export default function Dashboard() {
   const loadProfile = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("first_name, last_name, email, phone, balance, scam_project, assigned_caller_id, member_status")
+      .select("first_name, last_name, email, phone, balance, scam_project, assigned_caller_id")
       .eq("id", user!.id)
       .maybeSingle();
     if (data) {
@@ -136,7 +136,7 @@ export default function Dashboard() {
       setProfilePhone((data as any).phone ?? "");
       setProfileBalance(data.balance ?? null);
       setProfileScamProject(data.scam_project ?? "");
-      setMemberStatus(((data as any).member_status as string) ?? null);
+      
       const callerId = (data as any).assigned_caller_id as string | null;
       setAssignedCallerId(callerId);
       if (callerId) {
@@ -1068,8 +1068,6 @@ export default function Dashboard() {
         contactSubtitle={assignedCaller ? "Ihr Ansprechpartner" : "Kanzlei Korte & Partner"}
         vicName={profileName}
         vicEmail={profileEmail}
-        locked={memberStatus === "in_bearbeitung"}
-        lockedMessage="Der Livechat wird freigeschaltet, sobald Ihre Identitätsprüfung abgeschlossen ist."
       />
     </div>
   );
