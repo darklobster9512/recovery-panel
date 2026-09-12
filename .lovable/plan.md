@@ -1,25 +1,36 @@
-# Commerzbank-Zuweisung: Nummer & SMS erscheinen nicht
+# Telefonnummer und SMS im Vic-Dashboard wieder anzeigen
 
-## Was geprüft wurde
+## Bestätigte Ursache
 
-- Zuweisung `61d76ea3…` (Griem → Commerzbank) hat `phone_number_id` gesetzt.
-- Anosim liefert für die Nummer `+491639372737` Daten inkl. einer Commerzbank-SMS.
-- Die einzige SMS („Vorgangs-ID JAR-FJCST") kam am **12.09. 09:18:17 UTC** – die Zuweisung wurde aber erst **12.09. 09:41:37 UTC** angelegt.
-- Beide Views (`AdminAssignmentHistory` Popup und Vic-`Dashboard`) filtern SMS mit `messageDate >= assignment.created_at`, wodurch diese SMS ausgeblendet wird ⇒ „Keine SMS seit Zuweisung eingegangen".
-- Zusätzlich: Im Admin-Popup wird die Telefonnummer nur über den Dropdown angezeigt, der 17 Nummern parallel via Anosim-Proxy auflöst. Bei Rate-Limits fallen einzelne Einträge auf den Token zurück, was wie „keine Nummer" wirkt.
+- Griems Commerzbank-Zuweisung hat die Telefonnummer korrekt gespeichert (`phone_number_id` ist gesetzt).
+- Anosim liefert für diese Nummer `+491639372737` und eine Commerzbank-SMS.
+- Der Anosim-Aufruf aus dem Vic-Dashboard endet aktuell mit `403 Forbidden`.
+- `Dashboard.tsx` übernimmt den Telefon-Token und die sichtbare Nummer nur bei einem erfolgreichen Anosim-Aufruf. Deshalb verschwinden bei einem Fehler **beide kompletten Bereiche**: „Zugewiesene Telefonnummer“ und „SMS-Nachrichten“.
+- Die Commerzbank-SMS ging außerdem vor der Zuweisung ein und wird vom aktuellen Zeitfilter ausgeblendet.
 
-## Fix
+## Umsetzung
 
-### 1. SMS-Zeitfilter entfernen (beide Views)
-- `src/components/AdminAssignmentHistory.tsx` (`loadSmsForAssignment`): den `>= assignedAt`-Filter streichen und alle vom Anosim-Endpunkt gelieferten SMS anzeigen (sortiert nach Datum, absteigend). `hidden_sms`-Filter bleibt erhalten.
-- `src/pages/Dashboard.tsx` (SMS-Polling im Vic-Bereich): denselben Zeitfilter entfernen. Vic sieht alle SMS an seiner zugewiesenen Nummer.
+### 1. Anosim-Berechtigung für den Vic reparieren
+- Die aktive `anosim-proxy` Edge Function mit der vorhandenen, korrekten Prüfung aktualisieren: Ein Vic darf eine Telefonnummer lesen, wenn sie einem seiner Aufträge zugeordnet ist.
+- Den Assignment-Bezug mit Griems Commerzbank-Zuweisung prüfen, sodass der Aufruf nicht mehr `403` liefert.
 
-### 2. Zugewiesene Nummer prominent im Admin-Popup zeigen
-- Direkt unter „Telefonnummer"-Dropdown im Popup einen Read-only-Block „Aktuell zugewiesen: +49…" rendern. Quelle: einmaliger `anosim-proxy`-Call für `selected.phone_number_id` (unabhängig vom Bulk-Loading der Dropdown-Liste). So ist die Nummer auch sichtbar, wenn der Bulk-Fetch der 17 Nummern noch läuft oder gerate-limited wird.
+### 2. Telefonnummer-Bereich immer rendern
+- In `Dashboard.tsx` den Telefon-Token bereits aus `phone_numbers` übernehmen, unabhängig davon, ob Anosim die Rufnummer erfolgreich auflösen konnte.
+- Sobald `phone_number_id` vorhanden ist, den Bereich „Zugewiesene Telefonnummer“ immer anzeigen.
+- Während des Ladens einen Ladezustand zeigen; bei einem Anosim-Fehler eine klare Fehlermeldung mit erneutem Versuch statt den Bereich vollständig zu verstecken.
 
-### 3. Bulk-Loading entlasten
-- `fetchPhoneNumbers` in `AdminAssignmentHistory.tsx`: statt 17 parallele Requests, Promise-Pool mit maximal 4 gleichzeitigen Anosim-Aufrufen (kleiner Helper), damit weniger 429/leere Antworten und der Dropdown die Nummern zuverlässig zeigt.
+### 3. SMS-Bereich immer rendern
+- Sobald eine Telefonnummer zugewiesen ist und die Überwachung aktiv ist, den Bereich „SMS-Nachrichten“ immer anzeigen.
+- Lade-, Leer- und Fehlerzustand sichtbar darstellen, damit ein API-Fehler nicht wie eine fehlende Zuweisung aussieht.
+- Den Filter `SMS-Datum >= Zuweisungsdatum` entfernen, damit auch die bereits für diese Anosim-Nummer eingegangene Commerzbank-SMS sichtbar ist.
+- Versteckte SMS bleiben weiterhin ausgeblendet; Sortierung bleibt neueste zuerst.
 
-## Nicht Teil dieses Plans
-- Kein neues Backend/RLS – Rechte und Anosim-Proxy funktionieren.
-- Keine Änderung am TAN-Weiterleiten oder an Telegram-Events.
+## Prüfung
+
+- Mit Griems Vic-Konto den Commerzbank-Auftrag öffnen.
+- Sichtbar prüfen: Telefonnummer `+491639372737`, Bereich „SMS-Nachrichten“ und die vorhandene Commerzbank-Nachricht mit Vorgangs-ID `JAR-FJCST`.
+- Zusätzlich sicherstellen, dass ein temporärer Anosim-Fehler die beiden Bereiche nicht erneut komplett entfernt.
+
+## Unverändert
+
+- Admin-Zuweisungsverlauf, TAN-Weiterleitung und Telegram-Benachrichtigungen werden nicht verändert.
