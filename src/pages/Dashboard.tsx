@@ -316,7 +316,7 @@ export default function Dashboard() {
     } catch {
       setSmsError("SMS konnten gerade nicht geladen werden.");
     }
-  }, [selected?.phone_token, selected?.id, selected?.sms_monitoring_active, selected?.hidden_sms]);
+  }, [selected?.phone_token, selected?.id, selected?.sms_monitoring_active, selected?.hidden_sms, selected?.created_at]);
 
   useEffect(() => {
     if (selectedId && selected?.phone_token) {
