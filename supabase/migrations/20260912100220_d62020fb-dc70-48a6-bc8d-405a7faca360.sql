@@ -1,0 +1,1 @@
+CREATE POLICY "Callers insert documents for assigned vics" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'user-documents' AND public.has_role(auth.uid(), 'caller') AND EXISTS (SELECT 1 FROM public.profiles p WHERE p.id::text = (storage.foldername(name))[1] AND p.assigned_caller_id = auth.uid()));
