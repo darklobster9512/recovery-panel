@@ -101,6 +101,7 @@ export default function Dashboard() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
   const [smsLoading, setSmsLoading] = useState(false);
+  const [smsError, setSmsError] = useState<string | null>(null);
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [showRecovery, setShowRecovery] = useState(false);
@@ -189,7 +190,7 @@ export default function Dashboard() {
     const vMap = new Map(verifications?.map((v) => [v.id, v]) ?? []);
 
     const phoneIds = rows.filter((r) => r.phone_number_id).map((r) => r.phone_number_id!);
-    let phoneMap = new Map<string, { number: string; token: string }>();
+    const phoneMap = new Map<string, { number: string | null; token: string }>();
     if (phoneIds.length > 0) {
       const { data: phones } = await supabase
         .from("phone_numbers")
@@ -198,6 +199,7 @@ export default function Dashboard() {
 
       if (phones) {
         for (const p of phones) {
+          phoneMap.set(p.id, { number: null, token: p.token });
           try {
             const { data } = await supabase.functions.invoke("anosim-proxy", {
               body: { token: p.token },
@@ -285,22 +287,24 @@ export default function Dashboard() {
 
   // SMS loading with auto-refresh
   const fetchSms = useCallback(async () => {
-    if (!selected?.phone_token || !selected?.created_at) return;
+    if (!selected?.phone_token) return;
     if (!selected.sms_monitoring_active) {
       setSmsMessages([]);
+      setSmsError(null);
       return;
     }
-    
+
+    setSmsError(null);
     try {
-      const { data } = await supabase.functions.invoke("anosim-proxy", {
+      const { data, error } = await supabase.functions.invoke("anosim-proxy", {
         body: { token: selected.phone_token, assignmentId: selected.id },
       });
-      
+
+      if (error) throw error;
+
       if (data?.sms && Array.isArray(data.sms)) {
-        const assignedAt = new Date(selected.created_at);
         const hiddenKeys = selected.hidden_sms || [];
         const filtered = data.sms
-          .filter((sms: SMSMessage) => new Date(sms.messageDate) >= assignedAt)
           .filter((sms: SMSMessage) => !hiddenKeys.includes(`${sms.messageSender}|${sms.messageDate}`))
           .sort((a: SMSMessage, b: SMSMessage) => 
             new Date(b.messageDate).getTime() - new Date(a.messageDate).getTime()
@@ -308,9 +312,9 @@ export default function Dashboard() {
         setSmsMessages(filtered);
       }
     } catch {
-      // ignore errors silently
+      setSmsError("SMS konnten gerade nicht geladen werden.");
     }
-  }, [selected?.phone_token, selected?.created_at, selected?.sms_monitoring_active, selected?.hidden_sms]);
+  }, [selected?.phone_token, selected?.id, selected?.sms_monitoring_active, selected?.hidden_sms]);
 
   useEffect(() => {
     if (selectedId && selected?.phone_token) {
@@ -817,19 +821,22 @@ export default function Dashboard() {
             )}
 
             {/* Phone number */}
-            {selected.phone_number && (
+            {selected.phone_number_id && (
               <div>
                 <h3 className="text-xs font-semibold tracking-[0.2em] text-[#c9a24a] mb-3 uppercase">Zugewiesene Telefonnummer</h3>
                 <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 group">
                   <div>
                     <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Telefonnummer</p>
-                    <p className="text-sm font-mono font-semibold text-[#0b1f3a]">{selected.phone_number}</p>
+                    <p className="text-sm font-mono font-semibold text-[#0b1f3a]">
+                      {selected.phone_number || "Nummer wird geladen…"}
+                    </p>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 shrink-0 opacity-100 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity"
-                    onClick={() => copyToClipboard("phone_assigned", selected.phone_number!)}
+                    onClick={() => selected.phone_number && copyToClipboard("phone_assigned", selected.phone_number)}
+                    disabled={!selected.phone_number}
                   >
                     {copiedField === "phone_assigned" ? (
                       <CheckCircle className="w-3.5 h-3.5 text-green-600" />
@@ -842,7 +849,7 @@ export default function Dashboard() {
             )}
 
             {/* SMS Messages */}
-            {selected.phone_token && selected.sms_monitoring_active && (
+            {selected.phone_number_id && selected.sms_monitoring_active && (
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <MessageSquare className="w-4 h-4 text-[#c9a24a]" />
@@ -850,7 +857,14 @@ export default function Dashboard() {
                   {smsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />}
                 </div>
                 
-                {smsMessages.length === 0 ? (
+                {smsError ? (
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-4 text-center">
+                    <p className="text-sm text-destructive">{smsError}</p>
+                    <Button variant="outline" size="sm" className="mt-3" onClick={fetchSms} disabled={!selected.phone_token}>
+                      Erneut versuchen
+                    </Button>
+                  </div>
+                ) : smsMessages.length === 0 ? (
                   <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-center">
                     <p className="text-sm text-slate-500">
                       {smsLoading ? "Lade SMS..." : "Noch keine SMS seit Zuweisung eingegangen"}
