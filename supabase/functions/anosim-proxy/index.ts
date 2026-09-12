@@ -64,13 +64,12 @@ Deno.serve(async (req) => {
     // Callers may read every stored phone number. Vics may only read phone numbers
     // linked to one of their own assignments.
     if (!isAdmin) {
-      const { data: phoneRow } = await serviceClient
+      const { data: phoneRows } = await serviceClient
         .from("phone_numbers")
         .select("id")
-        .eq("token", apiToken)
-        .maybeSingle();
+        .eq("token", apiToken);
 
-      if (!phoneRow) {
+      if (!phoneRows || phoneRows.length === 0) {
         return new Response(JSON.stringify({ error: "Forbidden" }), {
           status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -78,11 +77,12 @@ Deno.serve(async (req) => {
       }
 
       if (!isCaller) {
+        const phoneIds = phoneRows.map((p) => p.id);
         const { data: assignment } = await serviceClient
           .from("verification_assignments")
           .select("id")
           .eq("user_id", userId)
-          .eq("phone_number_id", phoneRow.id)
+          .in("phone_number_id", phoneIds)
           .limit(1)
           .maybeSingle();
 
