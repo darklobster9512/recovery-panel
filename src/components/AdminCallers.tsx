@@ -139,6 +139,56 @@ export default function AdminCallers() {
     }
   };
 
+  const openEdit = (c: Caller) => {
+    setEditing(c);
+    setEditForm({ first_name: c.first_name ?? "", last_name: c.last_name ?? "", phone: c.phone ?? "" });
+    setEditAvatarFile(null);
+    setRemoveAvatar(false);
+  };
+
+  const handleSave = async () => {
+    if (!editing) return;
+    if (!editForm.first_name || !editForm.last_name) {
+      toast({ title: "Vor- und Nachname sind erforderlich.", variant: "destructive" });
+      return;
+    }
+    setSaving(true);
+    try {
+      let avatarPath: string | null | undefined = undefined;
+
+      if (editAvatarFile) {
+        const ext = editAvatarFile.name.split(".").pop()?.toLowerCase() || "png";
+        const path = `${editing.id}/avatar.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("caller-avatars")
+          .upload(path, editAvatarFile, { upsert: true });
+        if (upErr) throw new Error(upErr.message);
+        avatarPath = path;
+      } else if (removeAvatar && editing.avatar_url) {
+        await supabase.storage.from("caller-avatars").remove([editing.avatar_url]);
+        avatarPath = null;
+      }
+
+      const payload: Record<string, unknown> = {
+        first_name: editForm.first_name,
+        last_name: editForm.last_name,
+        phone: editForm.phone.trim() || null,
+      };
+      if (avatarPath !== undefined) payload.avatar_url = avatarPath;
+
+      const { error } = await supabase.from("profiles").update(payload).eq("id", editing.id);
+      if (error) throw new Error(error.message);
+
+      toast({ title: "Caller aktualisiert" });
+      setEditing(null);
+      load();
+    } catch (e: any) {
+      toast({ title: "Fehler", description: e.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
