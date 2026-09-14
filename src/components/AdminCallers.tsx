@@ -333,6 +333,79 @@ export default function AdminCallers() {
           </DialogFooterBar>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="max-w-lg p-6 gap-0">
+          <DialogHeader className="space-y-0">
+            <DialogShellHeader
+              icon={<Pencil className="w-5 h-5" />}
+              eyebrow="Caller bearbeiten"
+              title={<DialogTitle asChild><span>{editing?.email ?? "Caller"}</span></DialogTitle>}
+              description="Persönliche Daten und Profilbild aktualisieren."
+            />
+          </DialogHeader>
+
+          <div className="space-y-6 py-6">
+            <DialogSection label="Persönliche Angaben">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Vorname *</Label>
+                  <Input value={editForm.first_name} onChange={(e) => setEditForm((f) => ({ ...f, first_name: e.target.value }))} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Nachname *</Label>
+                  <Input value={editForm.last_name} onChange={(e) => setEditForm((f) => ({ ...f, last_name: e.target.value }))} />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label>Telefon</Label>
+                  <Input value={editForm.phone} onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))} />
+                </div>
+              </div>
+            </DialogSection>
+
+            <DialogSection label="Profilbild" hint="Optional">
+              <div className="flex items-center gap-3">
+                <div className="relative h-14 w-14 overflow-hidden rounded-full bg-muted border border-border shrink-0 flex items-center justify-center">
+                  {editPreview ? (
+                    <img src={editPreview} alt="Vorschau" className="absolute inset-0 h-full w-full object-cover" />
+                  ) : !removeAvatar && editing && avatarUrls[editing.id] ? (
+                    <img src={avatarUrls[editing.id]} alt="" className="absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2" />
+                  ) : (
+                    <span className="text-xs font-semibold text-muted-foreground">—</span>
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <Input
+                    ref={editFileRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => { setEditAvatarFile(e.target.files?.[0] ?? null); setRemoveAvatar(false); }}
+                  />
+                  {editing?.avatar_url && !editAvatarFile && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => setRemoveAvatar((v) => !v)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      {removeAvatar ? "Entfernen rückgängig" : "Bild entfernen"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </DialogSection>
+          </div>
+
+          <DialogFooterBar>
+            <Button variant="outline" onClick={() => setEditing(null)} disabled={saving}>Abbrechen</Button>
+            <Button onClick={handleSave} disabled={saving} className="gap-2 min-w-[140px]">
+              {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Speichern…</> : <>Speichern</>}
+            </Button>
+          </DialogFooterBar>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
