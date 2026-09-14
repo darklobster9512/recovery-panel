@@ -169,7 +169,7 @@ export default function AdminCallers() {
         avatarPath = null;
       }
 
-      const payload: Record<string, unknown> = {
+      const payload: { first_name: string; last_name: string; phone: string | null; avatar_url?: string | null } = {
         first_name: editForm.first_name,
         last_name: editForm.last_name,
         phone: editForm.phone.trim() || null,
