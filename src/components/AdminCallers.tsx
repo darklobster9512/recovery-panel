@@ -219,6 +219,7 @@ export default function AdminCallers() {
                   <TableHead>Email</TableHead>
                   <TableHead>Telefon</TableHead>
                   <TableHead>Passwort</TableHead>
+                  <TableHead className="w-28 text-right">Aktion</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -256,6 +257,11 @@ export default function AdminCallers() {
                             </button>
                           </span>
                         ) : "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openEdit(c)}>
+                          <Pencil className="w-3.5 h-3.5" /> Bearbeiten
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );
