@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserPlus, Loader2, RefreshCw, Copy } from "lucide-react";
+import { UserPlus, Loader2, RefreshCw, Copy, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 
@@ -42,6 +42,15 @@ export default function AdminCallers() {
   const [password, setPassword] = useState(() => generatePassword());
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+
+  // Edit state
+  const [editing, setEditing] = useState<Caller | null>(null);
+  const [editForm, setEditForm] = useState({ first_name: "", last_name: "", phone: "" });
+  const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const editFileRef = useRef<HTMLInputElement | null>(null);
+  const editPreview = editAvatarFile ? URL.createObjectURL(editAvatarFile) : null;
 
   const load = async () => {
     setLoading(true);
