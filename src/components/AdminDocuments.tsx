@@ -392,6 +392,7 @@ export default function AdminDocuments() {
             })}
           </div>
         )}
+        {confirmDialog}
       </div>
     );
   }
