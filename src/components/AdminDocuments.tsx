@@ -170,6 +170,122 @@ export default function AdminDocuments() {
     setDocsLoading(false);
   };
 
+  const removeDocuments = async (
+    rows: { id: string; file_path: string }[],
+    userId: string,
+    assignmentId: string | null,
+  ) => {
+    const paths = rows.map((r) => r.file_path);
+    const { error: fnError } = await supabase.functions.invoke("admin-cleanup-files", {
+      body: { paths },
+    });
+    if (fnError) throw fnError;
+
+    const { error: dbError } = await supabase
+      .from("user_documents")
+      .delete()
+      .in("id", rows.map((r) => r.id));
+    if (dbError) throw dbError;
+
+    if (assignmentId === null) {
+      const { count } = await supabase
+        .from("user_documents")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .is("assignment_id", null);
+      if (!count) {
+        await supabase
+          .from("profiles")
+          .update({ id_document_submitted_at: null })
+          .eq("id", userId);
+      }
+    }
+  };
+
+  const handleDeleteGroup = async (group: DocGroup) => {
+    setDeleting(true);
+    try {
+      let query = supabase
+        .from("user_documents")
+        .select("id, file_path")
+        .eq("user_id", group.user_id);
+      query = group.assignment_id
+        ? query.eq("assignment_id", group.assignment_id)
+        : query.is("assignment_id", null);
+      const { data, error } = await query;
+      if (error) throw error;
+      const rows = data ?? [];
+      if (rows.length > 0) {
+        await removeDocuments(rows, group.user_id, group.assignment_id);
+      }
+      toast.success("Dokumente gelöscht");
+      setConfirmGroup(null);
+      await loadGroups();
+    } catch (e) {
+      toast.error("Löschen fehlgeschlagen");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteDoc = async (doc: DocDetail) => {
+    if (!detail) return;
+    setDeleting(true);
+    try {
+      await removeDocuments(
+        [{ id: doc.id, file_path: doc.file_path }],
+        detail.userId,
+        detail.assignmentId,
+      );
+      setDocs((prev) => prev.filter((d) => d.id !== doc.id));
+      toast.success("Dokument gelöscht");
+      setConfirmDoc(null);
+      await loadGroups();
+    } catch (e) {
+      toast.error("Löschen fehlgeschlagen");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const confirmDialog = (
+    <AlertDialog
+      open={!!confirmGroup || !!confirmDoc}
+      onOpenChange={(o) => {
+        if (!o && !deleting) {
+          setConfirmGroup(null);
+          setConfirmDoc(null);
+        }
+      }}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Endgültig löschen?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {confirmGroup
+              ? `Alle ${confirmGroup.doc_count} Dokumente von ${confirmGroup.user_name} für „${confirmGroup.verification_title}" werden dauerhaft entfernt.`
+              : confirmDoc
+                ? `„${confirmDoc.file_name}" wird dauerhaft entfernt.`
+                : ""}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={deleting}>Abbrechen</AlertDialogCancel>
+          <AlertDialogAction
+            disabled={deleting}
+            onClick={(e) => {
+              e.preventDefault();
+              if (confirmGroup) handleDeleteGroup(confirmGroup);
+              else if (confirmDoc) handleDeleteDoc(confirmDoc);
+            }}
+          >
+            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Löschen"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
   if (detail) {
     return (
       <div>
