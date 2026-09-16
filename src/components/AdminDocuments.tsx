@@ -62,6 +62,9 @@ export default function AdminDocuments() {
   const [docs, setDocs] = useState<DocDetail[]>([]);
   const [docsLoading, setDocsLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+  const [confirmGroup, setConfirmGroup] = useState<DocGroup | null>(null);
+  const [confirmDoc, setConfirmDoc] = useState<DocDetail | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadGroups();
