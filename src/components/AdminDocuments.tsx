@@ -448,7 +448,7 @@ export default function AdminDocuments() {
             <TableHead>Auftrag</TableHead>
             <TableHead className="text-center">Dokumente</TableHead>
             <TableHead>Letzter Upload</TableHead>
-            <TableHead></TableHead>
+            <TableHead className="text-right">Aktion</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
