@@ -203,6 +203,11 @@ export default function AdminDocuments() {
   };
 
   const handleDeleteGroup = async (group: DocGroup) => {
+    if (group.assignment_id !== null) {
+      toast.error("Nur Personalausweis-Dokumente können gelöscht werden");
+      setConfirmGroup(null);
+      return;
+    }
     setDeleting(true);
     try {
       let query = supabase
@@ -230,6 +235,11 @@ export default function AdminDocuments() {
 
   const handleDeleteDoc = async (doc: DocDetail) => {
     if (!detail) return;
+    if (detail.assignmentId !== null) {
+      toast.error("Nur Personalausweis-Dokumente können gelöscht werden");
+      setConfirmDoc(null);
+      return;
+    }
     setDeleting(true);
     try {
       await removeDocuments(
