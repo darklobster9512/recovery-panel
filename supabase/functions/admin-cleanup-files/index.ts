@@ -54,6 +54,22 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
+
+  if (!isAdmin) {
+    // Caller: only files of vics assigned to them
+    const ownerIds = [...new Set((paths as string[]).map((p) => p.split("/")[0]))];
+    if (ownerIds.some((id) => !id)) return json({ error: "Forbidden" }, 403);
+    const { data: allowed, error: profErr } = await admin
+      .from("profiles")
+      .select("id")
+      .in("id", ownerIds)
+      .eq("assigned_caller_id", uid);
+    if (profErr) return json({ error: "Forbidden" }, 403);
+    if ((allowed?.length ?? 0) !== ownerIds.length) {
+      return json({ error: "Forbidden" }, 403);
+    }
+  }
+
   const { data, error } = await admin.storage
     .from("user-documents")
     .remove(paths as string[]);
