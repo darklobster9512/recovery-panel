@@ -34,7 +34,11 @@ Deno.serve(async (req) => {
     _user_id: uid,
     _role: "admin",
   });
-  if (!isAdmin) return json({ error: "Forbidden" }, 403);
+  const { data: isCaller } = await userClient.rpc("has_role", {
+    _user_id: uid,
+    _role: "caller",
+  });
+  if (!isAdmin && !isCaller) return json({ error: "Forbidden" }, 403);
 
   let paths: unknown;
   try {
