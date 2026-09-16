@@ -474,9 +474,23 @@ export default function AdminDocuments() {
                 })}
               </TableCell>
               <TableCell>
-                <Button variant="ghost" size="sm">
-                  <Eye className="w-4 h-4" />
-                </Button>
+                <div className="flex justify-end gap-1">
+                  <Button variant="ghost" size="sm" title="Ansehen">
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                    title="Dokumente löschen"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setConfirmGroup(g);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -484,6 +498,7 @@ export default function AdminDocuments() {
       </Table>
     </div>
     )}
+    {confirmDialog}
     </div>
   );
 }
