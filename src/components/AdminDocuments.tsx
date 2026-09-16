@@ -376,15 +376,17 @@ export default function AdminDocuments() {
                           </Button>
                         </>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => setConfirmDoc(doc)}
-                        title="Löschen"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+                       {detail.assignmentId === null && (
+                         <Button
+                           variant="ghost"
+                           size="icon"
+                           className="h-8 w-8 text-destructive hover:text-destructive"
+                           onClick={() => setConfirmDoc(doc)}
+                           title="Löschen"
+                         >
+                           <Trash2 className="w-3.5 h-3.5" />
+                         </Button>
+                       )}
                     </div>
                   </div>
                 </div>
@@ -478,18 +480,20 @@ export default function AdminDocuments() {
                   <Button variant="ghost" size="sm" title="Ansehen">
                     <Eye className="w-4 h-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:text-destructive"
-                    title="Dokumente löschen"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setConfirmGroup(g);
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {g.assignment_id === null && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      title="Dokumente löschen"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setConfirmGroup(g);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               </TableCell>
             </TableRow>
