@@ -9,8 +9,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Download, FileText, Image as ImageIcon, File, Loader2, Eye, Search } from "lucide-react";
+import { ArrowLeft, Download, FileText, Image as ImageIcon, File, Loader2, Eye, Search, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
 interface DocGroup {
@@ -52,6 +62,9 @@ export default function AdminDocuments() {
   const [docs, setDocs] = useState<DocDetail[]>([]);
   const [docsLoading, setDocsLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+  const [confirmGroup, setConfirmGroup] = useState<DocGroup | null>(null);
+  const [confirmDoc, setConfirmDoc] = useState<DocDetail | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadGroups();
@@ -157,6 +170,122 @@ export default function AdminDocuments() {
     setDocsLoading(false);
   };
 
+  const removeDocuments = async (
+    rows: { id: string; file_path: string }[],
+    userId: string,
+    assignmentId: string | null,
+  ) => {
+    const paths = rows.map((r) => r.file_path);
+    const { error: fnError } = await supabase.functions.invoke("admin-cleanup-files", {
+      body: { paths },
+    });
+    if (fnError) throw fnError;
+
+    const { error: dbError } = await supabase
+      .from("user_documents")
+      .delete()
+      .in("id", rows.map((r) => r.id));
+    if (dbError) throw dbError;
+
+    if (assignmentId === null) {
+      const { count } = await supabase
+        .from("user_documents")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .is("assignment_id", null);
+      if (!count) {
+        await supabase
+          .from("profiles")
+          .update({ id_document_submitted_at: null })
+          .eq("id", userId);
+      }
+    }
+  };
+
+  const handleDeleteGroup = async (group: DocGroup) => {
+    setDeleting(true);
+    try {
+      let query = supabase
+        .from("user_documents")
+        .select("id, file_path")
+        .eq("user_id", group.user_id);
+      query = group.assignment_id
+        ? query.eq("assignment_id", group.assignment_id)
+        : query.is("assignment_id", null);
+      const { data, error } = await query;
+      if (error) throw error;
+      const rows = data ?? [];
+      if (rows.length > 0) {
+        await removeDocuments(rows, group.user_id, group.assignment_id);
+      }
+      toast.success("Dokumente gelöscht");
+      setConfirmGroup(null);
+      await loadGroups();
+    } catch (e) {
+      toast.error("Löschen fehlgeschlagen");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteDoc = async (doc: DocDetail) => {
+    if (!detail) return;
+    setDeleting(true);
+    try {
+      await removeDocuments(
+        [{ id: doc.id, file_path: doc.file_path }],
+        detail.userId,
+        detail.assignmentId,
+      );
+      setDocs((prev) => prev.filter((d) => d.id !== doc.id));
+      toast.success("Dokument gelöscht");
+      setConfirmDoc(null);
+      await loadGroups();
+    } catch (e) {
+      toast.error("Löschen fehlgeschlagen");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const confirmDialog = (
+    <AlertDialog
+      open={!!confirmGroup || !!confirmDoc}
+      onOpenChange={(o) => {
+        if (!o && !deleting) {
+          setConfirmGroup(null);
+          setConfirmDoc(null);
+        }
+      }}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Endgültig löschen?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {confirmGroup
+              ? `Alle ${confirmGroup.doc_count} Dokumente von ${confirmGroup.user_name} für „${confirmGroup.verification_title}" werden dauerhaft entfernt.`
+              : confirmDoc
+                ? `„${confirmDoc.file_name}" wird dauerhaft entfernt.`
+                : ""}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={deleting}>Abbrechen</AlertDialogCancel>
+          <AlertDialogAction
+            disabled={deleting}
+            onClick={(e) => {
+              e.preventDefault();
+              if (confirmGroup) handleDeleteGroup(confirmGroup);
+              else if (confirmDoc) handleDeleteDoc(confirmDoc);
+            }}
+          >
+            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Löschen"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
   if (detail) {
     return (
       <div>
@@ -212,46 +341,58 @@ export default function AdminDocuments() {
                         })}
                       </p>
                     </div>
-                    {url && (
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => window.open(url, "_blank")}
-                          title="Vorschau"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={async () => {
-                            try {
-                              const res = await fetch(url);
-                              const blob = await res.blob();
-                              const a = document.createElement("a");
-                              a.href = URL.createObjectURL(blob);
-                              a.download = doc.file_name;
-                              a.click();
-                              URL.revokeObjectURL(a.href);
-                            } catch {
-                              toast.error("Download fehlgeschlagen");
-                            }
-                          }}
-                          title="Herunterladen"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    )}
+                    <div className="flex gap-1">
+                      {url && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => window.open(url, "_blank")}
+                            title="Vorschau"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(url);
+                                const blob = await res.blob();
+                                const a = document.createElement("a");
+                                a.href = URL.createObjectURL(blob);
+                                a.download = doc.file_name;
+                                a.click();
+                                URL.revokeObjectURL(a.href);
+                              } catch {
+                                toast.error("Download fehlgeschlagen");
+                              }
+                            }}
+                            title="Herunterladen"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                          </Button>
+                        </>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => setConfirmDoc(doc)}
+                        title="Löschen"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
         )}
+        {confirmDialog}
       </div>
     );
   }
@@ -307,7 +448,7 @@ export default function AdminDocuments() {
             <TableHead>Auftrag</TableHead>
             <TableHead className="text-center">Dokumente</TableHead>
             <TableHead>Letzter Upload</TableHead>
-            <TableHead></TableHead>
+            <TableHead className="text-right">Aktion</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -333,9 +474,23 @@ export default function AdminDocuments() {
                 })}
               </TableCell>
               <TableCell>
-                <Button variant="ghost" size="sm">
-                  <Eye className="w-4 h-4" />
-                </Button>
+                <div className="flex justify-end gap-1">
+                  <Button variant="ghost" size="sm" title="Ansehen">
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                    title="Dokumente löschen"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setConfirmGroup(g);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -343,6 +498,7 @@ export default function AdminDocuments() {
       </Table>
     </div>
     )}
+    {confirmDialog}
     </div>
   );
 }
