@@ -150,10 +150,27 @@ export default function AdminLeads() {
           <h2 className="font-display text-2xl font-semibold">Leads</h2>
           <p className="mt-2 text-sm text-muted-foreground">Importierte Kontakte prüfen, qualifizieren und weiterbearbeiten.</p>
         </div>
-        <Button onClick={() => setImportOpen(true)}>
-          <Upload className="w-4 h-4" />
-          Leads importieren
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {missingAccounts.length > 0 && (
+            <Button variant="outline" onClick={createMissingAccounts} disabled={creating}>
+              {creating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {progress.done} von {progress.total}…
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4" />
+                  {missingAccounts.length} fehlende Vic-Konten erstellen
+                </>
+              )}
+            </Button>
+          )}
+          <Button onClick={() => setImportOpen(true)}>
+            <Upload className="w-4 h-4" />
+            Leads importieren
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3 shadow-card">
