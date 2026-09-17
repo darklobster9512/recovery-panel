@@ -28,8 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Eye, Loader2, MessageSquare, Upload, FileText, UserPlus } from "lucide-react";
-import { createVicAccountsForLeads, findLeadsWithoutAccount, type LeadForAccount } from "@/lib/leadAccounts";
+import { Eye, Loader2, MessageSquare, Upload, FileText } from "lucide-react";
 import { DialogShellHeader } from "@/components/admin/DialogShell";
 import LeadImportDialog from "@/components/LeadImportDialog";
 import LeadNotesDialog from "@/components/LeadNotesDialog";
@@ -56,39 +55,8 @@ export default function AdminLeads() {
   const [notesLead, setNotesLead] = useState<Lead | null>(null);
   const [vorfallLead, setVorfallLead] = useState<Lead | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [missingAccounts, setMissingAccounts] = useState<LeadForAccount[]>([]);
-  const [creating, setCreating] = useState(false);
-  const [progress, setProgress] = useState({ done: 0, total: 0 });
 
-  const loadMissing = useCallback(async () => {
-    try {
-      setMissingAccounts(await findLeadsWithoutAccount());
-    } catch {
-      setMissingAccounts([]);
-    }
-  }, []);
 
-  const createMissingAccounts = async () => {
-    if (missingAccounts.length === 0 || creating) return;
-    setCreating(true);
-    setProgress({ done: 0, total: missingAccounts.length });
-    const { created, failed } = await createVicAccountsForLeads(missingAccounts, (done, total) =>
-      setProgress({ done, total }),
-    );
-    setCreating(false);
-    toast({
-      title: "Vic-Konten erstellt",
-      description:
-        `${created} Konten erstellt (E-Mail und SMS versendet)` +
-        (failed.length > 0
-          ? `. Fehler bei ${failed.length}: ${failed.slice(0, 3).join("; ")}${failed.length > 3 ? " …" : ""}`
-          : "") +
-        ".",
-      variant: failed.length > 0 ? "destructive" : undefined,
-    });
-    await loadMissing();
-    bump();
-  };
 
 
   const load = useCallback(async () => {
@@ -106,8 +74,7 @@ export default function AdminLeads() {
 
   useEffect(() => {
     load();
-    loadMissing();
-  }, [load, loadMissing]);
+  }, [load]);
 
   const bump = () => setRefreshKey((k) => k + 1);
 
@@ -151,21 +118,6 @@ export default function AdminLeads() {
           <p className="mt-2 text-sm text-muted-foreground">Importierte Kontakte prüfen, qualifizieren und weiterbearbeiten.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {missingAccounts.length > 0 && (
-            <Button variant="outline" onClick={createMissingAccounts} disabled={creating}>
-              {creating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {progress.done} von {progress.total}…
-                </>
-              ) : (
-                <>
-                  <UserPlus className="w-4 h-4" />
-                  {missingAccounts.length} fehlende Vic-Konten erstellen
-                </>
-              )}
-            </Button>
-          )}
           <Button onClick={() => setImportOpen(true)}>
             <Upload className="w-4 h-4" />
             Leads importieren
@@ -339,7 +291,6 @@ export default function AdminLeads() {
         onOpenChange={setImportOpen}
         onImported={() => {
           load();
-          loadMissing();
           bump();
         }}
       />
