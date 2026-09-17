@@ -339,6 +339,7 @@ export default function AdminLeads() {
         onOpenChange={setImportOpen}
         onImported={() => {
           load();
+          loadMissing();
           bump();
         }}
       />
