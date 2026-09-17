@@ -163,7 +163,7 @@ export default function AdminSettings() {
                   <Label>Absender-E-Mail</Label>
                   <Input value={settings.resend_from_email}
                     onChange={(e) => update("resend_from_email", e.target.value)}
-                    placeholder="noreply@korte-kanzlei.de" />
+                    placeholder="noreply@kortekanzlei.com" />
                 </div>
               </div>
             </div>

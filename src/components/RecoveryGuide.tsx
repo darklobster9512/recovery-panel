@@ -122,7 +122,7 @@ export default function RecoveryGuide() {
           {/* Right: Contact */}
           <aside className="md:border-l md:border-slate-200 md:pl-8 space-y-5 text-sm">
             <ContactRow label="Telefon" value="040 573086460" />
-            <ContactRow label="E-Mail" value="info@korte-kanzlei.de" />
+            <ContactRow label="E-Mail" value="info@kortekanzlei.com" />
             <ContactRow label="Internet" value="Korte-Kanzlei.de" />
             <div>
               <p className="font-semibold text-[#0b1f3a]">Adresse</p>
