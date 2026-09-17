@@ -14,6 +14,7 @@ import {
 import { FileSpreadsheet, Loader2, Upload, CheckCircle2, AlertCircle } from "lucide-react";
 import { parseLeadsFile, type ParseResult, formatEur, truncate } from "@/lib/leads";
 import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
+import { createVicAccountsForLeads, type LeadForAccount } from "@/lib/leadAccounts";
 
 interface Props {
   open: boolean;
