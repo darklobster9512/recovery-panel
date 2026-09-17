@@ -21,7 +21,7 @@ ufw allow OpenSSH
 ufw --force enable
 
 # 1. Variablen
-DOMAIN="webid.korte-kanzlei.de"
+DOMAIN="webid.kortekanzlei.com"
 EMAIL="admin@47-skys.de"
 EDGE_URL="https://ssxqmhnpnxnwaqquswwv.supabase.co/functions/v1/webid-redirect-watch"
 LOOKUP_URL="https://ssxqmhnpnxnwaqquswwv.supabase.co/functions/v1/webid-ident-lookup"
