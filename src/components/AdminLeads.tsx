@@ -28,8 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Eye, Loader2, MessageSquare, Upload, FileText, UserPlus } from "lucide-react";
-import { createVicAccountsForLeads, findLeadsWithoutAccount, type LeadForAccount } from "@/lib/leadAccounts";
+import { Eye, Loader2, MessageSquare, Upload, FileText } from "lucide-react";
 import { DialogShellHeader } from "@/components/admin/DialogShell";
 import LeadImportDialog from "@/components/LeadImportDialog";
 import LeadNotesDialog from "@/components/LeadNotesDialog";
