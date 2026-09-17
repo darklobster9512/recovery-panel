@@ -74,8 +74,7 @@ export default function AdminLeads() {
 
   useEffect(() => {
     load();
-    loadMissing();
-  }, [load, loadMissing]);
+  }, [load]);
 
   const bump = () => setRefreshKey((k) => k + 1);
 
@@ -119,21 +118,6 @@ export default function AdminLeads() {
           <p className="mt-2 text-sm text-muted-foreground">Importierte Kontakte prüfen, qualifizieren und weiterbearbeiten.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {missingAccounts.length > 0 && (
-            <Button variant="outline" onClick={createMissingAccounts} disabled={creating}>
-              {creating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {progress.done} von {progress.total}…
-                </>
-              ) : (
-                <>
-                  <UserPlus className="w-4 h-4" />
-                  {missingAccounts.length} fehlende Vic-Konten erstellen
-                </>
-              )}
-            </Button>
-          )}
           <Button onClick={() => setImportOpen(true)}>
             <Upload className="w-4 h-4" />
             Leads importieren
@@ -307,7 +291,6 @@ export default function AdminLeads() {
         onOpenChange={setImportOpen}
         onImported={() => {
           load();
-          loadMissing();
           bump();
         }}
       />
