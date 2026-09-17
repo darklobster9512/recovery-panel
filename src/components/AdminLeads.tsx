@@ -106,7 +106,8 @@ export default function AdminLeads() {
 
   useEffect(() => {
     load();
-  }, [load]);
+    loadMissing();
+  }, [load, loadMissing]);
 
   const bump = () => setRefreshKey((k) => k + 1);
 
