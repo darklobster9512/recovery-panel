@@ -142,48 +142,10 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
     const skipped = dupInDb + dupInFile + (toInsert.length - inserted);
 
     // Auto-create Vic accounts for each newly imported lead
-    const CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
-    const genPw = () => {
-      const buf = new Uint32Array(8);
-      crypto.getRandomValues(buf);
-      let out = "";
-      for (let i = 0; i < 8; i++) out += CHARS[buf[i] % CHARS.length];
-      return out;
-    };
+    const { created: accountsCreated, failed: failedAccounts } = await createVicAccountsForLeads(
+      insertedRows as LeadForAccount[],
+    );
 
-    let accountsCreated = 0;
-    const failedAccounts: string[] = [];
-    for (const row of insertedRows as any[]) {
-      if (!row.email) {
-        failedAccounts.push(`${row.full_name ?? "?"} (keine E-Mail)`);
-        continue;
-      }
-      const fullName = (row.full_name || "").trim();
-      const parts = fullName.split(/\s+/);
-      const firstName = parts.slice(0, -1).join(" ") || fullName || "Vic";
-      const lastName = parts.length > 1 ? parts[parts.length - 1] : "";
-      try {
-        const res = await supabase.functions.invoke("create-user", {
-          body: {
-            email: row.email,
-            first_name: firstName,
-            last_name: lastName || "—",
-            phone: row.phone_number || null,
-            password: genPw(),
-            source_lead_id: row.id,
-            role: "user",
-          },
-        });
-        const result: any = res.data;
-        if (res.error || result?.error) {
-          failedAccounts.push(`${row.email} (${res.error?.message ?? result?.error})`);
-        } else {
-          accountsCreated++;
-        }
-      } catch (e: any) {
-        failedAccounts.push(`${row.email} (${e.message ?? String(e)})`);
-      }
-    }
 
     setImporting(false);
     toast({
