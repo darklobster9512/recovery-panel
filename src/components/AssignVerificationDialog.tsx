@@ -58,7 +58,7 @@ const FIELD_LABELS: Record<string, string> = {
 const rewriteWebidHost = (url: string): string => {
   return url.replace(
     /^(https?:\/\/)(?:www\.)?webid-gateway\.(?:de|com)(\/.*)?$/i,
-    "$1webid.kortekanzlei.com$2"
+    "$1webid.kortekanzlei.de$2"
   );
 };
 
