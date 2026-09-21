@@ -16,6 +16,7 @@ import VerificationLogo from "@/components/VerificationLogo";
 import AssignCallerSelect from "@/components/AssignCallerSelect";
 import VicStatusSelect from "@/components/VicStatusSelect";
 import {
+  CAMPAIGN_META,
   formatDateTime,
   formatEur,
   statusMeta,
