@@ -397,6 +397,11 @@ export default function AdminVicDetail() {
               <Badge variant="secondary" className={statusMeta(sourceLead.status).className}>
                 {statusMeta(sourceLead.status).label}
               </Badge>
+              {sourceLead.campaign && (
+                <Badge variant="secondary" className={CAMPAIGN_META[sourceLead.campaign].className}>
+                  {CAMPAIGN_META[sourceLead.campaign].label}
+                </Badge>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
