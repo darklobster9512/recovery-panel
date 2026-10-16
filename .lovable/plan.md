@@ -1,28 +1,22 @@
-# Telegram-Benachrichtigungen – Ursache finden
+# Backup-System unter /admin/einstellungen
 
-## Status aus der Prüfung
+## Was du bekommst
+Neuer Reiter **„Backups"** in den Einstellungen:
+- **Backup jetzt erstellen** – lädt alle Tabellen (alle Daten inkl. Benutzerkonten/Logins) als ZIP herunter, mit Fortschrittsanzeige.
+- **Backup wiederherstellen** – ZIP hochladen, Modus „Ergänzen" (nur Fehlendes einfügen) oder „Überschreiben", danach Bericht pro Tabelle.
+- **Automatische Backups per Telegram** – Feld für die Telegram-Chat-ID, Schalter an/aus, Button „Test-Backup jetzt senden", Anzeige „Letztes Backup: …" bzw. letzter Fehler.
+- Stündlich wird automatisch ein Backup erstellt und als ZIP-Datei vom bestehenden Bot an diesen Chat geschickt.
 
-- Bot-Token funktioniert: `getMe` antwortet mit `recovery0209bot`, Testnachricht an die Gruppe „Recovery Aktivitäten" (`-1004290827615`) kommt sofort an.
-- Chat ist in der DB korrekt eingetragen, alle 16 Event-Abos sind `enabled = true`.
-- `telegram-notify` wird laut Edge-Logs regelmäßig nur gebootet und beendet – es ist aber nicht sicher erkennbar, ob tatsächlich Anfragen reinkommen (die Logs zeigen hier nur Boot/Shutdown).
+Nur Admins können das sehen und nutzen.
 
-Fazit: Telegram selbst, Token und Zielchat sind nicht das Problem. Also werden entweder die auslösenden Stellen nicht erreicht, oder sie laufen durch, ohne zu senden.
+## Hinweise
+- Gesichert werden alle Datenbankeinträge. Hochgeladene Dateien (Ausweisbilder, PDFs, Avatare) sind nicht in der ZIP – nur ihre Verweise. Telegram erlaubt max. 50 MB pro Datei; wird das überschritten, kommt eine Fehlermeldung in den Chat.
+- Das Backup enthält Logins und Zugangsdaten – der Telegram-Chat sollte privat sein.
+- Läuft 24× am Tag; bei ausgeschaltetem Schalter passiert nichts.
 
-## Vorgehen
-
-1. **Nachweis sammeln, welche Events heute wirklich passiert sind.** Für jedes Event, das normalerweise eine Telegram-Meldung auslöst, in der DB prüfen, ob es heute (UTC) überhaupt neue Zeilen gab:
-   - Lead-Notizen, Vic-Notizen, Dokument-Uploads
-   - Zuweisungen angelegt/abgeschlossen
-   - Weitergeleitete SMS (`verification_assignments.forwarded_sms` Änderungen heute, bzw. seven.io-Historie), Anosim-SMS-Erkennung
-   - Neue Vic-Konten, KYC-Extraktionen, Chat-Nachrichten, Termine, To-Dos, Kontaktanfragen
-2. **Edge-Function-Logs gezielt durchsuchen.** Für jede Funktion, die direkt sendet (`forward-tan-sweep`, `anosim-proxy`, `extract-id-data`, `create-user`, `contact-submit`, `telegram-notify`), nach „Telegram send failed", „no_subscribers", „sub_error" und sonstigen `console.error`-Spuren suchen.
-3. **End-to-End Live-Test aus der App.** Einen echten Trigger auslösen (z. B. Test-Nachricht aus `/admin/telegram` sowie eine echte Lead-Notiz hinzufügen) und direkt danach `telegram-notify`-Logs lesen. So sehen wir, ob die Anfrage ankommt, ob sie 2xx liefert und ob die Nachricht in Telegram landet.
-4. **Ergebnis einordnen.** Je nachdem, wo die Spur abreißt, einen gezielten Fix-Plan nachreichen – z. B.:
-   - App ruft `telegram-notify` nicht mehr auf (Auth-/Session-Problem im Browser): dann an der aufrufenden Stelle fixen.
-   - `telegram-notify` antwortet 401/403: Claims/Rollen-Prüfung anpassen.
-   - Edge-Functions laufen, aber Chat-IDs/Formatter werfen: dann in `_shared/telegram.ts` nachbessern.
-   - Trigger (z. B. `anosim-proxy` oder Sweep) finden keine neue SMS: dann liegt es nicht an Telegram, sondern am Upstream.
-
-## Nicht Teil dieses Plans
-
-- Noch keine Code-Änderungen. Erst wenn die konkrete Fehlerquelle feststeht, mache ich einen zweiten Plan mit dem exakten Fix.
+## Technische Details
+- Edge Function `admin-backup` (Port aus Referenzprojekt): Aktionen `list`, `export`, `import` über `SUPABASE_DB_URL` + postgres-Client, Tabellen `public.*` + `auth.users`/`auth.identities`, FK-sortiert. Admin-Check per `has_role`.
+- Neue Aktion `telegram`: exportiert alles serverseitig, baut ZIP (jszip via npm), `sendDocument` mit `TELEGRAM_BOT_TOKEN` an gespeicherte Chat-ID. Aufrufbar von Admin oder vom Cron mit geheimem Token (`backup_cron_token` in neuer Tabelle, nicht im Client lesbar).
+- Migration: Spalten in `app_settings`: `backup_telegram_chat_id text`, `backup_enabled bool`, `backup_last_at`, `backup_last_error`. Separate Tabelle `backup_secrets` (nur service_role) für den Cron-Token.
+- pg_cron + pg_net Job `hourly-backup` (`0 * * * *`) ruft die Funktion mit Token auf; Funktion prüft `backup_enabled` vorher.
+- Frontend: `src/components/AdminBackups.tsx` (jszip im Client) + neuer Tab in `AdminSettings.tsx`; `verify_jwt=false` für `admin-backup` in config.toml.
