@@ -16,6 +16,10 @@ export type Database = {
     Tables: {
       app_settings: {
         Row: {
+          backup_enabled: boolean
+          backup_last_at: string | null
+          backup_last_error: string | null
+          backup_telegram_chat_id: string
           booking_end_time: string
           booking_interval_minutes: number
           booking_lead_hours: number
@@ -39,6 +43,10 @@ export type Database = {
           website: string
         }
         Insert: {
+          backup_enabled?: boolean
+          backup_last_at?: string | null
+          backup_last_error?: string | null
+          backup_telegram_chat_id?: string
           booking_end_time?: string
           booking_interval_minutes?: number
           booking_lead_hours?: number
@@ -62,6 +70,10 @@ export type Database = {
           website?: string
         }
         Update: {
+          backup_enabled?: boolean
+          backup_last_at?: string | null
+          backup_last_error?: string | null
+          backup_telegram_chat_id?: string
           booking_end_time?: string
           booking_interval_minutes?: number
           booking_lead_hours?: number
@@ -135,6 +147,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      backup_secrets: {
+        Row: {
+          created_at: string
+          cron_token: string
+          id: boolean
+        }
+        Insert: {
+          created_at?: string
+          cron_token?: string
+          id?: boolean
+        }
+        Update: {
+          created_at?: string
+          cron_token?: string
+          id?: boolean
+        }
+        Relationships: []
       }
       chat_messages: {
         Row: {
@@ -860,6 +890,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      backup_check_token: { Args: { _token: string }; Returns: boolean }
       booked_slots_for_caller: {
         Args: { _caller_id: string; _from: string; _to: string }
         Returns: {
