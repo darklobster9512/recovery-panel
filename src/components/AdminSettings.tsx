@@ -15,6 +15,7 @@ import {
   saveAppSettings,
   saveSmsTemplate,
 } from "@/lib/settings";
+import AdminBackups from "@/components/AdminBackups";
 
 const BRANDING_FIELDS: Array<{ key: keyof AppSettings; label: string }> = [
   { key: "company_name", label: "Unternehmensname" },
@@ -109,6 +110,7 @@ export default function AdminSettings() {
         <TabsTrigger value="integrations">Integrationen</TabsTrigger>
         <TabsTrigger value="sms">SMS Vorlagen</TabsTrigger>
         <TabsTrigger value="booking">Terminbuchung</TabsTrigger>
+        <TabsTrigger value="backups">Backups</TabsTrigger>
       </TabsList>
 
 
@@ -301,6 +303,9 @@ export default function AdminSettings() {
             </Button>
           </CardContent>
         </Card>
+      </TabsContent>
+      <TabsContent value="backups">
+        <AdminBackups />
       </TabsContent>
     </Tabs>
   );
