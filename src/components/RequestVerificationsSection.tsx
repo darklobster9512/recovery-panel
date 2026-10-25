@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { RotateCw } from "lucide-react";
+import { RotateCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveBranding } from "@/contexts/BrandingContext";
@@ -218,10 +218,12 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
     onClose();
   };
 
+  const [rot, setRot] = useState({ front: 0, back: 0 });
+  const [zoomed, setZoomed] = useState<"front" | "back" | null>(null);
   const wide = step === "data";
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o && !submitting) onClose(); }}>
-      <DialogContent className={`max-h-[92vh] gap-0 overflow-y-auto p-6 ${wide ? "sm:max-w-6xl" : "sm:max-w-2xl"}`}>
+      <DialogContent className={`max-h-[95vh] gap-0 overflow-y-auto p-6 ${wide ? "sm:max-w-[min(1400px,96vw)]" : "sm:max-w-2xl"}`}>
         <DialogHeader className="space-y-0">
           <DialogShellHeader
             icon={<ClipboardCheck className="h-5 w-5" />}
@@ -289,14 +291,24 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                 <Label>Personalausweis</Label>
                 {extracting && !images ? (
                   <div className="flex h-64 items-center justify-center rounded-lg border border-border text-sm text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lade Ausweis…</div>
+                ) : images && zoomed && images[zoomed].type !== "application/pdf" ? (
+                  <div className="overflow-hidden rounded-lg border border-border bg-muted/30">
+                    <div className="flex items-center justify-between border-b border-border px-3 py-1.5">
+                      <p className="text-xs font-semibold text-muted-foreground">{zoomed === "front" ? "Vorderseite" : "Rückseite"} (vergrößert)</p>
+                      <button type="button" title="Schließen" onClick={() => setZoomed(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+                    </div>
+                    <IdImage src={images[zoomed].url} alt="Ausweis vergrößert" heightClass="h-[70vh]" rot={rot[zoomed]}
+                      onRotate={() => setRot((r) => ({ ...r, [zoomed]: (r[zoomed] + 90) % 360 }))} onClick={() => setZoomed(null)} />
+                  </div>
                 ) : images ? (
                   (["front", "back"] as const).map((side) => (
                     <div key={side} className="overflow-hidden rounded-lg border border-border bg-muted/30">
-                      <p className="border-b border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground">{side === "front" ? "Vorderseite" : "Rückseite"}</p>
+                      <p className="border-b border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground">{side === "front" ? "Vorderseite" : "Rückseite"} · zum Vergrößern klicken</p>
                       {images[side].type === "application/pdf" ? (
                         <a href={images[side].url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-4 text-sm text-primary"><FileText className="h-4 w-4" /> PDF öffnen</a>
                       ) : (
-                        <IdImage src={images[side].url} alt={side === "front" ? "Ausweis Vorderseite" : "Ausweis Rückseite"} />
+                        <IdImage src={images[side].url} alt={side === "front" ? "Ausweis Vorderseite" : "Ausweis Rückseite"} heightClass="h-60" rot={rot[side]}
+                          onRotate={() => setRot((r) => ({ ...r, [side]: (r[side] + 90) % 360 }))} onClick={() => setZoomed(side)} />
                       )}
                     </div>
                   ))
@@ -399,9 +411,8 @@ function Field({ label, bad, ...p }: { label: string; bad?: boolean } & React.In
   );
 }
 
-function IdImage({ src, alt }: { src: string; alt: string }) {
+function IdImage({ src, alt, rot, onRotate, onClick, heightClass }: { src: string; alt: string; rot: number; onRotate: () => void; onClick: () => void; heightClass: string }) {
   const boxRef = useRef<HTMLDivElement>(null);
-  const [rot, setRot] = useState(0);
   const [box, setBox] = useState({ w: 0, h: 0 });
   useEffect(() => {
     const el = boxRef.current;
@@ -412,24 +423,22 @@ function IdImage({ src, alt }: { src: string; alt: string }) {
   }, []);
   const sideways = rot % 180 !== 0;
   return (
-    <div ref={boxRef} className="relative h-44 w-full overflow-hidden">
-      <a href={src} target="_blank" rel="noreferrer">
-        <img
-          src={src}
-          alt={alt}
-          onLoad={(e) => { const i = e.currentTarget; if (i.naturalHeight > i.naturalWidth) setRot(90); }}
-          className="absolute left-1/2 top-1/2 object-contain"
-          style={{
-            width: sideways ? box.h : box.w,
-            height: sideways ? box.w : box.h,
-            transform: `translate(-50%, -50%) rotate(${rot}deg)`,
-          }}
-        />
-      </a>
+    <div ref={boxRef} className={`relative w-full overflow-hidden ${heightClass}`}>
+      <img
+        src={src}
+        alt={alt}
+        onClick={onClick}
+        className="absolute left-1/2 top-1/2 cursor-zoom-in object-contain"
+        style={{
+          width: sideways ? box.h : box.w,
+          height: sideways ? box.w : box.h,
+          transform: `translate(-50%, -50%) rotate(${rot}deg)`,
+        }}
+      />
       <button
         type="button"
         title="Drehen"
-        onClick={() => setRot((r) => (r + 90) % 360)}
+        onClick={onRotate}
         className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card/90 text-muted-foreground hover:text-foreground"
       >
         <RotateCw className="h-3.5 w-3.5" />
