@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserPlus, Loader2, RefreshCw, Copy, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CallerLinkDialog, LinkedBadges, useCallerLinks } from "@/components/CallerLinks";
+import { Link2 } from "lucide-react";
 import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 
 interface Caller {
@@ -52,6 +54,8 @@ export default function AdminCallers() {
   const [removeAvatar, setRemoveAvatar] = useState(false);
   const [saving, setSaving] = useState(false);
   const editFileRef = useRef<HTMLInputElement | null>(null);
+  const linkCtx = useCallerLinks();
+  const [linking, setLinking] = useState<Caller | null>(null);
   const editPreview = editAvatarFile ? URL.createObjectURL(editAvatarFile) : null;
 
   const load = async () => {
@@ -225,7 +229,8 @@ export default function AdminCallers() {
                   <TableHead>Email</TableHead>
                   <TableHead>Telefon</TableHead>
                   <TableHead>Passwort</TableHead>
-                  <TableHead className="w-28 text-right">Aktion</TableHead>
+                  <TableHead>Verknüpft</TableHead>
+                  <TableHead className="w-56 text-right">Aktion</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -264,7 +269,11 @@ export default function AdminCallers() {
                           </span>
                         ) : "—"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell><LinkedBadges callerId={c.id} ctx={linkCtx} onChanged={linkCtx.reload} /></TableCell>
+                      <TableCell className="space-x-2 text-right">
+                        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setLinking(c)}>
+                          <Link2 className="w-3.5 h-3.5" /> Verknüpfen
+                        </Button>
                         <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openEdit(c)}>
                           <Pencil className="w-3.5 h-3.5" /> Bearbeiten
                         </Button>
@@ -278,6 +287,7 @@ export default function AdminCallers() {
         </CardContent>
       </Card>
 
+      <CallerLinkDialog caller={linking as any} ctx={linkCtx} onClose={() => setLinking(null)} onChanged={linkCtx.reload} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg p-6 gap-0">
           <DialogHeader className="space-y-0">
