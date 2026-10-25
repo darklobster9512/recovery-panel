@@ -171,7 +171,6 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
   }, [role, userId, brandingId]);
 
   const vic = vics.find((v) => v.id === vicId);
-  const banks = useMemo(() => [...new Set(verifs.map((v) => splitVerificationTitle(v.title).bank))].sort(), [verifs]);
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const startExtract = async (id: string) => {
@@ -344,8 +343,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <Input list="bank-options" value={form.bank} onChange={set("bank")} placeholder="z. B. Sparkasse" className={touched && !form.bank.trim() ? "border-destructive" : ""} />
-                  <datalist id="bank-options">{banks.map((b) => <option key={b} value={b} />)}</datalist>
+                  <Input autoComplete="off" value={form.bank} onChange={set("bank")} placeholder="z. B. Sparkasse" className={touched && !form.bank.trim() ? "border-destructive" : ""} />
                 </div>
               </div>
             </div>
