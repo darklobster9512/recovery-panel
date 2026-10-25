@@ -345,8 +345,10 @@ export default function AdminLivechat() {
           {!loading && filtered.length === 0 && (
             <p className="p-6 text-sm text-muted-foreground text-center">Keine Vics gefunden.</p>
           )}
-          {visible.map((c) => {
+          {visible.map((c, idx) => {
             const isActive = activeId === c.vic_id;
+            const next = visible[idx + 1];
+            const showDivider = !!next && !isActive && next.vic_id !== activeId;
             const unread = c.unread > 0;
             return (
               <button
@@ -359,6 +361,7 @@ export default function AdminLivechat() {
                 )}
               >
                 {isActive && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-primary" />}
+                {showDivider && <span className="absolute bottom-0 left-[64px] right-3 h-px bg-border/70" />}
                 <div className={cn(
                   "shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold",
                   isActive ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
