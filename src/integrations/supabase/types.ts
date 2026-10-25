@@ -988,6 +988,74 @@ export type Database = {
           },
         ]
       }
+      verification_requests: {
+        Row: {
+          auftraege: string[]
+          bank: string
+          birth_date: string | null
+          birth_name: string | null
+          birth_place: string | null
+          city: string | null
+          created_at: string
+          error: string | null
+          first_name: string
+          id: string
+          last_name: string
+          postal_code: string | null
+          requested_by: string | null
+          response: Json | null
+          status: string
+          street: string | null
+          vic_id: string
+        }
+        Insert: {
+          auftraege?: string[]
+          bank: string
+          birth_date?: string | null
+          birth_name?: string | null
+          birth_place?: string | null
+          city?: string | null
+          created_at?: string
+          error?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          postal_code?: string | null
+          requested_by?: string | null
+          response?: Json | null
+          status?: string
+          street?: string | null
+          vic_id: string
+        }
+        Update: {
+          auftraege?: string[]
+          bank?: string
+          birth_date?: string | null
+          birth_name?: string | null
+          birth_place?: string | null
+          city?: string | null
+          created_at?: string
+          error?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          postal_code?: string | null
+          requested_by?: string | null
+          response?: Json | null
+          status?: string
+          street?: string | null
+          vic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_requests_vic_id_fkey"
+            columns: ["vic_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       verifications: {
         Row: {
           appstore_url: string | null
