@@ -17,7 +17,7 @@ import { DialogShellHeader, DialogFooterBar } from "@/components/admin/DialogShe
 import { ClipboardCheck, ChevronsUpDown, Info, Loader2, Clock, AlertTriangle, Check, FileText } from "lucide-react";
 import { toast } from "sonner";
 import {
-  auftragKey, DEFAULT_AUFTRAEGE, isValidBirthDate, splitVerificationTitle, type VerificationLite,
+  auftragKey, blockedBanks, DEFAULT_AUFTRAEGE, isValidBirthDate, splitVerificationTitle, type VerificationLite,
 } from "@/lib/verificationRequests";
 
 interface VicOption { id: string; name: string; email: string; hasId: boolean }
@@ -141,13 +141,13 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
   const [images, setImages] = useState<{ front: { url: string; type: string }; back: { url: string; type: string } } | null>(null);
   const [extracting, setExtracting] = useState(false);
   const [extractError, setExtractError] = useState<string | null>(null);
-  const [verifs, setVerifs] = useState<(VerificationLite & { key: string })[]>([]);
+  const [verifs, setVerifs] = useState<(VerificationLite & { key: string; logo_url?: string | null })[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set(DEFAULT_AUFTRAEGE));
   const [submitting, setSubmitting] = useState(false);
   const [touched, setTouched] = useState(false);
 
   useEffect(() => {
-    supabase.from("verifications").select("id, title, type").order("title").then(({ data }) => {
+    supabase.from("verifications").select("id, title, type, logo_url").order("title").then(({ data }) => {
       setVerifs((data ?? []).map((v) => ({ ...v, key: auftragKey(v) })));
     });
     (async () => {
@@ -198,8 +198,9 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
   };
 
   const dataOk = form.first_name.trim() && form.last_name.trim() && form.bank.trim() && isValidBirthDate(form.birth_date.trim());
-  const toggle = (k: string) => setSelected((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
-  const chosen = verifs.filter((v) => selected.has(v.key));
+  const blocked = useMemo(() => blockedBanks(form.bank, verifs), [form.bank, verifs]);
+  const toggle = (k: string) => { if (blocked.has(k)) return; setSelected((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; }); };
+  const chosen = verifs.filter((v) => selected.has(v.key) && !blocked.has(v.key));
 
   const submit = async () => {
     setSubmitting(true);
@@ -350,17 +351,37 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
           )}
 
           {step === "select" && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <p className="text-sm text-muted-foreground">Standardmäßig sind die fünf üblichen Verifikationen gewählt. Weitere sind optional.</p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {verifs.map((v) => (
-                  <label key={v.id} className="flex cursor-pointer items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/40">
-                    <Checkbox checked={selected.has(v.key)} onCheckedChange={() => toggle(v.key)} />
-                    <span className="min-w-0 flex-1 text-sm">{v.title}</span>
-                    {DEFAULT_AUFTRAEGE.includes(v.key) && <Badge variant="secondary" className="font-normal">Standard</Badge>}
-                  </label>
-                ))}
-              </div>
+              {([
+                ["Ausgewählt", verifs.filter((v) => selected.has(v.key) && !blocked.has(v.key))],
+                ["Weitere Verifikationen", verifs.filter((v) => !selected.has(v.key) && !blocked.has(v.key))],
+                ["Vic bereits Kunde", verifs.filter((v) => blocked.has(v.key))],
+              ] as const).map(([label, list]) => list.length > 0 && (
+                <div key={label} className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label} ({list.length})</p>
+                  {list.map((v) => {
+                    const isBlocked = blocked.has(v.key);
+                    const on = selected.has(v.key) && !isBlocked;
+                    const { bank, sub } = splitVerificationTitle(v.title);
+                    return (
+                      <button type="button" key={v.id} disabled={isBlocked} onClick={() => toggle(v.key)}
+                        className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${isBlocked ? "cursor-not-allowed border-border opacity-50" : on ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}>
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-background">
+                          {v.logo_url ? <img src={v.logo_url} alt={bank} className="h-full w-full object-contain p-1" />
+                            : <span className="text-sm font-semibold text-muted-foreground">{bank.slice(0, 2).toUpperCase()}</span>}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold">{bank}</p>
+                          <p className="text-xs text-muted-foreground">{isBlocked ? "Vic ist bereits Kunde dieser Bank" : sub || (v.type === "postident" ? "Postident" : "Video-Ident")}</p>
+                        </div>
+                        {DEFAULT_AUFTRAEGE.includes(v.key) && !isBlocked && <Badge variant="secondary" className="font-normal">Standard</Badge>}
+                        <Checkbox checked={on} disabled={isBlocked} className="pointer-events-none" />
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
           )}
 

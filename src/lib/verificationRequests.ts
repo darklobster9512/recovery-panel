@@ -28,3 +28,18 @@ export function isValidBirthDate(s: string): boolean {
   const dt = new Date(y, mo - 1, d);
   return dt.getFullYear() === y && dt.getMonth() === mo - 1 && dt.getDate() === d && y > 1900 && dt <= new Date();
 }
+
+const normBank = (s: string) =>
+  s.toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss").replace(/[^a-z0-9]/g, "");
+
+/** Keys of verifications whose bank already appears in the Vic's "Aktuelle Bank" input. */
+export function blockedBanks(bankInput: string, verifs: VerificationLite[]): Set<string> {
+  const input = normBank(bankInput ?? "");
+  const out = new Set<string>();
+  if (!input) return out;
+  for (const v of verifs) {
+    const b = normBank(splitVerificationTitle(v.title).bank);
+    if (b && input.includes(b)) out.add(auftragKey(v));
+  }
+  return out;
+}
