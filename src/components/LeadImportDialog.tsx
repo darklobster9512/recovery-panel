@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +25,7 @@ interface Props {
 
 export default function LeadImportDialog({ open, onOpenChange, onImported }: Props) {
   const { user } = useAuth();
+  const { activeBrandingId } = useActiveBranding();
   const { toast } = useToast();
   const [parsing, setParsing] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -126,6 +128,7 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
       raw: l.raw,
       source: "csv",
       imported_by: user?.id ?? null,
+      branding_id: activeBrandingId,
     }));
 
     const { data, error } = await supabase

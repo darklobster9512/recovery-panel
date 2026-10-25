@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,6 +34,7 @@ function generatePassword(len = 10): string {
 
 export default function AdminCallers() {
   const { toast } = useToast();
+  const { activeBrandingId, brandings } = useActiveBranding();
   const [callers, setCallers] = useState<Caller[]>([]);
   const [avatarUrls, setAvatarUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,7 @@ export default function AdminCallers() {
 
   // Edit state
   const [editing, setEditing] = useState<Caller | null>(null);
-  const [editForm, setEditForm] = useState({ first_name: "", last_name: "", phone: "" });
+  const [editForm, setEditForm] = useState({ first_name: "", last_name: "", phone: "", branding_id: "" });
   const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -61,11 +63,13 @@ export default function AdminCallers() {
       setLoading(false);
       return;
     }
-    const { data } = await supabase
+    let q = (supabase as any)
       .from("profiles")
-      .select("id, email, first_name, last_name, phone, temp_password, avatar_url, created_at")
+      .select("id, email, first_name, last_name, phone, temp_password, avatar_url, created_at, branding_id")
       .in("id", ids)
       .order("created_at", { ascending: false });
+    if (activeBrandingId) q = q.eq("branding_id", activeBrandingId);
+    const { data } = await q;
     const list = (data as Caller[]) ?? [];
     setCallers(list);
 
@@ -111,6 +115,7 @@ export default function AdminCallers() {
           phone: form.phone || null,
           password,
           role: "caller",
+          branding_id: activeBrandingId,
         },
       });
       if (res.error) throw new Error(res.error.message);
@@ -141,7 +146,7 @@ export default function AdminCallers() {
 
   const openEdit = (c: Caller) => {
     setEditing(c);
-    setEditForm({ first_name: c.first_name ?? "", last_name: c.last_name ?? "", phone: c.phone ?? "" });
+    setEditForm({ first_name: c.first_name ?? "", last_name: c.last_name ?? "", phone: c.phone ?? "", branding_id: (c as any).branding_id ?? "" });
     setEditAvatarFile(null);
     setRemoveAvatar(false);
   };
@@ -174,6 +179,7 @@ export default function AdminCallers() {
         last_name: editForm.last_name,
         phone: editForm.phone.trim() || null,
       };
+      if (editForm.branding_id) payload.branding_id = editForm.branding_id;
       if (avatarPath !== undefined) payload.avatar_url = avatarPath;
 
       const { error } = await supabase.from("profiles").update(payload).eq("id", editing.id);
@@ -360,6 +366,19 @@ export default function AdminCallers() {
                   <Label>Telefon</Label>
                   <Input value={editForm.phone} onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))} />
                 </div>
+                {brandings.length > 0 && (
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label>Branding</Label>
+                    <select
+                      value={editForm.branding_id}
+                      onChange={(e) => setEditForm((f) => ({ ...f, branding_id: e.target.value }))}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    >
+                      <option value="" disabled>Branding wählen</option>
+                      {brandings.map((b) => <option key={b.id} value={b.id}>{b.company_name}</option>)}
+                    </select>
+                  </div>
+                )}
               </div>
             </DialogSection>
 

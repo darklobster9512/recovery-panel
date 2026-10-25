@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -49,6 +50,7 @@ import {
 export default function AdminLeads() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { activeBrandingId } = useActiveBranding();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -62,17 +64,19 @@ export default function AdminLeads() {
 
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase
+    let q = (supabase as any)
       .from("leads")
       .select("*")
       .order("imported_at", { ascending: false });
+    if (activeBrandingId) q = q.eq("branding_id", activeBrandingId);
+    const { data, error } = await q;
     if (error) {
       toast({ title: "Leads konnten nicht geladen werden", description: error.message, variant: "destructive" });
     } else {
       setLeads((data ?? []) as Lead[]);
     }
     setLoading(false);
-  }, [toast]);
+  }, [toast, activeBrandingId]);
 
   useEffect(() => {
     load();
