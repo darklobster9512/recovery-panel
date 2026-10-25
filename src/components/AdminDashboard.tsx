@@ -15,6 +15,8 @@ import {
 import { LEAD_STATUSES, CAMPAIGN_META, type LeadCampaign } from "@/lib/leads";
 import { APPOINTMENT_STATUS_LABELS } from "@/lib/booking";
 import { cn } from "@/lib/utils";
+import { useActiveBranding } from "@/contexts/BrandingContext";
+import { fetchBrandingProfileIds } from "@/lib/branding";
 import { VIC_STATUS_OPTIONS } from "@/components/VicStatusSelect";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -71,6 +73,7 @@ function Trend({ current, previous, suffix = "" }: { current: number; previous: 
 }
 
 export default function AdminDashboard() {
+  const { activeBrandingId } = useActiveBranding();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [review, setReview] = useState(0);
@@ -101,56 +104,58 @@ export default function AdminDashboard() {
     const since7 = new Date(now.getTime() - 7 * DAY).toISOString();
     const today = ymd(now);
 
-    const countByStatus = (status: AssignmentStatus) =>
-      supabase.from("verification_assignments").select("id", { count: "exact", head: true }).eq("status", status);
+    const brandIds = activeBrandingId ? new Set(await fetchBrandingProfileIds(activeBrandingId)) : null;
+    const inB = (id: string | null | undefined) => !brandIds || (!!id && brandIds.has(id));
+    const fb = <T,>(rows: T[] | null | undefined, key: keyof T) => (rows ?? []).filter((r) => inB(r[key] as any));
 
     const [
       rolesRes, leadsRes, newProfilesRes, assign14Res, openAssignRes, recentRes,
-      unreadRes, apptRes, ...statusCounts
+      unreadRes, apptRes, allAssignRes,
     ] = await Promise.all([
       supabase.from("user_roles").select("user_id, role").in("role", ["admin", "caller"]),
-      supabase.from("leads").select("id, status, campaign, imported_at, assigned_caller_id").order("imported_at", { ascending: false }).limit(1000),
+      (activeBrandingId ? (supabase as any).from("leads").select("id, status, campaign, imported_at, assigned_caller_id").eq("branding_id", activeBrandingId) : supabase.from("leads").select("id, status, campaign, imported_at, assigned_caller_id")).order("imported_at", { ascending: false }).limit(1000),
       supabase.from("profiles").select("id, created_at").gte("created_at", since14).limit(1000),
       supabase.from("verification_assignments").select("id, user_id, created_at, status").gte("created_at", since14).limit(1000),
       supabase.from("verification_assignments").select("user_id, status").in("status", ["zugewiesen", "in_bearbeitung", "in_ueberpruefung"]).limit(1000),
-      supabase.from("verification_assignments").select("id, user_id, verification_id, status, created_at").order("created_at", { ascending: false }).limit(5),
+      supabase.from("verification_assignments").select("id, user_id, verification_id, status, created_at").order("created_at", { ascending: false }).limit(300),
       supabase.from("chat_messages").select("vic_id").eq("sender_role", "vic").is("read_at_team", null).limit(1000),
       supabase.from("appointments").select("id, vic_id, caller_id, appointment_date, appointment_time, status").gte("appointment_date", today).eq("status", "gebucht").order("appointment_date").order("appointment_time").limit(200),
-      ...PIPELINE.map((p) => countByStatus(p.status)),
+      supabase.from("verification_assignments").select("user_id, status").limit(5000),
     ]);
 
     const staffRoles = (rolesRes.data ?? []) as { user_id: string; role: string }[];
     const staffIds = new Set(staffRoles.map((r) => r.user_id));
-    const callerIds = staffRoles.filter((r) => r.role === "caller").map((r) => r.user_id);
+    const callerIds = staffRoles.filter((r) => r.role === "caller" && inB(r.user_id)).map((r) => r.user_id);
 
     const pipe: Record<string, number> = {};
-    PIPELINE.forEach((p, i) => { pipe[p.status] = statusCounts[i].count ?? 0; });
+    PIPELINE.forEach((p) => { pipe[p.status] = 0; });
+    fb(allAssignRes.data as { user_id: string; status: string }[], "user_id").forEach((a) => { pipe[a.status] = (pipe[a.status] ?? 0) + 1; });
     setPipeline(pipe);
     setReview(pipe["in_ueberpruefung"] ?? 0);
 
     setLeads((leadsRes.data ?? []) as LeadRow[]);
-    setNewVicDates(((newProfilesRes.data ?? []) as { id: string; created_at: string }[]).filter((p) => !staffIds.has(p.id)).map((p) => p.created_at));
-    setRecentAssignDates(((assign14Res.data ?? []) as { created_at: string }[]).map((a) => a.created_at));
+    setNewVicDates(fb(newProfilesRes.data as { id: string; created_at: string }[], "id").filter((p) => !staffIds.has(p.id)).map((p) => p.created_at));
+    setRecentAssignDates(fb(assign14Res.data as { user_id: string; created_at: string }[], "user_id").map((a) => a.created_at));
 
-    const unread = (unreadRes.data ?? []) as { vic_id: string }[];
+    const unread = fb(unreadRes.data as { vic_id: string }[], "vic_id");
     setUnreadMsgs(unread.length);
     setUnreadChats(new Set(unread.map((u) => u.vic_id)).size);
 
     const [vicsCount, noCallerRes, docsRes, docsCount, vicStatusRes] = await Promise.all([
-      supabase.from("user_roles").select("id", { count: "exact", head: true }).eq("role", "user"),
+      supabase.from("user_roles").select("user_id").eq("role", "user").limit(5000),
       supabase.from("profiles").select("id, first_name, last_name, email, created_at").is("assigned_caller_id", null).order("created_at", { ascending: false }).limit(1000),
-      supabase.from("user_documents").select("created_at").gte("created_at", since14).limit(1000),
-      supabase.from("user_documents").select("id", { count: "exact", head: true }),
-      supabase.from("profiles").select("id, member_status, source_lead_id").limit(1000),
+      supabase.from("user_documents").select("user_id, created_at").gte("created_at", since14).limit(1000),
+      supabase.from("user_documents").select("user_id").limit(5000),
+      supabase.from("profiles").select("id, member_status, source_lead_id").limit(5000),
     ]);
-    setVicStatusRows(((vicStatusRes.data ?? []) as { id: string; member_status: string; source_lead_id: string | null }[]).filter((p) => !staffIds.has(p.id)));
-    setTotalVics(vicsCount.count ?? 0);
-    setNoCaller(((noCallerRes.data ?? []) as NoCallerVic[]).filter((p) => !staffIds.has(p.id)));
-    setDocDates(((docsRes.data ?? []) as { created_at: string }[]).map((d) => d.created_at));
-    setTotalDocs(docsCount.count ?? 0);
+    setVicStatusRows(fb(vicStatusRes.data as { id: string; member_status: string; source_lead_id: string | null }[], "id").filter((p) => !staffIds.has(p.id)));
+    setTotalVics(fb(vicsCount.data as { user_id: string }[], "user_id").length);
+    setNoCaller(fb(noCallerRes.data as NoCallerVic[], "id").filter((p) => !staffIds.has(p.id)));
+    setDocDates(fb(docsRes.data as { user_id: string; created_at: string }[], "user_id").map((d) => d.created_at));
+    setTotalDocs(fb(docsCount.data as { user_id: string }[], "user_id").length);
 
     // Termine + Namen
-    const appts = (apptRes.data ?? []) as ApptRow[];
+    const appts = fb(apptRes.data as ApptRow[], "vic_id");
     const apptVicIds = [...new Set(appts.slice(0, 20).map((a) => a.vic_id))];
     const apptCallerIds = [...new Set(appts.slice(0, 20).map((a) => a.caller_id).filter(Boolean) as string[])];
 
@@ -194,7 +199,7 @@ export default function AdminDashboard() {
     );
 
     // Letzte Zuweisungen
-    const recent5 = (recentRes.data ?? []) as AssignmentRow[];
+    const recent5 = fb(recentRes.data as AssignmentRow[], "user_id").slice(0, 5);
     if (recent5.length) {
       const userIds = [...new Set(recent5.map((a) => a.user_id))];
       const verIds = [...new Set(recent5.map((a) => a.verification_id))];
