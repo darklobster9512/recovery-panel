@@ -303,9 +303,9 @@ function AdminPanelInner() {
                             <SidebarMenuButton
                               asChild
                               tooltip={item.label}
-                              className={`h-9 rounded-xl px-3 text-[13px] font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-foreground/5 hover:text-sidebar-foreground ${
+                              className={`h-9 rounded-xl px-3 text-[13px] font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground ${
                                 active
-                                  ? "bg-primary/10 font-semibold text-primary hover:bg-primary/15 hover:text-primary [&_svg]:text-primary"
+                                  ? "bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/30 hover:bg-primary hover:text-primary-foreground [&_svg]:text-primary-foreground data-[active=true]:bg-primary"
                                   : ""
                               }`}
                             >
