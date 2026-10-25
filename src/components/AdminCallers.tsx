@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -53,6 +54,8 @@ export default function AdminCallers() {
   const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const editFileRef = useRef<HTMLInputElement | null>(null);
   const linkCtx = useCallerLinks();
   const [linkSel, setLinkSel] = useState<string[]>([]);
@@ -200,6 +203,26 @@ export default function AdminCallers() {
       toast({ title: "Fehler", description: e.message, variant: "destructive" });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!editing) return;
+    setDeleting(true);
+    try {
+      const res = await supabase.functions.invoke("delete-caller", { body: { caller_id: editing.id } });
+      const err = (res.data as any)?.error || res.error?.message;
+      if (err) throw new Error(err);
+      invalidateBrandingProfileIds();
+      toast({ title: "Caller gelöscht" });
+      setConfirmDelete(false);
+      setEditing(null);
+      linkCtx.reload();
+      load();
+    } catch (e: any) {
+      toast({ title: "Fehler", description: e.message, variant: "destructive" });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -440,6 +463,14 @@ export default function AdminCallers() {
           </div>
 
           <DialogFooterBar>
+            <Button
+              variant="outline"
+              className="mr-auto gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => setConfirmDelete(true)}
+              disabled={saving || deleting}
+            >
+              <Trash2 className="w-4 h-4" /> Caller löschen
+            </Button>
             <Button variant="outline" onClick={() => setEditing(null)} disabled={saving}>Abbrechen</Button>
             <Button onClick={handleSave} disabled={saving} className="gap-2 min-w-[140px]">
               {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Speichern…</> : <>Speichern</>}
@@ -447,6 +478,25 @@ export default function AdminCallers() {
           </DialogFooterBar>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={confirmDelete} onOpenChange={(o) => !deleting && setConfirmDelete(o)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Caller {[editing?.first_name, editing?.last_name].filter(Boolean).join(" ") || editing?.email} wirklich löschen?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Das Konto wird dauerhaft entfernt und kann sich nicht mehr einloggen. Zugewiesene Vics, Leads, Termine und Aufgaben bleiben erhalten und sind danach ohne Caller.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Abbrechen</AlertDialogCancel>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleting} className="gap-2">
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} Endgültig löschen
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
