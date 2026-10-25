@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { invalidateBrandingProfileIds } from "@/lib/branding";
 import { useActiveBranding } from "@/contexts/BrandingContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -110,6 +111,7 @@ export default function AdminCallers() {
     }
     setSubmitting(true);
     try {
+      invalidateBrandingProfileIds();
       const res = await supabase.functions.invoke("create-user", {
         body: {
           email: form.email,
