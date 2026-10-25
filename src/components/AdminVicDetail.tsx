@@ -320,7 +320,7 @@ export default function AdminVicDetail() {
         <div className="space-y-4 min-w-0">
       {/* Profile Card */}
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4 p-4 pb-2">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0 p-4 pb-2">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="h-8 w-8 -ml-1 rounded-full" onClick={() => navigate("/admin/vics")} aria-label="Zurück zur Übersicht">
               <ArrowLeft className="w-4 h-4" />
@@ -335,7 +335,7 @@ export default function AdminVicDetail() {
               onChange={(v) => setProfile((p) => (p ? { ...p, member_status: v } : p))}
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {role === "admin" && brandings.length > 0 && (
               <select
                 title="Branding"
@@ -346,7 +346,7 @@ export default function AdminVicDetail() {
                   if (error) { toast({ title: "Branding konnte nicht geändert werden", variant: "destructive" }); return; }
                   setProfile((p) => (p ? ({ ...p, branding_id: v } as any) : p));
                 }}
-                className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                className="h-9 rounded-xl border border-input bg-card px-3 text-sm"
               >
                 <option value="" disabled>Branding</option>
                 {brandings.map((b) => <option key={b.id} value={b.id}>{b.company_name}</option>)}
@@ -363,7 +363,7 @@ export default function AdminVicDetail() {
             {role === "admin" && (
               <Button
                 variant="outline"
-                size="sm"
+                className="h-9"
                 onClick={() => setResendOpen(true)}
                 disabled={!profile.email || !profile.temp_password}
                 title={!profile.email ? "Keine Email hinterlegt" : !profile.temp_password ? "Kein Klartext-Passwort gespeichert" : undefined}
@@ -372,7 +372,7 @@ export default function AdminVicDetail() {
                 <Mail className="w-3.5 h-3.5" /> Ihr Fall Email neu senden
               </Button>
             )}
-            <Button variant="outline" size="sm" onClick={openEdit} className="gap-2">
+            <Button variant="outline" className="h-9 gap-2" onClick={openEdit} >
               <Pencil className="w-3.5 h-3.5" /> Bearbeiten
             </Button>
           </div>
