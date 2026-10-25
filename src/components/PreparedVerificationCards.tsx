@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertTriangle, Check, Clock, Loader2, Phone, Mail, Play } from "lucide-react";
 import { toast } from "sonner";
-import AssignmentStatusBadge, { type AssignmentStatus } from "@/components/AssignmentStatusBadge";
+import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { splitVerificationTitle } from "@/lib/verificationRequests";
 
@@ -230,8 +230,25 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
               })}
             </div>
           )}
+          <div className="flex justify-end border-t border-border pt-3">
+            <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10" onClick={() => setConfirmOpen(true)}>
+              Vic abgesprungen
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Vic abgesprungen?</AlertDialogTitle>
+            <AlertDialogDescription>Die Karte wird ausgeblendet. Fortfahren?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={dismiss} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Bestätigen</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
