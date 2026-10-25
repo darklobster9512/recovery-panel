@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useAdminTheme } from "@/hooks/useAdminTheme";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -7,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Shield, Users, FileText, LogOut, Phone, LayoutDashboard,
+  Shield, Users, FileText, LogOut, Sun, Moon, Phone, LayoutDashboard,
   ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones, MessageCircle, CalendarDays, ListChecks,
   MessageSquare, Palette, ChevronsUpDown, Check,
 } from "lucide-react";
