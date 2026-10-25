@@ -134,6 +134,8 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
   const [vicId, setVicId] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [vicTab, setVicTab] = useState<"ok" | "none">("ok");
+  const [vicSearch, setVicSearch] = useState("");
+  const [vicLimit, setVicLimit] = useState(20);
   const [form, setForm] = useState<Form>(EMPTY);
   const [images, setImages] = useState<{ front: { url: string; type: string }; back: { url: string; type: string } } | null>(null);
   const [extracting, setExtracting] = useState(false);
@@ -144,32 +146,27 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
   const [touched, setTouched] = useState(false);
 
   useEffect(() => {
+    supabase.from("verifications").select("id, title, type").order("title").then(({ data }) => {
+      setVerifs((data ?? []).map((v) => ({ ...v, key: auftragKey(v) })));
+    });
     (async () => {
-      let ids: string[] = [];
-      if (role === "caller" && userId) {
-        const { data } = await supabase.from("profiles").select("id").eq("assigned_caller_id", userId);
-        ids = (data ?? []).map((p) => p.id);
-      } else {
-        const { data } = await supabase.from("user_roles").select("user_id").eq("role", "user");
-        ids = (data ?? []).map((r) => r.user_id);
-      }
-      let list: any[] = [];
-      if (ids.length) {
-        let q = (supabase as any).from("profiles").select("id, first_name, last_name, email").in("id", ids).order("created_at", { ascending: false });
-        if (role !== "caller" && brandingId) q = q.eq("branding_id", brandingId);
-        list = (await q).data ?? [];
-      }
-      const { data: docs } = await supabase.from("user_documents").select("user_id").eq("kind", "personalausweis").in("user_id", list.map((p) => p.id)).limit(1000);
-      const withId = new Set((docs ?? []).map((d) => d.user_id));
+      let profQ = (supabase as any).from("profiles").select("id, first_name, last_name, email").order("created_at", { ascending: false }).limit(5000);
+      if (role === "caller" && userId) profQ = profQ.eq("assigned_caller_id", userId);
+      else if (brandingId) profQ = profQ.eq("branding_id", brandingId);
+      const [profRes, rolesRes, docsRes] = await Promise.all([
+        profQ,
+        role === "caller" ? Promise.resolve({ data: null }) : supabase.from("user_roles").select("user_id").eq("role", "user").limit(10000),
+        supabase.from("user_documents").select("user_id").eq("kind", "personalausweis").limit(10000),
+      ]);
+      const vicIds = rolesRes.data ? new Set((rolesRes.data as any[]).map((r) => r.user_id)) : null;
+      const withId = new Set(((docsRes.data ?? []) as any[]).map((d) => d.user_id));
+      const list = ((profRes.data ?? []) as any[]).filter((p) => !vicIds || vicIds.has(p.id));
       setVics(list.map((p) => ({
         id: p.id, email: p.email ?? "", hasId: withId.has(p.id),
         name: [p.first_name, p.last_name].filter(Boolean).join(" ") || p.email || p.id,
       })));
       setVicsLoading(false);
     })();
-    supabase.from("verifications").select("id, title, type").order("title").then(({ data }) => {
-      setVerifs((data ?? []).map((v) => ({ ...v, key: auftragKey(v) })));
-    });
   }, [role, userId, brandingId]);
 
   const vic = vics.find((v) => v.id === vicId);
@@ -247,20 +244,26 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                   <div className="flex gap-1 border-b border-border p-1.5">
                     {([["ok", "Verfügbar", vics.filter((v) => v.hasId).length], ["none", "Kein Ausweis", vics.filter((v) => !v.hasId).length]] as const).map(([k, label, n]) => (
-                      <button key={k} type="button" onClick={() => setVicTab(k)}
+                      <button key={k} type="button" onClick={() => { setVicTab(k); setVicLimit(20); }}
                         className={`flex-1 rounded-md px-3 py-1.5 text-sm transition-colors ${vicTab === k ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:bg-muted"}`}>
                         {label} ({n})
                       </button>
                     ))}
                   </div>
-                  <Command key={vicTab}>
-                    <CommandInput placeholder="Name oder E-Mail suchen…" />
+                  {(() => {
+                    const q = vicSearch.trim().toLowerCase();
+                    const filtered = vics.filter((v) => (vicTab === "ok" ? v.hasId : !v.hasId) && (!q || `${v.name} ${v.email}`.toLowerCase().includes(q)));
+                    const shown = filtered.slice(0, vicLimit);
+                    return (
+                  <Command shouldFilter={false}>
+                    <CommandInput autoFocus placeholder="Name oder E-Mail suchen…" value={vicSearch} onValueChange={(s) => { setVicSearch(s); setVicLimit(20); }} />
                     <CommandList>
-                      <CommandEmpty>Keine Vics gefunden.</CommandEmpty>
+                      <CommandEmpty>{vicsLoading ? "Lade Vics…" : "Keine Vics gefunden."}</CommandEmpty>
+                      {!q && filtered.length > 0 && <p className="px-3 pt-2 text-xs text-muted-foreground">Tipp: Namen oder E-Mail eintippen.</p>}
                       {vicTab === "none" && <p className="px-3 py-2 text-xs text-muted-foreground">Für diese Vics muss zuerst ein Personalausweis hochgeladen werden.</p>}
                       <CommandGroup>
-                        {vics.filter((v) => (vicTab === "ok" ? v.hasId : !v.hasId)).map((v) => (
-                          <CommandItem key={v.id} value={`${v.name} ${v.email}`} disabled={!v.hasId} onSelect={() => { setVicId(v.id); setPickerOpen(false); }}>
+                        {shown.map((v) => (
+                          <CommandItem key={v.id} value={v.id} disabled={!v.hasId} onSelect={() => { setVicId(v.id); setPickerOpen(false); }}>
                             <Check className={`mr-2 h-4 w-4 ${vicId === v.id ? "opacity-100" : "opacity-0"}`} />
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-sm">{v.name}</p>
@@ -270,8 +273,17 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                           </CommandItem>
                         ))}
                       </CommandGroup>
+                      {filtered.length > shown.length && (
+                        <div className="p-1.5">
+                          <Button variant="ghost" size="sm" className="w-full" onClick={() => setVicLimit((n) => n + 20)}>
+                            Weitere anzeigen ({filtered.length - shown.length})
+                          </Button>
+                        </div>
+                      )}
                     </CommandList>
                   </Command>
+                    );
+                  })()}
                 </PopoverContent>
               </Popover>
               <p className="text-xs text-muted-foreground">Nur Vics mit hochgeladenem Personalausweis können gewählt werden.</p>
