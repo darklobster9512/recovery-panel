@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/dialog";
 import { Eye, Loader2, MessageSquare, Upload, FileText } from "lucide-react";
 import { DialogShellHeader } from "@/components/admin/DialogShell";
+import { usePagination } from "@/hooks/usePagination";
+import TablePagination from "@/components/TablePagination";
 import LeadImportDialog from "@/components/LeadImportDialog";
 import LeadNotesDialog from "@/components/LeadNotesDialog";
 import LeadActivityLog from "@/components/LeadActivityLog";
@@ -108,6 +110,7 @@ export default function AdminLeads() {
         .some((v) => (v as string).toLowerCase().includes(q));
     });
   }, [leads, search, statusFilter]);
+  const pg = usePagination(filtered);
 
   return (
     <div className="space-y-6">
@@ -176,7 +179,7 @@ export default function AdminLeads() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((lead) => (
+                {pg.pageItems.map((lead) => (
                   <TableRow key={lead.id}>
                     <TableCell className="whitespace-nowrap text-muted-foreground tabular-nums">
                       {formatDateTime(lead.imported_at)}
@@ -283,6 +286,7 @@ export default function AdminLeads() {
               </TableBody>
             </Table>
           )}
+          <TablePagination page={pg.page} totalPages={pg.totalPages} total={pg.total} pageSize={pg.pageSize} setPage={pg.setPage} />
         </CardContent>
       </Card>
 
