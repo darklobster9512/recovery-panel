@@ -59,6 +59,9 @@ export function renderCredentialsEmail(
 <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px;">Passwort</div>
 <div style="font-family:'Courier New',Courier,monospace;font-size:16px;color:#0b1f3a;font-weight:700;word-break:break-all;">${password}</div>
 </td></tr></table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;background-color:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;"><tr><td style="padding:16px 20px;font-size:15px;line-height:24px;color:#0b1f3a;">
+<strong>Ihr nächster Schritt:</strong> Bitte loggen Sie sich mit den oben genannten Zugangsdaten in unser Mandantenportal ein und laden Sie dort Ihren Personalausweis (Vorder- und Rückseite) hoch. Erst danach können wir mit der weiteren Bearbeitung Ihres Falls beginnen.
+</td></tr></table>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 8px;"><tr><td style="background-color:#0b1f3a;border-radius:8px;">
 <a href="${loginUrl}" style="display:inline-block;padding:13px 26px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">Zum Mandantenportal</a>
 </td></tr></table>
