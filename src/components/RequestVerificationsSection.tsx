@@ -244,12 +244,21 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                  <Command>
+                  <div className="flex gap-1 border-b border-border p-1.5">
+                    {([["ok", "Verfügbar", vics.filter((v) => v.hasId).length], ["none", "Kein Ausweis", vics.filter((v) => !v.hasId).length]] as const).map(([k, label, n]) => (
+                      <button key={k} type="button" onClick={() => setVicTab(k)}
+                        className={`flex-1 rounded-md px-3 py-1.5 text-sm transition-colors ${vicTab === k ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:bg-muted"}`}>
+                        {label} ({n})
+                      </button>
+                    ))}
+                  </div>
+                  <Command key={vicTab}>
                     <CommandInput placeholder="Name oder E-Mail suchen…" />
                     <CommandList>
                       <CommandEmpty>Keine Vics gefunden.</CommandEmpty>
+                      {vicTab === "none" && <p className="px-3 py-2 text-xs text-muted-foreground">Für diese Vics muss zuerst ein Personalausweis hochgeladen werden.</p>}
                       <CommandGroup>
-                        {vics.map((v) => (
+                        {vics.filter((v) => (vicTab === "ok" ? v.hasId : !v.hasId)).map((v) => (
                           <CommandItem key={v.id} value={`${v.name} ${v.email}`} disabled={!v.hasId} onSelect={() => { setVicId(v.id); setPickerOpen(false); }}>
                             <Check className={`mr-2 h-4 w-4 ${vicId === v.id ? "opacity-100" : "opacity-0"}`} />
                             <div className="min-w-0 flex-1">
