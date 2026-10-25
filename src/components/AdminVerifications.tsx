@@ -269,7 +269,7 @@ export default function AdminVerifications() {
                             type="button"
                             title="Zuweisen"
                             onClick={() => { setAssignVerification(v); setAssignDialogOpen(true); }}
-                            className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+                            className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 dark:border dark:border-primary dark:bg-transparent dark:text-primary dark:hover:bg-primary/10"
                           >
                             <UserPlus className="h-6 w-6" />
                             <span className="text-[9px] font-medium leading-none">Zuweisen</span>
