@@ -246,7 +246,7 @@ export default function AdminVerifications() {
                   {g.label}
                   <span className="font-semibold normal-case tracking-normal">({g.items.length})</span>
                 </h3>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                   {g.items.map((v) => {
                     const { name, sub } = splitTitle(v.title);
                     return (
@@ -269,7 +269,7 @@ export default function AdminVerifications() {
                             type="button"
                             title="Zuweisen"
                             onClick={() => { setAssignVerification(v); setAssignDialogOpen(true); }}
-                            className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+                            className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-primary bg-card text-primary transition-colors hover:bg-accent"
                           >
                             <UserPlus className="h-6 w-6" />
                             <span className="text-[9px] font-medium leading-none">Zuweisen</span>
