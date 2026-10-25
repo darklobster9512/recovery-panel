@@ -250,7 +250,7 @@ export default function AdminVerifications() {
                   {g.items.map((v) => {
                     const { name, sub } = splitTitle(v.title);
                     return (
-                      <Card key={v.id} className={`relative overflow-hidden border-t-2 p-3 ${isPost ? "border-t-warning" : "border-t-primary"}`}>
+                      <Card key={v.id} className={`relative overflow-hidden border-t-2 p-3 transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-lg ${isPost ? "border-t-warning" : "border-t-primary"}`}>
                         <Button size="icon" variant="ghost" className="absolute right-1.5 top-1.5 h-7 w-7 text-muted-foreground" title="Bearbeiten" onClick={() => openEdit(v)}>
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
