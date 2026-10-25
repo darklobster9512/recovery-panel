@@ -39,6 +39,7 @@ interface AssignmentRow { id: string; user_id: string; verification_id: string; 
 interface LeadRow { status: string; campaign: string | null; imported_at: string; assigned_caller_id: string | null }
 interface ApptRow { id: string; vic_id: string; caller_id: string | null; appointment_date: string; appointment_time: string; status: string }
 interface CallerRow { id: string; name: string; vics: number; open: number; weekAssignments: number }
+interface NoCallerVic { id: string; first_name: string | null; last_name: string | null; email: string | null; created_at: string }
 interface RecentAssignment extends AssignmentRow { userName: string; verificationTitle: string }
 interface UpcomingAppt extends ApptRow { vicName: string; callerName: string }
 
@@ -83,6 +84,9 @@ export default function AdminDashboard() {
   const [callers, setCallers] = useState<CallerRow[]>([]);
   const [recent, setRecent] = useState<RecentAssignment[]>([]);
   const [totalVics, setTotalVics] = useState(0);
+  const [noCaller, setNoCaller] = useState<NoCallerVic[]>([]);
+  const [docDates, setDocDates] = useState<string[]>([]);
+  const [totalDocs, setTotalDocs] = useState(0);
 
   useEffect(() => {
     loadData();
@@ -130,9 +134,16 @@ export default function AdminDashboard() {
     setUnreadMsgs(unread.length);
     setUnreadChats(new Set(unread.map((u) => u.vic_id)).size);
 
-    // Gesamtzahl Vics
-    const vicsCount = await supabase.from("user_roles").select("id", { count: "exact", head: true }).eq("role", "user");
+    const [vicsCount, noCallerRes, docsRes, docsCount] = await Promise.all([
+      supabase.from("user_roles").select("id", { count: "exact", head: true }).eq("role", "user"),
+      supabase.from("profiles").select("id, first_name, last_name, email, created_at").is("assigned_caller_id", null).order("created_at", { ascending: false }).limit(1000),
+      supabase.from("user_documents").select("created_at").gte("created_at", since14).limit(1000),
+      supabase.from("user_documents").select("id", { count: "exact", head: true }),
+    ]);
     setTotalVics(vicsCount.count ?? 0);
+    setNoCaller(((noCallerRes.data ?? []) as NoCallerVic[]).filter((p) => !staffIds.has(p.id)));
+    setDocDates(((docsRes.data ?? []) as { created_at: string }[]).map((d) => d.created_at));
+    setTotalDocs(docsCount.count ?? 0);
 
     // Termine + Namen
     const appts = (apptRes.data ?? []) as ApptRow[];
@@ -206,15 +217,14 @@ export default function AdminDashboard() {
     const cnt = (arr: string[], from: number, to: number) => arr.filter((d) => inRange(d, from, to)).length;
     const leadDates = leads.map((l) => l.imported_at);
     const total = Object.values(pipeline).reduce((s, n) => s + n, 0);
-    const done = (pipeline["abgeschlossen"] ?? 0) + (pipeline["genehmigt"] ?? 0);
     return {
       vics: [cnt(newVicDates, 7, 0), cnt(newVicDates, 14, 7)],
       leads: [cnt(leadDates, 7, 0), cnt(leadDates, 14, 7)],
       assignments: [cnt(recentAssignDates, 7, 0), cnt(recentAssignDates, 14, 7)],
-      rate: total ? Math.round((done / total) * 100) : 0,
+      docs: [cnt(docDates, 7, 0), cnt(docDates, 14, 7)],
       total,
     };
-  }, [leads, newVicDates, recentAssignDates, pipeline]);
+  }, [leads, newVicDates, recentAssignDates, pipeline, docDates]);
 
   const activity = useMemo(() => {
     const days: { key: string; label: string; leads: number; vics: number; assignments: number }[] = [];
@@ -250,20 +260,21 @@ export default function AdminDashboard() {
     europol: { label: CAMPAIGN_META.europol.label, color: "hsl(var(--primary))" },
   } satisfies ChartConfig;
 
-  const unassignedLeads = leads.filter((l) => l.status === "neu" && !l.assigned_caller_id).length;
+  const unassignedVics = noCaller.length;
   const nextToday = todayAppts[0];
 
   const todo = [
     { label: "Zur Überprüfung", value: review, meta: review === 1 ? "Auftrag wartet auf Prüfung" : "Aufträge warten auf Prüfung", icon: ShieldCheck, to: "/admin/ueberpruefung" },
     { label: "Ungelesene Chats", value: unreadChats, meta: unreadMsgs ? `${unreadMsgs} neue Nachricht${unreadMsgs === 1 ? "" : "en"}` : "Alles beantwortet", icon: MessageSquare, to: "/admin/livechat" },
     { label: "Termine heute", value: todayAppts.length, meta: nextToday ? `Nächster: ${nextToday.appointment_time.slice(0, 5)} Uhr` : "Keine Termine heute", icon: CalendarClock, to: "/admin/termine" },
-    { label: "Neue Leads ohne Caller", value: unassignedLeads, meta: unassignedLeads ? "Noch nicht verteilt" : "Alle verteilt", icon: Inbox, to: "/admin/leads" },
+    { label: "Vics ohne Caller", value: unassignedVics, meta: unassignedVics ? "Noch nicht zugewiesen" : "Alle zugewiesen", icon: Inbox, to: "/admin/vics" },
   ];
 
   const kpis = [
     { label: "Neue Vics (7 Tage)", value: stats.vics[0], prev: stats.vics[1], meta: `${totalVics} Vics gesamt` },
     { label: "Neue Leads (7 Tage)", value: stats.leads[0], prev: stats.leads[1], meta: `${leads.length} Leads gesamt` },
     { label: "Neue Zuweisungen (7 Tage)", value: stats.assignments[0], prev: stats.assignments[1], meta: `${stats.total} Aufträge gesamt` },
+    { label: "Hochgeladene Dokumente (7 Tage)", value: stats.docs[0], prev: stats.docs[1], meta: `${totalDocs} Dokumente gesamt` },
   ];
 
   const dateStr = new Date().toLocaleDateString("de-DE", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
@@ -314,7 +325,7 @@ export default function AdminDashboard() {
       {/* Kennzahlen */}
       <section className="grid grid-cols-1 overflow-hidden rounded-lg border border-border bg-card shadow-card sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((k) => (
-          <div key={k.label} className="border-b border-border p-5 sm:border-r lg:border-b-0">
+          <div key={k.label} className="border-b border-border p-5 sm:border-r lg:border-b-0 lg:last:border-r-0">
             <span className="text-xs font-semibold text-muted-foreground">{k.label}</span>
             <p className="mt-3 font-display text-3xl font-semibold tabular-nums text-foreground">{loading ? "…" : k.value}</p>
             <div className="mt-1 flex flex-col gap-0.5">
@@ -323,11 +334,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         ))}
-        <div className="p-5">
-          <span className="text-xs font-semibold text-muted-foreground">Abschlussquote</span>
-          <p className="mt-3 font-display text-3xl font-semibold tabular-nums text-foreground">{loading ? "…" : `${stats.rate}%`}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Abgeschlossen oder genehmigt, aller Aufträge</p>
-        </div>
       </section>
 
       {/* Diagramme */}
@@ -399,30 +405,27 @@ export default function AdminDashboard() {
 
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
-            <CardTitle className="text-base">Nächste Termine</CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/termine")} className="gap-1 text-primary">Alle <ArrowRight /></Button>
+            <CardTitle className="text-base">Vics ohne Caller</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/vics")} className="gap-1 text-primary">Alle <ArrowRight /></Button>
           </CardHeader>
           <CardContent className="p-0">
-            {loading ? <p className="px-5 py-4 text-sm text-muted-foreground">Laden…</p> : upcoming.length === 0 ? (
-              <p className="px-5 py-4 text-sm text-muted-foreground">Keine anstehenden Termine.</p>
+            {loading ? <p className="px-5 py-4 text-sm text-muted-foreground">Laden…</p> : noCaller.length === 0 ? (
+              <p className="px-5 py-4 text-sm text-muted-foreground">Alle Vics haben einen Caller.</p>
             ) : (
               <Table>
                 <TableHeader><TableRow>
-                  <TableHead className="text-xs">Zeitpunkt</TableHead>
-                  <TableHead className="text-xs">Vic</TableHead>
-                  <TableHead className="text-xs">Caller</TableHead>
-                  <TableHead className="text-xs">Status</TableHead>
+                  <TableHead className="text-xs">Name</TableHead>
+                  <TableHead className="text-xs">E-Mail</TableHead>
+                  <TableHead className="text-xs">Registriert</TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
-                  {upcoming.map((a) => (
-                    <TableRow key={a.id} className="cursor-pointer" onClick={() => navigate(`/admin/vics/${a.vic_id}`)}>
-                      <TableCell className="text-sm whitespace-nowrap">
-                        {new Date(a.appointment_date).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" })}, {a.appointment_time.slice(0, 5)}
-                        {a.appointment_date === ymd(new Date()) && <Badge className="ml-2" variant="secondary">Heute</Badge>}
+                  {noCaller.slice(0, 5).map((v) => (
+                    <TableRow key={v.id} className="cursor-pointer" onClick={() => navigate(`/admin/vics/${v.id}`)}>
+                      <TableCell className="text-sm font-medium">{personName(v)}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{v.email ?? "—"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                        {new Date(v.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" })}
                       </TableCell>
-                      <TableCell className="text-sm">{a.vicName}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{a.callerName}</TableCell>
-                      <TableCell><Badge variant="outline">{APPOINTMENT_STATUS_LABELS[a.status] ?? a.status}</Badge></TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
