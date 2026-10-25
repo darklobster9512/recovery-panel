@@ -28,13 +28,13 @@ export default function AdminEmailTemplates() {
     fetchAppSettings().then((st) => {
       if (!active) return setSettings(st);
       const merged: any = { ...st };
-      for (const k of ["company_name","street","city","phone","email","lawyer","vat_id","website","panel_subprefix"] as const) {
+      for (const k of ["company_name","tagline","street","city","phone","email","lawyer","vat_id","website","panel_subprefix"] as const) {
         const v = (active as any)[k];
         if (typeof v === "string" && v.trim()) merged[k] = v;
       }
       setSettings(merged);
     }).catch(() => {});
-  }, []);
+  }, [active]);
 
   const loginUrl = useMemo(() => buildLoginUrl(settings), [settings]);
   const websiteUrl = useMemo(() => buildWebsiteUrl(settings), [settings]);

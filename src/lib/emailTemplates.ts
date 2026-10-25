@@ -45,7 +45,7 @@ export function renderCredentialsEmail(
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
 <tr><td style="padding:28px 32px;border-bottom:1px solid #e5e7eb;">
 <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:600;color:#0b1f3a;letter-spacing:-0.3px;">${company}</div>
-<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b7280;margin-top:4px;letter-spacing:0.6px;text-transform:uppercase;">Rechtsanwaltskanzlei</div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b7280;margin-top:4px;letter-spacing:0.6px;text-transform:uppercase;">${escapeHtml((settings as any).tagline || "Rechtsanwaltskanzlei")}</div>
 </td></tr>
 <tr><td style="padding:32px;font-family:Arial,Helvetica,sans-serif;color:#111827;">
 <h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#0b1f3a;">Ihr Fall wurde bei uns registriert</h1>
@@ -65,7 +65,7 @@ export function renderCredentialsEmail(
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 8px;"><tr><td style="background-color:#0b1f3a;border-radius:8px;">
 <a href="${loginUrl}" style="display:inline-block;padding:13px 26px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">Zum Mandantenportal</a>
 </td></tr></table>
-<p style="margin:16px 0 0;font-size:13px;line-height:21px;color:#6b7280;">Mehr Informationen zu unserer Kanzlei finden Sie unter <a href="${websiteUrl}" style="color:#0b1f3a;text-decoration:none;">${websiteLabel}</a>.</p>
+<p style="margin:16px 0 0;font-size:13px;line-height:21px;color:#6b7280;">Mehr Informationen zu ${company || "unserer Kanzlei"} finden Sie unter <a href="${websiteUrl}" style="color:#0b1f3a;text-decoration:none;">${websiteLabel}</a>.</p>
 <p style="margin:16px 0 0;font-size:13px;line-height:21px;color:#6b7280;">Bitte geben Sie diese Zugangsdaten nicht an Dritte weiter. Bei Fragen erreichen Sie uns unter <a href="mailto:${contactEmail}" style="color:#0b1f3a;text-decoration:none;">${contactEmail}</a>.</p>
 </td></tr>
 <tr><td style="padding:24px 32px 28px;background-color:#f9fafb;border-top:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:19px;color:#6b7280;">
