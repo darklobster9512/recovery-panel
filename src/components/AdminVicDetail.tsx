@@ -363,11 +363,10 @@ export default function AdminVicDetail() {
             {role === "admin" && (
               <Button
                 variant="outline"
-                className="h-9"
                 onClick={() => setResendOpen(true)}
                 disabled={!profile.email || !profile.temp_password}
                 title={!profile.email ? "Keine Email hinterlegt" : !profile.temp_password ? "Kein Klartext-Passwort gespeichert" : undefined}
-                className="gap-2"
+                className="h-9 gap-2"
               >
                 <Mail className="w-3.5 h-3.5" /> Ihr Fall Email neu senden
               </Button>
