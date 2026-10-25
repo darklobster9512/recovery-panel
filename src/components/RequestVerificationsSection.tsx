@@ -43,6 +43,9 @@ export default function RequestVerificationsSection({ onAssigned }: { onAssigned
   const [rows, setRows] = useState<RequestRow[]>([]);
   const [vicNames, setVicNames] = useState<Record<string, string>>({});
   const [showAll, setShowAll] = useState(false);
+  const [rowsLoaded, setRowsLoaded] = useState(false);
+  const [preparedLoaded, setPreparedLoaded] = useState(false);
+  const markPrepared = useCallback(() => setPreparedLoaded(true), []);
 
   const load = useCallback(async () => {
     const { data } = await (supabase as any)
@@ -56,6 +59,7 @@ export default function RequestVerificationsSection({ onAssigned }: { onAssigned
       const ok = new Set((ps ?? []).map((p: any) => p.id));
       setRows(list.filter((r) => ok.has(r.vic_id)));
     } else setRows(list);
+    setRowsLoaded(true);
   }, [activeBrandingId, role]);
 
   useEffect(() => { load(); }, [load]);
@@ -99,9 +103,10 @@ export default function RequestVerificationsSection({ onAssigned }: { onAssigned
         vicIds={activeBrandingId && role !== "caller" ? new Set(rows.map((r) => r.vic_id)) : null}
         onMovedChange={setMoved}
         onChanged={onAssigned}
+        onLoaded={markPrepared}
       />
 
-      {pending.length > 0 && (
+      {rowsLoaded && preparedLoaded && pending.length > 0 && (
         <div className="space-y-2">
           <h3 className="text-xs font-bold uppercase text-muted-foreground" style={{ letterSpacing: "0.08em" }}>
             Angeforderte Verifikationen ({pending.length})
