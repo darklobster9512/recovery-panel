@@ -11,7 +11,10 @@ export function useAdminTheme() {
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
     localStorage.setItem(KEY, theme);
-    return () => root.classList.remove("dark");
+    // Every admin tab remounts the panel; only drop dark mode when leaving /admin.
+    return () => {
+      setTimeout(() => { if (!window.location.pathname.startsWith("/admin")) root.classList.remove("dark"); }, 0);
+    };
   }, [theme]);
 
   const toggle = useCallback(() => setTheme((t) => (t === "dark" ? "light" : "dark")), []);

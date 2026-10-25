@@ -138,6 +138,7 @@ function BrandMark({ logo, name, color }: { logo?: string | null; name: string; 
 
 function AdminPanelInner() {
   const { user, role, signOut } = useAuth();
+  const { theme, toggle: toggleTheme } = useAdminTheme();
   const { brandings, active, setActive, activeBrandingId, ready } = useActiveBranding();
   const isAdmin = role === "admin";
   const [linked, setLinked] = useState<any[]>([]);
@@ -335,6 +336,16 @@ function AdminPanelInner() {
                 <p className="truncate text-xs font-semibold text-sidebar-foreground">{user?.email}</p>
                 <p className="truncate text-[10px] text-sidebar-foreground/50">Administrator</p>
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 shrink-0 text-sidebar-foreground/65 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground"
+                onClick={toggleTheme}
+                aria-label={theme === "dark" ? "Helles Design" : "Dunkles Design"}
+                title={theme === "dark" ? "Helles Design" : "Dunkles Design"}
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
