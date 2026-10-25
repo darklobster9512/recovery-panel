@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import AssignVerificationDialog from "@/components/AssignVerificationDialog";
 import AdminAssignmentHistory from "@/components/AdminAssignmentHistory";
 import VerificationLogo from "@/components/VerificationLogo";
+import RequestVerificationsSection from "@/components/RequestVerificationsSection";
 
 type VerificationType = "videocall" | "postident";
 
@@ -230,6 +231,8 @@ export default function AdminVerifications() {
         </div>
         <Button onClick={openCreate} className="gap-2"><Plus /> Neue Verifikation</Button>
       </div>
+
+      <RequestVerificationsSection />
 
       {loading ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
