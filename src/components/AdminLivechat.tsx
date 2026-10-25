@@ -338,7 +338,7 @@ export default function AdminLivechat() {
             />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-2 pb-2">
+        <div className="scrollbar-brand flex-1 overflow-y-auto px-2 pb-2">
           {loading && (
             <div className="p-6 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
           )}
@@ -444,7 +444,7 @@ export default function AdminLivechat() {
               )}
             </div>
 
-            <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 bg-muted/30">
+            <div ref={scrollRef} className="scrollbar-brand flex-1 overflow-y-auto px-5 py-4 bg-muted/30">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-full gap-2 text-muted-foreground">
                   <MessageCircle className="w-7 h-7" />
@@ -531,7 +531,7 @@ export default function AdminLivechat() {
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader><DialogTitle>Chat-Vorlagen</DialogTitle></DialogHeader>
-                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                      <div className="scrollbar-brand space-y-2 max-h-64 overflow-y-auto">
                         {templates.map((t) => (
                           <div key={t.id} className="flex items-start gap-2 border rounded-md p-2">
                             <div className="min-w-0 flex-1">
