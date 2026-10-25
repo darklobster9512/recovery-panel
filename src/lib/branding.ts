@@ -65,8 +65,24 @@ export async function fetchBrandingForHost(host: string): Promise<PublicBranding
   return ((data ?? [])[0] as PublicBranding) ?? null;
 }
 
-/** Fetch ids of Vic profiles belonging to a branding (used to scope dependent tables). */
-export async function fetchBrandingProfileIds(brandingId: string): Promise<string[]> {
+const PROFILE_IDS_TTL = 60_000;
+const profileIdsCache = new Map<string, { at: number; promise: Promise<string[]> }>();
+
+export function invalidateBrandingProfileIds() {
+  profileIdsCache.clear();
+}
+
+/** Fetch ids of Vic profiles belonging to a branding (used to scope dependent tables). Cached briefly and shared across tabs. */
+export function fetchBrandingProfileIds(brandingId: string): Promise<string[]> {
+  const hit = profileIdsCache.get(brandingId);
+  if (hit && Date.now() - hit.at < PROFILE_IDS_TTL) return hit.promise;
+  const promise = loadBrandingProfileIds(brandingId);
+  profileIdsCache.set(brandingId, { at: Date.now(), promise });
+  promise.catch(() => profileIdsCache.delete(brandingId));
+  return promise;
+}
+
+async function loadBrandingProfileIds(brandingId: string): Promise<string[]> {
   const ids: string[] = [];
   for (let from = 0; ; from += 1000) {
     const { data, error } = await (supabase as any)
