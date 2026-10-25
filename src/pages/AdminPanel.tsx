@@ -288,11 +288,11 @@ function AdminPanelInner() {
                 {gi > 0 && <div className="h-1" />}
                 <SidebarGroup>
                   {g.label ? (
-                    <SidebarGroupLabel className="px-3 mt-3 text-[10px] font-bold uppercase text-sidebar-foreground/45" style={{ letterSpacing: "0.08em" }}>
+                    <SidebarGroupLabel className="px-3 mt-3 text-[10px] font-bold uppercase text-sidebar-foreground/45 dark:text-sidebar-foreground/60" style={{ letterSpacing: "0.08em" }}>
                       {g.label}
                     </SidebarGroupLabel>
                   ) : (
-                    <SidebarGroupLabel className="px-3 mt-3 text-[10px] font-bold uppercase text-sidebar-foreground/45" style={{ letterSpacing: "0.08em" }}>
+                    <SidebarGroupLabel className="px-3 mt-3 text-[10px] font-bold uppercase text-sidebar-foreground/45 dark:text-sidebar-foreground/60" style={{ letterSpacing: "0.08em" }}>
                       Übersicht
                     </SidebarGroupLabel>
                   )}
@@ -307,7 +307,7 @@ function AdminPanelInner() {
                               tooltip={item.label}
                               className={`h-9 rounded-xl px-3 text-[13px] font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground ${
                                 active
-                                  ? "bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/30 hover:bg-primary hover:text-primary-foreground [&_svg]:text-primary-foreground data-[active=true]:bg-primary dark:bg-sidebar-accent dark:text-sidebar-accent-foreground dark:shadow-none dark:hover:bg-sidebar-accent dark:hover:text-sidebar-accent-foreground dark:[&_svg]:text-sidebar-accent-foreground"
+                                  ? "bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/30 hover:bg-primary hover:text-primary-foreground [&_svg]:text-primary-foreground data-[active=true]:bg-primary dark:bg-sidebar-accent dark:text-sidebar-accent-foreground dark:shadow-[inset_3px_0_0_hsl(var(--primary))] dark:hover:bg-sidebar-accent dark:hover:text-sidebar-accent-foreground dark:[&_svg]:text-sidebar-accent-foreground"
                                   : ""
                               }`}
                             >
