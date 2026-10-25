@@ -285,53 +285,117 @@ export default function AdminLivechat() {
 
   const callerName = (id: string | null) => callers.find((c) => c.id === id)?.name ?? null;
 
+  const initials = (name: string) =>
+    name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?";
+
+  const shortTime = (iso: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    const now = new Date();
+    const yest = new Date(); yest.setDate(now.getDate() - 1);
+    if (d.toDateString() === now.toDateString())
+      return d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+    if (d.toDateString() === yest.toDateString()) return "Gestern";
+    return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" });
+  };
+
+  const dayLabel = (iso: string) => {
+    const d = new Date(iso);
+    const now = new Date();
+    const yest = new Date(); yest.setDate(now.getDate() - 1);
+    if (d.toDateString() === now.toDateString()) return "Heute";
+    if (d.toDateString() === yest.toDateString()) return "Gestern";
+    return d.toLocaleDateString("de-DE", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+  };
+
+  const senderLabel = (m: Msg) =>
+    m.as_caller_id
+      ? `${callerName(m.as_caller_id) ?? "Caller"} (im Namen)`
+      : m.sender_role === "admin" ? "Admin" : callerName(m.sender_user_id) ?? "Caller";
+
+  const unreadTotal = convs.filter((c) => c.unread > 0).length;
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 h-[calc(100vh-9rem)]">
+    <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-5 h-[calc(100vh-9rem)]">
       {/* Conversation list */}
-      <Card className="flex flex-col overflow-hidden">
-        <div className="p-3 border-b">
+      <Card className="flex flex-col overflow-hidden rounded-2xl shadow-sm">
+        <div className="px-4 pt-4 pb-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold tracking-tight">Chats</h2>
+            {unreadTotal > 0 && (
+              <span className="text-xs font-medium text-primary bg-primary/10 rounded-full px-2.5 py-0.5">
+                {unreadTotal} ungelesen
+              </span>
+            )}
+          </div>
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Vic suchen…"
-              className="pl-8"
+              className="pl-9 h-10 rounded-full bg-muted/60 border-transparent focus-visible:bg-background"
             />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto px-2 pb-2">
           {loading && (
             <div className="p-6 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
           )}
           {!loading && filtered.length === 0 && (
             <p className="p-6 text-sm text-muted-foreground text-center">Keine Vics gefunden.</p>
           )}
-          {visible.map((c) => (
-            <button
-              key={c.vic_id}
-              type="button"
-              onClick={() => setActiveId(c.vic_id)}
-              className={cn(
-                "w-full text-left px-3 py-2.5 border-b hover:bg-muted/60 transition",
-                activeId === c.vic_id && "bg-muted"
-              )}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium truncate">{c.name}</span>
-                {c.unread > 0 && <Badge className="shrink-0">{c.unread}</Badge>}
-              </div>
-              <p className="text-xs text-muted-foreground truncate">{c.lastText || c.email}</p>
-              {isAdmin && (
-                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                  {callerName(c.assigned_caller_id) ?? "Dr. Thomas Korte (Kanzlei)"}
-                </p>
-              )}
-            </button>
-          ))}
+          {visible.map((c) => {
+            const isActive = activeId === c.vic_id;
+            const unread = c.unread > 0;
+            return (
+              <button
+                key={c.vic_id}
+                type="button"
+                onClick={() => setActiveId(c.vic_id)}
+                className={cn(
+                  "relative w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors",
+                  isActive ? "bg-primary/10" : "hover:bg-muted/60"
+                )}
+              >
+                {isActive && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-primary" />}
+                <div className={cn(
+                  "shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold",
+                  isActive ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
+                )}>
+                  {initials(c.name)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={cn("text-sm truncate", unread ? "font-semibold text-foreground" : "font-medium")}>
+                      {c.name}
+                    </span>
+                    <span className={cn("text-[11px] shrink-0", unread ? "text-primary font-medium" : "text-muted-foreground")}>
+                      {shortTime(c.lastAt)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mt-0.5">
+                    <p className={cn("text-xs truncate", unread ? "text-foreground" : "text-muted-foreground")}>
+                      {c.lastText || c.email}
+                    </p>
+                    {unread && (
+                      <span className="shrink-0 min-w-5 h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold flex items-center justify-center">
+                        {c.unread}
+                      </span>
+                    )}
+                  </div>
+                  {isAdmin && (
+                    <p className="text-[11px] text-muted-foreground/80 mt-0.5 truncate">
+                      {callerName(c.assigned_caller_id) ?? "Dr. Thomas Korte (Kanzlei)"}
+                    </p>
+                  )}
+                </div>
+              </button>
+            );
+          })}
           {!search.trim() && filtered.length > visibleCount && (
-            <div className="p-3">
-              <Button variant="outline" size="sm" className="w-full" onClick={() => setVisibleCount((n) => n + 20)}>
+            <div className="p-2">
+              <Button variant="ghost" size="sm" className="w-full text-primary" onClick={() => setVisibleCount((n) => n + 20)}>
                 Weitere anzeigen ({filtered.length - visibleCount})
               </Button>
             </div>
@@ -340,24 +404,30 @@ export default function AdminLivechat() {
       </Card>
 
       {/* Chat */}
-      <Card className="flex flex-col overflow-hidden">
+      <Card className="flex flex-col overflow-hidden rounded-2xl shadow-sm">
         {!active ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-2 text-muted-foreground">
-            <MessageCircle className="w-8 h-8" />
-            <p className="text-sm">Wählen Sie links einen Chat aus.</p>
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center px-6">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <MessageCircle className="w-8 h-8 text-primary" />
+            </div>
+            <p className="text-base font-semibold">Kein Chat ausgewählt</p>
+            <p className="text-sm text-muted-foreground max-w-xs">Wählen Sie links einen Vic aus, um den Verlauf zu sehen und zu antworten.</p>
           </div>
         ) : (
           <>
-            <div className="px-4 py-3 border-b flex flex-wrap items-center gap-3">
+            <div className="px-5 py-3.5 border-b flex flex-wrap items-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">
+                {initials(active.name)}
+              </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold truncate">{active.name}</p>
+                <p className="text-base font-semibold truncate">{active.name}</p>
                 <p className="text-xs text-muted-foreground truncate">{active.email}</p>
               </div>
               {isAdmin && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 rounded-full bg-muted/60 pl-3 pr-1 py-1">
                   <span className="text-xs text-muted-foreground whitespace-nowrap">Antworten als</span>
                   <Select value={asCallerId} onValueChange={setAsCallerId}>
-                    <SelectTrigger className="w-[190px] h-8 text-xs">
+                    <SelectTrigger className="w-[200px] h-8 text-xs rounded-full bg-background border-transparent">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -371,41 +441,65 @@ export default function AdminLivechat() {
               )}
             </div>
 
-            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2 bg-muted/30">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 bg-muted/30">
               {messages.length === 0 && (
-                <p className="text-center text-xs text-muted-foreground mt-6">Noch keine Nachrichten.</p>
+                <div className="flex flex-col items-center justify-center h-full gap-2 text-muted-foreground">
+                  <MessageCircle className="w-7 h-7" />
+                  <p className="text-sm">Noch keine Nachrichten.</p>
+                </div>
               )}
-              {messages.map((m) => {
+              {messages.map((m, i) => {
                 const mine = m.sender_role !== "vic";
+                const prev = messages[i - 1];
+                const newDay = !prev || new Date(prev.created_at).toDateString() !== new Date(m.created_at).toDateString();
+                const showSender = mine && (newDay || !prev || prev.sender_role === "vic" || senderLabel(prev) !== senderLabel(m));
+                const grouped = !newDay && prev && (prev.sender_role !== "vic") === mine;
                 return (
-                  <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
-                    <div className={cn(
-                      "max-w-[70%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap break-words",
-                      mine ? "bg-primary text-primary-foreground" : "bg-background border"
-                    )}>
-                      {mine && (
-                        <div className="text-[10px] opacity-75 mb-0.5">
-                          {m.as_caller_id
-                            ? `${callerName(m.as_caller_id) ?? "Caller"} (im Namen)`
-                            : m.sender_role === "admin" ? "Admin" : callerName(m.sender_user_id) ?? "Caller"}
-                        </div>
-                      )}
-                      {m.content}
-                      {m.attachment_url && attachments[m.attachment_url] && (
-                        <div className="mt-2">
-                          {m.attachment_type?.startsWith("image/") ? (
-                            <a href={attachments[m.attachment_url]} target="_blank" rel="noreferrer">
-                              <img src={attachments[m.attachment_url]} className="max-w-full rounded-lg" />
-                            </a>
-                          ) : (
-                            <a href={attachments[m.attachment_url]} target="_blank" rel="noreferrer" className="underline text-xs">
-                              Datei öffnen
-                            </a>
+                  <div key={m.id}>
+                    {newDay && (
+                      <div className="flex justify-center my-4">
+                        <span className="text-[11px] font-medium text-muted-foreground bg-background border rounded-full px-3 py-1 shadow-sm">
+                          {dayLabel(m.created_at)}
+                        </span>
+                      </div>
+                    )}
+                    <div className={cn("flex", mine ? "justify-end" : "justify-start", grouped ? "mt-1" : "mt-3")}>
+                      <div className="max-w-[70%]">
+                        {showSender && (
+                          <div className="text-[11px] text-muted-foreground mb-1 text-right pr-1">{senderLabel(m)}</div>
+                        )}
+                        <div className={cn(
+                          "rounded-2xl px-3.5 py-2 text-sm whitespace-pre-wrap break-words shadow-sm",
+                          mine
+                            ? "bg-primary text-primary-foreground rounded-br-md"
+                            : "bg-background border rounded-bl-md"
+                        )}>
+                          {m.content}
+                          {m.attachment_url && attachments[m.attachment_url] && (
+                            <div className={cn(m.content && "mt-2")}>
+                              {m.attachment_type?.startsWith("image/") ? (
+                                <a href={attachments[m.attachment_url]} target="_blank" rel="noreferrer">
+                                  <img src={attachments[m.attachment_url]} className="max-w-full max-h-72 rounded-xl" />
+                                </a>
+                              ) : (
+                                <a
+                                  href={attachments[m.attachment_url]}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className={cn(
+                                    "flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium",
+                                    mine ? "bg-primary-foreground/15" : "bg-muted"
+                                  )}
+                                >
+                                  <FileText className="w-4 h-4" /> Datei öffnen
+                                </a>
+                              )}
+                            </div>
                           )}
+                          <div className={cn("text-[10px] mt-1 text-right", mine ? "opacity-75" : "text-muted-foreground")}>
+                            {new Date(m.created_at).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}
+                          </div>
                         </div>
-                      )}
-                      <div className="text-[10px] mt-1 opacity-70">
-                        {new Date(m.created_at).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                       </div>
                     </div>
                   </div>
@@ -413,18 +507,17 @@ export default function AdminLivechat() {
               })}
             </div>
 
-            <div className="p-3 border-t space-y-2">
-              <div className="flex items-center gap-2 flex-wrap">
+            <div className="px-4 pt-3 pb-4 border-t space-y-2.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 {templates.slice(0, 6).map((t) => (
-                  <Button
+                  <button
                     key={t.id}
-                    variant="outline"
-                    size="sm"
-                    className="h-7 text-xs"
+                    type="button"
+                    className="h-7 px-3 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
                     onClick={() => setInput((prev) => (prev ? prev + " " : "") + t.content)}
                   >
                     {t.shortcode}
-                  </Button>
+                  </button>
                 ))}
                 {isAdmin && (
                   <Dialog open={tplOpen} onOpenChange={setTplOpen}>
@@ -460,11 +553,11 @@ export default function AdminLivechat() {
                   </Dialog>
                 )}
               </div>
-              <div className="flex items-end gap-2">
+              <div className="flex items-end gap-2 rounded-3xl border bg-muted/40 pl-2 pr-1.5 py-1.5 focus-within:bg-background focus-within:border-primary/40 transition-colors">
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
-                  className="p-2 rounded-lg text-muted-foreground hover:bg-muted"
+                  className="p-2 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
                   aria-label="Datei anhängen"
                 >
                   <Paperclip className="w-5 h-5" />
@@ -476,11 +569,11 @@ export default function AdminLivechat() {
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
                   }}
-                  rows={2}
+                  rows={1}
                   placeholder="Nachricht schreiben…"
-                  className="flex-1 resize-none"
+                  className="flex-1 resize-none min-h-[40px] max-h-40 border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-2.5"
                 />
-                <Button onClick={send} disabled={sending}>
+                <Button onClick={send} disabled={sending} size="icon" className="rounded-full h-10 w-10 shrink-0" aria-label="Senden">
                   {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>
               </div>
