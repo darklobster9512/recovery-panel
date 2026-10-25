@@ -342,7 +342,7 @@ export default function AdminVicDetail() {
                 onChange={async (e) => {
                   const v = e.target.value;
                   const { error } = await (supabase as any).from("profiles").update({ branding_id: v }).eq("id", profile.id);
-                  if (error) { toast.error?.("Branding konnte nicht geändert werden"); return; }
+                  if (error) { toast({ title: "Branding konnte nicht geändert werden", variant: "destructive" }); return; }
                   setProfile((p) => (p ? ({ ...p, branding_id: v } as any) : p));
                 }}
                 className="h-9 rounded-md border border-input bg-background px-2 text-sm"
