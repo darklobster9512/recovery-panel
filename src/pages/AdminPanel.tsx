@@ -236,7 +236,7 @@ function AdminPanelInner() {
                     )}
                     {brandings.map((b) => (
                       <DropdownMenuItem key={b.id} onClick={() => setActive(b.id)} className="gap-2">
-                        {b.logo_url ? <img src={b.logo_url} alt="" className="h-6 w-6 rounded object-contain" /> : <span className="h-6 w-6 rounded" style={{ background: b.brand_color }} />}
+                        {b.logo_url ? <img src={b.logo_url} alt="" className="h-6 w-6 rounded object-contain" /> : <span className="flex h-6 w-6 shrink-0 items-center justify-center text-sm font-bold text-primary">{(b.company_name || "?").charAt(0).toUpperCase()}</span>}
                         <span className="flex-1 truncate">{b.company_name}</span>
                         {b.id === activeBrandingId && <Check className="h-4 w-4 text-primary" />}
                       </DropdownMenuItem>
@@ -268,7 +268,7 @@ function AdminPanelInner() {
                     <DropdownMenuLabel className="text-xs text-muted-foreground">Konto wechseln</DropdownMenuLabel>
                     {linked.map((l) => (
                       <DropdownMenuItem key={l.caller_id} disabled={l.is_self} onClick={() => !l.is_self && switchTo(l.caller_id)} className="gap-2">
-                        {l.logo_url ? <img src={l.logo_url} alt="" className="h-6 w-6 rounded object-contain" /> : <span className="h-6 w-6 rounded" style={{ background: l.brand_color ?? undefined }} />}
+                        {l.logo_url ? <img src={l.logo_url} alt="" className="h-6 w-6 rounded object-contain" /> : <span className="flex h-6 w-6 shrink-0 items-center justify-center text-sm font-bold text-primary">{(l.company_name || "?").charAt(0).toUpperCase()}</span>}
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm">{l.company_name ?? "Ohne Branding"}</p>
                           <p className="truncate text-xs text-muted-foreground">{`${l.first_name ?? ""} ${l.last_name ?? ""}`.trim() || l.email}</p>
