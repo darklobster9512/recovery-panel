@@ -307,7 +307,7 @@ function AdminPanelInner() {
                               tooltip={item.label}
                               className={`h-9 rounded-xl px-3 text-[13px] font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground ${
                                 active
-                                  ? "bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/30 hover:bg-primary hover:text-primary-foreground [&_svg]:text-primary-foreground data-[active=true]:bg-primary"
+                                  ? "bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/30 hover:bg-primary hover:text-primary-foreground [&_svg]:text-primary-foreground data-[active=true]:bg-primary dark:bg-sidebar-accent dark:text-sidebar-accent-foreground dark:shadow-none dark:hover:bg-sidebar-accent dark:hover:text-sidebar-accent-foreground dark:[&_svg]:text-sidebar-accent-foreground"
                                   : ""
                               }`}
                             >
@@ -342,8 +342,8 @@ function AdminPanelInner() {
                 size="icon"
                 className="h-8 w-8 shrink-0 text-sidebar-foreground/65 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground"
                 onClick={toggleTheme}
-                aria-label={theme === "dark" ? "Helles Design" : "Old Money"}
-                title={theme === "dark" ? "Helles Design" : "Old Money"}
+                aria-label={theme === "dark" ? "Helles Design" : "Dunkles Design"}
+                title={theme === "dark" ? "Helles Design" : "Dunkles Design"}
               >
                 {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
