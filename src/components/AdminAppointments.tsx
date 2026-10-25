@@ -19,6 +19,9 @@ import { notifyTelegram } from "@/lib/telegramNotify";
 import { isBefore, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { usePagination } from "@/hooks/usePagination";
+import TablePagination from "@/components/TablePagination";
+
 
 type Row = {
   id: string;
@@ -163,6 +166,7 @@ export default function AdminAppointments() {
     });
   }, [rows, statusFilter, search]);
 
+  const pg = usePagination(filtered);
   const slots = useMemo(() => {
     if (!selectedDate) return [];
     return generateTimeSlots(
@@ -455,7 +459,7 @@ export default function AdminAppointments() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((r) => (
+                  {pg.pageItems.map((r) => (
                     <tr key={r.id} className="border-b border-border/50">
                       <td className="py-2 pr-4">{formatDateLong(r.appointment_date)}</td>
                       <td className="py-2 pr-4">{formatTime(r.appointment_time)}</td>
@@ -493,6 +497,7 @@ export default function AdminAppointments() {
               </table>
             </div>
           )}
+          <TablePagination page={pg.page} totalPages={pg.totalPages} total={pg.total} pageSize={pg.pageSize} setPage={pg.setPage} />
         </CardContent>
       </Card>
     </div>
