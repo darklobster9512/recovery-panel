@@ -104,16 +104,14 @@ export default function RequestVerificationsSection() {
           </h3>
           <div className="flex flex-wrap items-start gap-2">
             {shown.map((r) => (
-              <Card key={r.id} className="w-fit max-w-full p-3">
+              <Card key={r.id} className={`w-fit max-w-full p-3 ${r.status === "fehlgeschlagen" ? "" : "opacity-60 grayscale border-dashed bg-muted/40 shadow-none"}`}>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold">{vicNames[r.vic_id] ?? `${r.first_name} ${r.last_name}`}</p>
                     <p className="text-xs text-muted-foreground">{fmt(r.created_at)} · Eigene Bank: {r.bank}</p>
                   </div>
-                  {r.status === "fehlgeschlagen" ? (
+                  {r.status === "fehlgeschlagen" && (
                     <Badge variant="destructive" className="gap-1"><AlertTriangle className="h-3 w-3" /> Fehlgeschlagen</Badge>
-                  ) : (
-                    <Badge variant="outline" className="gap-1 border-warning/50 text-warning"><Clock className="h-3 w-3" /> In Bearbeitung – noch nicht verfügbar</Badge>
                   )}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
