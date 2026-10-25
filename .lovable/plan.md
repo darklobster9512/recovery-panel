@@ -1,8 +1,8 @@
-# Zuweisen-Knöpfe im dunklen Design dezenter
+# Zuweisen-Knöpfe im dunklen Design als blauer Umriss
 
-- Nur im dunklen Design: Die Zuweisen-Knöpfe auf den Bank-Kacheln sind nicht mehr hellblau gefüllt. Sie bekommen eine dunkle Fläche mit feinem Rand und grauem Symbol und grauer Schrift.
-- Beim Darüberfahren werden Rand und Symbol hellblau, damit der Knopf erkennbar bleibt.
+- Nur im dunklen Design: Zuweisen-Knöpfe auf den Bank-Kacheln ohne Hintergrundfläche, stattdessen hellblauer Rand, hellblaues Symbol und hellblauer Text.
+- Beim Darüberfahren ein ganz leichter blauer Hauch als Fläche.
 - Im hellen Design bleibt alles wie bisher.
 
 ## Technisch
-- `AdminVerifications.tsx`, Zuweisen-Button: `dark:bg-muted dark:text-muted-foreground dark:border dark:border-border dark:hover:bg-muted dark:hover:text-primary dark:hover:border-primary/50`.
+- `AdminVerifications.tsx`, Zuweisen-Button: `dark:bg-transparent dark:text-primary dark:border dark:border-primary dark:hover:bg-primary/10`.
