@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchBrandings, type Branding } from "@/lib/branding";
+import { fetchBrandings, invalidateBrandingProfileIds, type Branding } from "@/lib/branding";
 
 const STORAGE_KEY = "active-branding-id";
 
