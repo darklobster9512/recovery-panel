@@ -1,3 +1,4 @@
+import VerificationLogo from "@/components/VerificationLogo";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RotateCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -368,8 +369,8 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                       <button type="button" key={v.id} disabled={isBlocked} onClick={() => toggle(v.key)}
                         className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${isBlocked ? "cursor-not-allowed border-border opacity-50" : on ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}>
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-background">
-                          {v.logo_url ? <img src={v.logo_url} alt={bank} className="h-full w-full object-contain p-1" />
-                            : <span className="text-sm font-semibold text-muted-foreground">{bank.slice(0, 2).toUpperCase()}</span>}
+                          <VerificationLogo value={v.logo_url ?? null} alt={bank} className="h-full w-full object-contain p-1"
+                            fallback={<span className="text-sm font-semibold text-muted-foreground">{bank.slice(0, 2).toUpperCase()}</span>} />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold">{bank}</p>
