@@ -201,7 +201,7 @@ function AdminPanelInner() {
             )}
           </SidebarHeader>
 
-          <SidebarContent>
+          <SidebarContent className="scrollbar-none">
             {groups.map((g, gi) => (
               <div key={`${g.label ?? "_"}-${gi}`}>
                 {gi > 0 && <SidebarSeparator />}
