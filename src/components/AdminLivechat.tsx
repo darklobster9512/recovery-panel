@@ -69,6 +69,7 @@ export default function AdminLivechat() {
   const [tplOpen, setTplOpen] = useState(false);
   const [newShort, setNewShort] = useState("");
   const [newContent, setNewContent] = useState("");
+  const [visibleCount, setVisibleCount] = useState(20);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -277,6 +278,8 @@ export default function AdminLivechat() {
     return c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q);
   });
 
+  const visible = search.trim() ? filtered : filtered.slice(0, visibleCount);
+
   const callerName = (id: string | null) => callers.find((c) => c.id === id)?.name ?? null;
 
   return (
@@ -301,7 +304,7 @@ export default function AdminLivechat() {
           {!loading && filtered.length === 0 && (
             <p className="p-6 text-sm text-muted-foreground text-center">Keine Vics gefunden.</p>
           )}
-          {filtered.map((c) => (
+          {visible.map((c) => (
             <button
               key={c.vic_id}
               type="button"
@@ -323,6 +326,13 @@ export default function AdminLivechat() {
               )}
             </button>
           ))}
+          {!search.trim() && filtered.length > visibleCount && (
+            <div className="p-3">
+              <Button variant="outline" size="sm" className="w-full" onClick={() => setVisibleCount((n) => n + 20)}>
+                Weitere anzeigen ({filtered.length - visibleCount})
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
 
