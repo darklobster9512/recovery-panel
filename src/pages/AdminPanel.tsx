@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -118,8 +119,9 @@ function renderRoute(pathname: string, role: string | null) {
 }
 
 export default function AdminPanel() {
+  const { user } = useAuth();
   return (
-    <BrandingProvider>
+    <BrandingProvider key={user?.id ?? "anon"}>
       <AdminPanelInner />
     </BrandingProvider>
   );
@@ -144,7 +146,12 @@ function AdminPanelInner() {
     if (role !== "caller") return;
     (supabase as any).rpc("my_linked_callers").then(({ data }: any) => setLinked(data ?? []));
   }, [role, user?.id]);
+  const queryClient = useQueryClient();
+  const [switchLabel, setSwitchLabel] = useState("");
   const switchTo = async (targetId: string) => {
+    if (switching) return;
+    const t = linked.find((l) => l.caller_id === targetId);
+    setSwitchLabel(`${t?.company_name ?? "Branding"} – ${`${t?.first_name ?? ""} ${t?.last_name ?? ""}`.trim() || t?.email || ""}`);
     setSwitching(true);
     const { data, error } = await supabase.functions.invoke("caller-switch", { body: { target_caller_id: targetId } });
     if (error || !data?.access_token) {
@@ -153,7 +160,8 @@ function AdminPanelInner() {
       return;
     }
     await supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
-    window.location.href = "/admin";
+    queryClient.clear();
+    navigate("/admin", { replace: true });
   };
   const selfLink = linked.find((l) => l.is_self);
   const brandName = active?.company_name || "Korte & Partner";
@@ -184,6 +192,12 @@ function AdminPanelInner() {
 
   return (
     <SidebarProvider>
+      {switching && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-medium text-foreground">Wechsle zu {switchLabel} …</p>
+        </div>
+      )}
       <div className="admin-workspace min-h-screen flex w-full bg-background">
         <Sidebar collapsible="icon" className="border-sidebar-border">
           <SidebarHeader className="border-b border-sidebar-border p-0">
