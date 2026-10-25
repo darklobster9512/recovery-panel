@@ -138,7 +138,7 @@ export default function RequestVerificationsSection() {
               </Card>
             ))}
           </div>
-          {rows.length > 10 && (
+          {pending.length > 10 && (
             <Button variant="ghost" size="sm" onClick={() => setShowAll((s) => !s)}>{showAll ? "Weniger anzeigen" : "Weitere anzeigen"}</Button>
           )}
         </div>
