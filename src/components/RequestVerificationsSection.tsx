@@ -73,7 +73,9 @@ export default function RequestVerificationsSection() {
       setVerifByKey(Object.fromEntries((data ?? []).map((v: any) => [auftragKey(v), v]))));
   }, []);
 
-  const shown = showAll ? rows : rows.slice(0, 10);
+  const [moved, setMoved] = useState<Set<string>>(new Set());
+  const pending = rows.filter((r) => !moved.has(r.id));
+  const shown = showAll ? pending : pending.slice(0, 10);
 
   return (
     <section className="space-y-4">
@@ -95,12 +97,13 @@ export default function RequestVerificationsSection() {
 
       <PreparedVerificationCards
         vicIds={activeBrandingId && role !== "caller" ? new Set(rows.map((r) => r.vic_id)) : null}
+        onMovedChange={setMoved}
       />
 
-      {rows.length > 0 && (
+      {pending.length > 0 && (
         <div className="space-y-2">
           <h3 className="text-xs font-bold uppercase text-muted-foreground" style={{ letterSpacing: "0.08em" }}>
-            Angeforderte Verifikationen ({rows.length})
+            Angeforderte Verifikationen ({pending.length})
           </h3>
           <div className="flex flex-wrap items-start gap-2">
             {shown.map((r) => (
