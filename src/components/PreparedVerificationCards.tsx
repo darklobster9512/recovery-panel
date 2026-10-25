@@ -124,7 +124,7 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {[...list].sort((a, b) => order[a.status] - order[b.status]).map((i) => {
                   const { v, title, bank } = info(i);
-                  const cls = i.status === "fehlgeschlagen" ? "border-destructive" : i.status === "in_bearbeitung" ? "border-dashed border-border opacity-80 grayscale-[50%]" : "border-border";
+                  const cls = i.status === "fehlgeschlagen" ? "border-2 border-destructive" : i.status === "in_bearbeitung" ? "border-dashed border-border opacity-80 grayscale-[50%]" : "border-2 border-success";
                   return (
                     <div key={i.id} title={title} className={`flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border bg-card ${cls}`}>
                       <VerificationLogo value={v?.logo_url ?? null} alt={bank} className="h-full w-full object-contain p-1"
