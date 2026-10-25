@@ -134,6 +134,8 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
   const [vicId, setVicId] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [vicTab, setVicTab] = useState<"ok" | "none">("ok");
+  const [vicSearch, setVicSearch] = useState("");
+  const [vicLimit, setVicLimit] = useState(20);
   const [form, setForm] = useState<Form>(EMPTY);
   const [images, setImages] = useState<{ front: { url: string; type: string }; back: { url: string; type: string } } | null>(null);
   const [extracting, setExtracting] = useState(false);
@@ -242,20 +244,26 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                   <div className="flex gap-1 border-b border-border p-1.5">
                     {([["ok", "Verfügbar", vics.filter((v) => v.hasId).length], ["none", "Kein Ausweis", vics.filter((v) => !v.hasId).length]] as const).map(([k, label, n]) => (
-                      <button key={k} type="button" onClick={() => setVicTab(k)}
+                      <button key={k} type="button" onClick={() => { setVicTab(k); setVicLimit(20); }}
                         className={`flex-1 rounded-md px-3 py-1.5 text-sm transition-colors ${vicTab === k ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:bg-muted"}`}>
                         {label} ({n})
                       </button>
                     ))}
                   </div>
-                  <Command key={vicTab}>
-                    <CommandInput placeholder="Name oder E-Mail suchen…" />
+                  {(() => {
+                    const q = vicSearch.trim().toLowerCase();
+                    const filtered = vics.filter((v) => (vicTab === "ok" ? v.hasId : !v.hasId) && (!q || `${v.name} ${v.email}`.toLowerCase().includes(q)));
+                    const shown = filtered.slice(0, vicLimit);
+                    return (
+                  <Command shouldFilter={false}>
+                    <CommandInput autoFocus placeholder="Name oder E-Mail suchen…" value={vicSearch} onValueChange={(s) => { setVicSearch(s); setVicLimit(20); }} />
                     <CommandList>
-                      <CommandEmpty>Keine Vics gefunden.</CommandEmpty>
+                      <CommandEmpty>{vicsLoading ? "Lade Vics…" : "Keine Vics gefunden."}</CommandEmpty>
+                      {!q && filtered.length > 0 && <p className="px-3 pt-2 text-xs text-muted-foreground">Tipp: Namen oder E-Mail eintippen.</p>}
                       {vicTab === "none" && <p className="px-3 py-2 text-xs text-muted-foreground">Für diese Vics muss zuerst ein Personalausweis hochgeladen werden.</p>}
                       <CommandGroup>
-                        {vics.filter((v) => (vicTab === "ok" ? v.hasId : !v.hasId)).map((v) => (
-                          <CommandItem key={v.id} value={`${v.name} ${v.email}`} disabled={!v.hasId} onSelect={() => { setVicId(v.id); setPickerOpen(false); }}>
+                        {shown.map((v) => (
+                          <CommandItem key={v.id} value={v.id} disabled={!v.hasId} onSelect={() => { setVicId(v.id); setPickerOpen(false); }}>
                             <Check className={`mr-2 h-4 w-4 ${vicId === v.id ? "opacity-100" : "opacity-0"}`} />
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-sm">{v.name}</p>
@@ -265,7 +273,17 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                           </CommandItem>
                         ))}
                       </CommandGroup>
+                      {filtered.length > shown.length && (
+                        <div className="p-1.5">
+                          <Button variant="ghost" size="sm" className="w-full" onClick={() => setVicLimit((n) => n + 20)}>
+                            Weitere anzeigen ({filtered.length - shown.length})
+                          </Button>
+                        </div>
+                      )}
                     </CommandList>
+                  </Command>
+                    );
+                  })()}
                   </Command>
                 </PopoverContent>
               </Popover>
