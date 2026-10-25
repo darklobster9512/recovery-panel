@@ -2,7 +2,7 @@
 // Non-empty branding values override global values.
 
 const OVERRIDE_KEYS = [
-  "company_name", "street", "city", "phone", "email", "lawyer", "vat_id", "website", "panel_subprefix",
+  "company_name", "tagline", "street", "city", "phone", "email", "lawyer", "vat_id", "website", "panel_subprefix",
   "resend_api_key", "resend_from_name", "resend_from_email", "sevenio_api_key", "sevenio_from_name",
 ] as const;
 
