@@ -102,10 +102,10 @@ export default function RequestVerificationsSection() {
           <h3 className="text-xs font-bold uppercase text-muted-foreground" style={{ letterSpacing: "0.08em" }}>
             Angeforderte Verifikationen ({rows.length})
           </h3>
-          <div className="grid gap-2">
+          <div className="flex flex-wrap items-start gap-2">
             {shown.map((r) => (
-              <Card key={r.id} className="p-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
+              <Card key={r.id} className="w-fit max-w-full p-3">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold">{vicNames[r.vic_id] ?? `${r.first_name} ${r.last_name}`}</p>
                     <p className="text-xs text-muted-foreground">{fmt(r.created_at)} · Eigene Bank: {r.bank}</p>
