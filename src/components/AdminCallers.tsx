@@ -179,7 +179,7 @@ export default function AdminCallers() {
         last_name: editForm.last_name,
         phone: editForm.phone.trim() || null,
       };
-      if (editForm.branding_id) payload.branding_id = editForm.branding_id;
+      if (editForm.branding_id) (payload as any).branding_id = editForm.branding_id;
       if (avatarPath !== undefined) payload.avatar_url = avatarPath;
 
       const { error } = await supabase.from("profiles").update(payload).eq("id", editing.id);
