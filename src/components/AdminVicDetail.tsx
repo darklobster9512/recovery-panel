@@ -354,6 +354,7 @@ export default function AdminVicDetail() {
             )}
             {role === "admin" && (
               <AssignCallerSelect
+                compact
                 target="profile"
                 targetId={profile.id}
                 value={profile.assigned_caller_id}
