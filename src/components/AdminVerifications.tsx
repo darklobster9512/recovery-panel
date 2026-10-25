@@ -232,7 +232,7 @@ export default function AdminVerifications() {
         <Button onClick={openCreate} className="gap-2"><Plus /> Neue Verifikation</Button>
       </div>
 
-      <RequestVerificationsSection />
+      <RequestVerificationsSection onAssigned={() => setHistoryRefreshToken((n) => n + 1)} />
 
       {loading ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">

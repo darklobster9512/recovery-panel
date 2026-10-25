@@ -144,7 +144,7 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
 
 
   const fetchAssignments = async () => {
-    setLoading(true);
+    if (!refreshToken) setLoading(true);
     let { data: assignmentData, error } = await supabase
       .from("verification_assignments")
       .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by, status, sms_monitoring_active, hidden_sms, forward_tan_to_vic")
