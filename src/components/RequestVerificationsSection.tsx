@@ -133,6 +133,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
   const [vicsLoading, setVicsLoading] = useState(true);
   const [vicId, setVicId] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [vicTab, setVicTab] = useState<"ok" | "none">("ok");
   const [form, setForm] = useState<Form>(EMPTY);
   const [images, setImages] = useState<{ front: { url: string; type: string }; back: { url: string; type: string } } | null>(null);
   const [extracting, setExtracting] = useState(false);
