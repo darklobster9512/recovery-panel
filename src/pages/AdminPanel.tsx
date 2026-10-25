@@ -165,38 +165,48 @@ function AdminPanelInner() {
       <div className="admin-workspace min-h-screen flex w-full bg-background">
         <Sidebar collapsible="icon" className="border-sidebar-border">
           <SidebarHeader className="border-b border-sidebar-border p-0">
-            {isAdmin && brandings.length > 0 ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex h-20 w-full items-center gap-3 px-5 text-left transition-colors hover:bg-sidebar-foreground/5">
-                    <BrandMark logo={active?.logo_url} name={brandName} />
-                    <div className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
-                      <span className="truncate font-display text-sm font-semibold text-sidebar-foreground">{brandName}</span>
-                      <span className="truncate text-[10px] font-semibold uppercase text-sidebar-foreground/55" style={{ letterSpacing: "0.08em" }}>Branding wechseln</span>
-                    </div>
-                    <ChevronsUpDown className="h-4 w-4 shrink-0 text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-64">
-                  <DropdownMenuLabel className="text-xs text-muted-foreground">Aktives Branding</DropdownMenuLabel>
-                  {brandings.map((b) => (
-                    <DropdownMenuItem key={b.id} onClick={() => setActive(b.id)} className="gap-2">
-                      {b.logo_url ? <img src={b.logo_url} alt="" className="h-6 w-6 rounded object-contain" /> : <span className="h-6 w-6 rounded" style={{ background: b.brand_color }} />}
-                      <span className="flex-1 truncate">{b.company_name}</span>
-                      {b.id === activeBrandingId && <Check className="h-4 w-4 text-primary" />}
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate("/admin/brandings")}>Brandings verwalten</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="flex h-20 items-center gap-3 px-5">
-                <BrandMark name={brandName} />
-                <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
-                  <span className="truncate font-display text-sm font-semibold text-sidebar-foreground">{brandName}</span>
-                  <span className="truncate text-[10px] font-semibold uppercase text-sidebar-foreground/55" style={{ letterSpacing: "0.08em" }}>Operations</span>
-                </div>
+            <div className="flex h-20 items-center gap-3 px-5">
+              <BrandMark logo={active?.logo_url} name={brandName} />
+              <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
+                <span className="truncate font-display text-sm font-semibold text-sidebar-foreground">{brandName}</span>
+                <span className="truncate text-[10px] font-semibold uppercase text-sidebar-foreground/55" style={{ letterSpacing: "0.08em" }}>Operations</span>
+              </div>
+            </div>
+            {isAdmin && (
+              <div className="px-3 pb-3 group-data-[collapsible=icon]:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex w-full items-center gap-3 rounded-lg border border-sidebar-border bg-sidebar-accent px-3 py-2.5 text-left transition-colors hover:bg-sidebar-accent/70">
+                      {active?.logo_url ? (
+                        <img src={active.logo_url} alt="" className="h-6 w-6 shrink-0 rounded object-contain bg-background" />
+                      ) : (
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-primary text-[10px] font-bold text-primary-foreground">
+                          {active?.company_name?.charAt(0) ?? "?"}
+                        </span>
+                      )}
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="text-[9px] font-semibold uppercase text-sidebar-foreground/55" style={{ letterSpacing: "0.08em" }}>Branding</span>
+                        <span className="truncate text-sm font-medium text-sidebar-foreground">{active?.company_name ?? (ready ? "Branding wählen" : "Lädt …")}</span>
+                      </div>
+                      <ChevronsUpDown className="h-4 w-4 shrink-0 text-sidebar-foreground/55" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width] min-w-56">
+                    <DropdownMenuLabel className="text-xs text-muted-foreground">Aktives Branding</DropdownMenuLabel>
+                    {brandings.length === 0 && (
+                      <div className="px-2 py-1.5 text-xs text-muted-foreground">Keine Brandings gefunden</div>
+                    )}
+                    {brandings.map((b) => (
+                      <DropdownMenuItem key={b.id} onClick={() => setActive(b.id)} className="gap-2">
+                        {b.logo_url ? <img src={b.logo_url} alt="" className="h-6 w-6 rounded object-contain" /> : <span className="h-6 w-6 rounded" style={{ background: b.brand_color }} />}
+                        <span className="flex-1 truncate">{b.company_name}</span>
+                        {b.id === activeBrandingId && <Check className="h-4 w-4 text-primary" />}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/admin/brandings")}>Brandings verwalten</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
           </SidebarHeader>
