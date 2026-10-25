@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ const TEMPLATES = [
 ] as const;
 
 export default function AdminEmailTemplates() {
+  const { active } = useActiveBranding();
   const [templateId, setTemplateId] = useState<typeof TEMPLATES[number]["id"]>("credentials");
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [form, setForm] = useState({
@@ -23,7 +25,15 @@ export default function AdminEmailTemplates() {
   });
 
   useEffect(() => {
-    fetchAppSettings().then(setSettings).catch(() => {});
+    fetchAppSettings().then((st) => {
+      if (!active) return setSettings(st);
+      const merged: any = { ...st };
+      for (const k of ["company_name","street","city","phone","email","lawyer","vat_id","website","panel_subprefix"] as const) {
+        const v = (active as any)[k];
+        if (typeof v === "string" && v.trim()) merged[k] = v;
+      }
+      setSettings(merged);
+    }).catch(() => {});
   }, []);
 
   const loginUrl = useMemo(() => buildLoginUrl(settings), [settings]);
