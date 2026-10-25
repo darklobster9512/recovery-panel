@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RotateCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveBranding } from "@/contexts/BrandingContext";
@@ -394,6 +395,45 @@ function Field({ label, bad, ...p }: { label: string; bad?: boolean } & React.In
     <div className="space-y-1.5">
       <Label>{label}</Label>
       <Input {...p} className={bad ? "border-destructive" : ""} />
+    </div>
+  );
+}
+
+function IdImage({ src, alt }: { src: string; alt: string }) {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [rot, setRot] = useState(0);
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setBox({ w: el.clientWidth, h: el.clientHeight }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const sideways = rot % 180 !== 0;
+  return (
+    <div ref={boxRef} className="relative h-44 w-full overflow-hidden">
+      <a href={src} target="_blank" rel="noreferrer">
+        <img
+          src={src}
+          alt={alt}
+          onLoad={(e) => { const i = e.currentTarget; if (i.naturalHeight > i.naturalWidth) setRot(90); }}
+          className="absolute left-1/2 top-1/2 object-contain"
+          style={{
+            width: sideways ? box.h : box.w,
+            height: sideways ? box.w : box.h,
+            transform: `translate(-50%, -50%) rotate(${rot}deg)`,
+          }}
+        />
+      </a>
+      <button
+        type="button"
+        title="Drehen"
+        onClick={() => setRot((r) => (r + 90) % 360)}
+        className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card/90 text-muted-foreground hover:text-foreground"
+      >
+        <RotateCw className="h-3.5 w-3.5" />
+      </button>
     </div>
   );
 }
