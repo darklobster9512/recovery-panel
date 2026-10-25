@@ -46,9 +46,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(s);
 
         if (event === 'SIGNED_IN' && s?.user) {
-          setUser(s.user);
-          setTimeout(() => {
-            fetchRole(s.user.id).then(() => setLoading(false));
+          const nextUser = s.user;
+          setTimeout(async () => {
+            // Load role first, then swap user+role together (no flash/redirect on account switch)
+            const { data } = await supabase
+              .from("user_roles").select("role").eq("user_id", nextUser.id).limit(1).maybeSingle();
+            setUser((prev) => (prev?.id === nextUser.id ? prev : nextUser));
+            setRole((data?.role as AppRole) ?? null);
+            setLoading(false);
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
