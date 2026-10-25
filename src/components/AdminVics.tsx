@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { invalidateBrandingProfileIds } from "@/lib/branding";
 import InitialsAvatar from "@/components/InitialsAvatar";
 import { useActiveBranding } from "@/contexts/BrandingContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -284,6 +285,7 @@ export default function AdminVics() {
 
     setSubmitting(true);
     try {
+      invalidateBrandingProfileIds();
       const res = await supabase.functions.invoke("create-user", {
         body: {
           email: form.email,
