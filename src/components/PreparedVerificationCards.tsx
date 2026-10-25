@@ -11,7 +11,7 @@ import { splitVerificationTitle } from "@/lib/verificationRequests";
 
 interface Item {
   id: string; request_id: string; vic_id: string; auftrag_key: string; verification_id: string | null;
-  status: string; created_at: string;
+  status: string; created_at: string; assignment_id?: string | null;
 }
 interface Req {
   id: string; vic_id: string; first_name: string; last_name: string; birth_name: string | null; birth_date: string | null;
@@ -19,7 +19,8 @@ interface Req {
 }
 
 const fmt = (iso: string) => new Date(iso).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-const order: Record<string, number> = { bereit: 0, in_bearbeitung: 1, fehlgeschlagen: 2 };
+const order: Record<string, number> = { bereit: 0, gestartet: 1, in_bearbeitung: 2, fehlgeschlagen: 3 }
+const DONE = new Set(["in_ueberpruefung", "genehmigt", "abgelehnt"]);;
 
 export default function PreparedVerificationCards({ vicIds, onChanged, onMovedChange }: {
   vicIds: Set<string> | null; onChanged?: () => void; onMovedChange?: (ids: Set<string>) => void;
@@ -30,6 +31,7 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
   const [profiles, setProfiles] = useState<Record<string, { phone: string | null; email: string | null }>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [aStatus, setAStatus] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState<string | null>(null);
   const copy = async (text: string, key: string, msg: string) => {
     try { await navigator.clipboard.writeText(text); toast.success(msg); setCopied(key); setTimeout(() => setCopied(null), 1500); }
@@ -38,12 +40,18 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
 
   const load = useCallback(async () => {
     const { data } = await (supabase as any).from("verification_request_items")
-      .select("id, request_id, vic_id, auftrag_key, verification_id, status, created_at")
+      .select("id, request_id, vic_id, auftrag_key, verification_id, status, created_at, assignment_id")
       .order("created_at", { ascending: false }).limit(1000);
-    setItems((data ?? []) as Item[]);
+    const list = (data ?? []) as Item[];
+    const aIds = list.filter((i) => i.status === "gestartet" && i.assignment_id).map((i) => i.assignment_id!);
+    if (aIds.length) {
+      const { data: as } = await supabase.from("verification_assignments").select("id, status").in("id", aIds);
+      setAStatus(Object.fromEntries((as ?? []).map((a) => [a.id, a.status])));
+    }
+    setItems(list);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); const t = setInterval(load, 30000); return () => clearInterval(t); }, [load]);
   useEffect(() => {
     supabase.from("verifications").select("id, title, logo_url, type").then(({ data }) =>
       setVerifs(Object.fromEntries((data ?? []).map((v: any) => [v.id, v]))));
@@ -65,9 +73,9 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
       byReq.set(i.request_id, [...(byReq.get(i.request_id) ?? []), i]);
     }
     return [...byReq.entries()]
-      .map(([id, l]) => [id, l.filter((i) => i.status !== "gestartet")] as const)
-      .filter(([, l]) => l.some((i) => i.status === "bereit" || i.status === "in_bearbeitung"));
-  }, [items, vicIds, moved]);
+      .map(([id, l]) => [id, l.filter((i) => !(i.status === "gestartet" && i.assignment_id && DONE.has(aStatus[i.assignment_id] ?? "")))] as const)
+      .filter(([, l]) => l.some((i) => i.status === "bereit" || i.status === "in_bearbeitung" || i.status === "gestartet"));
+  }, [items, vicIds, moved, aStatus]);
 
   useEffect(() => {
     const ids = groups.map(([id]) => id).filter((id) => !reqs[id]);
@@ -90,7 +98,7 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
     setBusy(null);
     if (error || data?.error) { toast.error((data as any)?.error ?? "Starten fehlgeschlagen"); return; }
     toast.success("Auftrag gestartet und dem Vic zugewiesen");
-    setItems((l) => l.map((i) => (i.id === id ? { ...i, status: "gestartet" } : i)));
+    setItems((l) => l.map((i) => (i.id === id ? { ...i, status: "gestartet", assignment_id: (data as any)?.assignment_id ?? null } : i)));
     onChanged?.();
   };
 
@@ -124,7 +132,7 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {[...list].sort((a, b) => order[a.status] - order[b.status]).map((i) => {
                   const { v, title, bank } = info(i);
-                  const cls = i.status === "fehlgeschlagen" ? "border-2 border-destructive" : i.status === "in_bearbeitung" ? "border-dashed border-border opacity-80 grayscale-[50%]" : "border-2 border-success";
+                  const cls = i.status === "fehlgeschlagen" ? "border-2 border-destructive" : i.status === "in_bearbeitung" ? "border-dashed border-border opacity-80 grayscale-[50%]" : i.status === "gestartet" ? "border-2 border-warning" : "border-2 border-success";
                   return (
                     <div key={i.id} title={title} className={`flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border bg-card ${cls}`}>
                       <VerificationLogo value={v?.logo_url ?? null} alt={bank} className="h-full w-full object-contain p-1"
@@ -191,6 +199,9 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
                     )}
                     {i.status === "in_bearbeitung" && (
                       <Badge variant="outline" className="gap-1 border-warning/50 text-warning"><Clock className="h-3 w-3" /> In Bearbeitung</Badge>
+                    )}
+                    {i.status === "gestartet" && (
+                      <Badge variant="outline" className="gap-1 border-warning/50 text-warning"><Play className="h-3 w-3" /> Zugewiesen</Badge>
                     )}
                     {i.status === "fehlgeschlagen" && (
                       <Badge variant="destructive" className="gap-1"><AlertTriangle className="h-3 w-3" /> Auftrag nicht möglich</Badge>
