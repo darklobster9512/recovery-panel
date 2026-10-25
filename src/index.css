@@ -221,4 +221,11 @@
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
+  .scrollbar-brand::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-brand::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-brand::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 9999px; }
+  .scrollbar-brand::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary)); }
+  @supports not selector(::-webkit-scrollbar) {
+    .scrollbar-brand { scrollbar-width: thin; scrollbar-color: hsl(var(--border)) transparent; }
+  }
 }
