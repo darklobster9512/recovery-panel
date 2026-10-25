@@ -284,7 +284,6 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                   </Command>
                     );
                   })()}
-                  </Command>
                 </PopoverContent>
               </Popover>
               <p className="text-xs text-muted-foreground">Nur Vics mit hochgeladenem Personalausweis können gewählt werden.</p>
