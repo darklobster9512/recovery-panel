@@ -7,3 +7,4 @@
 - Edge functions resolve brand settings via `supabase/functions/_shared/branding.ts` (`loadSettingsForUser`). Why: e-mail/SMS sender follows the Vic's brand.
 - Brand logos are stored as data URLs in `brandings.logo_url` because public storage buckets are blocked in this workspace.
 - Linked caller accounts (`caller_account_links`, one account per brand per group) switch sessions only through the `caller-switch` edge function, which checks the group server-side. Why: passwordless login must never be client-decided.
+- Verification requests to the external prepare-panel service go only through the `request-verifications` edge function (fixed `project`, server-side admin/assigned-caller check via `_shared/vicAccess.ts`) and are logged in `verification_requests`. Why: the external endpoint and Vic ID data must never be called/read client-side.
