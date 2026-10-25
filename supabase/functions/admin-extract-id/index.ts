@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3.8-flash",
         messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content }],
         tools: [TOOL],
         tool_choice: { type: "function", function: { name: "extract_id" } },
