@@ -166,6 +166,84 @@ export type Database = {
         }
         Relationships: []
       }
+      brandings: {
+        Row: {
+          additional_domains: string[]
+          brand_color: string
+          city: string
+          company_name: string
+          created_at: string
+          domain: string
+          email: string
+          favicon_url: string | null
+          id: string
+          lawyer: string
+          logo_url: string | null
+          panel_subprefix: string
+          phone: string
+          resend_api_key: string
+          resend_from_email: string
+          resend_from_name: string
+          sevenio_api_key: string
+          sevenio_from_name: string
+          street: string
+          tagline: string
+          updated_at: string
+          vat_id: string
+          website: string
+        }
+        Insert: {
+          additional_domains?: string[]
+          brand_color?: string
+          city?: string
+          company_name?: string
+          created_at?: string
+          domain?: string
+          email?: string
+          favicon_url?: string | null
+          id?: string
+          lawyer?: string
+          logo_url?: string | null
+          panel_subprefix?: string
+          phone?: string
+          resend_api_key?: string
+          resend_from_email?: string
+          resend_from_name?: string
+          sevenio_api_key?: string
+          sevenio_from_name?: string
+          street?: string
+          tagline?: string
+          updated_at?: string
+          vat_id?: string
+          website?: string
+        }
+        Update: {
+          additional_domains?: string[]
+          brand_color?: string
+          city?: string
+          company_name?: string
+          created_at?: string
+          domain?: string
+          email?: string
+          favicon_url?: string | null
+          id?: string
+          lawyer?: string
+          logo_url?: string | null
+          panel_subprefix?: string
+          phone?: string
+          resend_api_key?: string
+          resend_from_email?: string
+          resend_from_name?: string
+          sevenio_api_key?: string
+          sevenio_from_name?: string
+          street?: string
+          tagline?: string
+          updated_at?: string
+          vat_id?: string
+          website?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           as_caller_id: string | null
@@ -355,6 +433,7 @@ export type Database = {
       leads: {
         Row: {
           assigned_caller_id: string | null
+          branding_id: string | null
           campaign: string | null
           email: string | null
           external_id: string | null
@@ -372,6 +451,7 @@ export type Database = {
         }
         Insert: {
           assigned_caller_id?: string | null
+          branding_id?: string | null
           campaign?: string | null
           email?: string | null
           external_id?: string | null
@@ -389,6 +469,7 @@ export type Database = {
         }
         Update: {
           assigned_caller_id?: string | null
+          branding_id?: string | null
           campaign?: string | null
           email?: string | null
           external_id?: string | null
@@ -404,11 +485,20 @@ export type Database = {
           updated_at?: string
           vorfall?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       phone_numbers: {
         Row: {
           api_url: string
+          branding_id: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -416,6 +506,7 @@ export type Database = {
         }
         Insert: {
           api_url: string
+          branding_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -423,18 +514,28 @@ export type Database = {
         }
         Update: {
           api_url?: string
+          branding_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
           token?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "phone_numbers_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
           assigned_caller_id: string | null
           avatar_url: string | null
           balance: number | null
+          branding_id: string | null
           chat_active_at: string | null
           created_at: string
           email: string | null
@@ -452,6 +553,7 @@ export type Database = {
           assigned_caller_id?: string | null
           avatar_url?: string | null
           balance?: number | null
+          branding_id?: string | null
           chat_active_at?: string | null
           created_at?: string
           email?: string | null
@@ -469,6 +571,7 @@ export type Database = {
           assigned_caller_id?: string | null
           avatar_url?: string | null
           balance?: number | null
+          branding_id?: string | null
           chat_active_at?: string | null
           created_at?: string
           email?: string | null
@@ -483,6 +586,13 @@ export type Database = {
           temp_password?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_source_lead_id_fkey"
             columns: ["source_lead_id"]
@@ -898,12 +1008,41 @@ export type Database = {
           appointment_time: string
         }[]
       }
+      get_branding_for_host: {
+        Args: { _host: string }
+        Returns: {
+          brand_color: string
+          city: string
+          company_name: string
+          domain: string
+          email: string
+          favicon_url: string
+          id: string
+          lawyer: string
+          logo_url: string
+          phone: string
+          street: string
+          tagline: string
+          vat_id: string
+          website: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      my_branding: {
+        Args: never
+        Returns: {
+          brand_color: string
+          company_name: string
+          id: string
+          logo_url: string
+          tagline: string
+        }[]
       }
     }
     Enums: {
