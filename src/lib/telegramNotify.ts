@@ -37,6 +37,7 @@ export async function notifyTelegram(
         event,
         payload,
         chat_id_override: opts?.chatIdOverride,
+        active_branding_id: (() => { try { return localStorage.getItem("active-branding-id"); } catch { return null; } })(),
       },
     });
     if (error) console.warn("telegram-notify failed:", error.message);

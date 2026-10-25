@@ -235,6 +235,7 @@ Deno.serve(async (req) => {
 
     try {
       await sendTelegramNotification(adminClient, "user_account_created", {
+        user_id: newUser.user.id,
         name: `${first_name} ${last_name}`.trim(),
         email,
         password,

