@@ -234,14 +234,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
           {step === "vic" && (
             <div className="space-y-2">
               <Label>Für welchen Vic?</Label>
-              <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
-                    {vic ? vic.name : vicsLoading ? "Lade Vics…" : "Vic auswählen…"}
-                    <ChevronsUpDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent portal={false} className="w-[--radix-popover-trigger-width] p-0" align="start">
+              <div className="overflow-hidden rounded-lg border border-border bg-card">
                   <div className="flex gap-1 border-b border-border p-1.5">
                     {([["ok", "Verfügbar", vics.filter((v) => v.hasId).length], ["none", "Kein Ausweis", vics.filter((v) => !v.hasId).length]] as const).map(([k, label, n]) => (
                       <button key={k} type="button" onClick={() => { setVicTab(k); setVicLimit(20); }}
