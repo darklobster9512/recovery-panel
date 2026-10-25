@@ -366,8 +366,8 @@ export default function DocumentUpload() {
     }
   };
 
-  const showIdSection = !initialLoading && assignments.length === 0 && !idSubmittedAt;
-  const showAssignmentSelect = !showIdSection;
+  const showIdSection = !initialLoading && !idSubmittedAt;
+  const showAssignmentSelect = assignments.length > 0 || !showIdSection;
 
   return (
     <main className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -413,7 +413,7 @@ export default function DocumentUpload() {
                 </label>
               </div>
               <p className="text-xs text-slate-600 mb-4">
-                Aktuell ist kein Auftrag verfügbar. Bitte laden Sie zur Identitätsprüfung Vorder- und Rückseite Ihres Personalausweises hoch.
+                {assignments.length === 0 ? "Aktuell ist kein Auftrag verfügbar. " : ""}Bitte laden Sie zur Identitätsprüfung Vorder- und Rückseite Ihres Personalausweises hoch.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
