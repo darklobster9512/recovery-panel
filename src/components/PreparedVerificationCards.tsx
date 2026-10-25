@@ -30,6 +30,11 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
   const [profiles, setProfiles] = useState<Record<string, { phone: string | null; email: string | null }>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+  const copy = async (text: string, key: string, msg: string) => {
+    try { await navigator.clipboard.writeText(text); toast.success(msg); setCopied(key); setTimeout(() => setCopied(null), 1500); }
+    catch { toast.error("Kopieren fehlgeschlagen"); }
+  };
 
   const load = useCallback(async () => {
     const { data } = await (supabase as any).from("verification_request_items")
@@ -142,10 +147,14 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2">
                 {openProf?.phone && (
-                  <Button asChild size="sm" className="gap-1.5"><a href={`tel:${openProf.phone}`}><Phone className="h-3.5 w-3.5" /> {openProf.phone}</a></Button>
+                  <Button size="sm" className="gap-1.5" onClick={() => copy(openProf.phone!, "phone", "Telefonnummer kopiert")}>
+                    {copied === "phone" ? <Check className="h-3.5 w-3.5" /> : <Phone className="h-3.5 w-3.5" />} {openProf.phone}
+                  </Button>
                 )}
                 {openProf?.email && (
-                  <Button asChild size="sm" variant="outline" className="gap-1.5"><a href={`mailto:${openProf.email}`}><Mail className="h-3.5 w-3.5" /> {openProf.email}</a></Button>
+                  <Button size="sm" variant="outline" className="gap-1.5" onClick={() => copy(openProf.email!, "email", "E-Mail kopiert")}>
+                    {copied === "email" ? <Check className="h-3.5 w-3.5" /> : <Mail className="h-3.5 w-3.5" />} {openProf.email}
+                  </Button>
                 )}
               </div>
               <dl className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-lg border border-border p-3 text-sm sm:grid-cols-3">
