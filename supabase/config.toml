@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.admin-backup]
 verify_jwt = false
+
+[functions.prepare-results]
+verify_jwt = false
