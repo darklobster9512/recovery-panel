@@ -1,4 +1,5 @@
 import VerificationLogo from "@/components/VerificationLogo";
+import PreparedVerificationCards from "@/components/PreparedVerificationCards";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RotateCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,6 +86,10 @@ export default function RequestVerificationsSection() {
           </Button>
         </div>
       </Card>
+
+      <PreparedVerificationCards
+        vicIds={activeBrandingId && role !== "caller" ? new Set(rows.map((r) => r.vic_id)) : null}
+      />
 
       {rows.length > 0 && (
         <div className="space-y-2">

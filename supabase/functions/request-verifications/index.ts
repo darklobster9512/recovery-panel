@@ -1,5 +1,6 @@
 import { z } from "npm:zod@3.23.8";
 import { authorizeVicAccess, corsHeaders, json } from "../_shared/vicAccess.ts";
+import { normKey, verificationKeyMap } from "../_shared/auftrag.ts";
 
 const TARGET_URL = "https://prepare-panel.xyz/api/public/vics";
 const PROJECT = "Recovery";
@@ -44,7 +45,14 @@ Deno.serve(async (req) => {
       .single();
     if (insErr) return json({ error: insErr.message }, 500);
 
+    const vmap = await verificationKeyMap(service);
+    const uniq = [...new Set(d.auftraege)];
+    await service.from("verification_request_items").insert(uniq.map((a) => ({
+      request_id: row.id, vic_id: d.vic_id, auftrag_key: a, verification_id: vmap.get(normKey(a))?.id ?? null,
+    })));
+
     const payload = {
+      request_id: row.id,
       first_name: d.first_name,
       last_name: d.last_name,
       birth_name: orNull(d.birth_name),

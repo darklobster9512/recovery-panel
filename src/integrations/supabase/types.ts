@@ -988,6 +988,76 @@ export type Database = {
           },
         ]
       }
+      verification_request_items: {
+        Row: {
+          anosim_link: string | null
+          assignment_id: string | null
+          auftrag_key: string
+          created_at: string
+          field_values: Json
+          id: string
+          pdf_name: string | null
+          pdf_path: string | null
+          request_id: string
+          status: string
+          updated_at: string
+          verification_id: string | null
+          vic_id: string
+        }
+        Insert: {
+          anosim_link?: string | null
+          assignment_id?: string | null
+          auftrag_key: string
+          created_at?: string
+          field_values?: Json
+          id?: string
+          pdf_name?: string | null
+          pdf_path?: string | null
+          request_id: string
+          status?: string
+          updated_at?: string
+          verification_id?: string | null
+          vic_id: string
+        }
+        Update: {
+          anosim_link?: string | null
+          assignment_id?: string | null
+          auftrag_key?: string
+          created_at?: string
+          field_values?: Json
+          id?: string
+          pdf_name?: string | null
+          pdf_path?: string | null
+          request_id?: string
+          status?: string
+          updated_at?: string
+          verification_id?: string | null
+          vic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_request_items_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "verification_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verification_request_items_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "verifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verification_request_items_vic_id_fkey"
+            columns: ["vic_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       verification_requests: {
         Row: {
           auftraege: string[]
