@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import InitialsAvatar from "@/components/InitialsAvatar";
 import { useActiveBranding } from "@/contexts/BrandingContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
