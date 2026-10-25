@@ -1,4 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { usePagination } from "@/hooks/usePagination";
+import TablePagination from "@/components/TablePagination";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -44,6 +47,12 @@ export default function AdminPhoneNumbers() {
   const [adding, setAdding] = useState(false);
   const [loadingEntries, setLoadingEntries] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const pq = search.trim().toLowerCase();
+  const filteredEntries = pq
+    ? entries.filter((e) => [e.token, e.api_url, e.data ? JSON.stringify(e.data) : ""].some((v) => v.toLowerCase().includes(pq)))
+    : entries;
+  const pg = usePagination(filteredEntries);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const extractToken = (url: string): string | null => {
@@ -228,12 +237,22 @@ export default function AdminPhoneNumbers() {
       )}
 
       {/* Table */}
+      {!loadingEntries && entries.length > 0 && (
+        <Input
+          placeholder="Suche nach Nummer, Land, Service…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-sm"
+        />
+      )}
       {loadingEntries ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
       ) : entries.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">Keine Telefonnummern vorhanden.</p>
+      ) : filteredEntries.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">Keine Treffer.</p>
       ) : (
         <Card>
           <CardContent className="p-0">
@@ -252,7 +271,7 @@ export default function AdminPhoneNumbers() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {entries.map((entry) => (
+                {pg.pageItems.map((entry) => (
                   <>
                     <TableRow
                       key={entry.id}
@@ -327,6 +346,7 @@ export default function AdminPhoneNumbers() {
                 ))}
               </TableBody>
             </Table>
+            <TablePagination page={pg.page} totalPages={pg.totalPages} total={pg.total} pageSize={pg.pageSize} setPage={pg.setPage} />
           </CardContent>
         </Card>
       )}

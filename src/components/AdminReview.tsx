@@ -5,6 +5,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AssignmentStatusBadge } from "@/components/AssignmentStatusBadge";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { usePagination } from "@/hooks/usePagination";
+import TablePagination from "@/components/TablePagination";
+
 
 interface ReviewRow {
   id: string;
@@ -19,6 +23,12 @@ export default function AdminReview() {
   const [rows, setRows] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const sq = search.trim().toLowerCase();
+  const filteredRows = sq
+    ? rows.filter((r) => r.userName.toLowerCase().includes(sq) || r.verificationTitle.toLowerCase().includes(sq))
+    : rows;
+  const pg = usePagination(filteredRows);
 
   useEffect(() => {
     loadData();
@@ -117,7 +127,14 @@ export default function AdminReview() {
         <h2 className="font-display text-2xl font-semibold">Überprüfung</h2>
         <p className="mt-2 text-sm text-muted-foreground">Abgeschlossene Aufträge freigeben oder zur Korrektur ablehnen.</p>
       </div>
+      <Input
+        placeholder="Suche nach Nutzer oder Auftrag…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="max-w-sm"
+      />
       <div className="rounded-lg border border-border bg-card overflow-hidden shadow-card">
+      {filteredRows.length === 0 && <p className="p-6 text-sm text-muted-foreground">Keine Treffer.</p>}
       <Table>
         <TableHeader>
           <TableRow>
@@ -129,7 +146,7 @@ export default function AdminReview() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((row) => (
+          {pg.pageItems.map((row) => (
             <TableRow key={row.id}>
               <TableCell className="font-medium">{row.userName}</TableCell>
               <TableCell>{row.verificationTitle}</TableCell>
@@ -169,6 +186,7 @@ export default function AdminReview() {
           ))}
         </TableBody>
       </Table>
+      <TablePagination page={pg.page} totalPages={pg.totalPages} total={pg.total} pageSize={pg.pageSize} setPage={pg.setPage} />
       </div>
     </div>
   );
