@@ -221,7 +221,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
   const wide = step === "data";
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o && !submitting) onClose(); }}>
-      <DialogContent className={`max-h-[92vh] gap-0 overflow-y-auto p-6 ${wide ? "sm:max-w-6xl" : "sm:max-w-2xl"}`}>
+      <DialogContent className={`max-h-[95vh] gap-0 overflow-y-auto p-6 ${wide ? "sm:max-w-[min(1400px,96vw)]" : "sm:max-w-2xl"}`}>
         <DialogHeader className="space-y-0">
           <DialogShellHeader
             icon={<ClipboardCheck className="h-5 w-5" />}
@@ -289,14 +289,24 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                 <Label>Personalausweis</Label>
                 {extracting && !images ? (
                   <div className="flex h-64 items-center justify-center rounded-lg border border-border text-sm text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lade Ausweis…</div>
+                ) : images && zoomed && images[zoomed].type !== "application/pdf" ? (
+                  <div className="overflow-hidden rounded-lg border border-border bg-muted/30">
+                    <div className="flex items-center justify-between border-b border-border px-3 py-1.5">
+                      <p className="text-xs font-semibold text-muted-foreground">{zoomed === "front" ? "Vorderseite" : "Rückseite"} (vergrößert)</p>
+                      <button type="button" title="Schließen" onClick={() => setZoomed(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+                    </div>
+                    <IdImage src={images[zoomed].url} alt="Ausweis vergrößert" heightClass="h-[70vh]" rot={rot[zoomed]}
+                      onRotate={() => setRot((r) => ({ ...r, [zoomed]: (r[zoomed] + 90) % 360 }))} onClick={() => setZoomed(null)} />
+                  </div>
                 ) : images ? (
                   (["front", "back"] as const).map((side) => (
                     <div key={side} className="overflow-hidden rounded-lg border border-border bg-muted/30">
-                      <p className="border-b border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground">{side === "front" ? "Vorderseite" : "Rückseite"}</p>
+                      <p className="border-b border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground">{side === "front" ? "Vorderseite" : "Rückseite"} · zum Vergrößern klicken</p>
                       {images[side].type === "application/pdf" ? (
                         <a href={images[side].url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-4 text-sm text-primary"><FileText className="h-4 w-4" /> PDF öffnen</a>
                       ) : (
-                        <IdImage src={images[side].url} alt={side === "front" ? "Ausweis Vorderseite" : "Ausweis Rückseite"} />
+                        <IdImage src={images[side].url} alt={side === "front" ? "Ausweis Vorderseite" : "Ausweis Rückseite"} heightClass="h-60" rot={rot[side]}
+                          onRotate={() => setRot((r) => ({ ...r, [side]: (r[side] + 90) % 360 }))} onClick={() => setZoomed(side)} />
                       )}
                     </div>
                   ))
