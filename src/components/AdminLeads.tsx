@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import InitialsAvatar from "@/components/InitialsAvatar";
 import { useActiveBranding } from "@/contexts/BrandingContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -189,7 +190,8 @@ export default function AdminLeads() {
                       {formatDateTime(lead.imported_at)}
                     </TableCell>
                     <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <InitialsAvatar name={lead.full_name} />
                         <span>{lead.full_name ?? "—"}</span>
                         {lead.campaign && (
                           <Badge variant="secondary" className={CAMPAIGN_META[lead.campaign].className}>

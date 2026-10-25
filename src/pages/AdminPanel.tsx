@@ -283,7 +283,7 @@ function AdminPanelInner() {
           <SidebarContent className="scrollbar-none">
             {groups.map((g, gi) => (
               <div key={`${g.label ?? "_"}-${gi}`}>
-                {gi > 0 && <SidebarSeparator />}
+                {gi > 0 && <div className="h-1" />}
                 <SidebarGroup>
                   {g.label ? (
                     <SidebarGroupLabel className="px-3 mt-3 text-[10px] font-bold uppercase text-sidebar-foreground/45" style={{ letterSpacing: "0.08em" }}>
@@ -303,9 +303,9 @@ function AdminPanelInner() {
                             <SidebarMenuButton
                               asChild
                               tooltip={item.label}
-                              className={`h-9 rounded-md border-l-2 border-transparent px-3 text-[13px] font-medium text-sidebar-foreground/70 hover:bg-sidebar-foreground/5 hover:text-sidebar-foreground ${
+                              className={`h-9 rounded-xl px-3 text-[13px] font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-foreground/5 hover:text-sidebar-foreground ${
                                 active
-                                  ? "border-sidebar-foreground bg-sidebar-accent text-sidebar-foreground shadow-sm hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                                  ? "bg-primary/10 font-semibold text-primary hover:bg-primary/15 hover:text-primary [&_svg]:text-primary"
                                   : ""
                               }`}
                             >
@@ -326,8 +326,8 @@ function AdminPanelInner() {
 
           <SidebarFooter className="border-t border-sidebar-border">
             <div className="flex items-center gap-2 px-3 py-3">
-              <Avatar className="h-8 w-8 rounded-md">
-                <AvatarFallback className="rounded-md bg-sidebar-foreground text-[11px] font-bold text-sidebar">
+              <Avatar className="h-8 w-8 rounded-full">
+                <AvatarFallback className="rounded-full bg-sidebar-foreground text-[11px] font-bold text-sidebar">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -349,12 +349,12 @@ function AdminPanelInner() {
         </Sidebar>
 
         <SidebarInset>
-          <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b border-border bg-card px-5 lg:px-8">
-            <SidebarTrigger className="border border-border bg-card shadow-sm" />
+          <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b border-border/60 bg-card/85 backdrop-blur px-5 lg:px-8">
+            <SidebarTrigger className="rounded-xl border border-border bg-card shadow-sm" />
             <div className="h-5 w-px bg-border" />
             <div className="min-w-0">
               <p className="mb-1 text-[10px] font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Administration</p>
-              <h1 className="truncate font-display text-lg font-semibold text-foreground">{title}</h1>
+              <h1 className="truncate font-display text-xl font-bold tracking-tight text-foreground">{title}</h1>
             </div>
           </header>
           <main className="flex-1 bg-background" style={{ minHeight: "calc(100vh - 5rem)" }}>

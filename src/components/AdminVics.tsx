@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import InitialsAvatar from "@/components/InitialsAvatar";
 import { useActiveBranding } from "@/contexts/BrandingContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -452,7 +453,10 @@ export default function AdminVics() {
                       className="cursor-pointer"
                       onClick={() => navigate(`/admin/vics/${u.id}`)}
                     >
-                      {u.first_name ?? "–"}
+                      <div className="flex items-center gap-2.5">
+                        <InitialsAvatar name={`${u.first_name ?? ""} ${u.last_name ?? ""}`} />
+                        <span>{u.first_name ?? "–"}</span>
+                      </div>
                     </TableCell>
                     <TableCell
                       className="cursor-pointer"
