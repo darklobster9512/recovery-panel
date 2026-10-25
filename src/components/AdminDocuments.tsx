@@ -203,10 +203,11 @@ export default function AdminDocuments() {
         .eq("user_id", userId)
         .is("assignment_id", null);
       if (!count) {
-        await supabase
+        const { error: resetError } = await supabase
           .from("profiles")
           .update({ id_document_submitted_at: null })
           .eq("id", userId);
+        if (resetError) throw resetError;
       }
     }
   };
