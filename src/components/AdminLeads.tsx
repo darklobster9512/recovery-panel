@@ -189,7 +189,8 @@ export default function AdminLeads() {
                       {formatDateTime(lead.imported_at)}
                     </TableCell>
                     <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <InitialsAvatar name={lead.full_name} />
                         <span>{lead.full_name ?? "—"}</span>
                         {lead.campaign && (
                           <Badge variant="secondary" className={CAMPAIGN_META[lead.campaign].className}>
