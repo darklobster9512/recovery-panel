@@ -24,8 +24,8 @@ const fmt = (iso: string) => new Date(iso).toLocaleString("de-DE", { day: "2-dig
 const order: Record<string, number> = { bereit: 0, gestartet: 1, in_bearbeitung: 2, fehlgeschlagen: 3 }
 const DONE = new Set(["in_ueberpruefung", "genehmigt", "abgelehnt"]);
 
-export default function PreparedVerificationCards({ vicIds, onChanged, onMovedChange }: {
-  vicIds: Set<string> | null; onChanged?: () => void; onMovedChange?: (ids: Set<string>) => void;
+export default function PreparedVerificationCards({ vicIds, onChanged, onMovedChange, onLoaded }: {
+  vicIds: Set<string> | null; onChanged?: () => void; onMovedChange?: (ids: Set<string>) => void; onLoaded?: () => void;
 }) {
   const [items, setItems] = useState<Item[]>([]);
   const [verifs, setVerifs] = useState<Record<string, { title: string; logo_url: string | null; type: string }>>({});
@@ -34,6 +34,8 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
   const [busy, setBusy] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [aStatus, setAStatus] = useState<Record<string, string>>({});
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { if (loaded) onLoaded?.(); }, [loaded, onLoaded]);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -47,17 +49,19 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
       .select("id, request_id, vic_id, auftrag_key, verification_id, status, created_at, assignment_id")
       .order("created_at", { ascending: false }).limit(1000);
     const list = (data ?? []) as Item[];
+    let nextA: Record<string, string> = {};
+    let nextD = new Set<string>();
     const aIds = list.filter((i) => i.status === "gestartet" && i.assignment_id).map((i) => i.assignment_id!);
     if (aIds.length) {
       const { data: as } = await supabase.from("verification_assignments").select("id, status").in("id", aIds);
-      setAStatus(Object.fromEntries((as ?? []).map((a) => [a.id, a.status])));
+      nextA = Object.fromEntries((as ?? []).map((a) => [a.id, a.status]));
     }
     const rIds = [...new Set(list.map((i) => i.request_id))];
     if (rIds.length) {
       const { data: ds } = await (supabase as any).from("verification_requests").select("id").in("id", rIds).not("dismissed_at", "is", null);
-      setDismissed(new Set((ds ?? []).map((d: any) => d.id)));
+      nextD = new Set((ds ?? []).map((d: any) => d.id));
     }
-    setItems(list);
+    setAStatus(nextA); setDismissed(nextD); setItems(list); setLoaded(true);
   }, []);
 
   useEffect(() => { load(); const t = setInterval(load, 30000); return () => clearInterval(t); }, [load]);
@@ -128,7 +132,7 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
   const openGroup = groups.find(([id]) => id === openId);
   useEffect(() => { if (openId && !openGroup) setOpenId(null); }, [openId, openGroup]);
 
-  if (!groups.length) return null;
+  if (!loaded || !groups.length) return null;
   const openReq = openId ? reqs[openId] : undefined;
   const openProf = openGroup ? profiles[openGroup[1][0]?.vic_id] : undefined;
 
