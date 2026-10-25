@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadSettingsForUser } from "../_shared/branding.ts";
 import {
   AppSettings,
   buildLoginUrl,
@@ -59,11 +60,7 @@ Deno.serve(async (req) => {
     if (!profile.email) return json(400, { error: "Vic hat keine Email-Adresse" });
     if (!profile.temp_password) return json(400, { error: "Kein Klartext-Passwort gespeichert" });
 
-    const { data: settings } = await adminClient
-      .from("app_settings")
-      .select("*")
-      .eq("id", true)
-      .maybeSingle();
+    const settings = await loadSettingsForUser(adminClient, user_id);
     if (!settings) return json(500, { error: "app_settings fehlt" });
     const s = settings as AppSettings;
     if (!s.resend_api_key || !s.resend_from_email) {

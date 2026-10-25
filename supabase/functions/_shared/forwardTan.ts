@@ -79,7 +79,8 @@ export async function processAssignmentForward(
   ctx: ForwardContext,
   assignmentId: string
 ): Promise<ForwardResult> {
-  const { serviceClient, sevenioApiKey, sevenioFromName } = ctx;
+  const { serviceClient } = ctx;
+  let { sevenioApiKey, sevenioFromName } = ctx;
 
   // Load assignment
   const { data: a } = await serviceClient
@@ -95,12 +96,21 @@ export async function processAssignmentForward(
     return { forwarded: 0, checked: 0, reason: "status_locked" };
   if (!a.phone_number_id) return { forwarded: 0, checked: 0, reason: "no_phone" };
 
-  // Vic phone
+  // Vic phone (+ branding-specific seven.io settings)
   const { data: profile } = await serviceClient
     .from("profiles")
-    .select("phone")
+    .select("phone, branding_id")
     .eq("id", a.user_id)
     .maybeSingle();
+  if (profile?.branding_id) {
+    const { data: b } = await serviceClient
+      .from("brandings")
+      .select("sevenio_api_key, sevenio_from_name")
+      .eq("id", profile.branding_id)
+      .maybeSingle();
+    if (b?.sevenio_api_key) sevenioApiKey = b.sevenio_api_key;
+    if (b?.sevenio_from_name) sevenioFromName = b.sevenio_from_name;
+  }
   const vicPhone = (profile?.phone || "").trim();
   if (!vicPhone) return { forwarded: 0, checked: 0, reason: "no_vic_phone" };
 
@@ -222,7 +232,18 @@ export async function loadSevenIoSettings(
     .from("app_settings")
     .select("sevenio_api_key, sevenio_from_name")
     .maybeSingle();
-  if (!data?.sevenio_api_key) return null;
+  if (!data?.sevenio_api_key) {
+    // Fall back to any branding with seven.io configured (per-Vic branding is applied in processAssignmentForward).
+    const { data: b } = await serviceClient
+      .from("brandings")
+      .select("sevenio_api_key, sevenio_from_name")
+      .neq("sevenio_api_key", "")
+      .order("created_at")
+      .limit(1)
+      .maybeSingle();
+    if (!b?.sevenio_api_key) return null;
+    return { apiKey: b.sevenio_api_key, fromName: b.sevenio_from_name || "Info" };
+  }
   return {
     apiKey: data.sevenio_api_key,
     fromName: data.sevenio_from_name || "Info",

@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadSettingsForUser } from "../_shared/branding.ts";
 import {
   AppSettings,
   buildLoginUrl,
@@ -115,6 +116,7 @@ Deno.serve(async (req) => {
       source_lead_id,
       role,
       avatar_url,
+      branding_id,
     } = body;
 
     const targetRole: "user" | "caller" = role === "caller" ? "caller" : "user";
@@ -172,6 +174,7 @@ Deno.serve(async (req) => {
     if (scam_project !== undefined && scam_project !== null) updatePayload.scam_project = scam_project;
     if (typeof source_lead_id === "string" && source_lead_id) updatePayload.source_lead_id = source_lead_id;
     if (typeof avatar_url === "string" && avatar_url) updatePayload.avatar_url = avatar_url;
+    if (typeof branding_id === "string" && branding_id && !(typeof source_lead_id === "string" && source_lead_id)) updatePayload.branding_id = branding_id;
 
     const { error: updateError } = await adminClient
       .from("profiles")
@@ -185,11 +188,7 @@ Deno.serve(async (req) => {
 
     if (targetRole === "user") {
       try {
-        const { data: settings } = await adminClient
-          .from("app_settings")
-          .select("*")
-          .eq("id", true)
-          .maybeSingle();
+        const settings = await loadSettingsForUser(adminClient, newUser.user.id);
 
         if (settings) {
           const s = settings as AppSettings;

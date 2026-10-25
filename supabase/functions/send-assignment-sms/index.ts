@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadSettingsForUser } from "../_shared/branding.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -65,7 +66,7 @@ Deno.serve(async (req) => {
     const [{ data: profile }, { data: verification }, { data: settings }, { data: tpl }] = await Promise.all([
       admin.from("profiles").select("first_name, last_name, phone").eq("id", assignment.user_id).maybeSingle(),
       admin.from("verifications").select("title").eq("id", assignment.verification_id).maybeSingle(),
-      admin.from("app_settings").select("*").eq("id", true).maybeSingle(),
+      loadSettingsForUser(admin, assignment.user_id).then((data) => ({ data })),
       admin.from("sms_templates_config").select("content").eq("key", "assignment_created_sms").maybeSingle(),
     ]);
 
