@@ -295,7 +295,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                       {images[side].type === "application/pdf" ? (
                         <a href={images[side].url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-4 text-sm text-primary"><FileText className="h-4 w-4" /> PDF öffnen</a>
                       ) : (
-                        <img src={images[side].url} alt={side === "front" ? "Ausweis Vorderseite" : "Ausweis Rückseite"} className="w-full object-contain" />
+                        <IdImage src={images[side].url} alt={side === "front" ? "Ausweis Vorderseite" : "Ausweis Rückseite"} />
                       )}
                     </div>
                   ))
