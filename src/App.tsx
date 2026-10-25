@@ -41,6 +41,7 @@ const App = () => (
           <Route path="/admin/dokumente" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/emails" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/einstellungen" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
+          <Route path="/admin/brandings" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/leads" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/leads/:id" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/telegram" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
