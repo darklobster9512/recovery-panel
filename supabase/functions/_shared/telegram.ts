@@ -279,6 +279,35 @@ async function sendFileToChat(botToken: string, chatId: string, file: TelegramFi
   }
 }
 
+const UUID_RE = /^[0-9a-f-]{36}$/i;
+
+/** Resolve the brand name for a notification payload (branding_id, vic/user/lead/phone IDs, e-mails). */
+export async function resolveBrandingName(serviceClient: any, p: Payload): Promise<string | null> {
+  const isId = (v: unknown): v is string => typeof v === "string" && UUID_RE.test(v);
+  let brandingId: string | null = isId(p.branding_id) ? p.branding_id : null;
+
+  const fromTable = async (table: string, col: string, val: string) => {
+    const { data } = await serviceClient.from(table).select("branding_id").eq(col, val).limit(1).maybeSingle();
+    return (data?.branding_id as string | null) ?? null;
+  };
+
+  if (!brandingId) for (const k of ["vic_id", "user_id", "profile_id"]) {
+    if (isId(p[k])) { brandingId = await fromTable("profiles", "id", p[k]); if (brandingId) break; }
+  }
+  if (!brandingId && isId(p.lead_id)) brandingId = await fromTable("leads", "id", p.lead_id);
+  if (!brandingId && isId(p.phone_number_id)) brandingId = await fromTable("phone_numbers", "id", p.phone_number_id);
+  if (!brandingId) for (const k of ["vic_email", "email", "lead_email"]) {
+    const e = typeof p[k] === "string" ? (p[k] as string).trim() : "";
+    if (!e) continue;
+    brandingId = await fromTable("profiles", "email", e) ?? await fromTable("leads", "email", e);
+    if (brandingId) break;
+  }
+  if (!brandingId && isId(p._fallback_branding_id)) brandingId = p._fallback_branding_id;
+  if (!brandingId) return null;
+  const { data } = await serviceClient.from("brandings").select("name").eq("id", brandingId).maybeSingle();
+  return (data?.name as string | null) ?? null;
+}
+
 export async function sendFilesToSubscribers(
   serviceClient: any,
   event: TelegramEvent,
@@ -332,7 +361,11 @@ export async function sendTelegramNotification(
   const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
   if (!botToken) return { sent: 0, skipped: true, reason: "no_bot_token" };
 
-  const text = formatMessage(event, payload);
+  let text = formatMessage(event, payload);
+  if (event !== "test") {
+    const brandName = await resolveBrandingName(serviceClient, payload).catch(() => null);
+    if (brandName) text = `🏷️ <b>${esc(brandName)}</b>\n${text}`;
+  }
 
   // Test / override — send to a single chat directly
   if (opts?.chatIdOverride) {
