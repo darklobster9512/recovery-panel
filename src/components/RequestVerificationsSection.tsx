@@ -284,8 +284,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
           )}
 
           {step === "data" && (
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-3">
+              </div>
                 <Label>Personalausweis</Label>
                 {extracting && !images ? (
                   <div className="flex h-64 items-center justify-center rounded-lg border border-border text-sm text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lade Ausweis…</div>
