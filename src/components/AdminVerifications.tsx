@@ -67,7 +67,6 @@ export default function AdminVerifications() {
   // Form state
   const [title, setTitle] = useState("");
   const [instructions, setInstructions] = useState<string[]>([""]);
-  const [typeFilter, setTypeFilter] = useState<"all" | "postident" | "videocall">("all");
   const [requiredFields, setRequiredFields] = useState<string[]>([]);
   const [appstoreUrl, setAppstoreUrl] = useState("");
   const [playstoreUrl, setPlaystoreUrl] = useState("");
@@ -212,9 +211,14 @@ export default function AdminVerifications() {
   const updateInstruction = (idx: number, val: string) =>
     setInstructions(instructions.map((v, i) => (i === idx ? val : v)));
 
-  const visibleVerifications = verifications.filter((v) =>
-    typeFilter === "all" ? true : typeFilter === "postident" ? v.type === "postident" : v.type !== "postident",
-  );
+  const splitTitle = (t: string) => {
+    const m = t.split(/\s+[—–-]\s+/);
+    return m.length > 1 ? { name: m[0], sub: m.slice(1).join(" – ") } : { name: t, sub: "" };
+  };
+  const groups = [
+    { key: "postident", label: "Postident", items: verifications.filter((v) => v.type === "postident") },
+    { key: "videocall", label: "Videocall", items: verifications.filter((v) => v.type !== "postident") },
+  ];
 
   return (
     <div className="space-y-8">
@@ -227,76 +231,53 @@ export default function AdminVerifications() {
         <Button onClick={openCreate} className="gap-2"><Plus /> Neue Verifikation</Button>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          {([
-            ["all", "Alle"],
-            ["postident", "Postident"],
-            ["videocall", "Videocall"],
-          ] as const).map(([val, label]) => (
-            <Button
-              key={val}
-              size="sm"
-              variant={typeFilter === val ? "default" : "outline"}
-              className="h-7 rounded-full px-3 text-xs"
-              onClick={() => setTypeFilter(val)}
-            >
-              {label}
-            </Button>
-          ))}
-          <span className="ml-auto text-xs text-muted-foreground">
-            {visibleVerifications.length} {visibleVerifications.length === 1 ? "Auftrag" : "Aufträge"}
-          </span>
+      {loading ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => <Card key={i} className="h-[120px] animate-pulse" />)}
         </div>
-
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="h-16 animate-pulse" />
-              ))
-            : visibleVerifications.map((v) => (
-                <Card
-                  key={v.id}
-                  role="button"
-                  tabIndex={0}
-                  title="Klicken zum Zuweisen"
-                  onClick={() => { setAssignVerification(v); setAssignDialogOpen(true); }}
-                  onKeyDown={(e) => { if (e.key === "Enter") { setAssignVerification(v); setAssignDialogOpen(true); } }}
-                  className="flex cursor-pointer items-center gap-3 px-3 py-2.5 transition-colors hover:border-primary/50 hover:bg-accent/40"
-                >
-                  <VerificationLogo
-                    value={v.logo_url}
-                    alt={v.title}
-                    className="h-9 w-9 shrink-0 rounded-md border border-border object-contain"
-                    fallback={<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-[11px] font-semibold text-muted-foreground">{v.title.slice(0, 2).toUpperCase()}</div>}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-foreground">{v.title}</span>
-                    <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${v.type === "postident" ? "text-warning" : "text-primary"}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${v.type === "postident" ? "bg-warning" : "bg-primary"}`} />
-                      {v.type === "postident" ? "Postident" : "Videocall"}
-                    </span>
-                  </div>
-                  <Button
-                    size="sm"
-                    className="h-8 shrink-0 gap-1 px-2.5 text-xs"
-                    onClick={(e) => { e.stopPropagation(); setAssignVerification(v); setAssignDialogOpen(true); }}
-                  >
-                    <UserPlus className="h-3.5 w-3.5" /> Zuweisen
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 shrink-0"
-                    title="Bearbeiten"
-                    onClick={(e) => { e.stopPropagation(); openEdit(v); }}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </Card>
-              ))}
+      ) : (
+        <div className="space-y-6">
+          {groups.filter((g) => g.items.length > 0).map((g) => {
+            const isPost = g.key === "postident";
+            return (
+              <section key={g.key}>
+                <h3 className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase text-muted-foreground" style={{ letterSpacing: "0.08em" }}>
+                  <span className={`h-2 w-2 rounded-full ${isPost ? "bg-warning" : "bg-primary"}`} />
+                  {g.label}
+                  <span className="font-semibold normal-case tracking-normal">({g.items.length})</span>
+                </h3>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+                  {g.items.map((v) => {
+                    const { name, sub } = splitTitle(v.title);
+                    return (
+                      <Card key={v.id} className={`flex flex-col overflow-hidden border-t-2 p-3 ${isPost ? "border-t-warning" : "border-t-primary"}`}>
+                        <div className="flex items-start justify-between gap-2">
+                          <VerificationLogo
+                            value={v.logo_url}
+                            alt={v.title}
+                            className="h-8 w-8 shrink-0 rounded-md border border-border object-contain"
+                            fallback={<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-[10px] font-semibold text-muted-foreground">{name.slice(0, 2).toUpperCase()}</div>}
+                          />
+                          <Button size="icon" variant="ghost" className="-mr-1 -mt-1 h-7 w-7 shrink-0 text-muted-foreground" title="Bearbeiten" onClick={() => openEdit(v)}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <div className="mt-2 mb-3 min-w-0 flex-1">
+                          <p className="break-words text-sm font-semibold leading-tight text-foreground" title={v.title}>{name}</p>
+                          {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+                        </div>
+                        <Button size="sm" className="h-7 w-full gap-1 text-xs" onClick={() => { setAssignVerification(v); setAssignDialogOpen(true); }}>
+                          <UserPlus className="h-3.5 w-3.5" /> Zuweisen
+                        </Button>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
         </div>
-      </div>
+      )}
 
       <div>
         <AdminAssignmentHistory refreshToken={historyRefreshToken} />
