@@ -12,3 +12,16 @@ describe("verification requests", () => {
     expect(isValidBirthDate("31.02.1966")).toBe(false);
   });
 });
+
+import { blockedBanks as _bb } from "@/lib/verificationRequests";
+describe("blockedBanks", () => {
+  const vs = [
+    { id: "1", title: "Targobank — Video-Ident", type: "videocall" },
+    { id: "2", title: "Deutsche Bank — Video-Ident", type: "videocall" },
+    { id: "3", title: "Commerzbank — Video-Ident", type: "videocall" },
+  ];
+  it("Sparkasse Targobank blocks Targobank", () => expect([..._bb("Sparkasse Targobank", vs)]).toEqual(["Targobank-videoident"]));
+  it("comma list blocks Deutsche Bank", () => expect(_bb("Sparkasse, Deutsche Bank", vs).has("DeutscheBank-videoident")).toBe(true));
+  it("no-space spelling", () => expect(_bb("deutschebank", vs).has("DeutscheBank-videoident")).toBe(true));
+  it("Sparkasse blocks nothing", () => expect(_bb("Sparkasse", vs).size).toBe(0));
+});
