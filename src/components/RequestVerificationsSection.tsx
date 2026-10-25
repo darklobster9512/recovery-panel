@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { RotateCw } from "lucide-react";
+import { RotateCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveBranding } from "@/contexts/BrandingContext";
@@ -218,6 +218,8 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
     onClose();
   };
 
+  const [rot, setRot] = useState({ front: 0, back: 0 });
+  const [zoomed, setZoomed] = useState<"front" | "back" | null>(null);
   const wide = step === "data";
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o && !submitting) onClose(); }}>
@@ -409,9 +411,8 @@ function Field({ label, bad, ...p }: { label: string; bad?: boolean } & React.In
   );
 }
 
-function IdImage({ src, alt }: { src: string; alt: string }) {
+function IdImage({ src, alt, rot, onRotate, onClick, heightClass }: { src: string; alt: string; rot: number; onRotate: () => void; onClick: () => void; heightClass: string }) {
   const boxRef = useRef<HTMLDivElement>(null);
-  const [rot, setRot] = useState(0);
   const [box, setBox] = useState({ w: 0, h: 0 });
   useEffect(() => {
     const el = boxRef.current;
@@ -422,24 +423,22 @@ function IdImage({ src, alt }: { src: string; alt: string }) {
   }, []);
   const sideways = rot % 180 !== 0;
   return (
-    <div ref={boxRef} className="relative h-44 w-full overflow-hidden">
-      <a href={src} target="_blank" rel="noreferrer">
-        <img
-          src={src}
-          alt={alt}
-          onLoad={(e) => { const i = e.currentTarget; if (i.naturalHeight > i.naturalWidth) setRot(90); }}
-          className="absolute left-1/2 top-1/2 object-contain"
-          style={{
-            width: sideways ? box.h : box.w,
-            height: sideways ? box.w : box.h,
-            transform: `translate(-50%, -50%) rotate(${rot}deg)`,
-          }}
-        />
-      </a>
+    <div ref={boxRef} className={`relative w-full overflow-hidden ${heightClass}`}>
+      <img
+        src={src}
+        alt={alt}
+        onClick={onClick}
+        className="absolute left-1/2 top-1/2 cursor-zoom-in object-contain"
+        style={{
+          width: sideways ? box.h : box.w,
+          height: sideways ? box.w : box.h,
+          transform: `translate(-50%, -50%) rotate(${rot}deg)`,
+        }}
+      />
       <button
         type="button"
         title="Drehen"
-        onClick={() => setRot((r) => (r + 90) % 360)}
+        onClick={onRotate}
         className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card/90 text-muted-foreground hover:text-foreground"
       >
         <RotateCw className="h-3.5 w-3.5" />
