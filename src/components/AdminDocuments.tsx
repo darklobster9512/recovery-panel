@@ -22,6 +22,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { usePagination } from "@/hooks/usePagination";
+import TablePagination from "@/components/TablePagination";
+
 
 interface DocGroup {
   user_id: string;
@@ -65,6 +68,12 @@ export default function AdminDocuments() {
   const [confirmGroup, setConfirmGroup] = useState<DocGroup | null>(null);
   const [confirmDoc, setConfirmDoc] = useState<DocDetail | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const q = search.toLowerCase();
+  const filteredGroups = groups.filter((g) =>
+    [g.user_name, g.user_email, g.verification_title]
+      .some((v) => v?.toLowerCase().includes(q))
+  );
+  const pg = usePagination(filteredGroups);
 
   useEffect(() => {
     loadGroups();
@@ -425,12 +434,6 @@ export default function AdminDocuments() {
     );
   }
 
-  const q = search.toLowerCase();
-  const filteredGroups = groups.filter((g) =>
-    [g.user_name, g.user_email, g.verification_title]
-      .some((v) => v?.toLowerCase().includes(q))
-  );
-
   return (
     <div className="space-y-6">
       <div className="border-b border-border pb-6">
@@ -464,7 +467,7 @@ export default function AdminDocuments() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredGroups.map((g) => (
+          {pg.pageItems.map((g) => (
             <TableRow
               key={`${g.user_id}-${g.assignment_id}`}
               className="cursor-pointer"
@@ -510,6 +513,7 @@ export default function AdminDocuments() {
           ))}
         </TableBody>
       </Table>
+      <TablePagination page={pg.page} totalPages={pg.totalPages} total={pg.total} pageSize={pg.pageSize} setPage={pg.setPage} />
     </div>
     )}
     {confirmDialog}

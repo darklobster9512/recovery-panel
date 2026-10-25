@@ -17,6 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
+import { usePagination } from "@/hooks/usePagination";
+import TablePagination from "@/components/TablePagination";
 import VicStatusSelect from "@/components/VicStatusSelect";
 
 interface VicUser {
@@ -326,6 +328,7 @@ export default function AdminVics() {
       .some((v) => v!.toLowerCase().includes(q))
   );
 
+  const pg = usePagination(filtered);
   const allSelected = filtered.length > 0 && filtered.every((u) => selectedIds.includes(u.id));
   const toggleAll = (checked: boolean) => {
     setSelectedIds(checked ? filtered.map((u) => u.id) : []);
@@ -429,7 +432,7 @@ export default function AdminVics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((u) => (
+                {pg.pageItems.map((u) => (
                   <TableRow key={u.id} className="hover:bg-muted/50">
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <Checkbox
@@ -535,6 +538,7 @@ export default function AdminVics() {
               </TableBody>
             </Table>
           )}
+          <TablePagination page={pg.page} totalPages={pg.totalPages} total={pg.total} pageSize={pg.pageSize} setPage={pg.setPage} />
         </CardContent>
       </Card>
 

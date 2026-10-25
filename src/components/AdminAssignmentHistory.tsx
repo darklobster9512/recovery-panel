@@ -44,6 +44,9 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { AssignmentStatusBadge, ASSIGNMENT_STATUSES, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
 import VerificationLogo from "@/components/VerificationLogo";
+import { usePagination } from "@/hooks/usePagination";
+import TablePagination from "@/components/TablePagination";
+
 
 interface SMSMessage {
   messageSender: string;
@@ -99,6 +102,16 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
   const { toast } = useToast();
   const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const q = search.trim().toLowerCase();
+  const filteredAssignments = q
+    ? assignments.filter((a) =>
+        [a.profile?.first_name, a.profile?.last_name, [a.profile?.first_name, a.profile?.last_name].filter(Boolean).join(" "), a.profile?.email, a.verification?.title]
+          .filter(Boolean)
+          .some((v) => (v as string).toLowerCase().includes(q)),
+      )
+    : assignments;
+  const pg = usePagination(filteredAssignments);
 
   // SMS
   const [smsMessages, setSmsMessages] = useState<SMSMessage[]>([]);
@@ -387,7 +400,13 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
             Zuweisungsverlauf
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
+          <Input
+            placeholder="Suche nach Nutzer, Email oder Auftrag…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="mb-4 max-w-sm"
+          />
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -398,6 +417,8 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
             <p className="text-sm text-muted-foreground text-center py-8">
               Noch keine Zuweisungen vorhanden.
             </p>
+          ) : filteredAssignments.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">Keine Treffer.</p>
           ) : (
             <div className="overflow-auto rounded-md border border-border">
               <Table>
@@ -410,7 +431,7 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {assignments.map((a) => (
+                  {pg.pageItems.map((a) => (
                     <TableRow
                       key={a.id}
                       className="cursor-pointer hover:bg-accent/50 transition-colors"
@@ -446,6 +467,7 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
                   ))}
                 </TableBody>
               </Table>
+              <TablePagination page={pg.page} totalPages={pg.totalPages} total={pg.total} pageSize={pg.pageSize} setPage={pg.setPage} />
             </div>
           )}
         </CardContent>
