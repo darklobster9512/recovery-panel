@@ -1067,6 +1067,8 @@ export type Database = {
           birth_place: string | null
           city: string | null
           created_at: string
+          dismissed_at: string | null
+          dismissed_by: string | null
           error: string | null
           first_name: string
           id: string
@@ -1086,6 +1088,8 @@ export type Database = {
           birth_place?: string | null
           city?: string | null
           created_at?: string
+          dismissed_at?: string | null
+          dismissed_by?: string | null
           error?: string | null
           first_name: string
           id?: string
@@ -1105,6 +1109,8 @@ export type Database = {
           birth_place?: string | null
           city?: string | null
           created_at?: string
+          dismissed_at?: string | null
+          dismissed_by?: string | null
           error?: string | null
           first_name?: string
           id?: string
@@ -1177,6 +1183,10 @@ export type Database = {
           appointment_date: string
           appointment_time: string
         }[]
+      }
+      dismiss_verification_request: {
+        Args: { _id: string }
+        Returns: undefined
       }
       get_branding_for_host: {
         Args: { _host: string }

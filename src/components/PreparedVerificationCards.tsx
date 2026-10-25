@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertTriangle, Check, Clock, Loader2, Phone, Mail, Play } from "lucide-react";
 import { toast } from "sonner";
+import { AssignmentStatusBadge, type AssignmentStatus } from "@/components/AssignmentStatusBadge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { splitVerificationTitle } from "@/lib/verificationRequests";
 
 interface Item {
@@ -20,7 +22,7 @@ interface Req {
 
 const fmt = (iso: string) => new Date(iso).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 const order: Record<string, number> = { bereit: 0, gestartet: 1, in_bearbeitung: 2, fehlgeschlagen: 3 }
-const DONE = new Set(["in_ueberpruefung", "genehmigt", "abgelehnt"]);;
+const DONE = new Set(["in_ueberpruefung", "genehmigt", "abgelehnt"]);
 
 export default function PreparedVerificationCards({ vicIds, onChanged, onMovedChange }: {
   vicIds: Set<string> | null; onChanged?: () => void; onMovedChange?: (ids: Set<string>) => void;
@@ -32,6 +34,8 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
   const [busy, setBusy] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [aStatus, setAStatus] = useState<Record<string, string>>({});
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const copy = async (text: string, key: string, msg: string) => {
     try { await navigator.clipboard.writeText(text); toast.success(msg); setCopied(key); setTimeout(() => setCopied(null), 1500); }
@@ -47,6 +51,11 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
     if (aIds.length) {
       const { data: as } = await supabase.from("verification_assignments").select("id, status").in("id", aIds);
       setAStatus(Object.fromEntries((as ?? []).map((a) => [a.id, a.status])));
+    }
+    const rIds = [...new Set(list.map((i) => i.request_id))];
+    if (rIds.length) {
+      const { data: ds } = await (supabase as any).from("verification_requests").select("id").in("id", rIds).not("dismissed_at", "is", null);
+      setDismissed(new Set((ds ?? []).map((d: any) => d.id)));
     }
     setItems(list);
   }, []);
@@ -69,13 +78,20 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
     const byReq = new Map<string, Item[]>();
     for (const i of items) {
       if (vicIds && !vicIds.has(i.vic_id)) continue;
-      if (!moved.has(i.request_id)) continue;
+      if (!moved.has(i.request_id) || dismissed.has(i.request_id)) continue;
       byReq.set(i.request_id, [...(byReq.get(i.request_id) ?? []), i]);
     }
     return [...byReq.entries()]
-      .map(([id, l]) => [id, l.filter((i) => !(i.status === "gestartet" && i.assignment_id && DONE.has(aStatus[i.assignment_id] ?? "")))] as const)
-      .filter(([, l]) => l.some((i) => i.status === "bereit" || i.status === "in_bearbeitung" || i.status === "gestartet"));
-  }, [items, vicIds, moved, aStatus]);
+      .filter(([, l]) => l.some((i) => i.status === "bereit"));
+  }, [items, vicIds, moved, dismissed]);
+  const rank = (i: Item) => i.status === "gestartet" ? (i.assignment_id && DONE.has(aStatus[i.assignment_id] ?? "") ? 4 : 1) : (order[i.status] ?? 3);
+  const dismiss = async () => {
+    if (!openId) return;
+    const { error } = await (supabase as any).rpc("dismiss_verification_request", { _id: openId });
+    if (error) { toast.error("Ausblenden fehlgeschlagen"); return; }
+    toast.success("Karte ausgeblendet");
+    setDismissed((d) => new Set(d).add(openId)); setConfirmOpen(false); setOpenId(null); onChanged?.();
+  };
 
   useEffect(() => {
     const ids = groups.map(([id]) => id).filter((id) => !reqs[id]);
@@ -130,7 +146,7 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
               <p className="text-sm font-semibold">{r ? `${r.first_name} ${r.last_name}` : "…"}</p>
               {r && <p className="text-xs text-muted-foreground">{fmt(r.created_at)} · Eigene Bank: {r.bank}</p>}
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {[...list].sort((a, b) => order[a.status] - order[b.status]).map((i) => {
+                {list.filter((i) => i.status === "bereit").map((i) => {
                   const { v, title, bank } = info(i);
                   const cls = i.status === "fehlgeschlagen" ? "border-2 border-destructive" : i.status === "in_bearbeitung" ? "border-dashed border-border opacity-80 grayscale-[50%]" : i.status === "gestartet" ? "border-2 border-warning" : "border-2 border-success";
                   return (
@@ -177,7 +193,7 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
           )}
           {openGroup && (
             <div className="divide-y divide-border">
-              {[...openGroup[1]].sort((a, b) => order[a.status] - order[b.status]).map((i) => {
+              {[...openGroup[1]].sort((a, b) => rank(a) - rank(b)).map((i) => {
                 const { v, bank, sub } = info(i);
                 return (
                   <div key={i.id} className="flex items-center gap-3 py-2">
@@ -200,7 +216,10 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
                     {i.status === "in_bearbeitung" && (
                       <Badge variant="outline" className="gap-1 border-warning/50 text-warning"><Clock className="h-3 w-3" /> In Bearbeitung</Badge>
                     )}
-                    {i.status === "gestartet" && (
+                    {i.status === "gestartet" && rank(i) === 4 && (
+                      <AssignmentStatusBadge status={aStatus[i.assignment_id!] as AssignmentStatus} />
+                    )}
+                    {i.status === "gestartet" && rank(i) === 1 && (
                       <Badge variant="outline" className="gap-1 border-warning/50 text-warning"><Play className="h-3 w-3" /> Zugewiesen</Badge>
                     )}
                     {i.status === "fehlgeschlagen" && (
@@ -211,8 +230,25 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
               })}
             </div>
           )}
+          <div className="flex justify-end border-t border-border pt-3">
+            <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10" onClick={() => setConfirmOpen(true)}>
+              Vic abgesprungen
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Vic abgesprungen?</AlertDialogTitle>
+            <AlertDialogDescription>Die Karte wird ausgeblendet. Fortfahren?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={dismiss} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Bestätigen</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
