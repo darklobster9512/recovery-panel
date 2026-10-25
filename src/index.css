@@ -123,8 +123,6 @@
   .dark .text-purple-800, .dark .text-violet-800 { color: hsl(330 30% 74%); }
 
   .dark tbody tr:hover { background-color: hsl(34 44% 51% / 0.05); }
-  .dark h1, .dark h2, .dark h3, .dark .font-display { font-family: "Cormorant Garamond", Georgia, serif; letter-spacing: 0.01em; }
-  .dark h1, .dark .font-display { font-weight: 600; }
   .dark .recharts-cartesian-grid line { stroke: hsl(var(--border)); }
   .dark .recharts-text { fill: hsl(var(--muted-foreground)); }
 }
