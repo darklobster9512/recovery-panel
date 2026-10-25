@@ -315,15 +315,16 @@ export default function AdminVicDetail() {
   ];
 
   return (
-    <div className="space-y-6">
-      <Button variant="ghost" onClick={() => navigate("/admin/vics")} className="gap-2 -ml-3">
-        <ArrowLeft className="w-4 h-4" /> Zurück zur Übersicht
-      </Button>
-
+    <div className="space-y-4 [&_[data-card-header]]:p-4 [&_.vic-card>div:first-child]:p-4 [&_.vic-card>div:first-child]:pb-2 [&_.vic-card>div:nth-child(2)]:p-4 [&_.vic-card>div:nth-child(2)]:pt-0 [&_.vic-card_h3]:text-[15px] [&_.vic-card_h3_svg]:h-4 [&_.vic-card_h3_svg]:w-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-4 items-start">
+        <div className="space-y-4 min-w-0">
       {/* Profile Card */}
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-8 w-8 -ml-1 rounded-full" onClick={() => navigate("/admin/vics")} aria-label="Zurück zur Übersicht">
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
             <CardTitle className="text-lg">
               {profile.first_name} {profile.last_name}
             </CardTitle>
@@ -530,7 +531,9 @@ export default function AdminVicDetail() {
           )}
         </CardContent>
       </Card>
+        </div>
 
+        <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
       {/* Notes Section */}
       <Card>
         <CardHeader>
@@ -585,6 +588,8 @@ export default function AdminVicDetail() {
           )}
         </CardContent>
       </Card>
+        </div>
+      </div>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="max-w-lg">
