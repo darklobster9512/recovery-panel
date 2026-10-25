@@ -277,14 +277,14 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                   </Command>
                     );
                   })()}
-                </PopoverContent>
-              </Popover>
+              </div>
               <p className="text-xs text-muted-foreground">Nur Vics mit hochgeladenem Personalausweis können gewählt werden.</p>
             </div>
           )}
 
           {step === "data" && (
-              </div>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="space-y-3">
                 <Label>Personalausweis</Label>
                 {extracting && !images ? (
                   <div className="flex h-64 items-center justify-center rounded-lg border border-border text-sm text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lade Ausweis…</div>
