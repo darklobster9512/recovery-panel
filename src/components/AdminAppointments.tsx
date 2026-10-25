@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
+import { fetchBrandingProfileIds } from "@/lib/branding";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
@@ -46,6 +48,7 @@ type VicOption = {
 };
 
 export default function AdminAppointments() {
+  const { activeBrandingId } = useActiveBranding();
   const { role, user } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,12 +113,14 @@ export default function AdminAppointments() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from("appointments")
       .select("id, appointment_date, appointment_time, status, is_transferred, caller_id, vic_id, reason, created_by")
       .order("appointment_date", { ascending: false })
       .order("appointment_time", { ascending: false });
     if (error) { toast({ title: "Fehler", description: error.message, variant: "destructive" }); setLoading(false); return; }
+    const brandIds = activeBrandingId ? new Set(await fetchBrandingProfileIds(activeBrandingId)) : null;
+    if (brandIds) data = (data ?? []).filter((r) => brandIds.has(r.vic_id));
     const vicIds = Array.from(new Set((data ?? []).map((r) => r.vic_id)));
     const callerIds = Array.from(new Set((data ?? []).map((r) => r.caller_id).filter(Boolean) as string[]));
     const [vics, callers] = await Promise.all([
@@ -134,6 +139,8 @@ export default function AdminAppointments() {
     let query = supabase.from("profiles").select("id, first_name, last_name, email, assigned_caller_id").order("created_at", { ascending: false });
     if (role === "caller") {
       query = query.eq("assigned_caller_id", user.id);
+    } else if (activeBrandingId) {
+      query = (query as any).eq("branding_id", activeBrandingId);
     }
     const { data, error } = await query;
     if (error) {

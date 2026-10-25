@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/TablePagination";
 
@@ -41,6 +42,7 @@ interface PhoneEntry {
 
 export default function AdminPhoneNumbers() {
   const { user, role } = useAuth();
+  const { activeBrandingId } = useActiveBranding();
   const { toast } = useToast();
   const [entries, setEntries] = useState<PhoneEntry[]>([]);
   const [linkInput, setLinkInput] = useState("");
@@ -78,10 +80,12 @@ export default function AdminPhoneNumbers() {
   }, []);
 
   const loadEntries = useCallback(async () => {
-    const { data: rows, error } = await supabase
+    let pq = (supabase as any)
       .from("phone_numbers")
       .select("*")
       .order("created_at", { ascending: false });
+    if (activeBrandingId) pq = pq.eq("branding_id", activeBrandingId);
+    const { data: rows, error } = await pq;
 
     if (error) {
       setLoadingEntries(false);
@@ -163,7 +167,8 @@ export default function AdminPhoneNumbers() {
       token,
       api_url: linkInput.trim(),
       created_by: user?.id,
-    });
+      branding_id: activeBrandingId,
+    } as any);
 
     if (error) {
       toast({ title: "Fehler", description: "Konnte nicht hinzugefügt werden.", variant: "destructive" });

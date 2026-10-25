@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Scale, Landmark, Briefcase, Eye, EyeOff } from "lucide-react";
+import { fetchBrandingForHost, type PublicBranding } from "@/lib/branding";
 
 const europolLogo = "/europol-logo.png";
 const ioscoLogo = "/iosco-logo.png";
@@ -19,6 +20,20 @@ export default function Auth() {
   const [assetsReady, setAssetsReady] = useState(false);
   const navigate = useNavigate();
   const { user, role } = useAuth();
+  const [branding, setBranding] = useState<PublicBranding | null>(null);
+
+  useEffect(() => {
+    fetchBrandingForHost(window.location.hostname).then((b) => {
+      if (!b) return;
+      setBranding(b);
+      document.title = `${b.company_name} – Login`;
+      if (b.favicon_url) {
+        let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+        if (!link) { link = document.createElement("link"); link.rel = "icon"; document.head.appendChild(link); }
+        link.href = b.favicon_url;
+      }
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -85,10 +100,19 @@ export default function Auth() {
         <div className="w-full max-w-md space-y-8 flex-1 flex flex-col justify-center">
           {/* Logo */}
           <div className="mb-10">
-            <span className="font-serif text-xl tracking-tight text-[#0b1f3a] block">
-              Korte <span className="text-[#c9a24a]">&amp;</span> Partner
-            </span>
-            <p className="mt-1 text-[11px] uppercase tracking-widest text-slate-500">Rechtsanwaltskanzlei</p>
+            {branding?.logo_url && (
+              <img src={branding.logo_url} alt={branding.company_name} className="mb-3 h-14 w-auto max-w-[220px] object-contain" />
+            )}
+            {branding && branding.company_name !== "Korte & Partner" ? (
+              <span className="font-serif text-xl tracking-tight block" style={{ color: branding.brand_color }}>
+                {branding.company_name}
+              </span>
+            ) : (
+              <span className="font-serif text-xl tracking-tight text-[#0b1f3a] block">
+                Korte <span className="text-[#c9a24a]">&amp;</span> Partner
+              </span>
+            )}
+            <p className="mt-1 text-[11px] uppercase tracking-widest text-slate-500">{branding?.tagline || "Rechtsanwaltskanzlei"}</p>
           </div>
 
           <div>

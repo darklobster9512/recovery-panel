@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
+import { fetchBrandingProfileIds } from "@/lib/branding";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -20,6 +22,7 @@ interface ReviewRow {
 }
 
 export default function AdminReview() {
+  const { activeBrandingId } = useActiveBranding();
   const [rows, setRows] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -36,11 +39,13 @@ export default function AdminReview() {
 
   const loadData = async () => {
     setLoading(true);
-    const { data: assignments } = await supabase
+    let { data: assignments } = await supabase
       .from("verification_assignments")
       .select("id, user_id, verification_id, created_at, status")
       .eq("status", "in_ueberpruefung" as any)
       .order("created_at", { ascending: false });
+    const brandIds = activeBrandingId ? new Set(await fetchBrandingProfileIds(activeBrandingId)) : null;
+    if (brandIds && assignments) assignments = assignments.filter((a) => brandIds.has(a.user_id));
 
     if (!assignments || assignments.length === 0) {
       setRows([]);

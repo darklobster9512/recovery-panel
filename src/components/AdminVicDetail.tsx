@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -79,6 +80,7 @@ export default function AdminVicDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, role } = useAuth();
+  const { brandings } = useActiveBranding();
   const { toast } = useToast();
 
   const [profile, setProfile] = useState<VicProfile | null>(null);
@@ -333,6 +335,22 @@ export default function AdminVicDetail() {
             />
           </div>
           <div className="flex items-center gap-2">
+            {role === "admin" && brandings.length > 0 && (
+              <select
+                title="Branding"
+                value={(profile as any).branding_id ?? ""}
+                onChange={async (e) => {
+                  const v = e.target.value;
+                  const { error } = await (supabase as any).from("profiles").update({ branding_id: v }).eq("id", profile.id);
+                  if (error) { toast({ title: "Branding konnte nicht geändert werden", variant: "destructive" }); return; }
+                  setProfile((p) => (p ? ({ ...p, branding_id: v } as any) : p));
+                }}
+                className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+              >
+                <option value="" disabled>Branding</option>
+                {brandings.map((b) => <option key={b.id} value={b.id}>{b.company_name}</option>)}
+              </select>
+            )}
             {role === "admin" && (
               <AssignCallerSelect
                 target="profile"

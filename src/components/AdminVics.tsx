@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -94,6 +95,7 @@ export default function AdminVics() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { role, user } = useAuth();
+  const { activeBrandingId } = useActiveBranding();
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -122,11 +124,13 @@ export default function AdminVics() {
 
     const userIds = roles.map((r) => r.user_id);
 
-    const { data: profiles } = await supabase
+    let pq = (supabase as any)
       .from("profiles")
       .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id, member_status")
       .in("id", userIds)
       .order("created_at", { ascending: false });
+    if (activeBrandingId) pq = pq.eq("branding_id", activeBrandingId);
+    const { data: profiles } = await pq;
 
     setUsers((profiles as VicUser[]) ?? []);
     setLoading(false);
@@ -139,10 +143,12 @@ export default function AdminVics() {
       setCallers([]);
       return;
     }
-    const { data: profs } = await supabase
+    let cq = (supabase as any)
       .from("profiles")
       .select("id, first_name, last_name, email")
       .in("id", ids);
+    if (activeBrandingId) cq = cq.eq("branding_id", activeBrandingId);
+    const { data: profs } = await cq;
     setCallers((profs as CallerOption[]) ?? []);
   };
 
@@ -287,6 +293,7 @@ export default function AdminVics() {
           balance: form.balance || null,
           scam_project: form.scam_project || null,
           source_lead_id: selectedLeadId || null,
+          branding_id: activeBrandingId,
         },
       });
 

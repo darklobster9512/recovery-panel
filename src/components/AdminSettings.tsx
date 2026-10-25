@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, EyeOff, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
   AppSettings,
@@ -17,17 +17,7 @@ import {
 } from "@/lib/settings";
 import AdminBackups from "@/components/AdminBackups";
 
-const BRANDING_FIELDS: Array<{ key: keyof AppSettings; label: string }> = [
-  { key: "company_name", label: "Unternehmensname" },
-  { key: "street", label: "Straße & Hausnummer" },
-  { key: "city", label: "PLZ & Stadt" },
-  { key: "phone", label: "Telefonnummer" },
-  { key: "email", label: "E-Mail" },
-  { key: "lawyer", label: "Anwalt" },
-  { key: "vat_id", label: "UstId" },
-  { key: "website", label: "Website" },
-  { key: "panel_subprefix", label: "Panel Subprefix" },
-];
+
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -35,7 +25,6 @@ export default function AdminSettings() {
   const [newUserSms, setNewUserSms] = useState("");
   const [assignmentSms, setAssignmentSms] = useState("");
   const [saving, setSaving] = useState(false);
-  const [showKeys, setShowKeys] = useState(false);
 
   useEffect(() => {
     fetchAppSettings().then(setSettings).catch((e) =>
@@ -48,38 +37,6 @@ export default function AdminSettings() {
 
   function update<K extends keyof AppSettings>(k: K, v: AppSettings[K]) {
     setSettings((s) => ({ ...s, [k]: v }));
-  }
-
-  async function handleSaveBranding() {
-    setSaving(true);
-    try {
-      const patch: Partial<AppSettings> = {};
-      for (const f of BRANDING_FIELDS) (patch as any)[f.key] = settings[f.key];
-      await saveAppSettings(patch);
-      toast({ title: "Branding gespeichert" });
-    } catch (e: any) {
-      toast({ title: "Fehler beim Speichern", description: e.message, variant: "destructive" });
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleSaveIntegrations() {
-    setSaving(true);
-    try {
-      await saveAppSettings({
-        resend_api_key: settings.resend_api_key,
-        resend_from_name: settings.resend_from_name,
-        resend_from_email: settings.resend_from_email,
-        sevenio_api_key: settings.sevenio_api_key,
-        sevenio_from_name: settings.sevenio_from_name,
-      });
-      toast({ title: "Integrationen gespeichert" });
-    } catch (e: any) {
-      toast({ title: "Fehler beim Speichern", description: e.message, variant: "destructive" });
-    } finally {
-      setSaving(false);
-    }
   }
 
   async function handleSaveSms() {
@@ -96,103 +53,20 @@ export default function AdminSettings() {
     }
   }
 
-  const keyType = showKeys ? "text" : "password";
 
   return (
-    <Tabs defaultValue="branding" className="space-y-6">
+    <Tabs defaultValue="sms" className="space-y-6">
       <div className="border-b border-border pb-6">
         <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Systemkonfiguration</p>
         <h2 className="font-display text-2xl font-semibold">Einstellungen</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Branding, Schnittstellen und Kommunikationsvorlagen konfigurieren.</p>
+        <p className="mt-2 text-sm text-muted-foreground">SMS-Vorlagen, Terminbuchung und Backups. Firmendaten und Versand findest du unter Brandings.</p>
       </div>
       <TabsList>
-        <TabsTrigger value="branding">Branding</TabsTrigger>
-        <TabsTrigger value="integrations">Integrationen</TabsTrigger>
         <TabsTrigger value="sms">SMS Vorlagen</TabsTrigger>
         <TabsTrigger value="booking">Terminbuchung</TabsTrigger>
         <TabsTrigger value="backups">Backups</TabsTrigger>
       </TabsList>
 
-
-      <TabsContent value="branding">
-        <Card>
-          <CardHeader className="border-b border-border px-5 py-4"><CardTitle className="text-base">Unternehmensprofil</CardTitle></CardHeader>
-          <CardContent className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {BRANDING_FIELDS.map((f) => (
-                <div key={f.key} className="space-y-1.5">
-                  <Label>{f.label}</Label>
-                  <Input
-                    value={(settings[f.key] as string) ?? ""}
-                    onChange={(e) => update(f.key, e.target.value as any)}
-                  />
-                </div>
-              ))}
-            </div>
-            <Button onClick={handleSaveBranding} disabled={saving} className="gap-2">
-              <Save className="w-4 h-4" /> Speichern
-            </Button>
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="integrations">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
-            <CardTitle className="text-base">Resend & seven.io</CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => setShowKeys((v) => !v)} className="gap-1">
-              {showKeys ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              {showKeys ? "Verbergen" : "Anzeigen"}
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4 rounded-md border border-border p-4">
-              <h3 className="text-sm font-semibold text-foreground">Resend</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label>API-Key</Label>
-                  <Input type={keyType} value={settings.resend_api_key}
-                    onChange={(e) => update("resend_api_key", e.target.value)}
-                    placeholder="re_..." />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Absendername</Label>
-                  <Input value={settings.resend_from_name}
-                    onChange={(e) => update("resend_from_name", e.target.value)}
-                    placeholder="Korte & Partner" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Absender-E-Mail</Label>
-                  <Input value={settings.resend_from_email}
-                    onChange={(e) => update("resend_from_email", e.target.value)}
-                    placeholder="noreply@kortekanzlei.de" />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4 rounded-md border border-border p-4">
-              <h3 className="text-sm font-semibold text-foreground">seven.io</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label>API-Key</Label>
-                  <Input type={keyType} value={settings.sevenio_api_key}
-                    onChange={(e) => update("sevenio_api_key", e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Absendername (max. 11 Zeichen)</Label>
-                  <Input value={settings.sevenio_from_name}
-                    onChange={(e) => update("sevenio_from_name", e.target.value)}
-                    maxLength={11} placeholder="Korte" />
-                </div>
-              </div>
-            </div>
-
-            <Button onClick={handleSaveIntegrations} disabled={saving} className="gap-2">
-              <Save className="w-4 h-4" /> Speichern
-            </Button>
-          </CardContent>
-        </Card>
-      </TabsContent>
 
       <TabsContent value="sms" className="space-y-6">
         <Card>

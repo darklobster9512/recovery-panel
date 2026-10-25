@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
+import { fetchBrandingProfileIds } from "@/lib/branding";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -98,6 +100,7 @@ interface PhoneNumber {
 }
 
 export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshToken?: number } = {}) {
+  const { activeBrandingId } = useActiveBranding();
   const { user } = useAuth();
   const { toast } = useToast();
   const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
@@ -142,7 +145,7 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
 
   const fetchAssignments = async () => {
     setLoading(true);
-    const { data: assignmentData, error } = await supabase
+    let { data: assignmentData, error } = await supabase
       .from("verification_assignments")
       .select("id, created_at, user_id, verification_id, field_values, phone_number_id, created_by, status, sms_monitoring_active, hidden_sms, forward_tan_to_vic")
       .order("created_at", { ascending: false });
@@ -151,6 +154,8 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
       setLoading(false);
       return;
     }
+    const brandIds = activeBrandingId ? new Set(await fetchBrandingProfileIds(activeBrandingId)) : null;
+    if (brandIds) assignmentData = assignmentData.filter((a) => brandIds.has(a.user_id));
 
     const userIds = [...new Set(assignmentData.map((a) => a.user_id))];
     const verificationIds = [...new Set(assignmentData.map((a) => a.verification_id))];
@@ -295,7 +300,9 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
 
   const fetchPhoneNumbers = async () => {
     setLoadingPhones(true);
-    const { data } = await supabase.from("phone_numbers").select("id, token, api_url");
+    let pq = (supabase as any).from("phone_numbers").select("id, token, api_url");
+    if (activeBrandingId) pq = pq.eq("branding_id", activeBrandingId);
+    const { data } = await pq;
     const phones = (data as PhoneNumber[]) || [];
     setPhoneNumbers(phones);
 

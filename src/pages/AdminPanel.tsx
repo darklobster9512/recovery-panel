@@ -4,8 +4,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Shield, Users, FileText, LogOut, Phone, LayoutDashboard,
   ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones, MessageCircle, CalendarDays, ListChecks,
-  MessageSquare,
+  MessageSquare, Palette, ChevronsUpDown, Check,
 } from "lucide-react";
+import { BrandingProvider, useActiveBranding } from "@/contexts/BrandingContext";
+import AdminBrandings from "@/components/AdminBrandings";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { NavLink, useNavigate, useLocation, Navigate } from "react-router-dom";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
@@ -51,6 +54,7 @@ const navItems: NavItem[] = [
   { label: "Telefonnummern", icon: Phone, path: "/admin/telefonnummern", group: "Betrieb" },
   { label: "Email Vorlagen", icon: Mail, path: "/admin/emails", group: "System", adminOnly: true },
   { label: "Telegram", icon: Send, path: "/admin/telegram", group: "System", adminOnly: true },
+  { label: "Brandings", icon: Palette, path: "/admin/brandings", group: "System", adminOnly: true },
   { label: "Einstellungen", icon: Settings, path: "/admin/einstellungen", group: "System", adminOnly: true },
 ];
 
@@ -75,6 +79,7 @@ function pageTitle(pathname: string): string {
     "/admin/emails": "Email Vorlagen",
     "/admin/telegram": "Telegram",
     "/admin/einstellungen": "Einstellungen",
+    "/admin/brandings": "Brandings",
   };
   return map[pathname] ?? "Admin";
 }
@@ -103,12 +108,33 @@ function renderRoute(pathname: string, role: string | null) {
     case "/admin/emails": return <AdminEmailTemplates />;
     case "/admin/telegram": return <AdminTelegram />;
     case "/admin/einstellungen": return <AdminSettings />;
+    case "/admin/brandings": return isAdmin ? <AdminBrandings /> : <Navigate to="/admin" replace />;
     default: return <AdminDashboard />;
   }
 }
 
 export default function AdminPanel() {
+  return (
+    <BrandingProvider>
+      <AdminPanelInner />
+    </BrandingProvider>
+  );
+}
+
+function BrandMark({ logo, name, color }: { logo?: string | null; name: string; color?: string }) {
+  if (logo) return <img src={logo} alt={name} className="h-9 w-9 shrink-0 rounded-md bg-sidebar-foreground object-contain p-0.5" />;
+  return (
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-sidebar-foreground/20 bg-sidebar-foreground text-sidebar" style={color ? { background: color } : undefined}>
+      <Shield className="h-5 w-5" />
+    </div>
+  );
+}
+
+function AdminPanelInner() {
   const { user, role, signOut } = useAuth();
+  const { brandings, active, setActive, activeBrandingId, ready } = useActiveBranding();
+  const isAdmin = role === "admin";
+  const brandName = active?.company_name || "Korte & Partner";
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -139,15 +165,40 @@ export default function AdminPanel() {
       <div className="admin-workspace min-h-screen flex w-full bg-background">
         <Sidebar collapsible="icon" className="border-sidebar-border">
           <SidebarHeader className="border-b border-sidebar-border p-0">
-            <div className="flex h-20 items-center gap-3 px-5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-sidebar-foreground/20 bg-sidebar-foreground text-sidebar">
-                <Shield className="h-5 w-5" />
+            {isAdmin && brandings.length > 0 ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex h-20 w-full items-center gap-3 px-5 text-left transition-colors hover:bg-sidebar-foreground/5">
+                    <BrandMark logo={active?.logo_url} name={brandName} />
+                    <div className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
+                      <span className="truncate font-display text-sm font-semibold text-sidebar-foreground">{brandName}</span>
+                      <span className="truncate text-[10px] font-semibold uppercase text-sidebar-foreground/55" style={{ letterSpacing: "0.08em" }}>Branding wechseln</span>
+                    </div>
+                    <ChevronsUpDown className="h-4 w-4 shrink-0 text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-64">
+                  <DropdownMenuLabel className="text-xs text-muted-foreground">Aktives Branding</DropdownMenuLabel>
+                  {brandings.map((b) => (
+                    <DropdownMenuItem key={b.id} onClick={() => setActive(b.id)} className="gap-2">
+                      {b.logo_url ? <img src={b.logo_url} alt="" className="h-6 w-6 rounded object-contain" /> : <span className="h-6 w-6 rounded" style={{ background: b.brand_color }} />}
+                      <span className="flex-1 truncate">{b.company_name}</span>
+                      {b.id === activeBrandingId && <Check className="h-4 w-4 text-primary" />}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/admin/brandings")}>Brandings verwalten</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex h-20 items-center gap-3 px-5">
+                <BrandMark name={brandName} />
+                <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
+                  <span className="truncate font-display text-sm font-semibold text-sidebar-foreground">{brandName}</span>
+                  <span className="truncate text-[10px] font-semibold uppercase text-sidebar-foreground/55" style={{ letterSpacing: "0.08em" }}>Operations</span>
+                </div>
               </div>
-              <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
-                <span className="truncate font-display text-sm font-semibold text-sidebar-foreground">Korte &amp; Partner</span>
-                <span className="truncate text-[10px] font-semibold uppercase text-sidebar-foreground/55" style={{ letterSpacing: "0.08em" }}>Operations</span>
-              </div>
-            </div>
+            )}
           </SidebarHeader>
 
           <SidebarContent>
@@ -229,7 +280,7 @@ export default function AdminPanel() {
           </header>
           <main className="flex-1 bg-background" style={{ minHeight: "calc(100vh - 5rem)" }}>
             <div className="mx-auto w-full max-w-[1600px] p-5 lg:p-8 xl:p-10">
-              {renderRoute(location.pathname, role)}
+              {ready ? <div key={activeBrandingId ?? "none"}>{renderRoute(location.pathname, role)}</div> : null}
             </div>
           </main>
         </SidebarInset>
