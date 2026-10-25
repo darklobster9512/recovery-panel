@@ -246,25 +246,25 @@ export default function AdminVerifications() {
                   {g.label}
                   <span className="font-semibold normal-case tracking-normal">({g.items.length})</span>
                 </h3>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {g.items.map((v) => {
                     const { name, sub } = splitTitle(v.title);
                     return (
-                      <Card key={v.id} className={`flex flex-col overflow-hidden border-t-2 p-3 ${isPost ? "border-t-warning" : "border-t-primary"}`}>
-                        <div className="flex items-start justify-between gap-2">
+                      <Card key={v.id} className={`relative flex flex-col overflow-hidden border-t-2 p-3 ${isPost ? "border-t-warning" : "border-t-primary"}`}>
+                        <Button size="icon" variant="ghost" className="absolute right-1.5 top-1.5 h-7 w-7 text-muted-foreground" title="Bearbeiten" onClick={() => openEdit(v)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <div className="mb-3 flex items-center gap-3 pr-7">
                           <VerificationLogo
                             value={v.logo_url}
                             alt={v.title}
-                            className="h-8 w-8 shrink-0 rounded-md border border-border object-contain"
-                            fallback={<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-[10px] font-semibold text-muted-foreground">{name.slice(0, 2).toUpperCase()}</div>}
+                            className="h-14 w-14 shrink-0 rounded-lg border border-border bg-card object-contain p-1"
+                            fallback={<div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-border bg-muted text-sm font-semibold text-muted-foreground">{name.slice(0, 2).toUpperCase()}</div>}
                           />
-                          <Button size="icon" variant="ghost" className="-mr-1 -mt-1 h-7 w-7 shrink-0 text-muted-foreground" title="Bearbeiten" onClick={() => openEdit(v)}>
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                        <div className="mt-2 mb-3 min-w-0 flex-1">
-                          <p className="break-words text-sm font-semibold leading-tight text-foreground" title={v.title}>{name}</p>
-                          {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+                          <div className="min-w-0 flex-1">
+                            <p className="break-words text-sm font-semibold leading-tight text-foreground" title={v.title}>{name}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">{sub || (isPost ? "Postident" : "Video-Ident")}</p>
+                          </div>
                         </div>
                         <Button size="sm" className="h-7 w-full gap-1 text-xs" onClick={() => { setAssignVerification(v); setAssignDialogOpen(true); }}>
                           <UserPlus className="h-3.5 w-3.5" /> Zuweisen
