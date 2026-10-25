@@ -250,11 +250,11 @@ export default function AdminVerifications() {
                   {g.items.map((v) => {
                     const { name, sub } = splitTitle(v.title);
                     return (
-                      <Card key={v.id} className={`relative flex flex-col overflow-hidden border-t-2 p-3 ${isPost ? "border-t-warning" : "border-t-primary"}`}>
+                      <Card key={v.id} className={`relative overflow-hidden border-t-2 p-3 ${isPost ? "border-t-warning" : "border-t-primary"}`}>
                         <Button size="icon" variant="ghost" className="absolute right-1.5 top-1.5 h-7 w-7 text-muted-foreground" title="Bearbeiten" onClick={() => openEdit(v)}>
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
-                        <div className="mb-3 flex items-center gap-3 pr-7">
+                        <div className="flex items-center gap-3 pr-8">
                           <VerificationLogo
                             value={v.logo_url}
                             alt={v.title}
@@ -265,10 +265,16 @@ export default function AdminVerifications() {
                             <p className="break-words text-sm font-semibold leading-tight text-foreground" title={v.title}>{name}</p>
                             <p className="mt-1 text-xs text-muted-foreground">{sub || (isPost ? "Postident" : "Video-Ident")}</p>
                           </div>
+                          <button
+                            type="button"
+                            title="Zuweisen"
+                            onClick={() => { setAssignVerification(v); setAssignDialogOpen(true); }}
+                            className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+                          >
+                            <UserPlus className="h-6 w-6" />
+                            <span className="text-[9px] font-medium leading-none">Zuweisen</span>
+                          </button>
                         </div>
-                        <Button size="sm" className="h-7 w-full gap-1 text-xs" onClick={() => { setAssignVerification(v); setAssignDialogOpen(true); }}>
-                          <UserPlus className="h-3.5 w-3.5" /> Zuweisen
-                        </Button>
                       </Card>
                     );
                   })}
