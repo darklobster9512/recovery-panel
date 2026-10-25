@@ -17,11 +17,12 @@ interface Props {
   targetId: string;
   value: string | null;
   onChange?: (callerId: string | null) => void;
+  compact?: boolean;
 }
 
 const NONE = "__none__";
 
-export default function AssignCallerSelect({ target, targetId, value, onChange }: Props) {
+export default function AssignCallerSelect({ target, targetId, value, onChange, compact }: Props) {
   const { toast } = useToast();
   const [callers, setCallers] = useState<CallerOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,10 +61,10 @@ export default function AssignCallerSelect({ target, targetId, value, onChange }
   };
 
   return (
-    <div className="space-y-1.5">
-      <Label className="text-[11px] font-bold uppercase text-muted-foreground">Zugewiesener Caller</Label>
+    <div className={compact ? "" : "space-y-1.5"}>
+      {!compact && <Label className="text-[11px] font-bold uppercase text-muted-foreground">Zugewiesener Caller</Label>}
       <Select value={value ?? NONE} onValueChange={handleChange} disabled={loading || saving}>
-        <SelectTrigger className="w-full sm:w-64">
+        <SelectTrigger className={compact ? "h-9 w-56" : "w-full sm:w-64"} title="Zugewiesener Caller">
           <SelectValue placeholder={loading ? "Lädt…" : "Nicht zugewiesen"} />
           {saving && <Loader2 className="w-3.5 h-3.5 animate-spin ml-1" />}
         </SelectTrigger>
