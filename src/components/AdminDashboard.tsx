@@ -15,6 +15,7 @@ import {
 import { LEAD_STATUSES, CAMPAIGN_META, type LeadCampaign } from "@/lib/leads";
 import { APPOINTMENT_STATUS_LABELS } from "@/lib/booking";
 import { cn } from "@/lib/utils";
+import { VIC_STATUS_OPTIONS } from "@/components/VicStatusSelect";
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -36,7 +37,7 @@ const activityConfig = {
 const countConfig = { count: { label: "Anzahl", color: "hsl(var(--primary))" } } satisfies ChartConfig;
 
 interface AssignmentRow { id: string; user_id: string; verification_id: string; status: AssignmentStatus; created_at: string }
-interface LeadRow { status: string; campaign: string | null; imported_at: string; assigned_caller_id: string | null }
+interface LeadRow { id: string; status: string; campaign: string | null; imported_at: string; assigned_caller_id: string | null }
 interface ApptRow { id: string; vic_id: string; caller_id: string | null; appointment_date: string; appointment_time: string; status: string }
 interface CallerRow { id: string; name: string; vics: number; open: number; weekAssignments: number }
 interface NoCallerVic { id: string; first_name: string | null; last_name: string | null; email: string | null; created_at: string }
@@ -84,6 +85,7 @@ export default function AdminDashboard() {
   const [callers, setCallers] = useState<CallerRow[]>([]);
   const [recent, setRecent] = useState<RecentAssignment[]>([]);
   const [totalVics, setTotalVics] = useState(0);
+  const [vicStatusRows, setVicStatusRows] = useState<{ member_status: string; source_lead_id: string | null }[]>([]);
   const [noCaller, setNoCaller] = useState<NoCallerVic[]>([]);
   const [docDates, setDocDates] = useState<string[]>([]);
   const [totalDocs, setTotalDocs] = useState(0);
@@ -107,7 +109,7 @@ export default function AdminDashboard() {
       unreadRes, apptRes, ...statusCounts
     ] = await Promise.all([
       supabase.from("user_roles").select("user_id, role").in("role", ["admin", "caller"]),
-      supabase.from("leads").select("status, campaign, imported_at, assigned_caller_id").order("imported_at", { ascending: false }).limit(1000),
+      supabase.from("leads").select("id, status, campaign, imported_at, assigned_caller_id").order("imported_at", { ascending: false }).limit(1000),
       supabase.from("profiles").select("id, created_at").gte("created_at", since14).limit(1000),
       supabase.from("verification_assignments").select("id, user_id, created_at, status").gte("created_at", since14).limit(1000),
       supabase.from("verification_assignments").select("user_id, status").in("status", ["zugewiesen", "in_bearbeitung", "in_ueberpruefung"]).limit(1000),
@@ -134,12 +136,14 @@ export default function AdminDashboard() {
     setUnreadMsgs(unread.length);
     setUnreadChats(new Set(unread.map((u) => u.vic_id)).size);
 
-    const [vicsCount, noCallerRes, docsRes, docsCount] = await Promise.all([
+    const [vicsCount, noCallerRes, docsRes, docsCount, vicStatusRes] = await Promise.all([
       supabase.from("user_roles").select("id", { count: "exact", head: true }).eq("role", "user"),
       supabase.from("profiles").select("id, first_name, last_name, email, created_at").is("assigned_caller_id", null).order("created_at", { ascending: false }).limit(1000),
       supabase.from("user_documents").select("created_at").gte("created_at", since14).limit(1000),
       supabase.from("user_documents").select("id", { count: "exact", head: true }),
+      supabase.from("profiles").select("id, member_status, source_lead_id").limit(1000),
     ]);
+    setVicStatusRows(((vicStatusRes.data ?? []) as { id: string; member_status: string; source_lead_id: string | null }[]).filter((p) => !staffIds.has(p.id)));
     setTotalVics(vicsCount.count ?? 0);
     setNoCaller(((noCallerRes.data ?? []) as NoCallerVic[]).filter((p) => !staffIds.has(p.id)));
     setDocDates(((docsRes.data ?? []) as { created_at: string }[]).map((d) => d.created_at));
@@ -246,18 +250,22 @@ export default function AdminDashboard() {
   const pipelineData = PIPELINE.map((p) => ({ name: p.label, count: pipeline[p.status] ?? 0, color: p.color }));
 
   const leadData = useMemo(() => {
-    return LEAD_STATUSES.map((s) => {
-      const inStatus = leads.filter((l) => l.status === s.value);
+    const campaignById = Object.fromEntries(leads.map((l) => [l.id, l.campaign]));
+    return VIC_STATUS_OPTIONS.map((s) => {
+      const inStatus = vicStatusRows.filter((v) => v.member_status === s.value);
+      const camp = (v: { source_lead_id: string | null }) => (v.source_lead_id ? campaignById[v.source_lead_id] : null);
       return {
         name: s.label,
-        kanzlei: inStatus.filter((l) => l.campaign === "kanzlei").length,
-        europol: inStatus.filter((l) => l.campaign === "europol").length,
+        kanzlei: inStatus.filter((v) => camp(v) === "kanzlei").length,
+        europol: inStatus.filter((v) => camp(v) === "europol").length,
+        ohne: inStatus.filter((v) => { const c = camp(v); return c !== "kanzlei" && c !== "europol"; }).length,
       };
     });
-  }, [leads]);
+  }, [leads, vicStatusRows]);
   const leadChartConfig = {
     kanzlei: { label: CAMPAIGN_META.kanzlei.label, color: "hsl(38 92% 50%)" },
     europol: { label: CAMPAIGN_META.europol.label, color: "hsl(var(--primary))" },
+    ohne: { label: "Ohne Kampagne", color: "hsl(var(--muted-foreground))" },
   } satisfies ChartConfig;
 
   const unassignedVics = noCaller.length;
@@ -381,8 +389,8 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
-            <CardTitle className="text-base">Leads nach Status</CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/leads")} className="gap-1 text-primary">Alle <ArrowRight /></Button>
+            <CardTitle className="text-base">Vics nach Status</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/vics")} className="gap-1 text-primary">Alle <ArrowRight /></Button>
           </CardHeader>
           <CardContent className="p-5">
             <ChartContainer config={leadChartConfig} className="h-[240px] w-full">
@@ -392,12 +400,13 @@ export default function AdminDashboard() {
                 <YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={11} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar dataKey="kanzlei" stackId="a" fill="var(--color-kanzlei)" />
-                <Bar dataKey="europol" stackId="a" fill="var(--color-europol)" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="europol" stackId="a" fill="var(--color-europol)" />
+                <Bar dataKey="ohne" stackId="a" fill="var(--color-ohne)" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ChartContainer>
             <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
-              {(["kanzlei", "europol"] as LeadCampaign[]).map((c) => (
-                <span key={c} className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: leadChartConfig[c].color }} />{CAMPAIGN_META[c].label}</span>
+              {(["kanzlei", "europol", "ohne"] as const).map((c) => (
+                <span key={c} className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: leadChartConfig[c].color }} />{leadChartConfig[c].label}</span>
               ))}
             </div>
           </CardContent>
