@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useAdminTheme } from "@/hooks/useAdminTheme";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -7,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Shield, Users, FileText, LogOut, Phone, LayoutDashboard,
+  Shield, Users, FileText, LogOut, Sun, Moon, Phone, LayoutDashboard,
   ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones, MessageCircle, CalendarDays, ListChecks,
   MessageSquare, Palette, ChevronsUpDown, Check,
 } from "lucide-react";
@@ -138,6 +139,7 @@ function BrandMark({ logo, name, color }: { logo?: string | null; name: string; 
 
 function AdminPanelInner() {
   const { user, role, signOut } = useAuth();
+  const { theme, toggle: toggleTheme } = useAdminTheme();
   const { brandings, active, setActive, activeBrandingId, ready } = useActiveBranding();
   const isAdmin = role === "admin";
   const [linked, setLinked] = useState<any[]>([]);
@@ -335,6 +337,16 @@ function AdminPanelInner() {
                 <p className="truncate text-xs font-semibold text-sidebar-foreground">{user?.email}</p>
                 <p className="truncate text-[10px] text-sidebar-foreground/50">Administrator</p>
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 shrink-0 text-sidebar-foreground/65 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground"
+                onClick={toggleTheme}
+                aria-label={theme === "dark" ? "Helles Design" : "Dunkles Design"}
+                title={theme === "dark" ? "Helles Design" : "Dunkles Design"}
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
