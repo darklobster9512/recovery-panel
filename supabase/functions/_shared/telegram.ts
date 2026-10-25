@@ -304,8 +304,8 @@ export async function resolveBrandingName(serviceClient: any, p: Payload): Promi
   }
   if (!brandingId && isId(p._fallback_branding_id)) brandingId = p._fallback_branding_id;
   if (!brandingId) return null;
-  const { data } = await serviceClient.from("brandings").select("name").eq("id", brandingId).maybeSingle();
-  return (data?.name as string | null) ?? null;
+  const { data } = await serviceClient.from("brandings").select("company_name").eq("id", brandingId).maybeSingle();
+  return (data?.company_name as string | null) ?? null;
 }
 
 export async function sendFilesToSubscribers(
