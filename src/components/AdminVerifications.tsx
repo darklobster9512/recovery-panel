@@ -67,6 +67,7 @@ export default function AdminVerifications() {
   // Form state
   const [title, setTitle] = useState("");
   const [instructions, setInstructions] = useState<string[]>([""]);
+  const [typeFilter, setTypeFilter] = useState<"all" | "postident" | "videocall">("all");
   const [requiredFields, setRequiredFields] = useState<string[]>([]);
   const [appstoreUrl, setAppstoreUrl] = useState("");
   const [playstoreUrl, setPlaystoreUrl] = useState("");
@@ -211,6 +212,10 @@ export default function AdminVerifications() {
   const updateInstruction = (idx: number, val: string) =>
     setInstructions(instructions.map((v, i) => (i === idx ? val : v)));
 
+  const visibleVerifications = verifications.filter((v) =>
+    typeFilter === "all" ? true : typeFilter === "postident" ? v.type === "postident" : v.type !== "postident",
+  );
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
@@ -222,53 +227,75 @@ export default function AdminVerifications() {
         <Button onClick={openCreate} className="gap-2"><Plus /> Neue Verifikation</Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {/* Create Card */}
-        {loading
-          ? Array.from({ length: 3 }).map((_, i) => (
-              <Card key={i} className="min-h-[172px] animate-pulse" />
-            ))
-          : verifications.map((v) => (
-              <Card key={v.id} className="relative min-h-[172px] group">
-                <CardContent className="flex h-full flex-col items-start gap-4 p-5">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {([
+            ["all", "Alle"],
+            ["postident", "Postident"],
+            ["videocall", "Videocall"],
+          ] as const).map(([val, label]) => (
+            <Button
+              key={val}
+              size="sm"
+              variant={typeFilter === val ? "default" : "outline"}
+              className="h-7 rounded-full px-3 text-xs"
+              onClick={() => setTypeFilter(val)}
+            >
+              {label}
+            </Button>
+          ))}
+          <span className="ml-auto text-xs text-muted-foreground">
+            {visibleVerifications.length} {visibleVerifications.length === 1 ? "Auftrag" : "Aufträge"}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i} className="h-16 animate-pulse" />
+              ))
+            : visibleVerifications.map((v) => (
+                <Card
+                  key={v.id}
+                  role="button"
+                  tabIndex={0}
+                  title="Klicken zum Zuweisen"
+                  onClick={() => { setAssignVerification(v); setAssignDialogOpen(true); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { setAssignVerification(v); setAssignDialogOpen(true); } }}
+                  className="flex cursor-pointer items-center gap-3 px-3 py-2.5 transition-colors hover:border-primary/50 hover:bg-accent/40"
+                >
                   <VerificationLogo
                     value={v.logo_url}
                     alt={v.title}
-                    className="w-12 h-12 rounded-md border border-border object-contain"
-                    fallback={<div className="w-12 h-12 rounded-md border border-border bg-muted flex items-center justify-center text-muted-foreground text-[10px] font-semibold">LOGO</div>}
+                    className="h-9 w-9 shrink-0 rounded-md border border-border object-contain"
+                    fallback={<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-[11px] font-semibold text-muted-foreground">{v.title.slice(0, 2).toUpperCase()}</div>}
                   />
-                  <div className="min-w-0">
-                    <span className="block truncate font-display text-sm font-semibold text-foreground">{v.title}</span>
-                    <span className={`mt-2 inline-flex rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase ${v.type === "postident" ? "border-warning/25 bg-warning/10 text-warning" : "border-primary/20 bg-primary/10 text-primary"}`}>
-                    {v.type === "postident" ? "Postident" : "Videocall"}
+                  <div className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-foreground">{v.title}</span>
+                    <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${v.type === "postident" ? "text-warning" : "text-primary"}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${v.type === "postident" ? "bg-warning" : "bg-primary"}`} />
+                      {v.type === "postident" ? "Postident" : "Videocall"}
                     </span>
                   </div>
                   <Button
-                    variant="default"
                     size="sm"
-                    className="mt-auto w-full gap-1.5 text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setAssignVerification(v);
-                      setAssignDialogOpen(true);
-                    }}
+                    className="h-8 shrink-0 gap-1 px-2.5 text-xs"
+                    onClick={(e) => { e.stopPropagation(); setAssignVerification(v); setAssignDialogOpen(true); }}
                   >
-                    <UserPlus className="w-3.5 h-3.5" /> Zuweisen
+                    <UserPlus className="h-3.5 w-3.5" /> Zuweisen
                   </Button>
-                </CardContent>
-                {/* Edit button */}
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8"
-                    onClick={() => openEdit(v)}
+                    className="h-8 w-8 shrink-0"
+                    title="Bearbeiten"
+                    onClick={(e) => { e.stopPropagation(); openEdit(v); }}
                   >
-                    <Pencil className="w-4 h-4" />
+                    <Pencil className="h-4 w-4" />
                   </Button>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))}
+        </div>
       </div>
 
       <div>
