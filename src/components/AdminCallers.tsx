@@ -10,8 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserPlus, Loader2, RefreshCw, Copy, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { CallerLinkDialog, LinkedBadges, useCallerLinks } from "@/components/CallerLinks";
-import { Link2 } from "lucide-react";
+import { CallerLinkPicker, LinkedBadges, saveCallerLinks, useCallerLinks } from "@/components/CallerLinks";
 import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/admin/DialogShell";
 
 interface Caller {
@@ -55,7 +54,7 @@ export default function AdminCallers() {
   const [saving, setSaving] = useState(false);
   const editFileRef = useRef<HTMLInputElement | null>(null);
   const linkCtx = useCallerLinks();
-  const [linking, setLinking] = useState<Caller | null>(null);
+  const [linkSel, setLinkSel] = useState<string[]>([]);
   const editPreview = editAvatarFile ? URL.createObjectURL(editAvatarFile) : null;
 
   const load = async () => {
@@ -153,6 +152,7 @@ export default function AdminCallers() {
     setEditForm({ first_name: c.first_name ?? "", last_name: c.last_name ?? "", phone: c.phone ?? "", branding_id: (c as any).branding_id ?? "" });
     setEditAvatarFile(null);
     setRemoveAvatar(false);
+    setLinkSel(linkCtx.linkedOf(c.id).map((x) => x.id));
   };
 
   const handleSave = async () => {
@@ -188,6 +188,8 @@ export default function AdminCallers() {
 
       const { error } = await supabase.from("profiles").update(payload).eq("id", editing.id);
       if (error) throw new Error(error.message);
+      await saveCallerLinks(editing.id, linkSel, linkCtx);
+      linkCtx.reload();
 
       toast({ title: "Caller aktualisiert" });
       setEditing(null);
@@ -230,7 +232,7 @@ export default function AdminCallers() {
                   <TableHead>Telefon</TableHead>
                   <TableHead>Passwort</TableHead>
                   <TableHead>Verknüpft</TableHead>
-                  <TableHead className="w-56 text-right">Aktion</TableHead>
+                  <TableHead className="w-28 text-right">Aktion</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -269,11 +271,8 @@ export default function AdminCallers() {
                           </span>
                         ) : "—"}
                       </TableCell>
-                      <TableCell><LinkedBadges callerId={c.id} ctx={linkCtx} onChanged={linkCtx.reload} /></TableCell>
-                      <TableCell className="space-x-2 text-right">
-                        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setLinking(c)}>
-                          <Link2 className="w-3.5 h-3.5" /> Verknüpfen
-                        </Button>
+                      <TableCell><LinkedBadges callerId={c.id} ctx={linkCtx} /></TableCell>
+                      <TableCell className="text-right">
                         <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openEdit(c)}>
                           <Pencil className="w-3.5 h-3.5" /> Bearbeiten
                         </Button>
@@ -287,7 +286,6 @@ export default function AdminCallers() {
         </CardContent>
       </Card>
 
-      <CallerLinkDialog caller={linking as any} ctx={linkCtx} onClose={() => setLinking(null)} onChanged={linkCtx.reload} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg p-6 gap-0">
           <DialogHeader className="space-y-0">
@@ -391,6 +389,18 @@ export default function AdminCallers() {
                 )}
               </div>
             </DialogSection>
+
+            {editing && (
+              <DialogSection label="Verknüpfte Konten" hint="Pro Branding ein Konto">
+                <CallerLinkPicker
+                  callerId={editing.id}
+                  brandingId={editForm.branding_id || null}
+                  ctx={linkCtx}
+                  selected={linkSel}
+                  onChange={setLinkSel}
+                />
+              </DialogSection>
+            )}
 
             <DialogSection label="Profilbild" hint="Optional">
               <div className="flex items-center gap-3">
