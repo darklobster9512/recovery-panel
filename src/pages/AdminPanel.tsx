@@ -1,3 +1,7 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -134,6 +138,24 @@ function AdminPanelInner() {
   const { user, role, signOut } = useAuth();
   const { brandings, active, setActive, activeBrandingId, ready } = useActiveBranding();
   const isAdmin = role === "admin";
+  const [linked, setLinked] = useState<any[]>([]);
+  const [switching, setSwitching] = useState(false);
+  useEffect(() => {
+    if (role !== "caller") return;
+    (supabase as any).rpc("my_linked_callers").then(({ data }: any) => setLinked(data ?? []));
+  }, [role, user?.id]);
+  const switchTo = async (targetId: string) => {
+    setSwitching(true);
+    const { data, error } = await supabase.functions.invoke("caller-switch", { body: { target_caller_id: targetId } });
+    if (error || !data?.access_token) {
+      setSwitching(false);
+      toast({ title: "Wechsel fehlgeschlagen", description: (data as any)?.error ?? error?.message, variant: "destructive" });
+      return;
+    }
+    await supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
+    window.location.href = "/admin";
+  };
+  const selfLink = linked.find((l) => l.is_self);
   const brandName = active?.company_name || "Korte & Partner";
   const navigate = useNavigate();
   const location = useLocation();
@@ -205,6 +227,39 @@ function AdminPanelInner() {
                     ))}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate("/admin/brandings")}>Brandings verwalten</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+            {!isAdmin && linked.length > 1 && (
+              <div className="px-3 pb-3 group-data-[collapsible=icon]:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button disabled={switching} className="flex w-full items-center gap-3 rounded-lg border border-sidebar-border bg-sidebar-accent px-3 py-2.5 text-left transition-colors hover:bg-sidebar-accent/70">
+                      {selfLink?.logo_url ? (
+                        <img src={selfLink.logo_url} alt="" className="h-6 w-6 shrink-0 rounded object-contain bg-background" />
+                      ) : (
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-primary text-[10px] font-bold text-primary-foreground">{selfLink?.company_name?.charAt(0) ?? "?"}</span>
+                      )}
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-sm font-medium text-sidebar-foreground">{selfLink?.company_name ?? "Branding"}</span>
+                        <span className="truncate text-[11px] text-sidebar-foreground/60">{`${selfLink?.first_name ?? ""} ${selfLink?.last_name ?? ""}`.trim() || selfLink?.email}</span>
+                      </div>
+                      {switching ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronsUpDown className="h-4 w-4 shrink-0 text-sidebar-foreground/55" />}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width] min-w-56">
+                    <DropdownMenuLabel className="text-xs text-muted-foreground">Konto wechseln</DropdownMenuLabel>
+                    {linked.map((l) => (
+                      <DropdownMenuItem key={l.caller_id} disabled={l.is_self} onClick={() => !l.is_self && switchTo(l.caller_id)} className="gap-2">
+                        {l.logo_url ? <img src={l.logo_url} alt="" className="h-6 w-6 rounded object-contain" /> : <span className="h-6 w-6 rounded" style={{ background: l.brand_color ?? undefined }} />}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm">{l.company_name ?? "Ohne Branding"}</p>
+                          <p className="truncate text-xs text-muted-foreground">{`${l.first_name ?? ""} ${l.last_name ?? ""}`.trim() || l.email}</p>
+                        </div>
+                        {l.is_self && <Check className="h-4 w-4 text-primary" />}
+                      </DropdownMenuItem>
+                    ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

@@ -244,6 +244,38 @@ export type Database = {
         }
         Relationships: []
       }
+      caller_account_links: {
+        Row: {
+          caller_id: string
+          created_at: string
+          created_by: string | null
+          group_id: string
+          id: string
+        }
+        Insert: {
+          caller_id: string
+          created_at?: string
+          created_by?: string | null
+          group_id: string
+          id?: string
+        }
+        Update: {
+          caller_id?: string
+          created_at?: string
+          created_by?: string | null
+          group_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "caller_account_links_caller_id_fkey"
+            columns: ["caller_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           as_caller_id: string | null
@@ -1042,6 +1074,20 @@ export type Database = {
           id: string
           logo_url: string
           tagline: string
+        }[]
+      }
+      my_linked_callers: {
+        Args: never
+        Returns: {
+          brand_color: string
+          branding_id: string
+          caller_id: string
+          company_name: string
+          email: string
+          first_name: string
+          is_self: boolean
+          last_name: string
+          logo_url: string
         }[]
       }
     }
