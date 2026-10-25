@@ -218,6 +218,11 @@ Deno.serve(async (req) => {
                 last_name,
                 company_name: s.company_name || "",
                 email,
+                login_url: (() => {
+                  const w = String(s.website || "").trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "");
+                  const pre = String((s as any).panel_subprefix || "").trim().replace(/\.+$/, "");
+                  return w ? `https://${pre ? `${pre}.${w}` : w}/auth` : "";
+                })(),
               });
               smsResult = await sendSms(s, phone, smsText);
             } else {

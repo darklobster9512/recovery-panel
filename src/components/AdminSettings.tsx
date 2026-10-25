@@ -16,6 +16,20 @@ import {
   saveSmsTemplate,
 } from "@/lib/settings";
 import AdminBackups from "@/components/AdminBackups";
+import { useActiveBranding } from "@/contexts/BrandingContext";
+
+const BASE_VARS = ["first_name", "last_name", "company_name", "login_url"];
+
+function VarHint({ extra = [] as string[] }) {
+  return (
+    <p className="text-xs text-muted-foreground">
+      Verfügbare Variablen:{" "}
+      {[...BASE_VARS, ...extra].map((v, i) => (
+        <span key={v}>{i > 0 && ", "}<code>{`{{${v}}}`}</code></span>
+      ))}
+    </p>
+  );
+}
 
 
 
@@ -25,6 +39,24 @@ export default function AdminSettings() {
   const [newUserSms, setNewUserSms] = useState("");
   const [assignmentSms, setAssignmentSms] = useState("");
   const [saving, setSaving] = useState(false);
+  const { active } = useActiveBranding();
+  const brandName = active?.company_name || "Ihre Marke";
+  const loginUrl = (() => {
+    const w = (active?.website || "").trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "");
+    const pre = (active?.panel_subprefix || "").trim().replace(/\.+$/, "");
+    return w ? `https://${pre ? `${pre}.${w}` : w}/auth` : "";
+  })();
+  const preview = (t: string) =>
+    t.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => ({
+      first_name: "Max", last_name: "Mustermann", company_name: brandName,
+      login_url: loginUrl, verification_title: "Deutsche Bank — Postident", email: "max@example.de",
+    } as Record<string, string>)[k] ?? "");
+  const Preview = ({ text }: { text: string }) => (
+    <div className="rounded-md border border-border bg-muted/40 p-3 text-xs">
+      <p className="mb-1 font-semibold text-muted-foreground">Vorschau ({brandName})</p>
+      <p className="whitespace-pre-wrap text-foreground">{preview(text) || "—"}</p>
+    </div>
+  );
 
   useEffect(() => {
     fetchAppSettings().then(setSettings).catch((e) =>
@@ -69,17 +101,18 @@ export default function AdminSettings() {
 
 
       <TabsContent value="sms" className="space-y-6">
+        <p className="rounded-md border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+          Die Vorlagen gelten für alle Brandings. Beim Versand werden Firmenname und Login-Link automatisch aus dem Branding des jeweiligen Vics eingesetzt.
+        </p>
         <Card>
           <CardHeader className="border-b border-border px-5 py-4"><CardTitle className="text-base">SMS-Vorlage: Neuer Vic (Blockchain-Forensik)</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
               <Label>Nachrichtentext</Label>
               <Textarea rows={5} value={newUserSms} onChange={(e) => setNewUserSms(e.target.value)} />
-              <p className="text-xs text-muted-foreground">
-                Wird beim automatischen Anlegen eines Vics aus einem Lead versendet. Verfügbare Variablen:{" "}
-                <code>{"{{first_name}}"}</code>, <code>{"{{last_name}}"}</code>,{" "}
-                <code>{"{{company_name}}"}</code>, <code>{"{{email}}"}</code>
-              </p>
+              <p className="text-xs text-muted-foreground">Wird beim automatischen Anlegen eines Vics aus einem Lead versendet.</p>
+              <VarHint extra={["email"]} />
+              <Preview text={newUserSms} />
             </div>
           </CardContent>
         </Card>
@@ -89,12 +122,9 @@ export default function AdminSettings() {
             <div className="space-y-1.5">
               <Label>Nachrichtentext</Label>
               <Textarea rows={5} value={assignmentSms} onChange={(e) => setAssignmentSms(e.target.value)} />
-              <p className="text-xs text-muted-foreground">
-                Wird an den Vic gesendet, sobald ihm ein Auftrag zugewiesen wird. Verfügbare Variablen:{" "}
-                <code>{"{{first_name}}"}</code>, <code>{"{{last_name}}"}</code>,{" "}
-                <code>{"{{verification_title}}"}</code>, <code>{"{{company_name}}"}</code>,{" "}
-                <code>{"{{login_url}}"}</code>
-              </p>
+              <p className="text-xs text-muted-foreground">Wird an den Vic gesendet, sobald ihm ein Auftrag zugewiesen wird.</p>
+              <VarHint extra={["verification_title"]} />
+              <Preview text={assignmentSms} />
             </div>
           </CardContent>
         </Card>
@@ -104,6 +134,8 @@ export default function AdminSettings() {
             <div className="space-y-1.5">
               <Label>Nachrichtentext</Label>
               <Textarea rows={5} value={smsTemplate} onChange={(e) => setSmsTemplate(e.target.value)} />
+              <VarHint />
+              <Preview text={smsTemplate} />
             </div>
             <Button onClick={handleSaveSms} disabled={saving} className="gap-2">
               <Save className="w-4 h-4" /> Alle speichern
