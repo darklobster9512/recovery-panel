@@ -425,7 +425,15 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
               </div>
               <div>
                 <p className="mb-2 font-semibold">Angefragte Verifikationen ({chosen.length})</p>
-                <div className="flex flex-wrap gap-1.5">{chosen.map((v) => <Badge key={v.id} variant="secondary" className="font-normal">{v.key}</Badge>)}</div>
+                <div className="flex flex-wrap gap-2">{chosen.map((v) => {
+                  const bank = splitVerificationTitle(v.title).bank;
+                  return (
+                    <div key={v.id} title={v.title} className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg border border-border bg-background">
+                      <VerificationLogo value={v.logo_url ?? null} alt={v.title} className="h-full w-full object-contain p-1"
+                        fallback={<span className="text-sm font-semibold text-muted-foreground">{bank.slice(0, 2).toUpperCase()}</span>} />
+                    </div>
+                  );
+                })}</div>
               </div>
               <p className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-foreground">Bitte prüfe die Daten ein letztes Mal: Falsche Daten machen alle Verifikationen ungültig.</p>
             </div>
