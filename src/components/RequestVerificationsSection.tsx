@@ -241,7 +241,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                     <ChevronsUpDown className="h-4 w-4 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <PopoverContent portal={false} className="w-[--radix-popover-trigger-width] p-0" align="start">
                   <div className="flex gap-1 border-b border-border p-1.5">
                     {([["ok", "Verfügbar", vics.filter((v) => v.hasId).length], ["none", "Kein Ausweis", vics.filter((v) => !v.hasId).length]] as const).map(([k, label, n]) => (
                       <button key={k} type="button" onClick={() => { setVicTab(k); setVicLimit(20); }}
@@ -257,7 +257,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                     return (
                   <Command shouldFilter={false}>
                     <CommandInput autoFocus placeholder="Name oder E-Mail suchen…" value={vicSearch} onValueChange={(s) => { setVicSearch(s); setVicLimit(20); }} />
-                    <CommandList>
+                    <CommandList className="max-h-72 overflow-y-auto" onWheel={(e) => e.stopPropagation()}>
                       <CommandEmpty>{vicsLoading ? "Lade Vics…" : "Keine Vics gefunden."}</CommandEmpty>
                       {!q && filtered.length > 0 && <p className="px-3 pt-2 text-xs text-muted-foreground">Tipp: Namen oder E-Mail eintippen.</p>}
                       {vicTab === "none" && <p className="px-3 py-2 text-xs text-muted-foreground">Für diese Vics muss zuerst ein Personalausweis hochgeladen werden.</p>}
