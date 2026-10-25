@@ -67,6 +67,12 @@ export default function RequestVerificationsSection() {
     });
   }, [rows]);
 
+  const [verifByKey, setVerifByKey] = useState<Record<string, { title: string; logo_url: string | null }>>({});
+  useEffect(() => {
+    supabase.from("verifications").select("id, title, type, logo_url").then(({ data }) =>
+      setVerifByKey(Object.fromEntries((data ?? []).map((v: any) => [auftragKey(v), v]))));
+  }, []);
+
   const shown = showAll ? rows : rows.slice(0, 10);
 
   return (
@@ -102,7 +108,7 @@ export default function RequestVerificationsSection() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold">{vicNames[r.vic_id] ?? `${r.first_name} ${r.last_name}`}</p>
-                    <p className="text-xs text-muted-foreground">{fmt(r.created_at)} · Bank: {r.bank}</p>
+                    <p className="text-xs text-muted-foreground">{fmt(r.created_at)} · Eigene Bank: {r.bank}</p>
                   </div>
                   {r.status === "fehlgeschlagen" ? (
                     <Badge variant="destructive" className="gap-1"><AlertTriangle className="h-3 w-3" /> Fehlgeschlagen</Badge>
@@ -111,7 +117,17 @@ export default function RequestVerificationsSection() {
                   )}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                  {r.auftraege.map((a) => <Badge key={a} variant="secondary" className="font-normal">{a}</Badge>)}
+                  {r.auftraege.map((a) => {
+                    const v = verifByKey[a];
+                    const title = v?.title ?? a.replace("-", " — ");
+                    const bank = splitVerificationTitle(title).bank;
+                    return (
+                      <div key={a} title={title} className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border border-border bg-card">
+                        <VerificationLogo value={v?.logo_url ?? null} alt={bank} className="h-full w-full object-contain p-1"
+                          fallback={<span className="text-xs font-semibold text-muted-foreground">{bank.slice(0, 2).toUpperCase()}</span>} />
+                      </div>
+                    );
+                  })}
                 </div>
                 {r.status === "fehlgeschlagen" ? (
                   <p className="mt-2 text-xs text-destructive">{r.error ?? "Unbekannter Fehler"}</p>
