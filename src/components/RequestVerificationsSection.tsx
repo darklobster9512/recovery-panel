@@ -36,7 +36,7 @@ type Step = "vic" | "data" | "select" | "review";
 
 const fmt = (iso: string) => new Date(iso).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
-export default function RequestVerificationsSection() {
+export default function RequestVerificationsSection({ onAssigned }: { onAssigned?: () => void } = {}) {
   const { role, user } = useAuth();
   const { activeBrandingId } = useActiveBranding();
   const [open, setOpen] = useState(false);
@@ -98,6 +98,7 @@ export default function RequestVerificationsSection() {
       <PreparedVerificationCards
         vicIds={activeBrandingId && role !== "caller" ? new Set(rows.map((r) => r.vic_id)) : null}
         onMovedChange={setMoved}
+        onChanged={onAssigned}
       />
 
       {pending.length > 0 && (
