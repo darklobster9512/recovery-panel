@@ -342,8 +342,8 @@ function AdminPanelInner() {
                 size="icon"
                 className="h-8 w-8 shrink-0 text-sidebar-foreground/65 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground"
                 onClick={toggleTheme}
-                aria-label={theme === "dark" ? "Helles Design" : "Dunkles Design"}
-                title={theme === "dark" ? "Helles Design" : "Dunkles Design"}
+                aria-label={theme === "dark" ? "Helles Design" : "Old Money"}
+                title={theme === "dark" ? "Helles Design" : "Old Money"}
               >
                 {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
