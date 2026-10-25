@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
+import { fetchBrandingProfileIds } from "@/lib/branding";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -53,6 +55,7 @@ interface Template {
 }
 
 export default function AdminLivechat() {
+  const { activeBrandingId } = useActiveBranding();
   const { user, role } = useAuth();
   const isAdmin = role === "admin";
   const [convs, setConvs] = useState<Conv[]>([]);
@@ -101,9 +104,9 @@ export default function AdminLivechat() {
       if (vicIds.length > 0) {
         const { data } = await supabase
           .from("profiles")
-          .select("id, first_name, last_name, email, assigned_caller_id")
+          .select("id, first_name, last_name, email, assigned_caller_id, branding_id" as any)
           .in("id", vicIds);
-        profiles = data ?? [];
+        profiles = ((data ?? []) as any[]).filter((p) => !activeBrandingId || p.branding_id === activeBrandingId);
       }
     }
 

@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useActiveBranding } from "@/contexts/BrandingContext";
+import { fetchBrandingProfileIds } from "@/lib/branding";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,6 +60,7 @@ function getFileIcon(type: string) {
 }
 
 export default function AdminDocuments() {
+  const { activeBrandingId } = useActiveBranding();
   const [groups, setGroups] = useState<DocGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -81,10 +84,12 @@ export default function AdminDocuments() {
 
   const loadGroups = async () => {
     setLoading(true);
-    const { data: allDocs } = await supabase
+    let { data: allDocs } = await supabase
       .from("user_documents")
       .select("user_id, assignment_id, file_name, created_at")
       .order("created_at", { ascending: false });
+    const brandIds = activeBrandingId ? new Set(await fetchBrandingProfileIds(activeBrandingId)) : null;
+    if (brandIds && allDocs) allDocs = allDocs.filter((d) => brandIds.has(d.user_id));
 
     if (!allDocs || allDocs.length === 0) {
       setGroups([]);
