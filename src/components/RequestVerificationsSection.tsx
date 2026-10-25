@@ -293,17 +293,17 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                   <div className="flex h-64 items-center justify-center rounded-lg border border-border text-sm text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lade Ausweis…</div>
                 ) : images && zoomed && images[zoomed].type !== "application/pdf" ? (
                   <div className="overflow-hidden rounded-lg border border-border bg-muted/30">
-                    <div className="flex items-center justify-between border-b border-border px-3 py-1.5">
+                    <div className="flex h-8 items-center justify-between border-b border-border px-3">
                       <p className="text-xs font-semibold text-muted-foreground">{zoomed === "front" ? "Vorderseite" : "Rückseite"} (vergrößert)</p>
                       <button type="button" title="Schließen" onClick={() => setZoomed(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
                     </div>
-                    <IdImage src={images[zoomed].url} alt="Ausweis vergrößert" heightClass="h-[70vh]" rot={rot[zoomed]}
+                    <IdImage src={images[zoomed].url} alt="Ausweis vergrößert" heightClass="h-[526px]" rot={rot[zoomed]}
                       onRotate={() => setRot((r) => ({ ...r, [zoomed]: (r[zoomed] + 90) % 360 }))} onClick={() => setZoomed(null)} />
                   </div>
                 ) : images ? (
                   (["front", "back"] as const).map((side) => (
                     <div key={side} className="overflow-hidden rounded-lg border border-border bg-muted/30">
-                      <p className="border-b border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground">{side === "front" ? "Vorderseite" : "Rückseite"} · zum Vergrößern klicken</p>
+                      <p className="flex h-8 items-center border-b border-border px-3 text-xs font-semibold text-muted-foreground">{side === "front" ? "Vorderseite" : "Rückseite"} · zum Vergrößern klicken</p>
                       {images[side].type === "application/pdf" ? (
                         <a href={images[side].url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-4 text-sm text-primary"><FileText className="h-4 w-4" /> PDF öffnen</a>
                       ) : (
