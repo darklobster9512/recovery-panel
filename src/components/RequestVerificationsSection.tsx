@@ -1,3 +1,4 @@
+import { TruncatedBank } from "@/components/TruncatedBank";
 import VerificationLogo from "@/components/VerificationLogo";
 import PreparedVerificationCards from "@/components/PreparedVerificationCards";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -117,7 +118,7 @@ export default function RequestVerificationsSection({ onAssigned }: { onAssigned
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold">{vicNames[r.vic_id] ?? `${r.first_name} ${r.last_name}`}</p>
-                    <p className="text-xs text-muted-foreground">{fmt(r.created_at)} · Eigene Bank: {r.bank}</p>
+                    <p className="text-xs text-muted-foreground">{fmt(r.created_at)} · <TruncatedBank bank={r.bank} /></p>
                   </div>
                   {r.status === "fehlgeschlagen" && (
                     <Badge variant="destructive" className="gap-1"><AlertTriangle className="h-3 w-3" /> Fehlgeschlagen</Badge>
