@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Scale, Landmark, Briefcase, Eye, EyeOff } from "lucide-react";
-import { fetchBrandingForHost, type PublicBranding } from "@/lib/branding";
+import { type PublicBranding } from "@/lib/branding";
+import { getHostBranding, usePageTitle } from "@/hooks/usePageTitle";
 
 const europolLogo = "/europol-logo.png";
 const ioscoLogo = "/iosco-logo.png";
@@ -23,17 +24,9 @@ export default function Auth() {
   const [branding, setBranding] = useState<PublicBranding | null>(null);
 
   useEffect(() => {
-    fetchBrandingForHost(window.location.hostname).then((b) => {
-      if (!b) return;
-      setBranding(b);
-      document.title = `${b.company_name} – Login`;
-      if (b.favicon_url) {
-        let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
-        if (!link) { link = document.createElement("link"); link.rel = "icon"; document.head.appendChild(link); }
-        link.href = b.favicon_url;
-      }
-    });
+    getHostBranding().then((b) => { if (b) setBranding(b); });
   }, []);
+  usePageTitle("Login");
 
   useEffect(() => {
     let cancelled = false;

@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAdminTheme } from "@/hooks/useAdminTheme";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -142,6 +143,7 @@ function AdminPanelInner() {
   const { theme, toggle: toggleTheme } = useAdminTheme();
   const { brandings, active, setActive, activeBrandingId, ready } = useActiveBranding();
   const isAdmin = role === "admin";
+  usePageTitle("Admin", isAdmin ? active?.company_name : null);
   const [linked, setLinked] = useState<any[]>([]);
   const [switching, setSwitching] = useState(false);
   useEffect(() => {
