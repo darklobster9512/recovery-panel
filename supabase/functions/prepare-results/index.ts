@@ -3,6 +3,7 @@
 // Aufträge that were requested there and not yet started. Returns no Vic data.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3.23.8";
+import { sendTelegramNotification } from "../_shared/telegram.ts";
 import { identcodeFromLink, normKey } from "../_shared/auftrag.ts";
 
 const cors = {
@@ -41,9 +42,11 @@ Deno.serve(async (req) => {
     .select("id, vic_id, auftrag_key, status, verification_id").eq("request_id", request_id);
   if (!items?.length) return json({ error: "Unbekannte request_id" }, 404);
 
-  const { data: verifs } = await service.from("verifications").select("id, type")
+  const { data: verifs } = await service.from("verifications").select("id, type, title")
     .in("id", items.map((i: any) => i.verification_id).filter(Boolean));
   const typeOf = new Map((verifs ?? []).map((v: any) => [v.id, v.type]));
+  const titleOf = new Map((verifs ?? []).map((v: any) => [v.id, v.title]));
+  const succeeded: string[] = [];
 
   const out: { auftrag: string; ok: boolean; error?: string }[] = [];
   for (const r of results) {
@@ -70,6 +73,7 @@ Deno.serve(async (req) => {
       await service.from("verification_request_items").update({
         status: "bereit", pdf_path: path, pdf_name: r.pdf_name || "postident.pdf",
       }).eq("id", item.id);
+      succeeded.push(titleOf.get(item.verification_id) || item.auftrag_key);
       out.push({ auftrag: r.auftrag, ok: true });
       continue;
     }
@@ -85,7 +89,24 @@ Deno.serve(async (req) => {
     await service.from("verification_request_items").update({
       status: "bereit", field_values: fv, anosim_link: r.anosim_link ?? null,
     }).eq("id", item.id);
+    succeeded.push(titleOf.get(item.verification_id) || item.auftrag_key);
     out.push({ auftrag: r.auftrag, ok: true });
+  }
+  if (succeeded.length) {
+    const notify = (async () => {
+      const vicId = items[0].vic_id;
+      const { data: vic } = await service.from("profiles").select("full_name, assigned_caller_id").eq("id", vicId).maybeSingle();
+      let callerName: string | null = null;
+      if (vic?.assigned_caller_id) {
+        const { data: c } = await service.from("profiles").select("full_name").eq("id", vic.assigned_caller_id).maybeSingle();
+        callerName = c?.full_name ?? null;
+      }
+      await sendTelegramNotification(service, "verifications_prepared", {
+        vic_id: vicId, vic_name: vic?.full_name, caller_name: callerName, items: succeeded,
+      });
+    })().catch((e) => console.error("telegram notify failed", e));
+    // @ts-ignore EdgeRuntime exists in Supabase
+    if (typeof EdgeRuntime !== "undefined") EdgeRuntime.waitUntil(notify); else await notify;
   }
   return json({ ok: out.every((o) => o.ok), results: out });
 });

@@ -1,0 +1,1 @@
+ALTER TYPE public.telegram_event ADD VALUE IF NOT EXISTS 'verifications_prepared';
