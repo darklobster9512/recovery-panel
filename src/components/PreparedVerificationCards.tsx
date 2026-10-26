@@ -1,3 +1,4 @@
+import { TruncatedBank } from "@/components/TruncatedBank";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import VerificationLogo from "@/components/VerificationLogo";
@@ -148,7 +149,7 @@ export default function PreparedVerificationCards({ vicIds, onChanged, onMovedCh
             <Card key={reqId} onClick={() => setOpenId(reqId)}
               className="w-fit max-w-full cursor-pointer p-3 transition-all hover:border-primary/50 hover:shadow-md">
               <p className="text-sm font-semibold">{r ? `${r.first_name} ${r.last_name}` : "…"}</p>
-              {r && <p className="text-xs text-muted-foreground">{fmt(r.created_at)} · Eigene Bank: {r.bank}</p>}
+              {r && <p className="text-xs text-muted-foreground">{fmt(r.created_at)} · <TruncatedBank bank={r.bank} /></p>}
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {list.filter((i) => i.status === "bereit").map((i) => {
                   const { v, title, bank } = info(i);
