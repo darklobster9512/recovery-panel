@@ -1188,6 +1188,7 @@ export type Database = {
         Args: { _id: string }
         Returns: undefined
       }
+      existing_lead_emails: { Args: { _emails: string[] }; Returns: string[] }
       get_branding_for_host: {
         Args: { _host: string }
         Returns: {

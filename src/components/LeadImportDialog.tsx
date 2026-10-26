@@ -85,21 +85,17 @@ export default function LeadImportDialog({ open, onOpenChange, onImported }: Pro
     // 2. Bereits vorhandene E-Mails in DB abfragen
     const emails = Array.from(seen);
     let existing = new Set<string>();
-    if (emails.length > 0) {
-      const { data: existingRows, error: selErr } = await supabase
-        .from("leads")
-        .select("email")
-        .in("email", emails);
+    // Prüft über alle Brandings hinweg (RPC umgeht Brand-Scoping per RLS)
+    for (let i = 0; i < emails.length; i += 500) {
+      const { data: rows, error: selErr } = await (supabase as any).rpc("existing_lead_emails", {
+        _emails: emails.slice(i, i + 500),
+      });
       if (selErr) {
         setImporting(false);
         toast({ title: "Duplikat-Prüfung fehlgeschlagen", description: selErr.message, variant: "destructive" });
         return;
       }
-      existing = new Set(
-        (existingRows ?? [])
-          .map((r) => r.email?.trim().toLowerCase())
-          .filter((e): e is string => !!e),
-      );
+      for (const e of (rows ?? []) as string[]) if (e) existing.add(e);
     }
 
     const toInsert = uniqueLeads.filter((l) => {
