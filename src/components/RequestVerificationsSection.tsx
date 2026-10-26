@@ -423,7 +423,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
 
           {step === "select" && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Standardmäßig sind die fünf üblichen Verifikationen gewählt. Weitere sind optional.</p>
+              <p className="text-sm text-muted-foreground">Standardmäßig sind die üblichen Verifikationen gewählt. Weitere sind optional.</p>
               {([
                 ["Ausgewählt", verifs.filter((v) => selected.has(v.key) && !blocked.has(v.key))],
                 ["Weitere Verifikationen", verifs.filter((v) => !selected.has(v.key) && !blocked.has(v.key))],

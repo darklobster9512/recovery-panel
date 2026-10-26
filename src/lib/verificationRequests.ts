@@ -18,6 +18,7 @@ export const DEFAULT_AUFTRAEGE = [
   "BBVA-videoident",
   "Consorsbank-postident",
   "Santander-postident",
+  "DKB-videoident",
 ];
 
 export function isValidBirthDate(s: string): boolean {
