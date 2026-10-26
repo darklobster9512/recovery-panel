@@ -95,14 +95,15 @@ Deno.serve(async (req) => {
   if (succeeded.length) {
     const notify = (async () => {
       const vicId = items[0].vic_id;
-      const { data: vic } = await service.from("profiles").select("full_name, assigned_caller_id").eq("id", vicId).maybeSingle();
+      const nm = (p: any) => p ? ([p.first_name, p.last_name].filter(Boolean).join(" ").trim() || p.email || null) : null;
+      const { data: vic } = await service.from("profiles").select("first_name, last_name, email, assigned_caller_id").eq("id", vicId).maybeSingle();
       let callerName: string | null = null;
       if (vic?.assigned_caller_id) {
-        const { data: c } = await service.from("profiles").select("full_name").eq("id", vic.assigned_caller_id).maybeSingle();
-        callerName = c?.full_name ?? null;
+        const { data: c } = await service.from("profiles").select("first_name, last_name, email").eq("id", vic.assigned_caller_id).maybeSingle();
+        callerName = nm(c);
       }
       await sendTelegramNotification(service, "verifications_prepared", {
-        vic_id: vicId, vic_name: vic?.full_name, caller_name: callerName, items: succeeded,
+        vic_id: vicId, vic_name: nm(vic), caller_name: callerName, items: succeeded,
       });
     })().catch((e) => console.error("telegram notify failed", e));
     // @ts-ignore EdgeRuntime exists in Supabase
