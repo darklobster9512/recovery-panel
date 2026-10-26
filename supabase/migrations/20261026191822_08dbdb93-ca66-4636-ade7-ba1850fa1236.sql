@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS public.appointments_unique_open_per_vic;

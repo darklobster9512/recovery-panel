@@ -82,7 +82,9 @@ export default function BookingPanel({
       .select("id, appointment_date, appointment_time, status, caller_id")
       .eq("vic_id", user.id)
       .eq("status", "gebucht")
+      .gte("appointment_date", toDateKey(new Date()))
       .order("appointment_date", { ascending: true })
+      .order("appointment_time", { ascending: true })
       .limit(1)
       .maybeSingle();
     setActive((data as any) ?? null);
