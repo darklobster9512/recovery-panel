@@ -2,23 +2,23 @@
 
 Sobald das externe Panel Ergebnisse an `prepare-results` schickt, geht eine Telegram-Nachricht raus. Nur wenn mindestens ein Auftrag erfolgreich übertragen wurde.
 
-## Inhalt der Nachricht
+## Inhalt der Nachricht (im Stil der anderen Benachrichtigungen)
 ```text
+🏷️ Berthold & Partner
 ✅ Verifikationen bereit
-Branding: Berthold & Partner
-Vic: Max Mustermann
-Anwalt: Dr. Erika Beispiel   (oder "nicht zugewiesen")
+👤 Vic: Max Mustermann
+📞 Caller: Erika Beispiel   (oder "nicht zugewiesen")
 Erfolgreich übertragen:
 • Commerzbank – Video-Ident
 • DKB – Video-Ident
 ```
-Fehlgeschlagene Aufträge werden nicht aufgeführt. Die Brandings-Zeile wird nicht doppelt angehängt.
+Die Marke steht wie überall oben mit dem Etikett-Emoji (automatisch). Fehlgeschlagene Aufträge werden nicht aufgeführt.
 
 ## Wer bekommt sie
-Neues Ereignis „Verifikationen bereit“ unter /admin/telegram, das man pro Chat ein- und ausschalten kann (wie die anderen). Bestehende Chats, die schon „Auftrag zugewiesen“ abonniert haben, werden automatisch auch dafür eingeschaltet, damit es sofort ankommt.
+Neues Ereignis „Verifikationen bereit“ unter /admin/telegram, pro Chat ein- und ausschaltbar. Chats, die schon „Auftrag zugewiesen“ abonniert haben, werden automatisch auch dafür eingeschaltet.
 
 ## Technische Details
-- Migration: neuen Wert `verifications_prepared` zum Event-Typ hinzufügen; Abos für Chats mit `assignment_created` kopieren.
-- `_shared/telegram.ts`: Event + `formatMessage`-Fall; Brandings-Suffix für dieses Event überspringen (steht schon im Text).
-- `prepare-results/index.ts`: erfolgreiche Aufträge sammeln, Vic-Profil (Name, `branding_id`, zugewiesener Caller) separat laden, Caller-Name und Brandname laden, Bank-Namen aus `verifications`; Versand im Hintergrund, Fehler blockieren die Antwort nicht.
-- `AdminTelegram.tsx`: Ereignis in der Liste ergänzen. Deploy `prepare-results`.
+- Migration: neuen Event-Wert `verifications_prepared`; Abos von Chats mit `assignment_created` kopieren.
+- `_shared/telegram.ts`: Event + `formatMessage`-Fall; Brandzeile über den bestehenden Mechanismus (`vic_id` im Payload).
+- `prepare-results/index.ts`: erfolgreiche Aufträge sammeln, Vic-Profil und zugewiesenen Caller separat laden, Bank-Namen aus `verifications`; Versand ohne die Antwort zu blockieren.
+- `AdminTelegram.tsx`: Ereignis ergänzen. Deploy `prepare-results`.
