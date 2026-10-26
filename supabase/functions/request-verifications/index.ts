@@ -32,6 +32,19 @@ Deno.serve(async (req) => {
     if (auth instanceof Response) return auth;
     const { service, userId } = auth;
 
+    {
+      const vm = await verificationKeyMap(service);
+      const [{ data: asg }, { data: its }, { data: rqs }] = await Promise.all([
+        service.from("verification_assignments").select("verification_id").eq("user_id", d.vic_id),
+        service.from("verification_request_items").select("request_id, auftrag_key").eq("vic_id", d.vic_id),
+        service.from("verification_requests").select("id").eq("vic_id", d.vic_id).not("dismissed_at", "is", null),
+      ]);
+      const dismissed = new Set((rqs ?? []).map((r: any) => r.id));
+      const usedIds = new Set((asg ?? []).map((a: any) => a.verification_id));
+      const usedKeys = new Set((its ?? []).filter((i: any) => !dismissed.has(i.request_id)).map((i: any) => normKey(i.auftrag_key)));
+      const dup = d.auftraege.filter((a) => usedKeys.has(normKey(a)) || usedIds.has(vm.get(normKey(a))?.id));
+      if (dup.length) return json({ error: `Bereits bearbeitet: ${dup.join(", ")}` }, 400);
+    }
     const { data: row, error: insErr } = await service
       .from("verification_requests")
       .insert({

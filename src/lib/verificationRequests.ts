@@ -43,3 +43,22 @@ export function blockedBanks(bankInput: string, verifs: VerificationLite[]): Set
   }
   return out;
 }
+
+const normK = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/** Map of auftragKey -> reason for Aufträge the Vic already had (assigned or previously requested). */
+export function priorAuftraege(
+  verifs: VerificationLite[] & { id: string }[],
+  assignments: { verification_id: string }[],
+  items: { auftrag_key: string; verification_id: string | null; status: string }[],
+): Map<string, string> {
+  const out = new Map<string, string>();
+  const byId = new Map(verifs.map((v) => [v.id, auftragKey(v)]));
+  const byNorm = new Map(verifs.map((v) => [normK(auftragKey(v)), auftragKey(v)]));
+  for (const a of assignments) { const k = byId.get(a.verification_id); if (k) out.set(k, "Bereits zugewiesen"); }
+  for (const it of items) {
+    const k = (it.verification_id && byId.get(it.verification_id)) || byNorm.get(normK(it.auftrag_key));
+    if (k && !out.has(k)) out.set(k, it.status === "fehlgeschlagen" ? "Fehlgeschlagen" : "Bereits angefragt");
+  }
+  return out;
+}

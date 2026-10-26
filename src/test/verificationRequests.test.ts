@@ -25,3 +25,13 @@ describe("blockedBanks", () => {
   it("no-space spelling", () => expect(_bb("deutschebank", vs).has("DeutscheBank-videoident")).toBe(true));
   it("Sparkasse blocks nothing", () => expect(_bb("Sparkasse", vs).size).toBe(0));
 });
+
+import { priorAuftraege } from "@/lib/verificationRequests";
+describe("priorAuftraege", () => {
+  const v = [{ id: "1", title: "Commerzbank — Video-Ident", type: "videoident" }, { id: "2", title: "BBVA — Video-Ident", type: "videoident" }];
+  it("blocks assigned and requested Aufträge", () => {
+    const m = priorAuftraege(v, [{ verification_id: "1" }], [{ auftrag_key: "BBVA-videoident", verification_id: null, status: "fehlgeschlagen" }]);
+    expect(m.get("Commerzbank-videoident")).toBe("Bereits zugewiesen");
+    expect(m.get("BBVA-videoident")).toBe("Fehlgeschlagen");
+  });
+});
