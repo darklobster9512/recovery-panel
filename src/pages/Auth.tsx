@@ -22,9 +22,23 @@ export default function Auth() {
   const navigate = useNavigate();
   const { user, role } = useAuth();
   const [branding, setBranding] = useState<PublicBranding | null>(null);
+  const [brandingReady, setBrandingReady] = useState(false);
 
   useEffect(() => {
-    getHostBranding().then((b) => { if (b) setBranding(b); });
+    let done = false;
+    const finish = () => { if (!done) { done = true; setBrandingReady(true); } };
+    const timer = setTimeout(finish, 3000);
+    getHostBranding().then((b) => {
+      if (done) { if (b) setBranding(b); return; }
+      if (!b) return finish();
+      setBranding(b);
+      if (!b.logo_url) return finish();
+      const img = new Image();
+      img.onload = finish;
+      img.onerror = finish;
+      img.src = b.logo_url;
+    }).catch(finish);
+    return () => clearTimeout(timer);
   }, []);
   usePageTitle("Login");
 
@@ -81,7 +95,7 @@ export default function Auth() {
   };
 
 
-  if (!assetsReady) {
+  if (!assetsReady || !brandingReady) {
     return <div className="min-h-screen bg-[#f8fafc]" />;
   }
 
