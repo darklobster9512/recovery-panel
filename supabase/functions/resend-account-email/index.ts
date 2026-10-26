@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { loadSettingsForUser } from "../_shared/branding.ts";
+import { authorizeVicAccess } from "../_shared/vicAccess.ts";
 import {
   AppSettings,
   buildLoginUrl,
@@ -24,31 +25,13 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return json(401, { error: "Unauthorized" });
-
-    const anonClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } },
-    );
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) return json(401, { error: "Unauthorized" });
-
-    const { data: isAdmin } = await anonClient.rpc("has_role", {
-      _user_id: claimsData.claims.sub,
-      _role: "admin",
-    });
-    if (!isAdmin) return json(403, { error: "Forbidden: admin role required" });
-
     const { user_id } = await req.json();
     if (typeof user_id !== "string" || !user_id) return json(400, { error: "user_id required" });
 
-    const adminClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
+    // Admin, or caller assigned to this Vic (checked server-side)
+    const access = await authorizeVicAccess(req, user_id);
+    if (access instanceof Response) return access;
+    const adminClient = access.service;
 
     const { data: profile, error: profileError } = await adminClient
       .from("profiles")
