@@ -19,7 +19,7 @@ import { DialogShellHeader, DialogFooterBar } from "@/components/admin/DialogShe
 import { ClipboardCheck, ChevronsUpDown, Info, Loader2, Clock, AlertTriangle, Check, FileText } from "lucide-react";
 import { toast } from "sonner";
 import {
-  auftragKey, blockedBanks, DEFAULT_AUFTRAEGE, isValidBirthDate, splitVerificationTitle, type VerificationLite,
+  auftragKey, blockedBanks, priorAuftraege, DEFAULT_AUFTRAEGE, isValidBirthDate, splitVerificationTitle, type VerificationLite,
 } from "@/lib/verificationRequests";
 
 interface VicOption { id: string; name: string; email: string; hasId: boolean }
@@ -227,7 +227,25 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
   };
 
   const dataOk = form.first_name.trim() && form.last_name.trim() && form.bank.trim() && isValidBirthDate(form.birth_date.trim());
-  const blocked = useMemo(() => blockedBanks(form.bank, verifs), [form.bank, verifs]);
+  const [prior, setPrior] = useState<Map<string, string>>(new Map());
+  useEffect(() => {
+    setPrior(new Map());
+    if (!vicId || !verifs.length) return;
+    let off = false;
+    (async () => {
+      const [a, it, rq] = await Promise.all([
+        supabase.from("verification_assignments").select("verification_id").eq("user_id", vicId),
+        (supabase as any).from("verification_request_items").select("request_id, auftrag_key, verification_id, status").eq("vic_id", vicId),
+        (supabase as any).from("verification_requests").select("id, dismissed_at").eq("vic_id", vicId),
+      ]);
+      const dismissed = new Set(((rq.data ?? []) as any[]).filter((r) => r.dismissed_at).map((r) => r.id));
+      const items = ((it.data ?? []) as any[]).filter((x) => !dismissed.has(x.request_id));
+      if (!off) setPrior(priorAuftraege(verifs as any, (a.data ?? []) as any, items));
+    })();
+    return () => { off = true; };
+  }, [vicId, verifs]);
+  const bankBlocked = useMemo(() => blockedBanks(form.bank, verifs), [form.bank, verifs]);
+  const blocked = useMemo(() => new Set([...bankBlocked, ...prior.keys()]), [bankBlocked, prior]);
   const toggle = (k: string) => { if (blocked.has(k)) return; setSelected((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; }); };
   const chosen = verifs.filter((v) => selected.has(v.key) && !blocked.has(v.key));
 
@@ -409,7 +427,8 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
               {([
                 ["Ausgewählt", verifs.filter((v) => selected.has(v.key) && !blocked.has(v.key))],
                 ["Weitere Verifikationen", verifs.filter((v) => !selected.has(v.key) && !blocked.has(v.key))],
-                ["Vic bereits Kunde", verifs.filter((v) => blocked.has(v.key))],
+                ["Vic bereits Kunde", verifs.filter((v) => bankBlocked.has(v.key) && !prior.has(v.key))],
+                ["Bereits bearbeitet", verifs.filter((v) => prior.has(v.key))],
               ] as const).map(([label, list]) => list.length > 0 && (
                 <div key={label} className="space-y-2">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label} ({list.length})</p>
@@ -426,7 +445,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold">{bank}</p>
-                          <p className="text-xs text-muted-foreground">{isBlocked ? "Vic ist bereits Kunde dieser Bank" : sub || (v.type === "postident" ? "Postident" : "Video-Ident")}</p>
+                          <p className="text-xs text-muted-foreground">{prior.has(v.key) ? prior.get(v.key) : isBlocked ? "Vic ist bereits Kunde dieser Bank" : sub || (v.type === "postident" ? "Postident" : "Video-Ident")}</p>
                         </div>
                         {DEFAULT_AUFTRAEGE.includes(v.key) && !isBlocked && <Badge variant="secondary" className="font-normal">Standard</Badge>}
                         <Checkbox checked={on} disabled={isBlocked} className="pointer-events-none" />
