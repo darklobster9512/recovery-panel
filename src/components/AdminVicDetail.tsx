@@ -361,7 +361,7 @@ export default function AdminVicDetail() {
                 onChange={(v) => setProfile((p) => (p ? { ...p, assigned_caller_id: v } : p))}
               />
             )}
-            {role === "admin" && (
+            {(role === "admin" || role === "caller") && (
               <Button
                 variant="outline"
                 onClick={() => setResendOpen(true)}
