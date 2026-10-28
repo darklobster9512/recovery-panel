@@ -17,11 +17,12 @@ export function statusMeta(status: string) {
   return LEAD_STATUSES.find((s) => s.value === status) ?? LEAD_STATUSES[0];
 }
 
-export type LeadCampaign = "europol" | "kanzlei";
+export type LeadCampaign = "europol" | "kanzlei" | "fakeshop";
 
 export const CAMPAIGN_META: Record<LeadCampaign, { label: string; className: string }> = {
   europol: { label: "Europol", className: "bg-blue-100 text-blue-700 hover:bg-blue-100" },
   kanzlei: { label: "Kanzlei", className: "bg-amber-100 text-amber-800 hover:bg-amber-100" },
+  fakeshop: { label: "Fakeshop", className: "bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-100" },
 };
 
 export interface Lead {
@@ -218,6 +219,7 @@ export function detectCampaign(raw: Record<string, string>): LeadCampaign | null
   for (const k of keys) {
     const v = (norm[k] ?? "").toLowerCase();
     if (!v) continue;
+    if (/^fs\d*\b/.test(v.trim()) || v.includes("fakeshop")) return "fakeshop";
     if (v.includes("euro")) return "europol";
     if (v.includes("korte")) return "kanzlei";
   }

@@ -24,6 +24,7 @@ const DAY = 24 * 60 * 60 * 1000;
 const PIPELINE: { status: AssignmentStatus; label: string; color: string }[] = [
   { status: "zugewiesen", label: "Zugewiesen", color: "hsl(var(--muted-foreground))" },
   { status: "in_bearbeitung", label: "In Bearbeitung", color: "hsl(var(--primary))" },
+    fakeshop: { label: CAMPAIGN_META.fakeshop.label, color: "hsl(292 70% 55%)" },
   { status: "in_ueberpruefung", label: "Überprüfung", color: "hsl(38 92% 50%)" },
   { status: "abgeschlossen", label: "Abgeschlossen", color: "hsl(142 71% 40%)" },
   { status: "genehmigt", label: "Genehmigt", color: "hsl(160 60% 35%)" },
@@ -263,7 +264,8 @@ export default function AdminDashboard() {
         name: s.label,
         kanzlei: inStatus.filter((v) => camp(v) === "kanzlei").length,
         europol: inStatus.filter((v) => camp(v) === "europol").length,
-        ohne: inStatus.filter((v) => { const c = camp(v); return c !== "kanzlei" && c !== "europol"; }).length,
+        fakeshop: inStatus.filter((v) => camp(v) === "fakeshop").length,
+        ohne: inStatus.filter((v) => { const c = camp(v); return c !== "kanzlei" && c !== "europol" && c !== "fakeshop"; }).length,
       };
     });
   }, [leads, vicStatusRows]);
@@ -406,11 +408,12 @@ export default function AdminDashboard() {
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar dataKey="kanzlei" stackId="a" fill="var(--color-kanzlei)" />
                 <Bar dataKey="europol" stackId="a" fill="var(--color-europol)" />
+                <Bar dataKey="fakeshop" stackId="a" fill="var(--color-fakeshop)" />
                 <Bar dataKey="ohne" stackId="a" fill="var(--color-ohne)" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ChartContainer>
             <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
-              {(["kanzlei", "europol", "ohne"] as const).map((c) => (
+              {(["kanzlei", "europol", "fakeshop", "ohne"] as const).map((c) => (
                 <span key={c} className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: leadChartConfig[c].color }} />{leadChartConfig[c].label}</span>
               ))}
             </div>
