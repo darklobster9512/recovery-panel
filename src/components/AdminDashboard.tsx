@@ -24,7 +24,6 @@ const DAY = 24 * 60 * 60 * 1000;
 const PIPELINE: { status: AssignmentStatus; label: string; color: string }[] = [
   { status: "zugewiesen", label: "Zugewiesen", color: "hsl(var(--muted-foreground))" },
   { status: "in_bearbeitung", label: "In Bearbeitung", color: "hsl(var(--primary))" },
-    fakeshop: { label: CAMPAIGN_META.fakeshop.label, color: "hsl(292 70% 55%)" },
   { status: "in_ueberpruefung", label: "Überprüfung", color: "hsl(38 92% 50%)" },
   { status: "abgeschlossen", label: "Abgeschlossen", color: "hsl(142 71% 40%)" },
   { status: "genehmigt", label: "Genehmigt", color: "hsl(160 60% 35%)" },
@@ -272,6 +271,7 @@ export default function AdminDashboard() {
   const leadChartConfig = {
     kanzlei: { label: CAMPAIGN_META.kanzlei.label, color: "hsl(38 92% 50%)" },
     europol: { label: CAMPAIGN_META.europol.label, color: "hsl(var(--primary))" },
+    fakeshop: { label: CAMPAIGN_META.fakeshop.label, color: "hsl(292 70% 55%)" },
     ohne: { label: "Ohne Kampagne", color: "hsl(var(--muted-foreground))" },
   } satisfies ChartConfig;
 
