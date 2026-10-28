@@ -10,10 +10,11 @@ Unsere Seite zeigt nur „Dienst antwortete mit 400“ statt dieser Gründe.
 
 1. **Geburtsort und PLZ zu Pflichtfeldern machen** im Popup „Verifikation anfragen“, damit so eine Anfrage gar nicht erst abgeschickt werden kann.
 2. **Echten Grund anzeigen**: Statt „Dienst antwortete mit 400“ steht auf der Karte z. B. „Geburtsort fehlt. PLZ fehlt.“
-3. Für Darko: einfach neu anfragen und Geburtsort + PLZ eintragen (die fehlgeschlagene Anfrage blockiert die Aufträge nicht, falls doch, blende ich sie aus).
+3. **Darkos fehlgeschlagene Anfrage löschen** (vom 28.10., 16:22). Sie verschwindet unter „Angeforderte Verifikationen“, und seine Aufträge sind danach wieder auswählbar. Danach neu anfragen mit Geburtsort + PLZ.
 
 ## Technisch
 
 - `RequestVerificationsSection.tsx`: `birth_place` und `postal_code` in die Pflichtfeld-Validierung von Schritt 2 aufnehmen, Sternchen im Label.
 - `supabase/functions/request-verifications/index.ts`: bei `!res.ok` aus `response.errors[].errors[]` die Texte zusammenfügen und als `error` speichern; Fallback bleibt „Dienst antwortete mit <status>“. Zusätzlich serverseitig 400 zurückgeben, wenn Geburtsort/PLZ leer sind.
 - Prüfen, ob fehlgeschlagene Anfragen (`status = fehlgeschlagen`, ohne Ergebnis) in `priorAuftraege()` als „Bereits angefragt“ zählen; falls ja, ausnehmen, damit neu angefragt werden kann.
+- Daten: `verification_request_items` mit `request_id = fd1591bc-0c5a-41c0-a2b3-0a9d038e9e34` und danach die Zeile in `verification_requests` löschen.
