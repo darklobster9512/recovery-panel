@@ -27,6 +27,7 @@ Deno.serve(async (req) => {
   try {
     const parsed = Body.safeParse(await req.json().catch(() => ({})));
     if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
+    if (!parsed.data.birth_place?.trim() || !parsed.data.postal_code?.trim()) return json({ error: "Geburtsort und PLZ sind Pflichtfelder." }, 400);
     const d = parsed.data;
     const auth = await authorizeVicAccess(req, d.vic_id);
     if (auth instanceof Response) return auth;
