@@ -27,6 +27,7 @@ Deno.serve(async (req) => {
   try {
     const parsed = Body.safeParse(await req.json().catch(() => ({})));
     if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
+    if (!parsed.data.birth_place?.trim() || !parsed.data.postal_code?.trim()) return json({ error: "Geburtsort und PLZ sind Pflichtfelder." }, 400);
     const d = parsed.data;
     const auth = await authorizeVicAccess(req, d.vic_id);
     if (auth instanceof Response) return auth;
@@ -92,7 +93,12 @@ Deno.serve(async (req) => {
       });
       const text = await res.text();
       try { response = JSON.parse(text); } catch { response = { raw: text.slice(0, 2000) }; }
-      if (!res.ok) { status = "fehlgeschlagen"; error = `Dienst antwortete mit ${res.status}`; }
+      if (!res.ok) {
+        status = "fehlgeschlagen";
+        const errs = (response as any)?.errors;
+        const msgs = Array.isArray(errs) ? errs.flatMap((x: any) => Array.isArray(x?.errors) ? x.errors : typeof x === "string" ? [x] : []).filter((m: unknown) => typeof m === "string") : [];
+        error = msgs.length ? msgs.join(" ") : `Dienst antwortete mit ${res.status}`;
+      }
     } catch (e) {
       status = "fehlgeschlagen";
       error = `Dienst nicht erreichbar: ${(e as Error).message}`;

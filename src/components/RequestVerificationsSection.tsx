@@ -227,7 +227,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
     } else setExtractError(data.error ?? "Daten konnten nicht automatisch gelesen werden – bitte manuell eintragen.");
   };
 
-  const dataOk = form.first_name.trim() && form.last_name.trim() && form.bank.trim() && isValidBirthDate(form.birth_date.trim());
+  const dataOk = form.first_name.trim() && form.last_name.trim() && form.bank.trim() && form.birth_place.trim() && form.postal_code.trim() && isValidBirthDate(form.birth_date.trim());
   const [prior, setPrior] = useState<Map<string, string>>(new Map());
   useEffect(() => {
     setPrior(new Map());
@@ -401,9 +401,9 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
                   <Field label="Nachname *" value={form.last_name} onChange={set("last_name")} bad={touched && !form.last_name.trim()} />
                   <Field label="Geburtsname" value={form.birth_name} onChange={set("birth_name")} />
                   <Field label="Geburtsdatum (TT.MM.JJJJ)" value={form.birth_date} onChange={set("birth_date")} placeholder="24.07.1966" bad={touched && !isValidBirthDate(form.birth_date.trim())} />
-                  <Field label="Geburtsort" value={form.birth_place} onChange={set("birth_place")} />
+                  <Field label="Geburtsort *" value={form.birth_place} onChange={set("birth_place")} bad={touched && !form.birth_place.trim()} />
                   <Field label="Straße und Hausnummer" value={form.street} onChange={set("street")} />
-                  <Field label="PLZ" value={form.postal_code} onChange={set("postal_code")} />
+                  <Field label="PLZ *" value={form.postal_code} onChange={set("postal_code")} bad={touched && !form.postal_code.trim()} />
                   <Field label="Ort" value={form.city} onChange={set("city")} />
                 </div>
                 <div className="space-y-1.5">
