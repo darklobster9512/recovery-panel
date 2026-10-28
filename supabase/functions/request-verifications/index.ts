@@ -92,7 +92,12 @@ Deno.serve(async (req) => {
       });
       const text = await res.text();
       try { response = JSON.parse(text); } catch { response = { raw: text.slice(0, 2000) }; }
-      if (!res.ok) { status = "fehlgeschlagen"; error = `Dienst antwortete mit ${res.status}`; }
+      if (!res.ok) {
+        status = "fehlgeschlagen";
+        const errs = (response as any)?.errors;
+        const msgs = Array.isArray(errs) ? errs.flatMap((x: any) => Array.isArray(x?.errors) ? x.errors : typeof x === "string" ? [x] : []).filter((m: unknown) => typeof m === "string") : [];
+        error = msgs.length ? msgs.join(" ") : `Dienst antwortete mit ${res.status}`;
+      }
     } catch (e) {
       status = "fehlgeschlagen";
       error = `Dienst nicht erreichbar: ${(e as Error).message}`;
