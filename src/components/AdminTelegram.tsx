@@ -44,6 +44,7 @@ const EVENTS: { key: TelegramDbEvent; label: string }[] = [
   { key: "document_uploaded", label: "Dokument-Upload" },
   { key: "assignment_created", label: "Auftrag zugewiesen" },
   { key: "verifications_prepared", label: "Verifikationen bereit" },
+  { key: "call_missed", label: "Anruf verpasst" },
   { key: "assignment_completed", label: "Auftrag abgeschlossen" },
   { key: "anosim_sms_received", label: "SMS eingegangen" },
   { key: "user_account_created", label: "Nutzerkonto erstellt" },

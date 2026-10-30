@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type TelegramDbEvent =
   | "verifications_prepared"
+  | "call_missed"
   | "lead_note_added"
   | "vic_note_added"
   | "document_uploaded"
