@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import postgres from "npm:postgres@3.4.4";
 import JSZip from "npm:jszip@3.10.1";
+import { brandWhere, fileInBrand, importOrder, BRAND_PEOPLE } from "../_shared/backupScope.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -76,6 +77,8 @@ async function loadTables(sql: postgres.Sql): Promise<TableInfo[]> {
   return ordered;
 }
 
+const MAX_PART = 45 * 1024 * 1024;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -103,18 +106,52 @@ Deno.serve(async (req) => {
     if (!role) return json({ error: "Nur für Admins" }, 403);
   }
 
+  const brandId: string | null = typeof body?.branding_id === "string" && /^[0-9a-f-]{36}$/i.test(body.branding_id)
+    ? body.branding_id : null;
+
   const sql = postgres(Deno.env.get("SUPABASE_DB_URL")!, { prepare: false, max: 1 });
   try {
-    const tables = await loadTables(sql);
-    const find = (key: unknown) => tables.find((t) => t.key === key);
+    const allTables = await loadTables(sql);
+    const byKey = new Map(allTables.map((t) => [t.key, t]));
+    const ordered = importOrder(allTables.map((t) => t.key)).map((k) => byKey.get(k)!)
+      .filter((t) => brandWhere(t.key, t.cols) !== "EXCLUDE");
+    const find = (key: unknown) => ordered.find((t) => t.key === key);
+
+    // WHERE + params for a table, scoped to brand when given
+    const scope = (t: TableInfo, bid: string | null): { where: string; params: unknown[] } => {
+      if (!bid) return { where: "", params: [] };
+      const w = brandWhere(t.key, t.cols);
+      if (!w || w === "EXCLUDE") return { where: "", params: [] };
+      return { where: `WHERE ${w}`, params: [bid] };
+    };
+    const selectRows = async (t: TableInfo, bid: string | null, extra = "") => {
+      const s = scope(t, bid);
+      const order = t.pk.length ? `ORDER BY ${t.pk.map(qi).join(",")}` : "ORDER BY ctid";
+      const [{ rows }] = await sql.unsafe(
+        `SELECT COALESCE(json_agg(x), '[]'::json) AS rows FROM (SELECT * FROM ${qi(t.schema)}.${qi(t.name)} ${s.where} ${order} ${extra}) x`,
+        s.params as any[],
+      );
+      return rows as unknown[];
+    };
+    const listFiles = async (bid: string | null) => {
+      const files = await sql`SELECT bucket_id AS bucket, name, COALESCE((metadata->>'size')::bigint, 0) AS size
+        FROM storage.objects WHERE name NOT LIKE '%.emptyFolderPlaceholder' ORDER BY bucket_id, name`;
+      if (!bid) return files as any[];
+      const people = new Set((await sql.unsafe(`SELECT id::text FROM ${BRAND_PEOPLE.slice(1, -1)}`, [bid]) as any[]).map((r) => r.id));
+      return (files as any[]).filter((f) => fileInBrand(f.bucket, f.name, people));
+    };
+    const brands = async () =>
+      (await sql`SELECT id, company_name FROM public.brandings ORDER BY created_at`) as any[];
 
     if (action === "list") {
       const out = [];
-      for (const t of tables) {
-        const [{ n }] = await sql.unsafe(`SELECT count(*)::int AS n FROM ${qi(t.schema)}.${qi(t.name)}`);
-        out.push({ key: t.key, count: n });
+      for (const t of ordered) {
+        const s = scope(t, brandId);
+        const [{ n }] = await sql.unsafe(`SELECT count(*)::int AS n FROM ${qi(t.schema)}.${qi(t.name)} ${s.where}`, s.params as any[]);
+        const w = brandWhere(t.key, t.cols);
+        out.push({ key: t.key, count: n, cols: t.cols, global: brandId ? w === null : false });
       }
-      return json({ tables: out });
+      return json({ tables: out, brandings: await brands() });
     }
 
     if (action === "export") {
@@ -122,22 +159,36 @@ Deno.serve(async (req) => {
       if (!t) return json({ error: "Unbekannte Tabelle" }, 400);
       const offset = Math.max(0, Number(body.offset) || 0);
       const limit = Math.min(5000, Math.max(1, Number(body.limit) || 2000));
-      const order = t.pk.length ? `ORDER BY ${t.pk.map(qi).join(",")}` : "ORDER BY ctid";
-      const [{ rows }] = await sql.unsafe(
-        `SELECT COALESCE(json_agg(x), '[]'::json) AS rows FROM (SELECT * FROM ${qi(t.schema)}.${qi(t.name)} ${order} LIMIT ${limit} OFFSET ${offset}) x`,
-      );
-      return json({ rows });
+      return json({ rows: await selectRows(t, brandId, `LIMIT ${limit} OFFSET ${offset}`) });
+    }
+
+    if (action === "list_files") return json({ files: await listFiles(brandId) });
+
+    if (action === "file_url") {
+      const { data, error } = await admin.storage.from(String(body.bucket)).createSignedUrl(String(body.path), 600);
+      if (error) return json({ error: error.message }, 400);
+      return json({ url: data.signedUrl });
+    }
+
+    if (action === "file_upload_url") {
+      const bucket = String(body.bucket), path = String(body.path);
+      if (body.mode !== "overwrite") {
+        const [hit] = await sql`SELECT 1 FROM storage.objects WHERE bucket_id = ${bucket} AND name = ${path}`;
+        if (hit) return json({ exists: true });
+      }
+      const { data, error } = await admin.storage.from(bucket).createSignedUploadUrl(path, { upsert: true });
+      if (error) return json({ error: error.message }, 400);
+      return json({ path: data.path, token: data.token });
     }
 
     if (action === "import") {
       const t = find(body.table);
-      if (!t) return json({ error: "Unbekannte Tabelle" }, 400);
+      if (!t) return json({ error: "Tabelle existiert nicht mehr" }, 400);
       let rows = body.rows;
       if (typeof rows === "string") { try { rows = JSON.parse(rows); } catch (_) { /* invalid */ } }
       if (!Array.isArray(rows)) return json({ error: "rows fehlt" }, 400);
       if (rows.length === 0) return json({ inserted: 0 });
       const overwrite = body.mode === "overwrite";
-      // only columns that exist now AND appear in backup
       const present = new Set<string>();
       rows.slice(0, 50).forEach((r: any) => Object.keys(r ?? {}).forEach((k) => present.add(k)));
       const cols = t.cols.filter((c) => present.has(c));
@@ -164,7 +215,7 @@ Deno.serve(async (req) => {
 
     if (action === "telegram") {
       const { data: st } = await admin.from("app_settings")
-        .select("backup_telegram_chat_id, backup_enabled, company_name").eq("id", true).maybeSingle();
+        .select("backup_telegram_chat_id, backup_enabled").eq("id", true).maybeSingle();
       if (isCron && !st?.backup_enabled) return json({ skipped: true });
       const chatId = (st?.backup_telegram_chat_id ?? "").trim();
       const token = Deno.env.get("TELEGRAM_BOT_TOKEN");
@@ -174,33 +225,74 @@ Deno.serve(async (req) => {
       };
       if (!chatId) return await fail("Keine Telegram-Chat-ID hinterlegt");
       if (!token) return await fail("TELEGRAM_BOT_TOKEN fehlt");
-      const z = new JSZip();
-      const manifestTables: { key: string; count: number }[] = [];
-      let totalRows = 0;
-      for (const t of tables) {
-        const order = t.pk.length ? `ORDER BY ${t.pk.map(qi).join(",")}` : "";
-        const [{ rows }] = await sql.unsafe(
-          `SELECT COALESCE(json_agg(x), '[]'::json) AS rows FROM (SELECT * FROM ${qi(t.schema)}.${qi(t.name)} ${order}) x`,
-        );
-        const arr = rows as unknown[];
-        manifestTables.push({ key: t.key, count: arr.length });
-        totalRows += arr.length;
-        z.file(`${t.key}.json`, JSON.stringify(arr));
-      }
       const created = new Date().toISOString();
-      z.file("manifest.json", JSON.stringify({ version: 1, created_at: created, tables: manifestTables }, null, 2));
-      const bytes = await z.generateAsync({ type: "uint8array", compression: "DEFLATE" });
-      if (bytes.byteLength > 49 * 1024 * 1024) return await fail("Backup größer als 50 MB – Telegram-Limit");
-      const fname = `backup-${created.slice(0, 19).replace(/[:T]/g, "-")}.zip`;
-      const form = new FormData();
-      form.append("chat_id", chatId);
-      form.append("caption", `🗄 Backup ${st?.company_name ?? ""}\n${new Date(created).toLocaleString("de-DE", { timeZone: "Europe/Berlin" })}\n${tables.length} Tabellen, ${totalRows} Einträge`);
-      form.append("document", new Blob([bytes], { type: "application/zip" }), fname);
-      const res = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, { method: "POST", body: form });
-      const tg = await res.json().catch(() => ({}));
-      if (!res.ok || !tg?.ok) return await fail(`Telegram: ${tg?.description ?? res.status}`);
-      await admin.from("app_settings").update({ backup_last_at: created, backup_last_error: null }).eq("id", true);
-      return json({ ok: true, tables: tables.length, rows: totalRows, bytes: bytes.byteLength });
+      const stamp = created.slice(0, 19).replace(/[:T]/g, "-");
+      const when = new Date(created).toLocaleString("de-DE", { timeZone: "Europe/Berlin" });
+      const brandList = await brands();
+      const send = async (bytes: Uint8Array, fname: string, caption: string) => {
+        const form = new FormData();
+        form.append("chat_id", chatId);
+        form.append("caption", caption);
+        form.append("document", new Blob([bytes], { type: "application/zip" }), fname);
+        const res = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, { method: "POST", body: form });
+        const tg = await res.json().catch(() => ({}));
+        if (!res.ok || !tg?.ok) throw new Error(`Telegram: ${tg?.description ?? res.status}`);
+      };
+      const dataZip = async (bid: string | null, label: string) => {
+        const z = new JSZip();
+        const mt: { key: string; count: number; cols: string[]; global?: boolean }[] = [];
+        let total = 0;
+        for (const t of ordered) {
+          const rows = await selectRows(t, bid);
+          mt.push({ key: t.key, count: rows.length, cols: t.cols, global: bid ? brandWhere(t.key, t.cols) === null : false });
+          total += rows.length;
+          z.file(`${t.key}.json`, JSON.stringify(rows));
+        }
+        const brandCounts: Record<string, number> = {};
+        if (!bid) for (const b of brandList) {
+          const [{ n }] = await sql`SELECT count(*)::int AS n FROM public.profiles WHERE branding_id = ${b.id}`;
+          brandCounts[b.company_name] = n;
+        }
+        z.file("manifest.json", JSON.stringify({
+          version: 2, created_at: created, scope: bid ? { branding_id: bid, company_name: label } : "all",
+          brandings: brandList, profiles_per_brand: brandCounts, tables: mt, files: [],
+        }, null, 2));
+        return { bytes: await z.generateAsync({ type: "uint8array", compression: "DEFLATE" }), total };
+      };
+      try {
+        const full = await dataZip(null, "Alle Marken");
+        if (full.bytes.byteLength > MAX_PART) throw new Error("Daten-Backup größer als 45 MB – Telegram-Limit");
+        await send(full.bytes, `backup-alle-${stamp}.zip`, `🗄 Komplett-Backup (alle Marken)\n${when}\n${ordered.length} Tabellen, ${full.total} Einträge`);
+        for (const b of brandList) {
+          const part = await dataZip(b.id, b.company_name);
+          const slug = String(b.company_name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          await send(part.bytes, `backup-${slug}-${stamp}.zip`, `🏷️ ${b.company_name}\n🗄 Marken-Backup (nur Daten)\n${when}\n${part.total} Einträge`);
+        }
+        // files, split into parts
+        const files = await listFiles(null);
+        let z = new JSZip(), size = 0, partNo = 0, count = 0;
+        const flush = async () => {
+          if (!count) return;
+          partNo++;
+          const bytes = await z.generateAsync({ type: "uint8array", compression: "STORE" });
+          await send(bytes, `dateien-${stamp}-${partNo}.zip`, `📎 Dateien Teil ${partNo}\n${when}\n${count} Dateien`);
+          z = new JSZip(); size = 0; count = 0;
+        };
+        for (const f of files) {
+          const { data } = await admin.storage.from(f.bucket).download(f.name);
+          if (!data) continue;
+          const buf = new Uint8Array(await data.arrayBuffer());
+          if (buf.byteLength > MAX_PART) continue;
+          if (size + buf.byteLength > MAX_PART) await flush();
+          z.file(`files/${f.bucket}/${f.name}`, buf);
+          size += buf.byteLength; count++;
+        }
+        await flush();
+        await admin.from("app_settings").update({ backup_last_at: created, backup_last_error: null }).eq("id", true);
+        return json({ ok: true, tables: ordered.length, rows: full.total, brands: brandList.length, files: files.length, file_parts: partNo });
+      } catch (e) {
+        return await fail((e as Error).message);
+      }
     }
 
     return json({ error: "Unbekannte Aktion" }, 400);
