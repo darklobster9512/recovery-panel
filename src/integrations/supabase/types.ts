@@ -244,6 +244,60 @@ export type Database = {
         }
         Relationships: []
       }
+      call_logs: {
+        Row: {
+          answered_at: string | null
+          bot_number: string
+          caller_id: string | null
+          caller_name: string | null
+          created_at: string | null
+          direction: string
+          duration_sec: number
+          ended_at: string | null
+          hold_sec: number
+          id: string
+          remote_name: string | null
+          remote_number: string | null
+          slot: number
+          started_at: string
+          status: string
+        }
+        Insert: {
+          answered_at?: string | null
+          bot_number: string
+          caller_id?: string | null
+          caller_name?: string | null
+          created_at?: string | null
+          direction: string
+          duration_sec?: number
+          ended_at?: string | null
+          hold_sec?: number
+          id?: string
+          remote_name?: string | null
+          remote_number?: string | null
+          slot: number
+          started_at: string
+          status: string
+        }
+        Update: {
+          answered_at?: string | null
+          bot_number?: string
+          caller_id?: string | null
+          caller_name?: string | null
+          created_at?: string | null
+          direction?: string
+          duration_sec?: number
+          ended_at?: string | null
+          hold_sec?: number
+          id?: string
+          remote_name?: string | null
+          remote_number?: string | null
+          slot?: number
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       caller_account_links: {
         Row: {
           caller_id: string
@@ -1182,6 +1236,32 @@ export type Database = {
         Returns: {
           appointment_date: string
           appointment_time: string
+        }[]
+      }
+      call_stats_by_caller: {
+        Args: { _from: string; _to: string }
+        Returns: {
+          avg_sec: number
+          caller_id: string
+          caller_name: string
+          calls: number
+          missed: number
+          total_sec: number
+        }[]
+      }
+      call_stats_by_day: {
+        Args: { _from: string; _to: string }
+        Returns: {
+          day: string
+          total_sec: number
+        }[]
+      }
+      call_stats_totals: {
+        Args: never
+        Returns: {
+          month_sec: number
+          today_sec: number
+          week_sec: number
         }[]
       }
       dismiss_verification_request: {

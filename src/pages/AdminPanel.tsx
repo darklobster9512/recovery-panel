@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Shield, Users, FileText, LogOut, Sun, Moon, Phone, LayoutDashboard,
   ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones, MessageCircle, CalendarDays, ListChecks,
-  MessageSquare, Palette, ChevronsUpDown, Check,
+  MessageSquare, Palette, BarChart3, ChevronsUpDown, Check,
 } from "lucide-react";
 import { BrandingProvider, useActiveBranding } from "@/contexts/BrandingContext";
 import AdminBrandings from "@/components/AdminBrandings";
@@ -39,6 +39,7 @@ import AdminLivechat from "@/components/AdminLivechat";
 import AdminAppointments from "@/components/AdminAppointments";
 import AdminTodos from "@/components/AdminTodos";
 import AdminContactRequests from "@/components/AdminContactRequests";
+import AdminCallStats from "@/components/AdminCallStats";
 
 
 
@@ -52,6 +53,7 @@ const navItems: NavItem[] = [
   { label: "Caller", icon: Headphones, path: "/admin/caller", group: "Vertrieb", adminOnly: true },
   { label: "Livechat", icon: MessageCircle, path: "/admin/livechat", group: "Vertrieb" },
   { label: "Termine", icon: CalendarDays, path: "/admin/termine", group: "Vertrieb" },
+  { label: "Telefonstatistik", icon: BarChart3, path: "/admin/telefonstatistik", group: "Vertrieb", adminOnly: true },
   { label: "To Dos", icon: ListChecks, path: "/admin/todos", group: "Vertrieb" },
 
 
@@ -77,6 +79,7 @@ function pageTitle(pathname: string): string {
     "/admin/livechat": "Livechat",
     "/admin/termine": "Termine",
     "/admin/todos": "To Dos",
+    "/admin/telefonstatistik": "Telefonstatistik",
 
 
     "/admin/verifikationen": "Verifikationen",
@@ -106,6 +109,7 @@ function renderRoute(pathname: string, role: string | null) {
     case "/admin/livechat": return <AdminLivechat />;
     case "/admin/termine": return <AdminAppointments />;
     case "/admin/todos": return <AdminTodos />;
+    case "/admin/telefonstatistik": return isAdmin ? <AdminCallStats /> : <Navigate to="/admin" replace />;
 
 
     case "/admin/verifikationen": return <AdminVerifications />;
