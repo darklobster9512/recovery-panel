@@ -1,4 +1,5 @@
 import { ShieldAlert } from "lucide-react";
+import { useMyBranding, FALLBACK_BRANDING, isKorteBrand } from "@/hooks/useMyBranding";
 const appStoreBadge = "/app-store.svg";
 const googlePlayBadge = "/google-play.svg";
 
@@ -23,14 +24,15 @@ const STEPS = [
 ];
 
 export default function RecoveryGuide() {
+  const b = useMyBranding() ?? FALLBACK_BRANDING;
+  const korte = isKorteBrand(b);
   return (
     <main className="max-w-5xl mx-auto w-full px-3 sm:px-6 py-4 sm:py-8 animate-in fade-in slide-in-from-right-4 duration-300">
       <div className="rounded-2xl overflow-hidden border border-border bg-white shadow-sm">
         {/* Header (Navy) */}
         <div className="relative bg-[#0b1f3a] px-4 sm:px-12 pt-6 sm:pt-10 pb-5 sm:pb-8 text-center">
           <p className="font-serif text-2xl sm:text-5xl tracking-wide text-white">
-            Korte <span className="text-white/50">&amp;</span>{" "}
-            <span className="text-white/80">Partner</span>
+            {b.company_name}
           </p>
           <div className="mx-auto mt-4 sm:mt-6 h-px w-full bg-gradient-to-r from-transparent via-[#c9a24a]/70 to-transparent" />
         </div>
@@ -121,15 +123,15 @@ export default function RecoveryGuide() {
 
           {/* Right: Contact */}
           <aside className="md:border-l md:border-slate-200 md:pl-8 space-y-5 text-sm">
-            <ContactRow label="Telefon" value="040 573086460" />
-            <ContactRow label="E-Mail" value="info@kortekanzlei.de" />
-            <ContactRow label="Internet" value="Korte-Kanzlei.de" />
+            <ContactRow label="Telefon" value={b.phone} />
+            <ContactRow label="E-Mail" value={b.email} />
+            <ContactRow label="Internet" value={b.website} />
             <div>
               <p className="font-semibold text-[#0b1f3a]">Adresse</p>
               <p className="mt-1 text-slate-700">
-                Domstraße 15
+                {b.street}
                 <br />
-                20095 Hamburg
+                {b.city}
               </p>
             </div>
           </aside>
@@ -139,8 +141,9 @@ export default function RecoveryGuide() {
         <div className="bg-[#0b1f3a] text-white/85 px-4 sm:px-12 py-5 sm:py-6 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-xs">
           <div>
             <p className="font-semibold text-white mb-1">Geschäftsführung</p>
-            <p>Dr. Thomas Korte</p>
+            <p>{b.lawyer}</p>
           </div>
+          {korte && (<>
           <div>
             <p className="font-semibold text-white mb-1">Registereintrag</p>
             <p>
@@ -155,6 +158,7 @@ export default function RecoveryGuide() {
             </p>
             <p>USt-IdNr.: DE317391938</p>
           </div>
+          </>)}
         </div>
       </div>
     </main>
