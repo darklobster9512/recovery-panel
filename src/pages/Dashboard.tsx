@@ -31,6 +31,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import DocumentUpload from "@/components/DocumentUpload";
 import VerificationLogo from "@/components/VerificationLogo";
+import { useMyBranding, FALLBACK_BRANDING, isKorteBrand } from "@/hooks/useMyBranding";
 import RecoveryGuide from "@/components/RecoveryGuide";
 import RecoveryVisualization from "@/components/RecoveryVisualization";
 import BookingPanel from "@/components/BookingPanel";
@@ -85,6 +86,10 @@ const PLACEHOLDER_CARDS = [
 export default function Dashboard() {
   const { user, signOut } = useAuth();
   usePageTitle("Mandantenportal");
+  const myBrand = useMyBranding();
+  const brand = myBrand ?? FALLBACK_BRANDING;
+  const korte = isKorteBrand(brand);
+  const initials = (n: string) => n.replace(/^(Dr\.|Prof\.)\s*/g, "").split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -387,7 +392,7 @@ export default function Dashboard() {
     }
   }, [loading, assignments.length, activeView]);
 
-  if (loading) {
+  if (loading || !myBrand) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
@@ -438,11 +443,13 @@ export default function Dashboard() {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-1 pb-4">
-        <span className="font-serif text-xl tracking-tight text-[#0b1f3a] block">
-          Korte <span className="text-[#c9a24a]">&amp;</span> Partner
-        </span>
+        {brand.logo_url ? (
+          <img src={brand.logo_url} alt={brand.company_name} className="h-10 w-auto max-w-full object-contain" />
+        ) : (
+          <span className="font-serif text-xl tracking-tight text-[#0b1f3a] block">{brand.company_name}</span>
+        )}
         <p className="mt-1 text-[11px] uppercase tracking-widest text-slate-500">
-          Rechtsanwaltskanzlei
+          {brand.tagline}
         </p>
         <div className="mt-3 h-px w-full bg-[#c9a24a]/60" />
       </div>
@@ -474,17 +481,23 @@ export default function Dashboard() {
           </>
         ) : (
           <>
-            <div className="relative w-12 h-12 overflow-hidden rounded-full border border-[#0b1f3a]/20 shrink-0">
-              <img
-                src={thomasKorte}
-                alt="Dr. Thomas Korte"
-                className="absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"
-              />
+            <div className="relative w-12 h-12 overflow-hidden rounded-full border border-[#0b1f3a]/20 shrink-0 bg-slate-100">
+              {korte ? (
+                <img
+                  src={thomasKorte}
+                  alt={brand.lawyer}
+                  className="absolute left-1/2 top-0 h-[250%] w-auto max-w-none -translate-x-1/2"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-[#0b1f3a] text-sm font-semibold">
+                  {initials(brand.lawyer)}
+                </div>
+              )}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#0b1f3a] truncate">Dr. Thomas Korte</p>
+              <p className="text-sm font-semibold text-[#0b1f3a] truncate">{brand.lawyer}</p>
               <p className="text-xs text-slate-600 truncate">Rechtsanwalt</p>
-              <p className="text-xs text-slate-600 truncate">040 573086460</p>
+              <p className="text-xs text-slate-600 truncate">{brand.phone}</p>
             </div>
           </>
         )}
@@ -594,7 +607,7 @@ export default function Dashboard() {
             </SheetContent>
           </Sheet>
           <span className="font-serif text-lg tracking-tight text-[#0b1f3a] truncate max-w-[70%] text-center">
-            Korte <span className="text-[#c9a24a]">&amp;</span> Partner
+            {brand.company_name}
           </span>
         </div>
       </header>
@@ -1064,10 +1077,10 @@ export default function Dashboard() {
           first_name: assignedCaller.first_name,
           last_name: assignedCaller.last_name,
           avatar_url: assignedCaller.avatar_url,
-        } : { first_name: "Dr. Thomas", last_name: "Korte", avatar_url: thomasKorte }}
-        fallbackName="Dr. Thomas Korte"
+        } : { first_name: brand.lawyer, last_name: "", avatar_url: korte ? thomasKorte : null }}
+        fallbackName={brand.lawyer}
         avatarCropTop
-        contactSubtitle={assignedCaller ? "Ihr Ansprechpartner" : "Kanzlei Korte & Partner"}
+        contactSubtitle={assignedCaller ? "Ihr Ansprechpartner" : `Kanzlei ${brand.company_name}`}
         vicName={profileName}
         vicEmail={profileEmail}
       />

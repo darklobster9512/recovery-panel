@@ -29,6 +29,8 @@ interface Appointment {
   caller_id: string | null;
 }
 
+import { useMyBranding } from "@/hooks/useMyBranding";
+
 export default function BookingPanel({
   callerId,
   callerInfo,
@@ -46,9 +48,10 @@ export default function BookingPanel({
   const [saving, setSaving] = useState(false);
   const [isRebooking, setIsRebooking] = useState(false);
 
+  const brand = useMyBranding();
   const contactName = callerInfo
     ? [callerInfo.first_name, callerInfo.last_name].filter(Boolean).join(" ") || "Ihrem Ansprechpartner"
-    : "Dr. Thomas Korte";
+    : (brand?.lawyer ?? "");
 
   useEffect(() => {
     (async () => {

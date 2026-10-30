@@ -1299,10 +1299,16 @@ export type Database = {
         Args: never
         Returns: {
           brand_color: string
+          city: string
           company_name: string
+          email: string
           id: string
+          lawyer: string
           logo_url: string
+          phone: string
+          street: string
           tagline: string
+          website: string
         }[]
       }
       my_linked_callers: {
