@@ -19,6 +19,7 @@ export type TelegramEvent =
   | "todo_created"
   | "contact_request_received"
   | "verifications_prepared"
+  | "call_missed"
   | "test";
 
 
@@ -154,6 +155,16 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         `<b>Erfolgreich übertragen:</b>`,
         ...((p.items as string[]) ?? []).map((t) => `• ${esc(t)}`),
       ].join("\n");
+
+    case "call_missed":
+      return [
+        `📵 <b>Anruf verpasst</b>`,
+        `☎️ Nummer: ${code(p.remote_number || "unbekannt")}`,
+        `👤 Vic: ${esc(p.vic_name || "Unbekannt")}`,
+        `📞 Caller: ${esc(p.caller_name || "nicht zugewiesen")}`,
+        p.time_label ? `🕐 ${esc(p.time_label)}` : null,
+        p.line_label ? `📲 Leitung: ${esc(p.line_label)}` : null,
+      ].filter(Boolean).join("\n");
 
     case "chat_message_received":
       return [

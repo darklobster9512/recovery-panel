@@ -1353,6 +1353,7 @@ export type Database = {
         | "appointment_created_by_caller"
         | "contact_request_received"
         | "verifications_prepared"
+        | "call_missed"
       todo_priority: "normal" | "dringend"
       todo_status: "offen" | "abgeschlossen"
     }
@@ -1516,6 +1517,7 @@ export const Constants = {
         "appointment_created_by_caller",
         "contact_request_received",
         "verifications_prepared",
+        "call_missed",
       ],
       todo_priority: ["normal", "dringend"],
       todo_status: ["offen", "abgeschlossen"],
