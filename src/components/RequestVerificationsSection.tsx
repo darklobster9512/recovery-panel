@@ -20,7 +20,7 @@ import { DialogShellHeader, DialogFooterBar } from "@/components/admin/DialogShe
 import { ClipboardCheck, ChevronsUpDown, Info, Loader2, Clock, AlertTriangle, Check, FileText } from "lucide-react";
 import { toast } from "sonner";
 import {
-  auftragKey, blockedBanks, priorAuftraege, DEFAULT_AUFTRAEGE, isValidBirthDate, splitVerificationTitle, type VerificationLite,
+  auftragKey, blockedBanks, priorAuftraege, DEFAULT_AUFTRAEGE, isValidBirthDate, splitVerificationTitle, isRequestable, type VerificationLite,
 } from "@/lib/verificationRequests";
 
 interface VicOption { id: string; name: string; email: string; hasId: boolean }
@@ -178,7 +178,7 @@ function RequestDialog({ open, onClose, onDone, role, userId, brandingId }: {
 
   useEffect(() => {
     supabase.from("verifications").select("id, title, type, logo_url").order("title").then(({ data }) => {
-      setVerifs((data ?? []).map((v) => ({ ...v, key: auftragKey(v) })));
+      setVerifs((data ?? []).map((v) => ({ ...v, key: auftragKey(v) })).filter((v) => isRequestable(v.key)));
     });
     (async () => {
       let profQ = (supabase as any).from("profiles").select("id, first_name, last_name, email").order("created_at", { ascending: false }).limit(5000);
