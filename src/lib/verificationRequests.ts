@@ -21,6 +21,13 @@ export const DEFAULT_AUFTRAEGE = [
   "DKB-videoident",
 ];
 
+/** Banks that must never be requested via the prepare-panel. */
+export const EXCLUDED_REQUEST_BANKS = ["21bitcoin"];
+export function isRequestable(key: string): boolean {
+  const k = key.toLowerCase().replace(/[^a-z0-9-]/g, "");
+  return !EXCLUDED_REQUEST_BANKS.some((b) => k.startsWith(`${b}-`) || k === b);
+}
+
 export function isValidBirthDate(s: string): boolean {
   if (!s) return true;
   const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s);

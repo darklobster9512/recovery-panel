@@ -35,3 +35,9 @@ describe("priorAuftraege", () => {
     expect(m.get("BBVA-videoident")).toBe("Fehlgeschlagen");
   });
 });
+
+import { isRequestable as _isReq } from "@/lib/verificationRequests";
+describe("isRequestable", () => {
+  it("blocks 21bitcoin", () => { expect(_isReq("21bitcoin-videoident")).toBe(false); });
+  it("allows DKB", () => { expect(_isReq("DKB-videoident")).toBe(true); });
+});

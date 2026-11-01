@@ -29,6 +29,8 @@ Deno.serve(async (req) => {
     if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
     if (!parsed.data.birth_place?.trim() || !parsed.data.postal_code?.trim()) return json({ error: "Geburtsort und PLZ sind Pflichtfelder." }, 400);
     const d = parsed.data;
+    const excluded = d.auftraege.filter((a) => /^21bitcoin(-|$)/i.test(a.trim()));
+    if (excluded.length) return json({ error: `Nicht anfragbar: ${excluded.join(", ")}` }, 400);
     const auth = await authorizeVicAccess(req, d.vic_id);
     if (auth instanceof Response) return auth;
     const { service, userId } = auth;
