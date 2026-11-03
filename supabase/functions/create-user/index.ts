@@ -215,7 +215,15 @@ Deno.serve(async (req) => {
                   return w ? `https://${pre ? `${pre}.${w}` : w}/auth` : "";
                 })(),
               });
-              smsResult = await sendSms(s, phone, smsText);
+              const r: any = await sendSms(s, phone, smsText);
+              smsResult = r;
+              try {
+                const { data: prof } = await adminClient.from("profiles").select("branding_id").eq("id", newUser.user.id).maybeSingle();
+                await adminClient.from("sms_dispatch_log").insert({
+                  kind: "new_user", vic_id: newUser.user.id, branding_id: prof?.branding_id ?? null,
+                  recipient: phone, sender: r.sender ?? null, ok: !!r.ok, code: r.code ?? null, error: r.error ?? null,
+                });
+              } catch (e) { console.error("sms log failed", e); }
             } else {
               smsResult = { skipped: true, reason: "SMS-Vorlage fehlt" };
             }
