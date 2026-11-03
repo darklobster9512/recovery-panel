@@ -119,6 +119,15 @@ export default function AdminBrandings() {
   }
 
   const keyType = showKeys ? "text" : "password";
+  const [smsCheck, setSmsCheck] = useState<any[] | null>(null);
+  const [checking, setChecking] = useState(false);
+  const checkSms = async () => {
+    setChecking(true);
+    const { data, error } = await supabase.functions.invoke("sevenio-check");
+    setChecking(false);
+    if (error) return toast.error("Prüfung fehlgeschlagen");
+    setSmsCheck(data?.brands ?? []);
+  };
 
   return (
     <div className="space-y-6">
@@ -128,8 +137,26 @@ export default function AdminBrandings() {
           <h2 className="font-display text-2xl font-semibold">Brandings</h2>
           <p className="mt-2 text-sm text-muted-foreground">Firmendaten, Domains sowie E-Mail- und SMS-Versand pro Marke.</p>
         </div>
-        <Button onClick={openCreate} className="gap-2"><Plus className="h-4 w-4" /> Neues Branding</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={checkSms} disabled={checking}>{checking ? "Prüfe…" : "SMS-Versand prüfen"}</Button>
+          <Button onClick={openCreate} className="gap-2"><Plus className="h-4 w-4" /> Neues Branding</Button>
+        </div>
       </div>
+
+      {smsCheck && (
+        <Card><CardContent className="space-y-2 p-4 text-sm">
+          <p className="font-semibold">seven.io-Prüfung</p>
+          {smsCheck.map((r) => (
+            <div key={r.brand} className="flex flex-wrap gap-x-4 gap-y-1 border-t border-border pt-2">
+              <span className="font-medium">{r.brand}</span>
+              <span>Schlüssel …{r.key_tail ?? "–"}</span>
+              {r.error ? <span className="text-destructive">{r.error}</span> : <span>Guthaben: {r.balance} €</span>}
+              <span>Absender: „{r.sender_configured}“ → „{r.sender_used}“</span>
+              <span>Letzte 7 Tage: {r.sent_7d} gesendet, {r.failed_7d} fehlgeschlagen</span>
+            </div>
+          ))}
+        </CardContent></Card>
+      )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {brandings.map((b) => {
