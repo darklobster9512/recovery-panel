@@ -688,6 +688,45 @@ export type Database = {
           },
         ]
       }
+      sms_dispatch_log: {
+        Row: {
+          branding_id: string | null
+          code: string | null
+          created_at: string
+          error: string | null
+          id: string
+          kind: string
+          ok: boolean
+          recipient: string
+          sender: string | null
+          vic_id: string | null
+        }
+        Insert: {
+          branding_id?: string | null
+          code?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind: string
+          ok: boolean
+          recipient: string
+          sender?: string | null
+          vic_id?: string | null
+        }
+        Update: {
+          branding_id?: string | null
+          code?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind?: string
+          ok?: boolean
+          recipient?: string
+          sender?: string | null
+          vic_id?: string | null
+        }
+        Relationships: []
+      }
       sms_spoof_history: {
         Row: {
           created_at: string
