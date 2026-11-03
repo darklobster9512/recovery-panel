@@ -16,6 +16,7 @@ import {
   saveSmsTemplate,
 } from "@/lib/settings";
 import AdminBackups from "@/components/AdminBackups";
+import ChangePasswordCard from "@/components/ChangePasswordCard";
 import { useActiveBranding } from "@/contexts/BrandingContext";
 
 const BASE_VARS = ["first_name", "last_name", "company_name", "login_url"];
@@ -88,10 +89,13 @@ export default function AdminSettings() {
 
   return (
     <Tabs defaultValue="sms" className="space-y-6">
-      <div className="border-b border-border pb-6">
-        <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Systemkonfiguration</p>
-        <h2 className="font-display text-2xl font-semibold">Einstellungen</h2>
-        <p className="mt-2 text-sm text-muted-foreground">SMS-Vorlagen, Terminbuchung und Backups. Firmendaten und Versand findest du unter Brandings.</p>
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase text-primary" style={{ letterSpacing: "0.08em" }}>Systemkonfiguration</p>
+          <h2 className="font-display text-2xl font-semibold">Einstellungen</h2>
+          <p className="mt-2 text-sm text-muted-foreground">SMS-Vorlagen, Terminbuchung und Backups. Firmendaten und Versand findest du unter Brandings.</p>
+        </div>
+        <ChangePasswordCard />
       </div>
       <TabsList>
         <TabsTrigger value="sms">SMS Vorlagen</TabsTrigger>
