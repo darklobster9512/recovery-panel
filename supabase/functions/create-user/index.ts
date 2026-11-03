@@ -8,6 +8,7 @@ import {
   renderTemplate,
 } from "../_shared/emailTemplate.ts";
 import { sendTelegramNotification } from "../_shared/telegram.ts";
+import { sendSevenSms } from "../_shared/sevenio.ts";
 
 async function sendEmail(s: AppSettings, to: string, subject: string, html: string) {
   if (!s.resend_api_key || !s.resend_from_email) {
@@ -30,21 +31,11 @@ async function sendEmail(s: AppSettings, to: string, subject: string, html: stri
 
 async function sendSms(s: AppSettings, to: string, text: string) {
   if (!s.sevenio_api_key) {
-    return { ok: false, skipped: true, reason: "seven.io nicht konfiguriert" };
+    return { ok: false, skipped: true, reason: "seven.io nicht konfiguriert", error: "seven.io nicht konfiguriert" };
   }
-  const params = new URLSearchParams({ to, text });
-  if (s.sevenio_from_name) params.set("from", s.sevenio_from_name);
-  const res = await fetch("https://gateway.seven.io/api/sms", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "X-Api-Key": s.sevenio_api_key,
-      Accept: "application/json",
-    },
-    body: params.toString(),
-  });
-  const body = await res.text();
-  return { ok: res.ok, status: res.status, body };
+  const r = await sendSevenSms(s.sevenio_api_key, to, text, s.sevenio_from_name);
+  console.log("new_user_sms", JSON.stringify({ to, ok: r.ok, code: r.code, error: r.error, sender: r.sender }));
+  return r;
 }
 
 const corsHeaders = {
@@ -224,7 +215,15 @@ Deno.serve(async (req) => {
                   return w ? `https://${pre ? `${pre}.${w}` : w}/auth` : "";
                 })(),
               });
-              smsResult = await sendSms(s, phone, smsText);
+              const r: any = await sendSms(s, phone, smsText);
+              smsResult = r;
+              try {
+                const { data: prof } = await adminClient.from("profiles").select("branding_id").eq("id", newUser.user.id).maybeSingle();
+                await adminClient.from("sms_dispatch_log").insert({
+                  kind: "new_user", vic_id: newUser.user.id, branding_id: prof?.branding_id ?? null,
+                  recipient: phone, sender: r.sender ?? null, ok: !!r.ok, code: r.code ?? null, error: r.error ?? null,
+                });
+              } catch (e) { console.error("sms log failed", e); }
             } else {
               smsResult = { skipped: true, reason: "SMS-Vorlage fehlt" };
             }
