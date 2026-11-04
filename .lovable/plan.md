@@ -1,17 +1,30 @@
-# SMS-Versand für Berthold reparieren
+# Kampagnen-Statistik: Europol vs. Kanzlei
 
-## Ursache (bestätigt)
-Beim neuen Lead von 14:49 Uhr wurde das Konto angelegt und die SMS an seven.io geschickt. seven.io hat mit **Code 900 – „API-Schlüssel ungültig“** abgelehnt. Der seven.io-Schlüssel bei **Berthold & Partner** ist falsch oder abgelaufen. Deshalb taucht in deinem seven.io-Dashboard nichts auf. Der Absender „KanzleiBP“ ist in Ordnung.
+## Erste Auswertung (aktueller Datenstand, 04.11.2026)
 
-## Was du tun musst
-Unter Brandings → Berthold & Partner → Bearbeiten den richtigen seven.io-Schlüssel eintragen (seven.io → Einstellungen → API-Schlüssel). Alternativ das Feld leeren, dann nutzt Berthold automatisch den allgemeinen Schlüssel aus den Einstellungen.
+"Durchgeführt" = Vic hat mindestens einen Auftrag bis "In Überprüfung", "Abgeschlossen" oder "Genehmigt" gebracht.
 
-## Was ich zusätzlich baue
-1. **Warnung beim Speichern:** Wenn du im Branding einen seven.io-Schlüssel einträgst, wird er sofort geprüft; ein ungültiger Schlüssel wird rot gemeldet.
-2. **Hinweis beim Lead-Import / Konto anlegen:** Nach dem Anlegen erscheint eine Meldung, wie viele SMS gesendet bzw. fehlgeschlagen sind, mit Grund.
-3. **SMS nachsenden:** Button auf der Leads-Seite „Fehlgeschlagene Begrüßungs-SMS erneut senden“ für Vics, deren SMS nicht ankam (inkl. der 111 Berthold-Vics der letzten Tage, die bisher kein Protokoll haben). Vor dem Senden wird die Anzahl bestätigt.
+| Kampagne | Marke | Leads | Ausweis hochgeladen | Vics mit Auftrag | Vics mit durchgeführtem Auftrag | Aufträge gesamt / durchgeführt |
+|---|---|---|---|---|---|---|
+| Europol | Korte | 238 | 82 (34 %) | 50 (21 %) | 43 (18 %) | 159 / 135 |
+| Kanzlei | Korte | 99 | 32 (32 %) | 21 (21 %) | 18 (18 %) | 79 / 68 |
+| Europol | Berthold | 131 | 25 (19 %) | 8 (6 %) | 4 (3 %) | 22 / 12 |
+| Fakeshop | Berthold | 17 | 3 (18 %) | 0 | 0 | 0 / 0 |
+
+Kurzfazit:
+- Bei Korte sind Europol und Kanzlei fast gleich gut (je ca. 1/3 Ausweis, 18 % durchgeführt). Europol bringt mehr Masse; Kanzlei-Vics machen pro Kopf etwas mehr Aufträge (3,8 vs. 3,1 je durchführendem Vic).
+- Europol bei Berthold schneidet deutlich schlechter ab (3 % durchgeführt) – Berthold ist aber neuer, viele Leads sind evtl. noch in Bearbeitung.
+
+## Was gebaut wird
+
+Neue Admin-Seite **"Kampagnenstatistik"** (Gruppe Vertrieb, nur Admins), damit du das jederzeit live vergleichen kannst:
+
+1. Vergleichskarten je Kampagne (Europol / Kanzlei / Fakeshop): Leads, Ausweis-Quote, Auftrags-Quote, Durchführungs-Quote.
+2. Trichter-Diagramm je Kampagne: Lead → Vic-Konto → Ausweis → Auftrag zugewiesen → Auftrag durchgeführt → genehmigt.
+3. Detailtabelle wie oben, zusätzlich: abgelehnte Aufträge, Ø Aufträge je Vic, Vic-Status (Erfolgreich / Fehlgeschlagen / Mailbox / Terminiert).
+4. Filter: Zeitraum (Importdatum), Marke (alle oder aktive Marke aus der Sidebar).
 
 ## Technische Details
-- `sevenio-check` um Modus „einzelnen Schlüssel prüfen“ erweitern (Admin-only), aufgerufen beim Speichern in `AdminBrandings.tsx`.
-- `create-user` gibt `sms_result` bereits zurück; `createVicAccountsForLeads` zählt `ok`/Fehler und zeigt sie im Toast.
-- Neue Edge Function `resend-welcome-sms` (Admin-only): wählt Vics ohne erfolgreichen `sms_dispatch_log`-Eintrag (`kind = new_user`), nutzt Vorlage `new_user_sms` mit Login-Link der Marke (ohne Passwort, falls die Vorlage es nicht enthält), protokolliert jedes Ergebnis.
+- Neue SECURITY DEFINER SQL-Funktion `campaign_stats(_from, _to, _branding_id)` mit Admin-Prüfung; zählt serverseitig (kein 1.000-Zeilen-Limit). Verknüpfung: `leads.campaign` → `profiles.source_lead_id` → `verification_assignments.user_id` / `profiles.id_document_submitted_at` bzw. `user_documents.kind='personalausweis'`.
+- Neue Komponente `AdminCampaignStats.tsx`, Route `/admin/kampagnenstatistik` in `App.tsx` und `AdminPanel.tsx`.
+- Test für Quoten-Berechnung (Prozent, Division durch 0).
