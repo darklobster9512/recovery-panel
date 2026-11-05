@@ -12,3 +12,4 @@
 - Backups (`admin-backup`) discover tables dynamically; brand scoping, global tables and import order live only in `supabase/functions/_shared/backupScope.ts` (tested in `src/test/backupScope.test.ts`). Why: new tables/brands must be backed up and restored without code changes.
 - Call statistics sums are computed only in the admin-checked SQL functions `call_stats_*` (Europe/Berlin days, Monday weeks); `call_logs` is written only via service_role. Why: totals must not depend on browser row limits or time zones.
 - Missed-call Telegram alerts fire only from the `call_logs` insert trigger → `call-missed-notify` (checked with the internal backup token). Why: call_logs are written externally via service_role, so no app code sees the insert.
+- Public contact forms post only to `contact-submit`, which resolves the brand server-side via `get_branding_for_host` (brand_domain → Origin/Referer → default). Why: external landing pages of each brand feed one admin inbox.
