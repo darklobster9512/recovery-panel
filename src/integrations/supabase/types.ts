@@ -406,6 +406,7 @@ export type Database = {
       }
       contact_requests: {
         Row: {
+          branding_id: string | null
           created_at: string
           damage_amount: number | null
           email: string
@@ -420,6 +421,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          branding_id?: string | null
           created_at?: string
           damage_amount?: number | null
           email: string
@@ -434,6 +436,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          branding_id?: string | null
           created_at?: string
           damage_amount?: number | null
           email?: string
@@ -447,7 +450,15 @@ export type Database = {
           topic?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contact_requests_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lead_activity: {
         Row: {
