@@ -1,0 +1,2 @@
+ALTER TABLE public.contact_requests ADD COLUMN branding_id uuid REFERENCES public.brandings(id);
+UPDATE public.contact_requests SET branding_id = (SELECT id FROM public.brandings WHERE company_name ILIKE 'Korte%' ORDER BY created_at LIMIT 1) WHERE branding_id IS NULL;

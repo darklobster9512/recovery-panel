@@ -61,6 +61,16 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
+    // Resolve brand: explicit brand_domain, then Origin/Referer host, then default (first brand)
+    const hostOf = (v: string | null) => {
+      if (!v) return null;
+      try { return new URL(v.includes("://") ? v : `https://${v}`).hostname.toLowerCase(); } catch { return null; }
+    };
+    const host = hostOf(str(body.brand_domain ?? body.domain, 255))
+      ?? hostOf(req.headers.get("origin")) ?? hostOf(req.headers.get("referer"));
+    const { data: brand } = await supabase.rpc("get_branding_for_host", { _host: host ?? "" }).maybeSingle();
+    const branding_id = (brand as { id?: string } | null)?.id ?? null;
+
     const { data, error } = await supabase
       .from("contact_requests")
       .insert({
@@ -72,6 +82,7 @@ Deno.serve(async (req) => {
         damage_amount,
         message,
         source,
+        branding_id,
       })
       .select("id")
       .single();
@@ -92,6 +103,7 @@ Deno.serve(async (req) => {
       topic,
       damage_amount: damage_amount !== null ? damage_amount : undefined,
       message,
+      branding_id: branding_id ?? undefined,
     }).catch((e) => console.error("telegram notify failed:", e));
 
     return new Response(JSON.stringify({ ok: true, id: data.id }), {

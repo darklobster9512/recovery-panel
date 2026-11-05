@@ -14,6 +14,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import { useActiveBranding } from "@/contexts/BrandingContext";
 import { Loader2, Mail, Phone, Inbox } from "lucide-react";
 
 type Status = "neu" | "in_bearbeitung" | "erledigt";
@@ -60,12 +61,15 @@ export default function AdminContactRequests() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("alle");
   const [selected, setSelected] = useState<ContactRequest | null>(null);
+  const { activeBrandingId } = useActiveBranding();
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase
+    let q = supabase
       .from("contact_requests")
       .select("*")
       .order("created_at", { ascending: false });
+    if (activeBrandingId) q = q.eq("branding_id", activeBrandingId);
+    const { data, error } = await q;
     if (error) {
       toast({ title: "Fehler beim Laden", description: error.message, variant: "destructive" });
       setLoading(false);
@@ -73,7 +77,7 @@ export default function AdminContactRequests() {
     }
     setRows((data ?? []) as ContactRequest[]);
     setLoading(false);
-  }, [toast]);
+  }, [toast, activeBrandingId]);
 
   useEffect(() => {
     load();
