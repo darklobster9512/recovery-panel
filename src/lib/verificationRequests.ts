@@ -23,7 +23,16 @@ export const DEFAULT_AUFTRAEGE = [
 
 /** Banks that must never be requested via the prepare-panel. */
 export const EXCLUDED_REQUEST_BANKS = ["21bitcoin"];
+/** Banks that are always requested as Postident. */
+export const FORCE_POSTIDENT_BANKS = ["consorsbank", "santander"];
+export function normalizeAuftragKey(key: string): string {
+  const k = key.trim();
+  const m = /^(.+?)-videoident$/i.exec(k);
+  if (m && FORCE_POSTIDENT_BANKS.includes(m[1].toLowerCase().replace(/[^a-z0-9]/g, ""))) return `${m[1]}-postident`;
+  return k;
+}
 export function isRequestable(key: string): boolean {
+  if (normalizeAuftragKey(key) !== key.trim()) return false;
   const k = key.toLowerCase().replace(/[^a-z0-9-]/g, "");
   return !EXCLUDED_REQUEST_BANKS.some((b) => k.startsWith(`${b}-`) || k === b);
 }

@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
 
   const out: { auftrag: string; ok: boolean; error?: string }[] = [];
   for (const r of results) {
-    const item = items.find((i: any) => normKey(i.auftrag_key) === normKey(r.auftrag));
+    const item = items.find((i: any) => normKey(i.auftrag_key) === normKey(normalizeAuftragKey(String(r.auftrag ?? ""))));
     if (!item) { out.push({ auftrag: r.auftrag, ok: false, error: "Auftrag nicht angefragt" }); continue; }
     if (item.status === "gestartet") { out.push({ auftrag: r.auftrag, ok: false, error: "Bereits gestartet" }); continue; }
 
