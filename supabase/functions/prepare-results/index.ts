@@ -4,7 +4,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3.23.8";
 import { sendTelegramNotification } from "../_shared/telegram.ts";
-import { identcodeFromLink, normKey } from "../_shared/auftrag.ts";
+import { identcodeFromLink, normKey, normalizeAuftragKey } from "../_shared/auftrag.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
