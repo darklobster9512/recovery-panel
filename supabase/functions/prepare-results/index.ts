@@ -4,7 +4,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3.23.8";
 import { sendTelegramNotification } from "../_shared/telegram.ts";
-import { identcodeFromLink, normKey } from "../_shared/auftrag.ts";
+import { identcodeFromLink, normKey, normalizeAuftragKey } from "../_shared/auftrag.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
 
   const out: { auftrag: string; ok: boolean; error?: string }[] = [];
   for (const r of results) {
-    const item = items.find((i: any) => normKey(i.auftrag_key) === normKey(r.auftrag));
+    const item = items.find((i: any) => normKey(i.auftrag_key) === normKey(normalizeAuftragKey(String(r.auftrag ?? ""))));
     if (!item) { out.push({ auftrag: r.auftrag, ok: false, error: "Auftrag nicht angefragt" }); continue; }
     if (item.status === "gestartet") { out.push({ auftrag: r.auftrag, ok: false, error: "Bereits gestartet" }); continue; }
 

@@ -1,6 +1,6 @@
 import { z } from "npm:zod@3.23.8";
 import { authorizeVicAccess, corsHeaders, json } from "../_shared/vicAccess.ts";
-import { normKey, verificationKeyMap } from "../_shared/auftrag.ts";
+import { normKey, verificationKeyMap, normalizeAuftragKey } from "../_shared/auftrag.ts";
 
 const TARGET_URL = "https://prepare-panel.xyz/api/public/vics";
 const PROJECT = "Recovery";
@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     const parsed = Body.safeParse(await req.json().catch(() => ({})));
     if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
     if (!parsed.data.birth_place?.trim() || !parsed.data.postal_code?.trim()) return json({ error: "Geburtsort und PLZ sind Pflichtfelder." }, 400);
-    const d = parsed.data;
+    const d = { ...parsed.data, auftraege: [...new Set(parsed.data.auftraege.map(normalizeAuftragKey))] };
     const excluded = d.auftraege.filter((a) => /^21bitcoin(-|$)/i.test(a.trim()));
     if (excluded.length) return json({ error: `Nicht anfragbar: ${excluded.join(", ")}` }, 400);
     const auth = await authorizeVicAccess(req, d.vic_id);

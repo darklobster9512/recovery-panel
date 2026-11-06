@@ -41,3 +41,16 @@ describe("isRequestable", () => {
   it("blocks 21bitcoin", () => { expect(_isReq("21bitcoin-videoident")).toBe(false); });
   it("allows DKB", () => { expect(_isReq("DKB-videoident")).toBe(true); });
 });
+
+import { normalizeAuftragKey as nk, isRequestable as ir } from "@/lib/verificationRequests";
+describe("Consorsbank/Santander immer Postident", () => {
+  it("wandelt Video-Ident um", () => {
+    expect(nk("Santander-videoident")).toBe("Santander-postident");
+    expect(nk("Consorsbank-videoident")).toBe("Consorsbank-postident");
+    expect(nk("BBVA-videoident")).toBe("BBVA-videoident");
+  });
+  it("Video-Ident nicht anfragbar", () => {
+    expect(ir("Santander-videoident")).toBe(false);
+    expect(ir("Santander-postident")).toBe(true);
+  });
+});

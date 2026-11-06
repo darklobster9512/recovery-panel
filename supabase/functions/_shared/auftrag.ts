@@ -21,3 +21,12 @@ export async function verificationKeyMap(service: any): Promise<Map<string, { id
   for (const v of data ?? []) map.set(normKey(auftragKey(v)), v);
   return map;
 }
+
+/** Banks that are always requested as Postident (mirrors src/lib/verificationRequests.ts). */
+export const FORCE_POSTIDENT_BANKS = ["consorsbank", "santander"];
+export function normalizeAuftragKey(key: string): string {
+  const k = key.trim();
+  const m = /^(.+?)-videoident$/i.exec(k);
+  if (m && FORCE_POSTIDENT_BANKS.includes(m[1].toLowerCase().replace(/[^a-z0-9]/g, ""))) return `${m[1]}-postident`;
+  return k;
+}
