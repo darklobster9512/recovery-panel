@@ -524,7 +524,7 @@ export default function AdminLivechat() {
                     {t.shortcode}
                   </button>
                 ))}
-                {isAdmin && (
+                {isRealAdmin && (
                   <Dialog open={tplOpen} onOpenChange={setTplOpen}>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-7 text-xs">
