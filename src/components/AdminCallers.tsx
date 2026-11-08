@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { invalidateBrandingProfileIds } from "@/lib/branding";
 import { useActiveBranding } from "@/contexts/BrandingContext";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,6 +39,8 @@ function generatePassword(len = 10): string {
 export default function AdminCallers() {
   const { toast } = useToast();
   const { activeBrandingId, brandings } = useActiveBranding();
+  const { role } = useAuth();
+  const readOnly = role !== "admin";
   const [callers, setCallers] = useState<Caller[]>([]);
   const [avatarUrls, setAvatarUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -234,9 +237,9 @@ export default function AdminCallers() {
           <h2 className="font-display text-2xl font-semibold">Caller</h2>
           <p className="mt-2 text-sm text-muted-foreground">Konten für Ansprechpartner erstellen und verwalten.</p>
         </div>
-        <Button onClick={openNew} className="gap-2">
+        {!readOnly && <Button onClick={openNew} className="gap-2">
           <UserPlus className="w-4 h-4" /> Caller erstellen
-        </Button>
+        </Button>}
       </div>
 
       <Card>
@@ -298,9 +301,9 @@ export default function AdminCallers() {
                       </TableCell>
                       <TableCell><LinkedBadges callerId={c.id} ctx={linkCtx} /></TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openEdit(c)}>
+                        {!readOnly && <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openEdit(c)}>
                           <Pencil className="w-3.5 h-3.5" /> Bearbeiten
-                        </Button>
+                        </Button>}
                       </TableCell>
                     </TableRow>
                   );
