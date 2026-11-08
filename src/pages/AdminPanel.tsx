@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Shield, Users, FileText, LogOut, Sun, Moon, Phone, LayoutDashboard,
   ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones, MessageCircle, CalendarDays, ListChecks,
-  MessageSquare, Palette, BarChart3, ChevronsUpDown, Check,
+  MessageSquare, Palette, BarChart3, ChevronsUpDown, Check, Briefcase,
 } from "lucide-react";
 import { BrandingProvider, useActiveBranding } from "@/contexts/BrandingContext";
 import AdminBrandings from "@/components/AdminBrandings";
@@ -40,6 +40,8 @@ import AdminAppointments from "@/components/AdminAppointments";
 import AdminTodos from "@/components/AdminTodos";
 import AdminContactRequests from "@/components/AdminContactRequests";
 import AdminCallStats from "@/components/AdminCallStats";
+import AdminManagers from "@/components/AdminManagers";
+import { managerCanOpen } from "@/lib/roles";
 
 
 
@@ -50,6 +52,7 @@ const navItems: NavItem[] = [
   { label: "Anfragen", icon: MessageSquare, path: "/admin/anfragen", group: "Vertrieb", adminOnly: true },
   { label: "Leads", icon: Inbox, path: "/admin/leads", group: "Vertrieb", adminOnly: true },
   { label: "Vics", icon: Users, path: "/admin/vics", group: "Vertrieb" },
+  { label: "Manager", icon: Briefcase, path: "/admin/manager", group: "Vertrieb", adminOnly: true },
   { label: "Caller", icon: Headphones, path: "/admin/caller", group: "Vertrieb", adminOnly: true },
   { label: "Livechat", icon: MessageCircle, path: "/admin/livechat", group: "Vertrieb" },
   { label: "Termine", icon: CalendarDays, path: "/admin/termine", group: "Vertrieb" },
@@ -76,6 +79,7 @@ function pageTitle(pathname: string): string {
     "/admin/anfragen": "Anfragen",
     "/admin/leads": "Leads",
     "/admin/caller": "Caller",
+    "/admin/manager": "Manager",
     "/admin/livechat": "Livechat",
     "/admin/termine": "Termine",
     "/admin/todos": "To Dos",
@@ -95,6 +99,10 @@ function pageTitle(pathname: string): string {
 }
 
 function renderRoute(pathname: string, role: string | null) {
+  if (role === "manager") {
+    if (!managerCanOpen(pathname)) return <Navigate to="/admin" replace />;
+    if (pathname === "/admin/telefonstatistik") return <AdminCallStats />;
+  }
   const isAdmin = role === "admin";
   if (/^\/admin\/vics\/[^/]+$/.test(pathname)) return <AdminVicDetail />;
   if (/^\/admin\/leads\/[^/]+$/.test(pathname)) {
@@ -106,6 +114,7 @@ function renderRoute(pathname: string, role: string | null) {
     case "/admin/anfragen": return isAdmin ? <AdminContactRequests /> : <Navigate to="/admin" replace />;
     case "/admin/leads": return isAdmin ? <AdminLeads /> : <Navigate to="/admin/vics" replace />;
     case "/admin/caller": return <AdminCallers />;
+    case "/admin/manager": return isAdmin ? <AdminManagers /> : <Navigate to="/admin" replace />;
     case "/admin/livechat": return <AdminLivechat />;
     case "/admin/termine": return <AdminAppointments />;
     case "/admin/todos": return <AdminTodos />;
@@ -147,7 +156,8 @@ function AdminPanelInner() {
   const { theme, toggle: toggleTheme } = useAdminTheme();
   const { brandings, active, setActive, activeBrandingId, ready } = useActiveBranding();
   const isAdmin = role === "admin";
-  usePageTitle("Admin", isAdmin ? active?.company_name : null);
+  const isManager = role === "manager";
+  usePageTitle("Admin", isAdmin || isManager ? active?.company_name : null);
   const [linked, setLinked] = useState<any[]>([]);
   const [switching, setSwitching] = useState(false);
   useEffect(() => {
@@ -184,7 +194,8 @@ function AdminPanelInner() {
   const initials = (user?.email ?? "A").slice(0, 2).toUpperCase();
   const title = pageTitle(location.pathname);
 
-  const visibleNav = navItems.filter((n) => !n.adminOnly || role === "admin");
+  const visibleNav = navItems.filter((n) =>
+    role === "manager" ? managerCanOpen(n.path) : !n.adminOnly || role === "admin");
 
   // group nav items preserving order
   const groups: { label: string | null; items: NavItem[] }[] = [];
@@ -216,7 +227,7 @@ function AdminPanelInner() {
                 <span className="truncate text-[10px] font-semibold uppercase text-sidebar-foreground/55" style={{ letterSpacing: "0.08em" }}>Operations</span>
               </div>
             </div>
-            {isAdmin && (
+            {(isAdmin || (isManager && brandings.length > 1)) && (
               <div className="px-3 pb-3 group-data-[collapsible=icon]:hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -247,13 +258,13 @@ function AdminPanelInner() {
                         {b.id === activeBrandingId && <Check className="h-4 w-4 text-primary" />}
                       </DropdownMenuItem>
                     ))}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate("/admin/brandings")}>Brandings verwalten</DropdownMenuItem>
+                    {isAdmin && <DropdownMenuSeparator />}
+                    {isAdmin && <DropdownMenuItem onClick={() => navigate("/admin/brandings")}>Brandings verwalten</DropdownMenuItem>}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             )}
-            {!isAdmin && linked.length > 1 && (
+            {!isAdmin && !isManager && linked.length > 1 && (
               <div className="px-3 pb-3 group-data-[collapsible=icon]:hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -341,7 +352,7 @@ function AdminPanelInner() {
               </Avatar>
               <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
                 <p className="truncate text-xs font-semibold text-sidebar-foreground">{user?.email}</p>
-                <p className="truncate text-[10px] text-sidebar-foreground/50">Administrator</p>
+                <p className="truncate text-[10px] text-sidebar-foreground/50">{isManager ? "Manager" : role === "caller" ? "Caller" : "Administrator"}</p>
               </div>
               <Button
                 variant="ghost"
