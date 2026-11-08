@@ -24,6 +24,7 @@ interface Caller {
   phone: string | null;
   temp_password: string | null;
   avatar_url: string | null;
+  telegram_name?: string | null;
   created_at: string;
 }
 
@@ -46,14 +47,14 @@ export default function AdminCallers() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ first_name: "", last_name: "", email: "", phone: "" });
+  const [form, setForm] = useState({ first_name: "", last_name: "", email: "", phone: "", telegram_name: "" });
   const [password, setPassword] = useState(() => generatePassword());
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   // Edit state
   const [editing, setEditing] = useState<Caller | null>(null);
-  const [editForm, setEditForm] = useState({ first_name: "", last_name: "", phone: "", branding_id: "" });
+  const [editForm, setEditForm] = useState({ first_name: "", last_name: "", phone: "", branding_id: "", telegram_name: "" });
   const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -75,7 +76,7 @@ export default function AdminCallers() {
     }
     let q = (supabase as any)
       .from("profiles")
-      .select("id, email, first_name, last_name, phone, temp_password, avatar_url, created_at, branding_id")
+      .select("id, email, first_name, last_name, phone, temp_password, avatar_url, telegram_name, created_at, branding_id")
       .in("id", ids)
       .order("created_at", { ascending: false });
     if (activeBrandingId) q = q.eq("branding_id", activeBrandingId);
@@ -104,7 +105,7 @@ export default function AdminCallers() {
   }, []);
 
   const openNew = () => {
-    setForm({ first_name: "", last_name: "", email: "", phone: "" });
+    setForm({ first_name: "", last_name: "", email: "", phone: "", telegram_name: "" });
     setPassword(generatePassword());
     setAvatarFile(null);
     setOpen(true);
@@ -126,6 +127,7 @@ export default function AdminCallers() {
           phone: form.phone || null,
           password,
           role: "caller",
+          telegram_name: form.telegram_name.trim() || null,
           branding_id: activeBrandingId,
         },
       });
@@ -157,7 +159,7 @@ export default function AdminCallers() {
 
   const openEdit = (c: Caller) => {
     setEditing(c);
-    setEditForm({ first_name: c.first_name ?? "", last_name: c.last_name ?? "", phone: c.phone ?? "", branding_id: (c as any).branding_id ?? "" });
+    setEditForm({ first_name: c.first_name ?? "", last_name: c.last_name ?? "", phone: c.phone ?? "", branding_id: (c as any).branding_id ?? "", telegram_name: c.telegram_name ?? "" });
     setEditAvatarFile(null);
     setRemoveAvatar(false);
     setLinkSel(linkCtx.linkedOf(c.id).map((x) => x.id));
@@ -191,6 +193,7 @@ export default function AdminCallers() {
         last_name: editForm.last_name,
         phone: editForm.phone.trim() || null,
       };
+      (payload as any).telegram_name = editForm.telegram_name.trim().slice(0, 64) || null;
       if (editForm.branding_id) (payload as any).branding_id = editForm.branding_id;
       if (avatarPath !== undefined) payload.avatar_url = avatarPath;
 
@@ -258,6 +261,7 @@ export default function AdminCallers() {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Telefon</TableHead>
+                  <TableHead>Telegram</TableHead>
                   <TableHead>Passwort</TableHead>
                   <TableHead>Verknüpft</TableHead>
                   <TableHead className="w-28 text-right">Aktion</TableHead>
@@ -284,6 +288,7 @@ export default function AdminCallers() {
                       <TableCell className="font-medium">{name}</TableCell>
                       <TableCell>{c.email ?? "—"}</TableCell>
                       <TableCell>{c.phone ?? "—"}</TableCell>
+                      <TableCell>{c.telegram_name || "–"}</TableCell>
                       <TableCell>
                         {c.temp_password ? (
                           <span className="inline-flex items-center gap-1.5">
@@ -344,6 +349,10 @@ export default function AdminCallers() {
                   <Label>Telefon</Label>
                   <Input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
                 </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label>Telegram-Name (intern)</Label>
+                  <Input placeholder="@benutzername" maxLength={64} value={form.telegram_name} onChange={(e) => setForm((f) => ({ ...f, telegram_name: e.target.value }))} />
+                </div>
               </div>
             </DialogSection>
 
@@ -401,6 +410,10 @@ export default function AdminCallers() {
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label>Telefon</Label>
                   <Input value={editForm.phone} onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))} />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label>Telegram-Name (intern)</Label>
+                  <Input placeholder="@benutzername" maxLength={64} value={editForm.telegram_name} onChange={(e) => setEditForm((f) => ({ ...f, telegram_name: e.target.value }))} />
                 </div>
                 {brandings.length > 0 && (
                   <div className="space-y-1.5 sm:col-span-2">
