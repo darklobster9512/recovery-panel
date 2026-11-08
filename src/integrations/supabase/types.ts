@@ -592,6 +592,78 @@ export type Database = {
           },
         ]
       }
+      manager_brandings: {
+        Row: {
+          branding_id: string
+          created_at: string
+          id: string
+          manager_id: string
+        }
+        Insert: {
+          branding_id: string
+          created_at?: string
+          id?: string
+          manager_id: string
+        }
+        Update: {
+          branding_id?: string
+          created_at?: string
+          id?: string
+          manager_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_brandings_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_brandings_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manager_callers: {
+        Row: {
+          caller_id: string
+          created_at: string
+          id: string
+          manager_id: string
+        }
+        Insert: {
+          caller_id: string
+          created_at?: string
+          id?: string
+          manager_id: string
+        }
+        Update: {
+          caller_id?: string
+          created_at?: string
+          id?: string
+          manager_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_callers_caller_id_fkey"
+            columns: ["caller_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_callers_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phone_numbers: {
         Row: {
           api_url: string
@@ -630,6 +702,7 @@ export type Database = {
       profiles: {
         Row: {
           assigned_caller_id: string | null
+          assigned_manager_id: string | null
           avatar_url: string | null
           balance: number | null
           branding_id: string | null
@@ -648,6 +721,7 @@ export type Database = {
         }
         Insert: {
           assigned_caller_id?: string | null
+          assigned_manager_id?: string | null
           avatar_url?: string | null
           balance?: number | null
           branding_id?: string | null
@@ -666,6 +740,7 @@ export type Database = {
         }
         Update: {
           assigned_caller_id?: string | null
+          assigned_manager_id?: string | null
           avatar_url?: string | null
           balance?: number | null
           branding_id?: string | null
@@ -683,6 +758,13 @@ export type Database = {
           temp_password?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_assigned_manager_id_fkey"
+            columns: ["assigned_manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_branding_id_fkey"
             columns: ["branding_id"]
@@ -1345,6 +1427,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_manager_of_caller: {
+        Args: { _caller: string; _mgr: string }
+        Returns: boolean
+      }
+      manager_can_see_vic: {
+        Args: { _mgr: string; _vic: string }
+        Returns: boolean
+      }
       my_branding: {
         Args: never
         Returns: {
@@ -1373,6 +1463,19 @@ export type Database = {
           is_self: boolean
           last_name: string
           logo_url: string
+        }[]
+      }
+      my_manager_brandings: {
+        Args: never
+        Returns: {
+          brand_color: string
+          company_name: string
+          created_at: string
+          domain: string
+          favicon_url: string
+          id: string
+          logo_url: string
+          tagline: string
         }[]
       }
     }
