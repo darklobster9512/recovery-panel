@@ -59,6 +59,13 @@ export async function fetchBrandings(): Promise<Branding[]> {
   return (data ?? []) as Branding[];
 }
 
+/** Brands assigned to the signed-in manager (public fields only, no credentials). */
+export async function fetchManagerBrandings(): Promise<Branding[]> {
+  const { data, error } = await (supabase as any).rpc("my_manager_brandings");
+  if (error) throw error;
+  return (data ?? []) as Branding[];
+}
+
 export async function fetchBrandingForHost(host: string): Promise<PublicBranding | null> {
   const { data, error } = await (supabase as any).rpc("get_branding_for_host", { _host: host });
   if (error) return null;

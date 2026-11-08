@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchBrandings, invalidateBrandingProfileIds, type Branding } from "@/lib/branding";
+import { fetchBrandings, fetchManagerBrandings, invalidateBrandingProfileIds, type Branding } from "@/lib/branding";
 
 const STORAGE_KEY = "active-branding-id";
 
@@ -25,10 +25,15 @@ const BrandingContext = createContext<BrandingContextValue>({
 
 // Shared across AdminPanel remounts (every tab is its own route) so tab switches don't wait for a reload.
 let cachedBrandings: Branding[] | null = null;
+let cachedFor: string | null = null;
 
 export function BrandingProvider({ children }: { children: ReactNode }) {
   const { role } = useAuth();
-  const isAdmin = role === "admin";
+  const { user } = useAuth();
+  // Admins and managers both get brand switching; managers only see their assigned brands.
+  const isAdmin = role === "admin" || role === "manager";
+  const cacheKey = `${role}:${user?.id ?? ""}`;
+  if (cachedFor !== cacheKey) { cachedBrandings = null; cachedFor = cacheKey; }
   const [brandings, setBrandings] = useState<Branding[]>(() => cachedBrandings ?? []);
   const [activeId, setActiveId] = useState<string | null>(() => localStorage.getItem(STORAGE_KEY));
   const [ready, setReady] = useState(() => !isAdmin || cachedBrandings !== null);
@@ -36,7 +41,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
   const reload = useCallback(async () => {
     if (!isAdmin) { setReady(true); return; }
     try {
-      const list = await fetchBrandings();
+      const list = role === "manager" ? await fetchManagerBrandings() : await fetchBrandings();
       cachedBrandings = list;
       setBrandings(list);
       setActiveId((cur) => {
@@ -47,7 +52,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     } finally {
       setReady(true);
     }
-  }, [isAdmin]);
+  }, [isAdmin, role]);
 
   useEffect(() => { reload(); }, [reload]);
 
