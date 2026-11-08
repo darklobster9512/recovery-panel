@@ -19,7 +19,8 @@ const queryClient = new QueryClient({
   },
 });
 
-const ADMIN_OR_CALLER: ("admin" | "caller")[] = ["admin", "caller"];
+const ADMIN_OR_CALLER: ("admin" | "caller" | "manager")[] = ["admin", "caller", "manager"];
+const ADMIN_OR_MANAGER: ("admin" | "manager")[] = ["admin", "manager"];
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -44,13 +45,14 @@ const App = () => (
           <Route path="/admin/brandings" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/leads" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/leads/:id" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
+          <Route path="/admin/manager" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/telegram" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
-          <Route path="/admin/caller" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
+          <Route path="/admin/caller" element={<ProtectedRoute requiredRole={ADMIN_OR_MANAGER}><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/livechat" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/termine" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/todos" element={<ProtectedRoute requiredRole={ADMIN_OR_CALLER}><AdminPanel /></ProtectedRoute>} />
           <Route path="/admin/anfragen" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
-          <Route path="/admin/telefonstatistik" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} />
+          <Route path="/admin/telefonstatistik" element={<ProtectedRoute requiredRole={ADMIN_OR_MANAGER}><AdminPanel /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

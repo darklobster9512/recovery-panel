@@ -22,9 +22,9 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   if (requiredRole) {
     const allowed = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
     if (!role || !allowed.includes(role)) {
-      return <Navigate to={role === "caller" || role === "admin" ? "/admin" : "/dashboard"} replace />;
+      return <Navigate to={role === "caller" || role === "admin" || role === "manager" ? "/admin" : "/dashboard"} replace />;
     }
-  } else if (role === "caller") {
+  } else if (role === "caller" || role === "manager") {
     return <Navigate to="/admin" replace />;
   }
 
