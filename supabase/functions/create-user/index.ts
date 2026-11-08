@@ -110,6 +110,7 @@ Deno.serve(async (req) => {
       branding_id,
       branding_ids,
       caller_ids,
+      telegram_name,
     } = body;
 
     const targetRole: "user" | "caller" | "manager" =
@@ -177,6 +178,7 @@ Deno.serve(async (req) => {
     }
     if (scam_project !== undefined && scam_project !== null) updatePayload.scam_project = scam_project;
     if (typeof source_lead_id === "string" && source_lead_id) updatePayload.source_lead_id = source_lead_id;
+    if (typeof telegram_name === "string" && telegram_name.trim()) updatePayload.telegram_name = telegram_name.trim().slice(0, 64);
     if (typeof avatar_url === "string" && avatar_url) updatePayload.avatar_url = avatar_url;
     if (typeof branding_id === "string" && branding_id && !(typeof source_lead_id === "string" && source_lead_id)) updatePayload.branding_id = branding_id;
 
