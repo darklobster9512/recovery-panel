@@ -352,7 +352,7 @@ export default function AdminVicDetail() {
                 {brandings.map((b) => <option key={b.id} value={b.id}>{b.company_name}</option>)}
               </select>
             )}
-            {role === "admin" && (
+            {(role === "admin" || role === "manager") && (
               <AssignCallerSelect
                 compact
                 target="profile"
