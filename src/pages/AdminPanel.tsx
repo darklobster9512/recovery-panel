@@ -352,7 +352,7 @@ function AdminPanelInner() {
               </Avatar>
               <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
                 <p className="truncate text-xs font-semibold text-sidebar-foreground">{user?.email}</p>
-                <p className="truncate text-[10px] text-sidebar-foreground/50">{isManager ? "Manager" : role === "caller" ? "Caller" : "Administrator"}</p>
+                <p className="truncate text-[10px] text-sidebar-foreground/50">{isManager ? "Manager" : "Administrator"}</p>
               </div>
               <Button
                 variant="ghost"
