@@ -717,6 +717,7 @@ export type Database = {
           phone: string | null
           scam_project: string | null
           source_lead_id: string | null
+          telegram_name: string | null
           temp_password: string | null
         }
         Insert: {
@@ -736,6 +737,7 @@ export type Database = {
           phone?: string | null
           scam_project?: string | null
           source_lead_id?: string | null
+          telegram_name?: string | null
           temp_password?: string | null
         }
         Update: {
@@ -755,6 +757,7 @@ export type Database = {
           phone?: string | null
           scam_project?: string | null
           source_lead_id?: string | null
+          telegram_name?: string | null
           temp_password?: string | null
         }
         Relationships: [
