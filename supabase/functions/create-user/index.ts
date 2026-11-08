@@ -108,9 +108,12 @@ Deno.serve(async (req) => {
       role,
       avatar_url,
       branding_id,
+      branding_ids,
+      caller_ids,
     } = body;
 
-    const targetRole: "user" | "caller" = role === "caller" ? "caller" : "user";
+    const targetRole: "user" | "caller" | "manager" =
+      role === "caller" ? "caller" : role === "manager" ? "manager" : "user";
 
     if (!email || !first_name || !last_name) {
       return new Response(JSON.stringify({ error: "email, first_name, last_name are required" }), {
@@ -146,9 +149,19 @@ Deno.serve(async (req) => {
     }
 
     // If caller: replace default 'user' role with 'caller'
-    if (targetRole === "caller") {
+    if (targetRole === "caller" || targetRole === "manager") {
       await adminClient.from("user_roles").delete().eq("user_id", newUser.user.id);
-      await adminClient.from("user_roles").insert({ user_id: newUser.user.id, role: "caller" });
+      await adminClient.from("user_roles").insert({ user_id: newUser.user.id, role: targetRole });
+    }
+    if (targetRole === "manager") {
+      const uuid = (v: unknown) => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v);
+      const bIds = Array.isArray(branding_ids) ? branding_ids.filter(uuid) : [];
+      const cIds = Array.isArray(caller_ids) ? caller_ids.filter(uuid) : [];
+      if (bIds.length) await adminClient.from("manager_brandings").insert(bIds.map((b: string) => ({ manager_id: newUser.user.id, branding_id: b })));
+      if (cIds.length) {
+        await adminClient.from("manager_callers").delete().in("caller_id", cIds);
+        await adminClient.from("manager_callers").insert(cIds.map((c: string) => ({ manager_id: newUser.user.id, caller_id: c })));
+      }
     }
 
     const updatePayload: Record<string, unknown> = {

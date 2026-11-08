@@ -38,7 +38,8 @@ Deno.serve(async (req) => {
     _user_id: uid,
     _role: "caller",
   });
-  if (!isAdmin && !isCaller) return json({ error: "Forbidden" }, 403);
+  const { data: isManager } = await userClient.rpc("has_role", { _user_id: uid, _role: "manager" });
+  if (!isAdmin && !isCaller && !isManager) return json({ error: "Forbidden" }, 403);
 
   let paths: unknown;
   try {
@@ -55,7 +56,15 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  if (!isAdmin) {
+  if (!isAdmin && isManager) {
+    // Manager: only files of Vics assigned to them or their callers
+    const ownerIds = [...new Set((paths as string[]).map((p) => p.split("/")[0]))];
+    if (ownerIds.some((id) => !id)) return json({ error: "Forbidden" }, 403);
+    for (const id of ownerIds) {
+      const { data: ok } = await admin.rpc("manager_can_see_vic", { _mgr: uid, _vic: id });
+      if (!ok) return json({ error: "Forbidden" }, 403);
+    }
+  } else if (!isAdmin) {
     // Caller: only files of vics assigned to them
     const ownerIds = [...new Set((paths as string[]).map((p) => p.split("/")[0]))];
     if (ownerIds.some((id) => !id)) return json({ error: "Forbidden" }, 403);

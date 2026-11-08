@@ -2,7 +2,13 @@ import React, { createContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
-export type AppRole = "admin" | "user" | "caller";
+export type AppRole = "admin" | "user" | "caller" | "manager";
+
+const ROLE_PRIORITY: AppRole[] = ["admin", "manager", "caller", "user"];
+function pickRole(rows: { role: string }[] | null): AppRole | null {
+  const r = (rows ?? []).map((x) => x.role);
+  return ROLE_PRIORITY.find((p) => r.includes(p)) ?? null;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -24,10 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .limit(1)
-      .maybeSingle();
-    setRole((data?.role as AppRole) ?? null);
+      .eq("user_id", userId);
+    setRole(pickRole(data));
   };
 
   useEffect(() => {
@@ -50,9 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setTimeout(async () => {
             // Load role first, then swap user+role together (no flash/redirect on account switch)
             const { data } = await supabase
-              .from("user_roles").select("role").eq("user_id", nextUser.id).limit(1).maybeSingle();
+              .from("user_roles").select("role").eq("user_id", nextUser.id);
             setUser((prev) => (prev?.id === nextUser.id ? prev : nextUser));
-            setRole((data?.role as AppRole) ?? null);
+            setRole(pickRole(data));
             setLoading(false);
           }, 0);
         } else if (event === 'SIGNED_OUT') {

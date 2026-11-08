@@ -10,7 +10,7 @@ export function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }
 
-/** Checks that the caller is an admin, or a caller assigned to the given Vic. */
+/** Checks that the caller is an admin, a caller assigned to the given Vic, or a manager who can see the Vic. */
 export async function authorizeVicAccess(
   req: Request,
   vicId: string,
@@ -29,6 +29,10 @@ export async function authorizeVicAccess(
   if (r.includes("caller")) {
     const { data: p } = await service.from("profiles").select("assigned_caller_id").eq("id", vicId).maybeSingle();
     if (p?.assigned_caller_id === userId) return { service, userId };
+  }
+  if (r.includes("manager")) {
+    const { data: ok } = await service.rpc("manager_can_see_vic", { _mgr: userId, _vic: vicId });
+    if (ok) return { service, userId };
   }
   return json({ error: "Forbidden" }, 403);
 }

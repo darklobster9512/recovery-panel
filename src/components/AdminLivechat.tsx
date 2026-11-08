@@ -57,7 +57,9 @@ interface Template {
 export default function AdminLivechat() {
   const { activeBrandingId } = useActiveBranding();
   const { user, role } = useAuth();
-  const isAdmin = role === "admin";
+  // Managers use the full view; RLS limits them to their own and their callers' Vics.
+  const isAdmin = role === "admin" || role === "manager";
+  const isRealAdmin = role === "admin";
   const [convs, setConvs] = useState<Conv[]>([]);
   const [callers, setCallers] = useState<CallerOpt[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -522,7 +524,7 @@ export default function AdminLivechat() {
                     {t.shortcode}
                   </button>
                 ))}
-                {isAdmin && (
+                {isRealAdmin && (
                   <Dialog open={tplOpen} onOpenChange={setTplOpen}>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-7 text-xs">

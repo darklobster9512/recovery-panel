@@ -256,8 +256,8 @@ export default function AdminAppointments() {
     setRows((r) => r.map((x) => x.id === id ? { ...x, status } : x));
   }
 
-  const isAdmin = role === "admin";
-  const canAdd = role === "admin" || role === "caller";
+  const isAdmin = role === "admin" || role === "manager";
+  const canAdd = role === "admin" || role === "caller" || role === "manager";
 
   return (
     <div className="space-y-6">

@@ -28,7 +28,9 @@ Deno.serve(async (req) => {
 
     const { data: roles } = await admin.from("user_roles").select("role").eq("user_id", id);
     const r = (roles ?? []).map((x: any) => x.role);
-    if (!r.includes("caller") || r.includes("admin")) return json({ error: "Kein Caller-Konto" }, 400);
+    if (r.includes("admin") || !(r.includes("caller") || r.includes("manager"))) return json({ error: "Kein Caller- oder Manager-Konto" }, 400);
+    // Managers: their Vics keep their caller, only the manager link is removed (FKs cascade / set null).
+    await admin.from("profiles").update({ assigned_manager_id: null }).eq("assigned_manager_id", id);
 
     const { data: prof } = await admin.from("profiles").select("avatar_url").eq("id", id).maybeSingle();
 

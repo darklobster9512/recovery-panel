@@ -23,6 +23,7 @@ import { DialogShellHeader, DialogSection, DialogFooterBar } from "@/components/
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/TablePagination";
 import VicStatusSelect from "@/components/VicStatusSelect";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface VicUser {
   id: string;
@@ -33,6 +34,7 @@ interface VicUser {
   temp_password: string | null;
   created_at: string;
   assigned_caller_id: string | null;
+  assigned_manager_id?: string | null;
   member_status: string;
 }
 
@@ -91,6 +93,9 @@ export default function AdminVics() {
   const [callers, setCallers] = useState<CallerOption[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkCaller, setBulkCaller] = useState<string>(NO_CALLER);
+  const [managers, setManagers] = useState<CallerOption[]>([]);
+  // Admins assign to managers (default) or callers; managers only to their own callers.
+  const [assignTab, setAssignTab] = useState<"manager" | "caller">("manager");
   const [assigning, setAssigning] = useState(false);
   const [singleVic, setSingleVic] = useState<VicUser | null>(null);
   const [singleCaller, setSingleCaller] = useState<string>(NO_CALLER);
@@ -98,6 +103,8 @@ export default function AdminVics() {
   const navigate = useNavigate();
   const { role, user } = useAuth();
   const { activeBrandingId } = useActiveBranding();
+  const isAdmin = role === "admin";
+  const tab: "manager" | "caller" = isAdmin ? assignTab : "caller";
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -128,7 +135,7 @@ export default function AdminVics() {
 
     let pq = (supabase as any)
       .from("profiles")
-      .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id, member_status")
+      .select("id, email, first_name, last_name, phone, temp_password, created_at, assigned_caller_id, assigned_manager_id, member_status")
       .in("id", userIds)
       .order("created_at", { ascending: false });
     if (activeBrandingId) pq = pq.eq("branding_id", activeBrandingId);
@@ -154,13 +161,66 @@ export default function AdminVics() {
     setCallers((profs as CallerOption[]) ?? []);
   };
 
+  const fetchManagers = async () => {
+    if (!isAdmin) { setManagers([]); return; }
+    const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "manager" as any);
+    let ids = (roles ?? []).map((r) => r.user_id);
+    if (activeBrandingId && ids.length) {
+      const { data: mb } = await (supabase as any).from("manager_brandings").select("manager_id").eq("branding_id", activeBrandingId);
+      const ok = new Set(((mb ?? []) as any[]).map((r) => r.manager_id));
+      ids = ids.filter((id) => ok.has(id));
+    }
+    if (ids.length === 0) { setManagers([]); return; }
+    const { data: profs } = await supabase.from("profiles").select("id, first_name, last_name, email").in("id", ids);
+    setManagers((profs as CallerOption[]) ?? []);
+  };
+
   useEffect(() => {
     fetchUsers();
     fetchCallers();
+    fetchManagers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, user?.id]);
 
   const callerNames = new Map(callers.map((c) => [c.id, callerLabel(c)]));
+  const managerNames = new Map(managers.map((c) => [c.id, callerLabel(c)]));
+  const assignOptions = tab === "manager" ? managers : callers;
+
+  const assignManager = async (ids: string[], managerId: string | null) => {
+    if (ids.length === 0) return;
+    setAssigning(true);
+    // A new manager starts fresh: the Vic waits for that manager to pick a caller.
+    const { error } = await (supabase as any)
+      .from("profiles")
+      .update({ assigned_manager_id: managerId, assigned_caller_id: null })
+      .in("id", ids);
+    setAssigning(false);
+    if (error) {
+      toast({ title: "Zuweisung fehlgeschlagen", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: managerId ? "Manager zugewiesen" : "Zuweisung entfernt",
+      description: `${ids.length} ${ids.length === 1 ? "Vic" : "Vics"} aktualisiert.`,
+    });
+    setSelectedIds([]);
+    setSingleVic(null);
+    fetchUsers();
+  };
+
+  const runAssign = (ids: string[], value: string) => {
+    const v = value === NO_CALLER ? null : value;
+    return tab === "manager" ? assignManager(ids, v) : assignCaller(ids, v);
+  };
+
+  const tabSwitch = isAdmin ? (
+    <Tabs value={assignTab} onValueChange={(v) => { setAssignTab(v as any); setBulkCaller(NO_CALLER); if (singleVic) setSingleCaller(v === "manager" ? singleVic.assigned_manager_id ?? NO_CALLER : singleVic.assigned_caller_id ?? NO_CALLER); }}>
+      <TabsList>
+        <TabsTrigger value="manager">Manager</TabsTrigger>
+        <TabsTrigger value="caller">Caller</TabsTrigger>
+      </TabsList>
+    </Tabs>
+  ) : null;
 
   const assignCaller = async (ids: string[], callerId: string | null) => {
     if (ids.length === 0) return;
@@ -359,10 +419,12 @@ export default function AdminVics() {
           <h2 className="font-display text-2xl font-semibold">Vics</h2>
           <p className="mt-2 text-sm text-muted-foreground">Konten, Kontaktdaten und Zugangsinformationen zentral verwalten.</p>
         </div>
-        <Button onClick={openDialog} className="gap-2">
-          <UserPlus className="w-4 h-4" />
-          Nutzer erstellen
-        </Button>
+        {role !== "manager" && (
+          <Button onClick={openDialog} className="gap-2">
+            <UserPlus className="w-4 h-4" />
+            Nutzer erstellen
+          </Button>
+        )}
       </div>
 
       <div className="relative max-w-md">
@@ -381,13 +443,14 @@ export default function AdminVics() {
             {selectedIds.length} {selectedIds.length === 1 ? "Vic" : "Vics"} ausgewählt
           </p>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            {tabSwitch}
             <Select value={bulkCaller} onValueChange={setBulkCaller}>
               <SelectTrigger className="w-full sm:w-64 bg-card">
-                <SelectValue placeholder="Caller wählen" />
+                <SelectValue placeholder={tab === "manager" ? "Manager wählen" : "Caller wählen"} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={NO_CALLER}>Nicht zugewiesen</SelectItem>
-                {callers.map((c) => (
+                {assignOptions.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {callerLabel(c)}
                   </SelectItem>
@@ -395,7 +458,7 @@ export default function AdminVics() {
               </SelectContent>
             </Select>
             <Button
-              onClick={() => assignCaller(selectedIds, bulkCaller === NO_CALLER ? null : bulkCaller)}
+              onClick={() => runAssign(selectedIds, bulkCaller)}
               disabled={assigning}
               className="gap-2"
             >
@@ -435,6 +498,7 @@ export default function AdminVics() {
                   <TableHead>Email</TableHead>
                   <TableHead>Telefon</TableHead>
                   <TableHead>Temp. Passwort</TableHead>
+                  {isAdmin && <TableHead>Manager</TableHead>}
                   <TableHead>Caller</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Erstellt am</TableHead>
@@ -504,6 +568,11 @@ export default function AdminVics() {
                         "–"
                       )}
                     </TableCell>
+                    {isAdmin && (
+                      <TableCell className="text-sm">
+                        {u.assigned_manager_id ? (managerNames.get(u.assigned_manager_id) ?? "–") : "–"}
+                      </TableCell>
+                    )}
                     <TableCell className="text-sm">
                       {u.assigned_caller_id ? (callerNames.get(u.assigned_caller_id) ?? "–") : "–"}
                     </TableCell>
@@ -537,10 +606,10 @@ export default function AdminVics() {
                         <button
                           onClick={() => {
                             setSingleVic(u);
-                            setSingleCaller(u.assigned_caller_id ?? NO_CALLER);
+                            setSingleCaller((tab === "manager" ? u.assigned_manager_id : u.assigned_caller_id) ?? NO_CALLER);
                           }}
                           className="text-muted-foreground hover:text-foreground transition-colors p-1"
-                          title="Caller zuweisen"
+                          title={isAdmin ? "Zuweisen" : "Caller zuweisen"}
                         >
                           <UserCog className="w-4 h-4" />
                         </button>
@@ -738,21 +807,22 @@ export default function AdminVics() {
       <Dialog open={!!singleVic} onOpenChange={(o) => !o && setSingleVic(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Caller zuweisen</DialogTitle>
+            <DialogTitle>{isAdmin ? "Vic zuweisen" : "Caller zuweisen"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-2">
+            {tabSwitch}
             <p className="text-sm text-muted-foreground">
               {[singleVic?.first_name, singleVic?.last_name].filter(Boolean).join(" ") || singleVic?.email || "Vic"}
             </p>
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-bold uppercase text-muted-foreground">Zugewiesener Caller</Label>
+              <Label className="text-[11px] font-bold uppercase text-muted-foreground">{tab === "manager" ? "Zugewiesener Manager" : "Zugewiesener Caller"}</Label>
               <Select value={singleCaller} onValueChange={setSingleCaller}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Caller wählen" />
+                  <SelectValue placeholder={tab === "manager" ? "Manager wählen" : "Caller wählen"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={NO_CALLER}>Nicht zugewiesen</SelectItem>
-                  {callers.map((c) => (
+                  {assignOptions.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {callerLabel(c)}
                     </SelectItem>
@@ -766,7 +836,7 @@ export default function AdminVics() {
               Abbrechen
             </Button>
             <Button
-              onClick={() => singleVic && assignCaller([singleVic.id], singleCaller === NO_CALLER ? null : singleCaller)}
+              onClick={() => singleVic && runAssign([singleVic.id], singleCaller)}
               disabled={assigning}
               className="gap-2"
             >

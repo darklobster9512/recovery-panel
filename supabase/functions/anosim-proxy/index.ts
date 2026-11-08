@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
   }
 
   const userId = claimsData.claims.sub;
-  const [{ data: isAdmin }, { data: isCaller }] = await Promise.all([
+  const [{ data: isAdmin }, { data: isCallerRole }, { data: isManager }] = await Promise.all([
     supabase.rpc("has_role", {
       _user_id: userId,
       _role: "admin",
@@ -45,7 +45,9 @@ Deno.serve(async (req) => {
       _user_id: userId,
       _role: "caller",
     }),
+    supabase.rpc("has_role", { _user_id: userId, _role: "manager" }),
   ]);
+  const isCaller = isCallerRole || isManager;
 
   try {
     const { token: apiToken, assignmentId } = await req.json();
