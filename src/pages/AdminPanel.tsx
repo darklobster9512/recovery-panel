@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Shield, Users, FileText, LogOut, Sun, Moon, Phone, LayoutDashboard,
   ClipboardCheck, FolderOpen, Mail, Inbox, Settings, Send, Headphones, MessageCircle, CalendarDays, ListChecks,
-  MessageSquare, Palette, BarChart3, ChevronsUpDown, Check, Briefcase,
+  MessageSquare, Palette, BarChart3, ChevronsUpDown, Check, Briefcase, BookOpen,
 } from "lucide-react";
 import { BrandingProvider, useActiveBranding } from "@/contexts/BrandingContext";
 import AdminBrandings from "@/components/AdminBrandings";
@@ -41,6 +41,7 @@ import AdminTodos from "@/components/AdminTodos";
 import AdminContactRequests from "@/components/AdminContactRequests";
 import AdminCallStats from "@/components/AdminCallStats";
 import AdminManagers from "@/components/AdminManagers";
+import AdminInstructions from "@/components/AdminInstructions";
 import { managerCanOpen } from "@/lib/roles";
 
 
@@ -49,6 +50,7 @@ type NavItem = { label: string; icon: typeof LayoutDashboard; path: string; exac
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/admin", exact: true },
+  { label: "Anweisung", icon: BookOpen, path: "/admin/anweisung" },
   { label: "Anfragen", icon: MessageSquare, path: "/admin/anfragen", group: "Vertrieb", adminOnly: true },
   { label: "Leads", icon: Inbox, path: "/admin/leads", group: "Vertrieb", adminOnly: true },
   { label: "Vics", icon: Users, path: "/admin/vics", group: "Vertrieb" },
@@ -76,6 +78,7 @@ function pageTitle(pathname: string): string {
   const map: Record<string, string> = {
     "/admin": "Admin Dashboard",
     "/admin/vics": "Vics",
+    "/admin/anweisung": "Anweisung",
     "/admin/anfragen": "Anfragen",
     "/admin/leads": "Leads",
     "/admin/caller": "Caller",
@@ -111,6 +114,7 @@ function renderRoute(pathname: string, role: string | null) {
   }
   switch (pathname) {
     case "/admin/vics": return <AdminVics />;
+    case "/admin/anweisung": return <AdminInstructions />;
     case "/admin/anfragen": return isAdmin ? <AdminContactRequests /> : <Navigate to="/admin" replace />;
     case "/admin/leads": return isAdmin ? <AdminLeads /> : <Navigate to="/admin/vics" replace />;
     case "/admin/caller": return <AdminCallers />;

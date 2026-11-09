@@ -4,6 +4,7 @@ export type StaffRole = "admin" | "manager" | "caller";
 export const MANAGER_PATHS = [
   "/admin",
   "/admin/vics",
+  "/admin/anweisung",
   "/admin/caller",
   "/admin/livechat",
   "/admin/termine",

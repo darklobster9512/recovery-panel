@@ -23,3 +23,9 @@ describe("manager menu", () => {
     expect(managerCanOpen(p)).toBe(false);
   });
 });
+
+describe("Anweisung page", () => {
+  it("managers may open /admin/anweisung", () => {
+    expect(managerCanOpen("/admin/anweisung")).toBe(true);
+  });
+});
