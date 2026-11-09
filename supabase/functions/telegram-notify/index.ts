@@ -95,13 +95,18 @@ Deno.serve(async (req) => {
     delete (payload as any)._fallback_branding_id;
     const clientBrand = typeof body?.active_branding_id === "string" ? body.active_branding_id : null;
     const { data: senderProf } = await serviceClient
-      .from("profiles").select("branding_id").eq("id", claimsData.claims.sub).maybeSingle();
+      .from("profiles").select("branding_id, first_name, last_name, email").eq("id", claimsData.claims.sub).maybeSingle();
     const { data: senderIsAdmin } = await anonClient.rpc("has_role", {
       _user_id: claimsData.claims.sub, _role: "admin",
     });
     (payload as any)._fallback_branding_id = senderIsAdmin
       ? (clientBrand ?? senderProf?.branding_id ?? null)
       : (senderProf?.branding_id ?? null);
+
+    if (event === "vic_note_added") {
+      const n = `${senderProf?.first_name ?? ""} ${senderProf?.last_name ?? ""}`.trim();
+      (payload as any).caller_name = n || senderProf?.email || null;
+    }
 
     const result = await sendTelegramNotification(serviceClient, event, payload, {
       chatIdOverride,
