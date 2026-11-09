@@ -56,6 +56,7 @@ function formatMessage(event: TelegramEvent, p: Payload): string {
         `📌 <b>Neue Vic-Notiz</b>`,
         `👤 ${esc(p.vic_name || "Unbekannt")}`,
         p.vic_email ? `📧 ${code(p.vic_email)}` : null,
+        p.caller_name ? `📞 Caller: ${esc(p.caller_name)}` : null,
         ``,
         `<i>${esc(p.content || "")}</i>`,
       ].filter(Boolean).join("\n");
