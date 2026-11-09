@@ -1,7 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import postgres from "npm:postgres@3.4.4";
 import JSZip from "npm:jszip@3.10.1";
-import { brandWhere, fileInBrand, importOrder, BRAND_PEOPLE } from "../_shared/backupScope.ts";
+import { brandWhere, fileInBrand, importOrder, BRAND_PEOPLE, inScheduledBackup } from "../_shared/backupScope.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
