@@ -460,6 +460,27 @@ export type Database = {
           },
         ]
       }
+      instructions: {
+        Row: {
+          content: string
+          id: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: string
+          id?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: string
+          id?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       lead_activity: {
         Row: {
           action: string
