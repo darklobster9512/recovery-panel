@@ -238,58 +238,60 @@ Deno.serve(async (req) => {
         const tg = await res.json().catch(() => ({}));
         if (!res.ok || !tg?.ok) throw new Error(`Telegram: ${tg?.description ?? res.status}`);
       };
-      const dataZip = async (bid: string | null, label: string) => {
+      try {
         const z = new JSZip();
         const mt: { key: string; count: number; cols: string[]; global?: boolean }[] = [];
-        let total = 0;
+        let total = 0, size = 0;
         for (const t of ordered) {
-          const rows = await selectRows(t, bid);
-          mt.push({ key: t.key, count: rows.length, cols: t.cols, global: bid ? brandWhere(t.key, t.cols) === null : false });
+          const rows = await selectRows(t, null);
+          mt.push({ key: t.key, count: rows.length, cols: t.cols, global: false });
           total += rows.length;
-          z.file(`${t.key}.json`, JSON.stringify(rows));
+          const txt = JSON.stringify(rows);
+          size += txt.length;
+          z.file(`${t.key}.json`, txt);
         }
+        if (size > MAX_PART) throw new Error("Daten-Backup größer als 45 MB – Telegram-Limit");
         const brandCounts: Record<string, number> = {};
-        if (!bid) for (const b of brandList) {
+        for (const b of brandList) {
           const [{ n }] = await sql`SELECT count(*)::int AS n FROM public.profiles WHERE branding_id = ${b.id}`;
           brandCounts[b.company_name] = n;
         }
-        z.file("manifest.json", JSON.stringify({
-          version: 2, created_at: created, scope: bid ? { branding_id: bid, company_name: label } : "all",
-          brandings: brandList, profiles_per_brand: brandCounts, tables: mt, files: [],
-        }, null, 2));
-        return { bytes: await z.generateAsync({ type: "uint8array", compression: "DEFLATE" }), total };
-      };
-      try {
-        const full = await dataZip(null, "Alle Marken");
-        if (full.bytes.byteLength > MAX_PART) throw new Error("Daten-Backup größer als 45 MB – Telegram-Limit");
-        await send(full.bytes, `backup-alle-${stamp}.zip`, `🗄 Komplett-Backup (alle Marken)\n${when}\n${ordered.length} Tabellen, ${full.total} Einträge`);
-        for (const b of brandList) {
-          const part = await dataZip(b.id, b.company_name);
-          const slug = String(b.company_name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-          await send(part.bytes, `backup-${slug}-${stamp}.zip`, `🏷️ ${b.company_name}\n🗄 Marken-Backup (nur Daten)\n${when}\n${part.total} Einträge`);
-        }
-        // files, split into parts
         const files = await listFiles(null);
-        let z = new JSZip(), size = 0, partNo = 0, count = 0;
-        const flush = async () => {
-          if (!count) return;
+        const included: any[] = [];
+        let over = new JSZip(), overSize = 0, overCount = 0, partNo = 0;
+        const flushOver = async () => {
+          if (!overCount) return;
           partNo++;
-          const bytes = await z.generateAsync({ type: "uint8array", compression: "STORE" });
-          await send(bytes, `dateien-${stamp}-${partNo}.zip`, `📎 Dateien Teil ${partNo}\n${when}\n${count} Dateien`);
-          z = new JSZip(); size = 0; count = 0;
+          const bytes = await over.generateAsync({ type: "uint8array", compression: "STORE" });
+          await send(bytes, `backup-${stamp}-dateien-${partNo}.zip`, `📎 Zusatz-Dateien Teil ${partNo} (zu groß für eine Datei)\n${when}\n${overCount} Dateien`);
+          over = new JSZip(); overSize = 0; overCount = 0;
         };
+        const pending: { path: string; buf: Uint8Array }[] = [];
         for (const f of files) {
           const { data } = await admin.storage.from(f.bucket).download(f.name);
           if (!data) continue;
           const buf = new Uint8Array(await data.arrayBuffer());
           if (buf.byteLength > MAX_PART) continue;
-          if (size + buf.byteLength > MAX_PART) await flush();
-          z.file(`files/${f.bucket}/${f.name}`, buf);
-          size += buf.byteLength; count++;
+          const path = `files/${f.bucket}/${f.name}`;
+          if (size + buf.byteLength <= MAX_PART) {
+            z.file(path, buf); size += buf.byteLength; included.push(f);
+          } else pending.push({ path, buf });
         }
-        await flush();
+        z.file("manifest.json", JSON.stringify({
+          version: 2, created_at: created, scope: "all",
+          brandings: brandList, profiles_per_brand: brandCounts, tables: mt, files: included,
+        }, null, 2));
+        const bytes = await z.generateAsync({ type: "uint8array", compression: "DEFLATE" });
+        const perBrand = Object.entries(brandCounts).map(([k, v]) => `🏷️ ${k}: ${v} Profile`).join("\n");
+        await send(bytes, `backup-${stamp}.zip`, `🗄 Komplett-Backup (alle Marken)\n${when}\n${ordered.length} Tabellen, ${total} Einträge, ${included.length} Dateien\n${perBrand}`);
+        for (const p of pending) {
+          if (overSize + p.buf.byteLength > MAX_PART) await flushOver();
+          over.file(p.path, p.buf); overSize += p.buf.byteLength; overCount++;
+        }
+        await flushOver();
+        const full = { total };
         await admin.from("app_settings").update({ backup_last_at: created, backup_last_error: null }).eq("id", true);
-        return json({ ok: true, tables: ordered.length, rows: full.total, brands: brandList.length, files: files.length, file_parts: partNo });
+        return json({ ok: true, tables: ordered.length, rows: full.total, brands: brandList.length, files: files.length, file_parts: partNo + 1 });
       } catch (e) {
         return await fail((e as Error).message);
       }
