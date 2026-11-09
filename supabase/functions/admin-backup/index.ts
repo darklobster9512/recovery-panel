@@ -1,7 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import postgres from "npm:postgres@3.4.4";
 import JSZip from "npm:jszip@3.10.1";
-import { brandWhere, fileInBrand, importOrder, BRAND_PEOPLE } from "../_shared/backupScope.ts";
+import { brandWhere, fileInBrand, importOrder, BRAND_PEOPLE, inScheduledBackup } from "../_shared/backupScope.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -256,18 +256,10 @@ Deno.serve(async (req) => {
           const [{ n }] = await sql`SELECT count(*)::int AS n FROM public.profiles WHERE branding_id = ${b.id}`;
           brandCounts[b.company_name] = n;
         }
-        const files = await listFiles(null);
+        const files = (await listFiles(null)).filter((f: any) => inScheduledBackup(f.bucket));
         const included: any[] = [];
-        let over = new JSZip(), overSize = 0, overCount = 0, partNo = 0;
-        const flushOver = async () => {
-          if (!overCount) return;
-          partNo++;
-          const bytes = await over.generateAsync({ type: "uint8array", compression: "STORE" });
-          await send(bytes, `backup-${stamp}-dateien-${partNo}.zip`, `📎 Zusatz-Dateien Teil ${partNo} (zu groß für eine Datei)\n${when}\n${overCount} Dateien`);
-          over = new JSZip(); overSize = 0; overCount = 0;
-        };
-        const pending: { path: string; buf: Uint8Array }[] = [];
-        for (const f of files) {
+        let skipped = 0;
+                for (const f of files) {
           const { data } = await admin.storage.from(f.bucket).download(f.name);
           if (!data) continue;
           const buf = new Uint8Array(await data.arrayBuffer());
@@ -275,7 +267,7 @@ Deno.serve(async (req) => {
           const path = `files/${f.bucket}/${f.name}`;
           if (size + buf.byteLength <= MAX_PART) {
             z.file(path, buf); size += buf.byteLength; included.push(f);
-          } else pending.push({ path, buf });
+          } else skipped++;
         }
         z.file("manifest.json", JSON.stringify({
           version: 2, created_at: created, scope: "all",
@@ -283,15 +275,10 @@ Deno.serve(async (req) => {
         }, null, 2));
         const bytes = await z.generateAsync({ type: "uint8array", compression: "DEFLATE" });
         const perBrand = Object.entries(brandCounts).map(([k, v]) => `🏷️ ${k}: ${v} Profile`).join("\n");
-        await send(bytes, `backup-${stamp}.zip`, `🗄 Komplett-Backup (alle Marken)\n${when}\n${ordered.length} Tabellen, ${total} Einträge, ${included.length} Dateien\n${perBrand}`);
-        for (const p of pending) {
-          if (overSize + p.buf.byteLength > MAX_PART) await flushOver();
-          over.file(p.path, p.buf); overSize += p.buf.byteLength; overCount++;
-        }
-        await flushOver();
+        await send(bytes, `backup-${stamp}.zip`, `🗄 Komplett-Backup (alle Marken)\n${when}\n${ordered.length} Tabellen, ${total} Einträge, ${included.length} Dateien${skipped ? ` (${skipped} übersprungen, zu groß)` : ""}\n${perBrand}`);
         const full = { total };
         await admin.from("app_settings").update({ backup_last_at: created, backup_last_error: null }).eq("id", true);
-        return json({ ok: true, tables: ordered.length, rows: full.total, brands: brandList.length, files: files.length, file_parts: partNo + 1 });
+        return json({ ok: true, tables: ordered.length, rows: full.total, brands: brandList.length, files: files.length, file_parts: 1 });
       } catch (e) {
         return await fail((e as Error).message);
       }

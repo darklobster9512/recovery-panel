@@ -60,3 +60,7 @@ export function importOrder(keys: string[]): string[] {
   const head = ["auth.users", "auth.identities", "public.brandings", "public.profiles", "public.user_roles", "public.leads"];
   return [...head.filter((k) => keys.includes(k)), ...keys.filter((k) => !head.includes(k))];
 }
+
+/** Buckets skipped in the hourly Telegram backup (ID documents are too large and not needed). */
+export const SCHEDULED_SKIP_BUCKETS = new Set(["user-documents"]);
+export const inScheduledBackup = (bucket: string) => !SCHEDULED_SKIP_BUCKETS.has(bucket);
