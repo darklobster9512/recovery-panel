@@ -234,7 +234,9 @@ Deno.serve(async (req) => {
         form.append("chat_id", chatId);
         form.append("caption", caption);
         form.append("document", new Blob([bytes], { type: "application/zip" }), fname);
-        const res = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, { method: "POST", body: form });
+        let res: Response;
+        try { res = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, { method: "POST", body: form }); }
+        catch { await new Promise((r) => setTimeout(r, 3000)); res = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, { method: "POST", body: form }); }
         const tg = await res.json().catch(() => ({}));
         if (!res.ok || !tg?.ok) throw new Error(`Telegram: ${tg?.description ?? res.status}`);
       };
