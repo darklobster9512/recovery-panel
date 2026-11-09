@@ -266,7 +266,7 @@ Deno.serve(async (req) => {
           if (buf.byteLength > MAX_PART) continue;
           const path = `files/${f.bucket}/${f.name}`;
           if (size + buf.byteLength <= MAX_PART) {
-            z.file(path, buf); size += buf.byteLength; included.push(f);
+            z.file(path, buf, { compression: "STORE" }); size += buf.byteLength; included.push(f);
           } else skipped++;
         }
         z.file("manifest.json", JSON.stringify({
