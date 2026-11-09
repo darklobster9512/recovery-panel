@@ -1,20 +1,18 @@
-# Verfasser in der Telegram-Meldung "Neue Vic-Notiz"
+# Caller-Name in der Telegram-Meldung "Neue Vic-Notiz"
 
 ## Was sich ändert
-Die Telegram-Meldung bei einer neuen Vic-Notiz zeigt künftig, wer die Notiz geschrieben hat, z. B.:
+Die Telegram-Meldung bei einer neuen Vic-Notiz zeigt künftig, wer die Notiz geschrieben hat. Das Format ist dasselbe wie bei den anderen Meldungen:
 
 ```text
 📌 Neue Vic-Notiz
 👤 Petra Textor
 📧 petra@...
-✍️ Von: Max Müller (Caller)
+📞 Caller: Julian Maier
 
 "Notiztext..."
 ```
 
-Die Rolle steht in Klammern dabei (Caller, Manager oder Admin), damit man es auch bei Admin-Notizen erkennt.
-
 ## Technische Details
-- `telegram-notify`: bei `vic_note_added` den Namen des eingeloggten Absenders serverseitig aus `profiles` (Vor-/Nachname, sonst E-Mail) und die Rolle aus `user_roles` laden und als `author_name` / `author_role` in den Payload setzen. Serverseitig, damit der Name nicht vom Browser vorgegeben werden kann.
-- `_shared/telegram.ts`: im Fall `vic_note_added` die Zeile `✍️ Von: <Name> (<Rolle>)` ergänzen.
-- `telegram-notify` neu deployen. Keine Änderung an Datenbank oder Oberfläche.
+- `telegram-notify`: bei `vic_note_added` den Namen des eingeloggten Absenders serverseitig aus `profiles` laden (Vor- und Nachname, sonst E-Mail) und als `caller_name` setzen. Das passiert auf dem Server, damit der Browser den Namen nicht vorgeben kann.
+- `_shared/telegram.ts`: im Fall `vic_note_added` die Zeile `📞 Caller: <Name>` ergänzen.
+- `telegram-notify` neu deployen.
