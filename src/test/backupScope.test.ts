@@ -28,3 +28,11 @@ describe("brand backup scope", () => {
       .toEqual(["auth.users", "public.brandings", "public.profiles", "public.todos"]);
   });
 });
+
+import { inScheduledBackup } from "../../supabase/functions/_shared/backupScope";
+describe("hourly backup files", () => {
+  it("skips ID documents but keeps other buckets", () => {
+    expect(inScheduledBackup("user-documents")).toBe(false);
+    expect(inScheduledBackup("chat-attachments")).toBe(true);
+  });
+});
