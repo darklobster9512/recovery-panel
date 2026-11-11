@@ -151,7 +151,7 @@ export default function AdminLivechat() {
     });
     setConvs(list);
     setLoading(false);
-  }, [isAdmin, user?.id]);
+  }, [isAdmin, user?.id, activeBrandingId]);
 
   const loadCallers = useCallback(async () => {
     const { data: roleRows } = await supabase.from("user_roles").select("user_id").eq("role", "caller");

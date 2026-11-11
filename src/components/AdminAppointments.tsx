@@ -68,7 +68,7 @@ export default function AdminAppointments() {
   const [reason, setReason] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [role, user?.id]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [role, user?.id, activeBrandingId]);
   useEffect(() => {
     (async () => {
       setSettingsLoading(true);

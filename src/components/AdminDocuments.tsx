@@ -80,7 +80,7 @@ export default function AdminDocuments() {
 
   useEffect(() => {
     loadGroups();
-  }, []);
+  }, [activeBrandingId]);
 
   const loadGroups = async () => {
     setLoading(true);
