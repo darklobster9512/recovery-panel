@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useActiveBranding } from "@/contexts/BrandingContext";
 import { fetchBrandingProfileIds } from "@/lib/branding";
 import { supabase } from "@/integrations/supabase/client";
