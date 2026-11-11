@@ -35,7 +35,7 @@ export default function AdminReview() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [activeBrandingId]);
 
   const loadData = async () => {
     setLoading(true);

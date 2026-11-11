@@ -95,7 +95,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [activeBrandingId]);
 
   async function loadData() {
     setLoading(true);

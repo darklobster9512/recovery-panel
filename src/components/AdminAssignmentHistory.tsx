@@ -140,10 +140,12 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
 
   useEffect(() => {
     fetchAssignments();
-  }, [refreshToken]);
+  }, [refreshToken, activeBrandingId]);
 
 
+  const fetchSeq = useRef(0);
   const fetchAssignments = async () => {
+    const seq = ++fetchSeq.current;
     if (!refreshToken) setLoading(true);
     let { data: assignmentData, error } = await supabase
       .from("verification_assignments")
@@ -155,6 +157,7 @@ export default function AdminAssignmentHistory({ refreshToken = 0 }: { refreshTo
       return;
     }
     const brandIds = activeBrandingId ? new Set(await fetchBrandingProfileIds(activeBrandingId)) : null;
+    if (seq !== fetchSeq.current) return;
     if (brandIds) assignmentData = assignmentData.filter((a) => brandIds.has(a.user_id));
 
     const userIds = [...new Set(assignmentData.map((a) => a.user_id))];
